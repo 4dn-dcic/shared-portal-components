@@ -1,4 +1,3 @@
-'use strict';
 
 import { isServerSide } from './misc';
 

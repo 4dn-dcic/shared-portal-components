@@ -1,4 +1,3 @@
-'use strict';
 
 var Alerts = null; //require('./../alerts');
 

@@ -1,4 +1,3 @@
-'use strict';
 
 /**
  * Various type definitions used throughout documentation.

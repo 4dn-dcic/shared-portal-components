@@ -1,5 +1,3 @@
-'use strict';
-
 function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
 
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
@@ -714,5 +712,5 @@ TableHeaders.propTypes = {
   /** Below needed to feed into visibleTitle func for e.g. checkbox in column title. */
   'allFiles': PropTypes.arrayOf(PropTypes.object),
   'selectedFiles': PropTypes.objectOf(PropTypes.oneOfType([PropTypes.object, PropTypes.bool])),
-  'handleFileCheckboxChange': PropTypes.func.isRequired
+  'handleFileCheckboxChange': PropTypes.func
 };

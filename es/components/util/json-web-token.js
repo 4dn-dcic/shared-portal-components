@@ -1,5 +1,3 @@
-'use strict';
-
 import _ from 'underscore';
 import memoize from 'memoize-one';
 import { isServerSide } from './misc';

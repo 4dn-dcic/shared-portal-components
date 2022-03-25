@@ -1,5 +1,3 @@
-'use strict'; // @flow
-
 function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
 
 var _excluded = ["children", "hiddenColumns", "columnDefinitions", "filterColumnFxn"];
@@ -203,11 +201,11 @@ export var CustomColumnController = /*#__PURE__*/function (_React$Component) {
 }(React.Component);
 
 _defineProperty(CustomColumnController, "propTypes", {
-  "children": PropTypes.instanceOf(React.Component),
+  "children": PropTypes.element,
   "columnDefinitions": PropTypes.arrayOf(PropTypes.shape({
     'field': PropTypes.string
   })),
-  "defaultHiddenColumns": PropTypes.array
+  "defaultHiddenColumns": PropTypes.object
 });
 
 export var CustomColumnSelector = /*#__PURE__*/function (_React$PureComponent) {

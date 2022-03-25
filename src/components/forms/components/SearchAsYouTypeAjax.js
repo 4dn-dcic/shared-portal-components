@@ -12,6 +12,7 @@ import { LinkToSelector } from './LinkToSelector';
 import { SearchSelectionMenu } from './SearchSelectionMenu';
 
 export class SearchAsYouTypeAjax extends React.PureComponent {
+
     constructor(props) {
         super(props);
         this.state = {
@@ -184,16 +185,16 @@ export class SearchAsYouTypeAjax extends React.PureComponent {
     }
 }
 SearchAsYouTypeAjax.propTypes = {
-    value: PropTypes.any,
-    onChange: PropTypes.func,
-    baseHref: function(props, propName, componentName) {
-        const regex = "^/search/?type=(.+)?$";
+    "value": PropTypes.any,
+    "onChange": PropTypes.func,
+    "baseHref": function(props, propName, componentName) {
+        const regex = /^\/search\/\?type=(.+)?$/;
         if (props[propName] && !props[propName].match(regex)) {
-            return new Error(`Invalid prop '${propName}' supplied to ${componentName}. Validation failed.`);
+            return new Error(`Invalid prop '${propName}' supplied to ${componentName} --> ${props[propName]}. Validation failed.`);
         }
     },
-    fieldsToRequest: PropTypes.arrayOf(PropTypes.string),
-    titleRenderFunction: PropTypes.func
+    "fieldsToRequest": PropTypes.arrayOf(PropTypes.string),
+    "titleRenderFunction": PropTypes.func
 };
 SearchAsYouTypeAjax.defaultProps = {
     "optionRenderFunction" : function(result){

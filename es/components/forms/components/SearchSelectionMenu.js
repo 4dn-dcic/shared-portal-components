@@ -151,7 +151,7 @@ export var SearchSelectionMenu = /*#__PURE__*/function (_React$PureComponent) {
         className: "text-300"
       }, "No value");
       return /*#__PURE__*/React.createElement(Dropdown, {
-        flip: true,
+        flip: "true",
         onToggle: this.onToggleOpen,
         show: dropOpen,
         className: cls

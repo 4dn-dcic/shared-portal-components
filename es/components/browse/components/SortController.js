@@ -1,5 +1,3 @@
-'use strict';
-
 function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
 
 var _excluded = ["query"],
@@ -191,8 +189,10 @@ export var SortController = /*#__PURE__*/function (_React$PureComponent) {
 }(React.PureComponent);
 
 _defineProperty(SortController, "propTypes", {
-  'href': PropTypes.string.isRequired,
-  'context': PropTypes.object.isRequired,
+  /** One of 'href' or 'requestedCompoundFilterSet' is required */
+  'href': PropTypes.string,
+  'requestedCompoundFilterSet': PropTypes.object,
+  'context': PropTypes.object,
   'navigate': PropTypes.func,
   'children': PropTypes.node.isRequired
 });
@@ -385,8 +385,8 @@ export var MultiColumnSortSelector = /*#__PURE__*/function (_React$PureComponent
 }(React.PureComponent);
 MultiColumnSortSelector.propTypes = {
   'columnDefinitions': PropTypes.arrayOf(PropTypes.object).isRequired,
-  'sortColumns': PropTypes.object.isRequired,
-  'onClose': PropTypes.func.isRequired,
+  'sortColumns': PropTypes.array.isRequired,
+  'onClose': PropTypes.func,
   'sortBy': PropTypes.func.isRequired,
   'size': PropTypes.string,
   'variant': PropTypes.string

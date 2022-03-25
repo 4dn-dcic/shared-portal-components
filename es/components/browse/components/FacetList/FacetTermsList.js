@@ -1,5 +1,3 @@
-'use strict';
-
 function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
 
 var _excluded = ["count", "countActive", "height", "width", "ltr", "className"];
@@ -41,6 +39,8 @@ function _assertThisInitialized(self) { if (self === void 0) { throw new Referen
 function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
@@ -236,7 +236,12 @@ export var Term = /*#__PURE__*/function (_React$PureComponent) {
 
   return Term;
 }(React.PureComponent);
-Term.propTypes = {
+/**
+ * @param {*} facetTerms : facet's terms array
+ * @param {*} searchText : search text from basic search input
+ */
+
+_defineProperty(Term, "propTypes", {
   'facet': PropTypes.shape({
     'field': PropTypes.string.isRequired
   }).isRequired,
@@ -249,19 +254,15 @@ Term.propTypes = {
     field: PropTypes.string,
     term: PropTypes.string
   }),
-  'getTermStatus': PropTypes.func.isRequired,
   'onClick': PropTypes.func.isRequired,
   'status': PropTypes.oneOf(["none", "selected", "omitted"]),
   'termTransformFxn': PropTypes.func,
   'useRadioIcon': PropTypes.bool.isRequired
-};
-Term.defaultProps = {
+});
+
+_defineProperty(Term, "defaultProps", {
   'useRadioIcon': false
-};
-/**
- * @param {*} facetTerms : facet's terms array
- * @param {*} searchText : search text from basic search input
- */
+});
 
 export function getFilteredTerms(facetTerms, searchText) {
   var retDict = {};
@@ -687,6 +688,15 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
         }, expandButtonTitle)))
       }));
     } else {
+      // TODO: Finish later maybe, or remove
+      // if (!facetSearch && termComponents.length === 0) {
+      //     // No options/terms available; usually only case where no results found.
+      //     return (
+      //         <div {...commonProps}>
+      //             <em className="text-secondary small">No options.</em>
+      //         </div>
+      //     );
+      // }
       return /*#__PURE__*/React.createElement("div", commonProps, /*#__PURE__*/React.createElement(PartialList, {
         className: "mb-0 active-terms-pl",
         open: facetOpen,

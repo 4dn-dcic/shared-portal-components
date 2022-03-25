@@ -1,5 +1,3 @@
-'use strict';
-
 function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
 
 var _excluded = ["href", "context", "navigate", "currentAction", "searchHref", "renderSearchResultTable", "columns", "hideColumns", "facets", "aboveTableComponent", "aboveFacetListComponent", "facetListComponent", "columnExtensionMap", "onLoad", "filterFacetFxn", "filterColumnFxn", "windowWidth", "embeddedTableHeader", "embeddedTableFooter", "onClearFiltersVirtual", "isClearFiltersBtnVisible", "facetColumnClassName", "tableColumnClassName", "allowPostRequest"];
@@ -202,7 +200,7 @@ _defineProperty(EmbeddedSearchView, "propTypes", {
   // Or, `props.columns` provides opportunity to override `props.context.columns`. Depends how look at it.
   'columns': PropTypes.object,
   'columnExtensionMap': PropTypes.object,
-  'session': PropTypes.bool.isRequired,
+  'session': PropTypes.bool,
   'schemas': PropTypes.object,
   'windowWidth': PropTypes.number,
   'renderSearchResultTable': PropTypes.bool,

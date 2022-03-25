@@ -1,5 +1,3 @@
-'use strict';
-
 import React, { useMemo, useCallback } from 'react';
 import _ from 'underscore';
 import { Alerts } from './../../ui/Alerts';

@@ -1,5 +1,3 @@
-'use strict';
-
 var _excluded = ["initialContext", "initialHref"],
     _excluded2 = ["step", "option"];
 

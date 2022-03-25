@@ -1,6 +1,3 @@
-'use strict';
-/* @flow */
-
 function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
 
 var _excluded = ["columnDefinitions", "mounted", "columnWidths", "windowWidth"];
@@ -44,7 +41,7 @@ import _ from 'underscore';
 import queryString from 'querystring';
 import memoize from 'memoize-one';
 import ReactTooltip from 'react-tooltip';
-import Infinite from '@4dn-dcic/react-infinite/build/react-infinite';
+import Infinite from '@4dn-dcic/react-infinite/es/react-infinite';
 import { Detail } from './../../ui/ItemDetailList';
 import * as analytics from './../../util/analytics';
 import * as logger from '../../util/logger';
@@ -722,20 +719,20 @@ _defineProperty(LoadMoreAsYouScroll, "propTypes", {
   'maxHeight': PropTypes.number,
   'tableContainerScrollLeft': PropTypes.number.isRequired,
   // From parent
-  'tableContainerWidth': PropTypes.number.isRequired,
-  // From parent
+  'tableContainerWidth': PropTypes.number,
+  // From parent; required but may be null if table not visible/displayed in DOM.
   'setResults': PropTypes.func.isRequired,
   // From parent
   'openDetailPanes': PropTypes.objectOf(PropTypes.oneOfType([PropTypes.number, PropTypes.bool])).isRequired,
   // From parent
   'canLoadMore': PropTypes.bool.isRequired,
   // From parent
-  'children': PropTypes.arrayOf(PropTypes.element).isRequired,
+  'children': PropTypes.any,
   // From parent
   'mounted': PropTypes.bool,
   'onDuplicateResultsFoundCallback': PropTypes.func,
   'navigate': PropTypes.func,
-  'openRowHeight': PropTypes.number.isRequired
+  'openRowHeight': PropTypes.number
 });
 
 _defineProperty(LoadMoreAsYouScroll, "defaultProps", {
@@ -1492,7 +1489,7 @@ export var SearchResultTable = /*#__PURE__*/function (_React$Component3) {
 }(React.Component);
 
 _defineProperty(SearchResultTable, "propTypes", {
-  'results': PropTypes.arrayOf(ResultRow.propTypes.result).isRequired,
+  'results': PropTypes.arrayOf(ResultRow.propTypes.result),
   // Either href or requestedCompoundFilterSet should be present:
   'href': PropTypes.string,
   'requestedCompoundFilterSet': PropTypes.object,
@@ -1501,16 +1498,18 @@ _defineProperty(SearchResultTable, "propTypes", {
     'lg': PropTypes.number.isRequired,
     'md': PropTypes.number.isRequired,
     'sm': PropTypes.number.isRequired
-  }).isRequired,
+  }),
   'hiddenColumns': PropTypes.objectOf(PropTypes.bool),
   // One of the following 2 is recommended for custom detail panes:
   'renderDetailPane': PropTypes.func,
   'detailPane': PropTypes.element,
   'context': PropTypes.shape({
     'total': PropTypes.number.isRequired
-  }).isRequired,
-  'windowWidth': PropTypes.number.isRequired,
-  'registerWindowOnScrollHandler': PropTypes.func.isRequired,
+  }),
+  // Required when is on own page
+  'windowWidth': PropTypes.number,
+  // Required when is on own page
+  'registerWindowOnScrollHandler': PropTypes.func,
   'columnExtensionMap': PropTypes.objectOf(PropTypes.shape({
     "title": PropTypes.string.isRequired,
     "widthMap": PropTypes.shape({

@@ -1,5 +1,3 @@
-'use strict';
-
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
 
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
@@ -43,7 +41,7 @@ import PropTypes from 'prop-types';
 import _ from 'underscore';
 import memoize from 'memoize-one';
 import ReactTooltip from 'react-tooltip';
-import JSONTree from 'react-json-tree';
+import { JSONTree } from 'react-json-tree';
 import { isAnItem, itemUtil, isAnAttachment, tipsFromSchema, TooltipInfoIconContainer, getNestedProperty } from './../util/object';
 import { isPrimitive } from './../util/misc';
 import { patchedConsoleInstance as console } from './../util/patched-console';
@@ -1069,7 +1067,8 @@ export var Detail = /*#__PURE__*/function (_React$PureComponent2) {
           return /*#__PURE__*/React.createElement("a", {
             key: item,
             href: item,
-            target: popLink ? "_blank" : null
+            target: popLink ? "_blank" : null,
+            rel: "noreferrer noopener"
           }, item);
         }
 

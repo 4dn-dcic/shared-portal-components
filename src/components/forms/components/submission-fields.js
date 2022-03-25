@@ -1,19 +1,17 @@
-'use strict';
-
 import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
 import ReactTooltip from 'react-tooltip';
-import InputGroup from 'react-bootstrap/esm/InputGroup';
 import FormControl from 'react-bootstrap/esm/FormControl';
 import DropdownItem from 'react-bootstrap/esm/DropdownItem';
 import DropdownButton from 'react-bootstrap/esm/DropdownButton';
+import ProgressBar from 'react-bootstrap/esm/ProgressBar';
+
 
 import Fade from 'react-bootstrap/esm/Fade';
 import { Checkbox } from './Checkbox';
 import { ajax, console, object, valueTransforms } from './../../util';
 import { BasicStaticSectionBody } from './../../static-pages/BasicStaticSectionBody';
-import { Line as ProgressBar } from 'rc-progress';
 import { SearchAsYouTypeLocal } from './SearchAsYouTypeLocal';
 import { SubmissionViewSearchAsYouTypeAjax, SquareButton, LinkedObj } from './SearchAsYouTypeAjax';
 import { Alerts } from './../../ui/Alerts';
@@ -616,7 +614,7 @@ class ObjectField extends React.PureComponent {
             return null;
         }
         return schemaVal;
-    }
+    };
 
     render(){
         const { schema: objectSchema, value: parentObject, nestedField: propNestedField, isMultiSelect } = this.props;
@@ -958,7 +956,7 @@ class S3FileInput extends React.Component{
                                 <div className="pull-left">{ percentDone + "% complete"}</div>
                                 <div className="pull-right">{"Total size: " + sizeUploaded}</div>
                             </div>
-                            <ProgressBar percent={percentDone} strokeWidth="1" strokeColor="#388a92" />
+                            <ProgressBar now={percentDone} animated />
                         </div>
                     </div>
                     :
@@ -1111,11 +1109,11 @@ export class AliasInputField extends React.Component {
             );
         } else { // Only 1 submits_for lab or 0 submits_for -- fallback to staticy thingy
             firstPartSelect = (
-                <InputGroup.Prepend className="alias-lab-single-option">
+                <div className="input-group-prepend">
                     <span className="input-group-text">
                         { currFirstPartValue }
                     </span>
-                </InputGroup.Prepend>
+                </div>
             );
         }
 

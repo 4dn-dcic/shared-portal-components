@@ -1,10 +1,3 @@
-'use strict';
-/*
-This file contains utilities specific to the SubmissionView component. Many of these are helpers for
-managing the top level state of that component/its children. They are organized within their categories
-(context, hierarchy, miscellanous) alphabetically.
-*/
-
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
 
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
@@ -19,6 +12,11 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
 
 function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
 
+/*
+This file contains utilities specific to the SubmissionView component. Many of these are helpers for
+managing the top level state of that component/its children. They are organized within their categories
+(context, hierarchy, miscellanous) alphabetically.
+*/
 import _ from 'underscore';
 import { console, JWT, object } from './';
 import * as logger from '../util/logger';

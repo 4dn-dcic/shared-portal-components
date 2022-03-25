@@ -102,7 +102,7 @@ export class SearchSelectionMenu extends React.PureComponent {
         const cls = "search-selection-menu" + (className? " " + className : "");
         const showValue = (value && titleRenderFunction(value)) || <span className="text-300">No value</span>;
         return (
-            <Dropdown flip onToggle={this.onToggleOpen} show={dropOpen} className={cls}>
+            <Dropdown flip="true" onToggle={this.onToggleOpen} show={dropOpen} className={cls}>
                 <Dropdown.Toggle {...{ variant }} data-tip={showTips ? value : null}>{ showValue }</Dropdown.Toggle>
                 <Dropdown.Menu key={refreshKey} as={SearchSelectionMenuBody} {...{ onTextInputChange, optionsHeader, optionsFooter, currentTextValue }}
                     flip show={dropOpen} onTextInputChange={onTextInputChange} toggleOpen={this.onToggleOpen} ref={this.dropdown} onKeyDown={this.onKeyDown}>
