@@ -111,6 +111,10 @@ LocalizedTime.defaultProps = {
   className: "localized-date-time",
   localize: true
 };
+/**
+ * @see https://date-fns.org/v2.28.0/docs/format
+ */
+
 export function preset() {
   var formatType = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'date-md';
   var dateTimeSeparator = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : " ";
@@ -122,7 +126,7 @@ export function preset() {
 
       case 'date-xs':
         // 11/03/2016 (for USA, localized for other places)
-        return "L";
+        return "P";
 
       case 'date-sm':
         // Nov 3rd, 2016
