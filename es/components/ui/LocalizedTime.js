@@ -23,15 +23,10 @@ function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.g
 import React from 'react';
 import PropTypes from 'prop-types';
 import memoize from 'memoize-one';
-import moment from 'moment';
+import { parseISO, format as formatDate, isValid } from "date-fns";
+import { format as localFormat, zonedTimeToUtc, utcToZonedTime } from "date-fns-tz";
+import { enUS } from "date-fns/locale";
 import { isServerSide } from './../util/misc';
-/**
- * @deprecated
- * This is deprecated and should be used lightly.
- * We should consider alternatives.
- * @see https://momentjs.com/docs/#/-project-status/
- */
-
 export var LocalizedTime = /*#__PURE__*/function (_React$Component) {
   _inherits(LocalizedTime, _React$Component);
 
@@ -44,10 +39,11 @@ export var LocalizedTime = /*#__PURE__*/function (_React$Component) {
 
     _this = _super.call(this, props);
     _this.memoized = {
-      getMoment: memoize(function (momentDate, timestamp) {
-        if (momentDate) return momentDate;
-        if (timestamp) return moment.utc(timestamp);
-        return moment.utc();
+      getDateFns: memoize(function (dateFnsDate, timestamp) {
+        var parsedTime = zonedTimeToUtc(timestamp);
+        if (dateFnsDate) return dateFnsDate;
+        if (timestamp) return parsedTime;
+        return new Date();
       })
     };
     _this.state = {
@@ -72,19 +68,19 @@ export var LocalizedTime = /*#__PURE__*/function (_React$Component) {
           localize = _this$props.localize,
           customOutputFormat = _this$props.customOutputFormat,
           className = _this$props.className,
-          momentDate = _this$props.momentDate,
+          dateFnsDate = _this$props.dateFnsDate,
           timestamp = _this$props.timestamp;
       var mounted = this.state.mounted;
-      var selfMoment = this.memoized.getMoment(momentDate, timestamp);
+      var selfDateFns = this.memoized.getDateFns(dateFnsDate, timestamp);
 
       if (!mounted || isServerSide()) {
         return /*#__PURE__*/React.createElement("span", {
           className: className + ' utc'
-        }, display(selfMoment, formatType, dateTimeSeparator, false, customOutputFormat));
+        }, display(selfDateFns, formatType, dateTimeSeparator, false, customOutputFormat));
       } else {
         return /*#__PURE__*/React.createElement("span", {
           className: className + (localize ? ' local' : ' utc')
-        }, display(selfMoment, formatType, dateTimeSeparator, localize, customOutputFormat));
+        }, display(selfDateFns, formatType, dateTimeSeparator, localize, customOutputFormat));
       }
     }
   }]);
@@ -92,9 +88,9 @@ export var LocalizedTime = /*#__PURE__*/function (_React$Component) {
   return LocalizedTime;
 }(React.Component);
 LocalizedTime.propTypes = {
-  momentDate: function momentDate(props, propName) {
-    if (props[propName] && !moment.isMoment(props[propName])) {
-      return new Error("momentDate must be an instance of Moment.");
+  dateFnsDate: function dateFnsDate(props, propName) {
+    if (props[propName] && !isValid(props[propName])) {
+      return new Error("dateFnsDate must be an instance of date-fns.");
     }
   },
   timestamp: PropTypes.string,
@@ -106,7 +102,7 @@ LocalizedTime.propTypes = {
   className: PropTypes.string
 };
 LocalizedTime.defaultProps = {
-  momentDate: null,
+  dateFnsDate: null,
   timestamp: null,
   formatType: 'date-md',
   dateTimeSeparator: ' ',
@@ -122,7 +118,7 @@ export function preset() {
   function date(ft) {
     switch (ft) {
       case 'date-file':
-        return "YYYY-MM-DD";
+        return "yyyy-MM-dd";
 
       case 'date-xs':
         // 11/03/2016 (for USA, localized for other places)
@@ -130,48 +126,48 @@ export function preset() {
 
       case 'date-sm':
         // Nov 3rd, 2016
-        return "MMM Do, YYYY";
+        return "MMM do, yyyy";
 
       case 'date-md':
         // November 3rd, 2016   (default)
-        return "MMMM Do, YYYY";
+        return "MMMM do, yyyy";
 
       case 'date-lg':
         // Thursday, November 3rd, 2016
-        return "dddd, MMMM Do, YYYY";
+        return "dddd, MMMM do, yyyy";
 
       case 'date-month':
         // November 2016
-        return "MMMM YYYY";
+        return "MMMM yyyy";
 
       case 'date-year':
         // November 2016
-        return "YYYY";
+        return "yyyy";
     }
   }
 
   function time(ft) {
     switch (ft) {
       case 'time-file':
-        return "HH[h]-mm[m]";
+        return "HH'h'-mm'm'";
 
       case 'time-xs':
         // 12pm
-        return "ha";
+        return "haaa";
 
       case 'time-sm':
       case 'time-md':
         // 12:27pm
-        return "h:mma";
+        return "h:mmaaa";
 
       case 'time-lg':
         // 12:27:34 pm
-        return "h:mm:ss a";
+        return "h:mm:ss aaa";
     }
   }
 
   if (formatType.indexOf('date-time-') > -1) {
-    return date(formatType.replace('time-', '')) + '[' + dateTimeSeparator + ']' + time(formatType.replace('date-', ''));
+    return date(formatType.replace('time-', '')) + "'" + dateTimeSeparator.concat() + "'" + time(formatType.replace('date-', ''));
   } else if (formatType.indexOf('date-') > -1) {
     return date(formatType);
   } else if (formatType.indexOf('time-') > -1) {
@@ -196,9 +192,9 @@ export function format(timestamp) {
   var dateTimeSeparator = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : " ";
   var localize = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
   var customOutputFormat = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : null;
-  return display(moment.utc(timestamp), formatType, dateTimeSeparator, localize, customOutputFormat);
+  return display(parseISO(timestamp), formatType, dateTimeSeparator, localize, customOutputFormat);
 }
-export function display(momentObj) {
+export function display(dateObj) {
   var formatType = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'date-md';
   var dateTimeSeparator = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : " ";
   var localize = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
@@ -212,10 +208,10 @@ export function display(momentObj) {
   }
 
   if (localize) {
-    return momentObj.local().format(outputFormat);
+    return localFormat(utcToZonedTime(dateObj), outputFormat);
   }
 
-  return momentObj.format(outputFormat);
+  return formatDate(dateObj, outputFormat);
 }
 /**
  * This function is meant to accept a UTC/GMT date string
@@ -242,15 +238,13 @@ export function formatPublicationDate(utcDate) {
   if (includeMonth && utcDate.length >= 7) {
     monthString = utcDate.slice(5, 7);
     monthIndex = parseInt(monthString) - 1; // 0-based.
-    // @see https://momentjs.com/docs/#/i18n/listing-months-weekdays/
 
-    monthString = moment.months()[monthIndex];
+    monthString = enUS.localize.month(monthIndex);
 
     if (includeDay && utcDate.length >= 10) {
       dayString = utcDate.slice(8, 10);
-      dayInteger = parseInt(dayString); // @see https://momentjs.com/docs/#/i18n/locale-data/
-
-      dayString = moment.localeData().ordinal(dayInteger);
+      dayInteger = parseInt(dayString);
+      dayString = enUS.localize.ordinalNumber(dayInteger);
       return monthString + ' ' + dayString + ', ' + yearString;
     }
 

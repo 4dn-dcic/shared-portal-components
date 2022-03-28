@@ -4,7 +4,6 @@ var Alerts = null; //require('./../alerts');
 import _ from 'underscore';
 import url from 'url';
 import queryString from 'query-string';
-import moment from 'moment';
 import { navigate } from './navigate';
 import { isServerSide } from './misc';
 
@@ -31,13 +30,15 @@ export function getUnselectHrefIfSelectedFromResponseFilters(term, facet, filter
         if (facet.aggregation_type === 'range'){
             toFilter    = _.findWhere(filters, { 'field' : field + '.to',   'term' : term.to }),
             fromFilter  = _.findWhere(filters, { 'field' : field + '.from', 'term' : term.from });
-        } else if (facet.aggregation_type === 'date_histogram'){
-            var interval = getDateHistogramIntervalFromFacet(facet) || 'month',
-                toDate = moment.utc(term.key);
-            toDate.add(1, interval + 's');
-            toFilter    = _.findWhere(filters, { 'field' : field + '.to',   'term' : toDate.format().slice(0,10) }),
-            fromFilter  = _.findWhere(filters, { 'field' : field + '.from', 'term' : term.key });
-        } else {
+        }
+        //else if (facet.aggregation_type === 'date_histogram'){
+        // var interval = getDateHistogramIntervalFromFacet(facet) || 'month',
+        //     toDate = moment.utc(term.key);
+        // toDate.add(1, interval + 's');
+        // toFilter    = _.findWhere(filters, { 'field' : field + '.to',   'term' : toDate.format().slice(0,10) }),
+        // fromFilter  = _.findWhere(filters, { 'field' : field + '.from', 'term' : term.key });
+        //}
+        else {
             throw new Error('Histogram not currently supported.');
             // Todo: var interval = ....
         }
