@@ -10,7 +10,6 @@
     "module": "./es",
     "scripts": {
         "build": "rm -rf ./es/* && npx babel ./src --out-dir ./es --env-name esm",
-        "test": "echo \"Error: no test specified\" && exit 1"
     },
     "author": "HMS DBMI/BGM",
     "license": "MIT",
