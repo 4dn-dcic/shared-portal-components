@@ -22,8 +22,8 @@ First, if not already the case, clone both parent/portal repo as well as this re
 
 3. From **child** component:
    - `npm link` (if not globally linked already)
-   - `node ./setup-npm-links-for-local-development.js <path_to_parent_repo>`
-       - e.g. _`<path_to_parent_repo>`_ might be `../../cgap_portal`.
+   - **NO LONGER NEEDED:** ~~`node ./setup-npm-links-for-local-development.js <path_to_parent_repo>`~~
+       - ~~e.g. _`<path_to_parent_repo>`_ might be `../../cgap_portal`.~~
 
 4. From **parent** component:
    - `npm link @hms-dbmi-bgm/shared-portal-components`
