@@ -2,7 +2,6 @@ import React, { useMemo, useState, useRef } from 'react';
 import memoize from 'memoize-one';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
-import Fade from 'react-bootstrap/esm/Fade';
 
 import Popover from 'react-bootstrap/esm/Popover';
 

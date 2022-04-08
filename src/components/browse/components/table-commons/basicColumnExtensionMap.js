@@ -180,7 +180,8 @@ export const DisplayTitleColumnWrapper = React.memo(function(props){
         //href = null,
         context,
         rowNumber, detailOpen, toggleDetailOpen,
-        onClick: propOnClick = null
+        onClick: propOnClick = null,
+        link: propLink = null
     } = props;
 
     const link = itemUtil.atId(result);
@@ -211,10 +212,10 @@ export const DisplayTitleColumnWrapper = React.memo(function(props){
             const navTarget = targetUrl || link; // Fallback to atId if no href found
             evt.preventDefault();
             evt.stopPropagation();
-            const useHref = (window && window.location.href) || null;
+            const trackingHref = (window && window.location.href) || null;
             trackProductClick(
                 result,
-                { list : hrefToListName(useHref), position: rowNumber + 1 },
+                { list : hrefToListName(trackingHref), position: rowNumber + 1 },
                 function(){
                     // We explicitly use globalPageNavigate here and not props.navigate, as props.navigate might refer
                     // to VirtualHrefController.virtualNavigate and would not bring you to new page.
@@ -230,7 +231,7 @@ export const DisplayTitleColumnWrapper = React.memo(function(props){
         if (!React.isValidElement(child) || typeof child.type === "string") {
             return child;
         }
-        return React.cloneElement(child, { link, onClick, result });
+        return React.cloneElement(child, { "link" : propLink || link, onClick, result });
     });
 
     return (

@@ -52,7 +52,7 @@
         "react-dom": ">=16.14.0",
         "react-bootstrap": "*",
         "react-tooltip": ">=3.11.6",
-        "react-transition-group": ">=4.4.1",
+        "react-transition-group": ">=4.4.2",
         "underscore": ">=1.9.1"
     },
     "dependencies": {

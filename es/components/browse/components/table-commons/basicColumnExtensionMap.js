@@ -236,7 +236,9 @@ export var DisplayTitleColumnWrapper = /*#__PURE__*/React.memo(function (props) 
       detailOpen = props.detailOpen,
       toggleDetailOpen = props.toggleDetailOpen,
       _props$onClick = props.onClick,
-      propOnClick = _props$onClick === void 0 ? null : _props$onClick;
+      propOnClick = _props$onClick === void 0 ? null : _props$onClick,
+      _props$link = props.link,
+      propLink = _props$link === void 0 ? null : _props$link;
   var link = itemUtil.atId(result);
   /** Registers a list click event for Google Analytics then performs navigation. */
 
@@ -272,9 +274,9 @@ export var DisplayTitleColumnWrapper = /*#__PURE__*/React.memo(function (props) 
 
       evt.preventDefault();
       evt.stopPropagation();
-      var useHref = window && window.location.href || null;
+      var trackingHref = window && window.location.href || null;
       trackProductClick(result, {
-        list: hrefToListName(useHref),
+        list: hrefToListName(trackingHref),
         position: rowNumber + 1
       }, function () {
         // We explicitly use globalPageNavigate here and not props.navigate, as props.navigate might refer
@@ -290,7 +292,7 @@ export var DisplayTitleColumnWrapper = /*#__PURE__*/React.memo(function (props) 
     }
 
     return /*#__PURE__*/React.cloneElement(child, {
-      link: link,
+      "link": propLink || link,
       onClick: onClick,
       result: result
     });

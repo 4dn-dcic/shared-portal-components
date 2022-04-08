@@ -117,7 +117,7 @@ export class Term extends React.PureComponent {
         'status'            : PropTypes.oneOf(["none", "selected", "omitted"]),
         'termTransformFxn'  : PropTypes.func,
         'useRadioIcon'     : PropTypes.bool.isRequired
-    }
+    };
 
     static defaultProps = {
         'useRadioIcon': false
