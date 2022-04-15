@@ -162,7 +162,7 @@ export class VerticalScrollContainer extends React.PureComponent {
 
         return (
             <div className="vertical-scroll-container">
-                <Fade in={hasOverflow && canScrollUp} timeout="500" mountOnEnter={true} unmountOnExit={true}>
+                <Fade in={hasOverflow && canScrollUp} timeout={500} mountOnEnter={true} unmountOnExit={true}>
                     <button type="button" className="button-scroll arrow-up d-block text-center w-100"
                         onClick={this.onMouseDownJumpToTop} disabled={!canScrollUp}
                         onMouseOver={this.onMouseOverScrollUp} onMouseOut={this.onMouseUp}>
@@ -176,7 +176,7 @@ export class VerticalScrollContainer extends React.PureComponent {
                         { footer }
                     </ul>
                 </div>
-                <Fade in={hasOverflow && canScrollDown} timeout="500" mountOnEnter={true} unmountOnExit={true}>
+                <Fade in={hasOverflow && canScrollDown} timeout={500} mountOnEnter={true} unmountOnExit={true}>
                     <button type="button" className="button-scroll arrow-down d-block text-center w-100"
                         onClick={this.onMouseDownJumpToBottom} disabled={!canScrollDown}
                         onMouseOver={this.onMouseOverScrollDown} onMouseOut={this.onMouseUp}>
