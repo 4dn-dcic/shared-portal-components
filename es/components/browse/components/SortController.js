@@ -441,7 +441,7 @@ var MultiColumnSortOption = /*#__PURE__*/React.memo(function (props) {
   return /*#__PURE__*/React.createElement("div", {
     className: "row mt-1 multi-column-sort"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "col-8"
+    className: "col-lg-8 col-7"
   }, /*#__PURE__*/React.createElement(DropdownButton, {
     title: title,
     size: size,
@@ -472,7 +472,7 @@ var MultiColumnSortOption = /*#__PURE__*/React.memo(function (props) {
     key: "sort-direction-desc",
     eventKey: index + "|desc"
   }, "Descending"))), /*#__PURE__*/React.createElement("div", {
-    className: "col-1 pl-0"
+    className: "col-lg-1 col-2 pl-0"
   }, !(rowCount - 1 === index) ? /*#__PURE__*/React.createElement("button", {
     type: "button",
     className: "btn btn-".concat(variant, " btn-").concat(size, " btn-block"),
