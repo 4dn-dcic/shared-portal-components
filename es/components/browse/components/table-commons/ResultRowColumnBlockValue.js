@@ -71,7 +71,7 @@ export var ResultRowColumnBlockValue = /*#__PURE__*/function (_React$Component) 
           className = _this$props.className;
 
       if (nextProps.columnNumber === 0 || // Update title column more frequently as it has expansion controls, checkboxes, etc.
-      nextProps.columnDefinition.field !== columnDefinition.field || nextProps.schemas !== schemas || nextProps.result !== result && itemUtil.atId(nextProps.result) !== itemUtil.atId(result) || nextProps.className !== className || typeof nextProps.shouldComponentUpdateExt === 'function' && nextProps.shouldComponentUpdateExt(nextProps, nextState, this.props, this.state)) {
+      nextProps.columnDefinition.field !== columnDefinition.field || nextProps.columnDefinition.render !== columnDefinition.render || nextProps.schemas !== schemas || nextProps.result !== result && itemUtil.atId(nextProps.result) !== itemUtil.atId(result) || nextProps.className !== className || typeof nextProps.shouldComponentUpdateExt === 'function' && nextProps.shouldComponentUpdateExt(nextProps, nextState, this.props, this.state)) {
         return true;
       }
 
