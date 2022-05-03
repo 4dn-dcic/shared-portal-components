@@ -165,6 +165,11 @@ export var SearchSelectionMenu = /*#__PURE__*/function (_React$PureComponent) {
         optionsHeader: optionsHeader,
         optionsFooter: optionsFooter,
         currentTextValue: currentTextValue,
+        style: {
+          margin: 0
+        }
+        /* Style margin:0 is short term workaround to popperJS warning, see: https://github.com/react-bootstrap/react-bootstrap/issues/6017 */
+        ,
         flip: true,
         show: dropOpen
       }, _defineProperty(_React$createElement, "onTextInputChange", onTextInputChange), _defineProperty(_React$createElement, "toggleOpen", this.onToggleOpen), _defineProperty(_React$createElement, "ref", this.dropdown), _defineProperty(_React$createElement, "onKeyDown", this.onKeyDown), _React$createElement), options.map(function (option, idx) {

@@ -239,7 +239,7 @@ export var VerticalScrollContainer = /*#__PURE__*/function (_React$PureComponent
         className: "vertical-scroll-container"
       }, /*#__PURE__*/React.createElement(Fade, {
         "in": hasOverflow && canScrollUp,
-        timeout: "500",
+        timeout: 500,
         mountOnEnter: true,
         unmountOnExit: true
       }, /*#__PURE__*/React.createElement("button", {
@@ -258,7 +258,7 @@ export var VerticalScrollContainer = /*#__PURE__*/function (_React$PureComponent
         className: "scroll-items list-unstyled my-0"
       }, header, items, footer)), /*#__PURE__*/React.createElement(Fade, {
         "in": hasOverflow && canScrollDown,
-        timeout: "500",
+        timeout: 500,
         mountOnEnter: true,
         unmountOnExit: true
       }, /*#__PURE__*/React.createElement("button", {

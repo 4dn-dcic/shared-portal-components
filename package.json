@@ -1,6 +1,6 @@
 {
     "name": "@hms-dbmi-bgm/shared-portal-components",
-    "version": "0.1.44",
+    "version": "0.1.45",
     "description": "Shared components used for DBMI/BGM portal(s).",
     "repository": {
         "type": "git",
@@ -48,8 +48,8 @@
         "memoize-one": "^5.1.1",
         "date-fns": "^2.28.0",
         "query-string": ">=4.3.0",
-        "react": ">=16.14.0",
-        "react-dom": ">=16.14.0",
+        "react": "^17.0.1",
+        "react-dom": "^17.0.1",
         "react-bootstrap": "*",
         "react-tooltip": ">=3.11.6",
         "react-transition-group": ">=4.4.1",

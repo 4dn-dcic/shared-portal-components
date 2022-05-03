@@ -105,6 +105,7 @@ export class SearchSelectionMenu extends React.PureComponent {
             <Dropdown flip="true" onToggle={this.onToggleOpen} show={dropOpen} className={cls}>
                 <Dropdown.Toggle {...{ variant }} data-tip={showTips ? value : null}>{ showValue }</Dropdown.Toggle>
                 <Dropdown.Menu key={refreshKey} as={SearchSelectionMenuBody} {...{ onTextInputChange, optionsHeader, optionsFooter, currentTextValue }}
+                    style={{ margin: 0 } /* Style margin:0 is short term workaround to popperJS warning, see: https://github.com/react-bootstrap/react-bootstrap/issues/6017 */}
                     flip show={dropOpen} onTextInputChange={onTextInputChange} toggleOpen={this.onToggleOpen} ref={this.dropdown} onKeyDown={this.onKeyDown}>
                     {
                         options.map(function(option, idx){
