@@ -353,6 +353,7 @@ class HeadersRowColumn extends React.PureComponent {
                 return ((colWidth - 40) / 7) < (titleStr || "").length;
             })
         };
+        this.widthAdjustNodeRef = React.createRef();
     }
 
     /** Updates HeadersRow.state.widths {Object<string,numer>} */
@@ -401,8 +402,9 @@ class HeadersRowColumn extends React.PureComponent {
                     { sorterIcon }
                 </div>
                 { typeof onAdjusterDrag === "function" ?
-                    <Draggable position={{ x: width, y: 0 }} axis="x" onDrag={this.onDrag} onStop={this.onStop}>
-                        <div className="width-adjuster"/>
+                    <Draggable position={{ x: width, y: 0 }} axis="x" nodeRef={this.widthAdjustNodeRef}
+                        onDrag={this.onDrag} onStop={this.onStop}>
+                        <div className="width-adjuster" ref={this.widthAdjustNodeRef} />
                     </Draggable>
                     : null }
             </div>
@@ -612,13 +614,15 @@ const ColumnSorterIconElement = React.memo(function ColumnSorterIconElement({ de
             <React.Fragment>
                 <i className="sort-icon icon icon-fw icon-sort-down fas align-top" />
                 {sequence}
-            </React.Fragment>);
+            </React.Fragment>
+        );
     } else {
         return (
             <React.Fragment>
                 <i className="sort-icon icon icon-fw icon-sort-up fas align-bottom" />
                 {sequence}
-            </React.Fragment>);
+            </React.Fragment>
+        );
     }
 });
 

@@ -537,6 +537,7 @@ var HeadersRowColumn = /*#__PURE__*/function (_React$PureComponent2) {
         return (colWidth - 40) / 7 < (titleStr || "").length;
       })
     };
+    _this4.widthAdjustNodeRef = /*#__PURE__*/React.createRef();
     return _this4;
   }
   /** Updates HeadersRow.state.widths {Object<string,numer>} */
@@ -616,10 +617,12 @@ var HeadersRowColumn = /*#__PURE__*/function (_React$PureComponent2) {
           y: 0
         },
         axis: "x",
+        nodeRef: this.widthAdjustNodeRef,
         onDrag: this.onDrag,
         onStop: this.onStop
       }, /*#__PURE__*/React.createElement("div", {
-        className: "width-adjuster"
+        className: "width-adjuster",
+        ref: this.widthAdjustNodeRef
       })) : null);
     }
   }]);
