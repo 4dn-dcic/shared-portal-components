@@ -117,7 +117,7 @@ export class Term extends React.PureComponent {
         'status'            : PropTypes.oneOf(["none", "selected", "omitted"]),
         'termTransformFxn'  : PropTypes.func,
         'useRadioIcon'     : PropTypes.bool.isRequired
-    }
+    };
 
     static defaultProps = {
         'useRadioIcon': false
@@ -144,7 +144,9 @@ export class Term extends React.PureComponent {
 
         if (isFiltering) {
             icon = <i className="icon fas icon-circle-notch icon-spin icon-fw" />;
-        } else if (status === 'selected' || status === 'omitted') {
+        } else if (status === "omitted"){
+            icon = <i className={"icon icon-fw fas " + (!useRadioIcon ? "icon-minus-square" : "icon-dot-circle")} />;
+        } else if (status === "selected") {
             icon = <i className={"icon icon-fw fas " + (!useRadioIcon ? "icon-check-square" : "icon-dot-circle")} />;
         } else {
             icon = <i className={"icon icon-fw unselected far " + (!useRadioIcon ? "icon-square" : "icon-circle")} />;

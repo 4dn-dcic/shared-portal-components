@@ -198,7 +198,11 @@ export var Term = /*#__PURE__*/function (_React$PureComponent) {
         icon = /*#__PURE__*/React.createElement("i", {
           className: "icon fas icon-circle-notch icon-spin icon-fw"
         });
-      } else if (status === 'selected' || status === 'omitted') {
+      } else if (status === "omitted") {
+        icon = /*#__PURE__*/React.createElement("i", {
+          className: "icon icon-fw fas " + (!useRadioIcon ? "icon-minus-square" : "icon-dot-circle")
+        });
+      } else if (status === "selected") {
         icon = /*#__PURE__*/React.createElement("i", {
           className: "icon icon-fw fas " + (!useRadioIcon ? "icon-check-square" : "icon-dot-circle")
         });
