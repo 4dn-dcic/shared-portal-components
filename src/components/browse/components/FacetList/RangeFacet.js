@@ -936,11 +936,11 @@ class RangeDropdown extends React.PureComponent {
 
         if (field_type === "date") {
             return (
-                <DropdownButton {...{ variant, disabled, className, size, id }} alignRight title={showTitle} show={showMenu}
+                <DropdownButton {...{ variant, disabled, className, size, id }} title={showTitle} show={showMenu}
                     onToggle={this.toggleDrop} onBlur={this.onBlur} data-tip={tooltip} data-html>
                     <form className="inline-input-container pb-0 mb-0 border-0" onSubmit={this.onTextInputFormSubmit}>
                         <div className="input-element-container">
-                            <input type="date" className="form-control" value={value} data-value={value}
+                            <input type="date" className="form-control" value={value === null ? "" : value} data-value={value}
                                 onKeyDown={this.onTextInputKeyDown} onChange={this.onTextInputChange} />
                         </div>
                         <button type="submit" disabled={!updateAble} className="btn">
@@ -986,12 +986,13 @@ class RangeDropdown extends React.PureComponent {
             });
 
             return (
-                <DropdownButton {...{ variant, disabled, className, size, id }} alignRight onSelect={this.onDropdownSelect}
+                <DropdownButton {...{ variant, disabled, className, size, id }} onSelect={this.onDropdownSelect}
                     title={showTitle} show={showMenu} onToggle={this.toggleDrop} onBlur={this.onBlur} data-tip={tooltip} data-html>
                     <form className={"inline-input-container" + (menuOptions.length > 0 ? " has-options" : "")} onSubmit={this.onTextInputFormSubmit}>
                         <div className="input-element-container">
-                            <input type="number" className="form-control" {...{ value, placeholder, step }}
-                                onKeyDown={this.onTextInputKeyDown} onChange={this.onTextInputChange} />
+                            <input type="number" className="form-control" {...{ placeholder, step }}
+                                onKeyDown={this.onTextInputKeyDown} onChange={this.onTextInputChange}
+                                value={value === null ? "" : value}/>
                         </div>
                         <button type="submit" disabled={!updateAble} className="btn">
                             <i className="icon icon-fw icon-check fas"/>

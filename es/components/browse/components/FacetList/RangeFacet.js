@@ -1194,7 +1194,6 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent3) {
           className: className,
           size: size,
           id: id,
-          alignRight: true,
           title: showTitle,
           show: showMenu,
           onToggle: this.toggleDrop,
@@ -1209,7 +1208,7 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent3) {
         }, /*#__PURE__*/React.createElement("input", {
           type: "date",
           className: "form-control",
-          value: value,
+          value: value === null ? "" : value,
           "data-value": value,
           onKeyDown: this.onTextInputKeyDown,
           onChange: this.onTextInputChange
@@ -1254,7 +1253,6 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent3) {
           className: className,
           size: size,
           id: id,
-          alignRight: true,
           onSelect: this.onDropdownSelect,
           title: showTitle,
           show: showMenu,
@@ -1270,11 +1268,11 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent3) {
         }, /*#__PURE__*/React.createElement("input", {
           type: "number",
           className: "form-control",
-          value: value,
           placeholder: placeholder,
           step: step,
           onKeyDown: this.onTextInputKeyDown,
-          onChange: this.onTextInputChange
+          onChange: this.onTextInputChange,
+          value: value === null ? "" : value
         })), /*#__PURE__*/React.createElement("button", {
           type: "submit",
           disabled: !updateAble,
