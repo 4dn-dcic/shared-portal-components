@@ -1,3 +1,4 @@
+@use "sass:math";
 
 /************** Styles for FacetList ***************/
 
@@ -86,8 +87,8 @@ $facetlist-term-block-height: default !default;
     }
 
     .facets-body {
-        padding-left: ($grid-gutter-width / 2);
-        padding-right: ($grid-gutter-width / 2);
+        padding-left: math.div($grid-gutter-width, 2);
+        padding-right: math.div($grid-gutter-width, 2);
     }
 
     &.with-header-bg .facets-header {

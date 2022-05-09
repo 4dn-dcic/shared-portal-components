@@ -51,7 +51,7 @@ ResultRowColumnBlock.propTypes = {
 /** Not used anywhere (?) */
 const DefaultDetailPane = React.memo(function DefaultDetailPane({ result }){
     return (
-        <div>
+        <div className="w-100">
             {result.description ?
                 <div className="flexible-description-box result-table-result-heading">
                     {result.description}

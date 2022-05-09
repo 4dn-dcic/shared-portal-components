@@ -88,7 +88,9 @@ ResultRowColumnBlock.propTypes = {
 
 var DefaultDetailPane = /*#__PURE__*/React.memo(function (_ref) {
   var result = _ref.result;
-  return /*#__PURE__*/React.createElement("div", null, result.description ? /*#__PURE__*/React.createElement("div", {
+  return /*#__PURE__*/React.createElement("div", {
+    className: "w-100"
+  }, result.description ? /*#__PURE__*/React.createElement("div", {
     className: "flexible-description-box result-table-result-heading"
   }, result.description) : null, /*#__PURE__*/React.createElement("div", {
     className: "item-page-detail"
