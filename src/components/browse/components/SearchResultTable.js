@@ -205,6 +205,7 @@ class ResultRow extends React.PureComponent {
         }).isRequired,
         'rowNumber'         : PropTypes.number.isRequired,
         'rowHeight'         : PropTypes.number,
+        'updateResultAtIndex': PropTypes.func,
         'mounted'           : PropTypes.bool.isRequired,
         'columnDefinitions'     : HeadersRow.propTypes.columnDefinitions,
         'columnWidths' : PropTypes.objectOf(PropTypes.number),
@@ -505,7 +506,7 @@ class LoadMoreAsYouScroll extends React.Component {
                             isOwnPage ? analytics.hrefToListName(nextHref) : "Embedded Search View"
                         );
                         analytics.event('SearchResultTable', "Loaded More Results", { eventValue: nextFromValue });
-                        setResults(existingResults.slice(0).concat(nextResults));
+                        setResults(existingResults.concat(nextResults));
                     });
                 }
             } else {
@@ -756,7 +757,9 @@ class DimensioningContainer extends React.PureComponent {
         this.setContainerScrollLeft = _.throttle(this.setContainerScrollLeft.bind(this), 250);
         this.onHorizontalScroll = this.onHorizontalScroll.bind(this);
         this.setResults = this.setResults.bind(this);
+        this.updateResultAtIndex = this.updateResultAtIndex.bind(this);
         this.canLoadMore = this.canLoadMore.bind(this);
+
         const { results: originalResults = [] } = props;
         this.state = {
             'mounted'   : false,
@@ -768,8 +771,13 @@ class DimensioningContainer extends React.PureComponent {
             originalResults // Reference to original results in order to utilize getDerivedStateFromProps.
         };
 
-        if (this.state.results.length > 0 && Array.isArray(props.defaultOpenIndices) && props.defaultOpenIndices.length > 0){
-            this.state.openDetailPanes[ itemUtil.atId(this.state.results[0]) ] = true;
+        if (Array.isArray(props.defaultOpenIndices) && props.defaultOpenIndices.length > 0) {
+            const lastResultIdx = results.length - 1;
+            props.defaultOpenIndices.forEach((indexToOpen) => {
+                if (isNaN(indexToOpen)) return;
+                if (lastResultIdx < indexToOpen) return;
+                this.state.openDetailPanes[ itemUtil.atId(this.state.results[indexToOpen]) ] = true;
+            });
         }
 
         this.outerRef = React.createRef();
@@ -777,7 +785,9 @@ class DimensioningContainer extends React.PureComponent {
         this.scrollHandlerUnsubscribeFxn = null;
 
         this.memoized = {
-            fullRowWidth: memoize(DimensioningContainer.fullRowWidth)
+            fullRowWidth: memoize(DimensioningContainer.fullRowWidth),
+            // Memoized just to avoid calling results.length too frequently.
+            canLoadMore: memoize(LoadMoreAsYouScroll.canLoadMore)
         };
     }
 
@@ -942,10 +952,18 @@ class DimensioningContainer extends React.PureComponent {
         }, cb);
     }
 
+    updateResultAtIndex(rowNumber, updatedResult, callback) {
+        this.setState(function({ results: existingResults }){
+            const nextResults = existingResults.slice(0);
+            nextResults[rowNumber] = updatedResult;
+            return { results: nextResults };
+        }, callback);
+    }
+
     canLoadMore(){
         const { context : { total = 0 } = {}, isContextLoading = false } = this.props;
         const { results = [] } = this.state;
-        return !isContextLoading && LoadMoreAsYouScroll.canLoadMore(total, results);
+        return !isContextLoading && this.memoized.canLoadMore(total, results);
     }
 
     render(){
@@ -974,7 +992,7 @@ class DimensioningContainer extends React.PureComponent {
             context, navigate, rowHeight, openRowHeight,
             results, openDetailPanes, maxHeight, isOwnPage, fullRowWidth, canLoadMore, anyResults,
             tableContainerWidth, tableContainerScrollLeft, windowWidth, mounted,
-            setResults: this.setResults
+            'setResults': this.setResults
         };
 
         let headersRow = null;
@@ -995,7 +1013,8 @@ class DimensioningContainer extends React.PureComponent {
                 'mounted' : mounted || false,
                 'rowWidth' : fullRowWidth,
                 'toggleDetailPaneOpen' : this.toggleDetailPaneOpen,
-                'setDetailHeight' : this.setDetailHeight
+                'setDetailHeight' : this.setDetailHeight,
+                'updateResultAtIndex': this.updateResultAtIndex
             };
             headersRow = <HeadersRow {...headerRowCommonProps} />;
             shadowBorderLayer = (

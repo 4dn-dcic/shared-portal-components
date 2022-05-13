@@ -464,6 +464,7 @@ _defineProperty(ResultRow, "propTypes", {
   }).isRequired,
   'rowNumber': PropTypes.number.isRequired,
   'rowHeight': PropTypes.number,
+  'updateResultAtIndex': PropTypes.func,
   'mounted': PropTypes.bool.isRequired,
   'columnDefinitions': HeadersRow.propTypes.columnDefinitions,
   'columnWidths': PropTypes.objectOf(PropTypes.number),
@@ -600,7 +601,7 @@ var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$Component) {
               analytics.event('SearchResultTable', "Loaded More Results", {
                 eventValue: nextFromValue
               });
-              setResults(existingResults.slice(0).concat(nextResults));
+              setResults(existingResults.concat(nextResults));
             });
           }
         } else {
@@ -946,6 +947,7 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
     _this8.setContainerScrollLeft = _.throttle(_this8.setContainerScrollLeft.bind(_assertThisInitialized(_this8)), 250);
     _this8.onHorizontalScroll = _this8.onHorizontalScroll.bind(_assertThisInitialized(_this8));
     _this8.setResults = _this8.setResults.bind(_assertThisInitialized(_this8));
+    _this8.updateResultAtIndex = _this8.updateResultAtIndex.bind(_assertThisInitialized(_this8));
     _this8.canLoadMore = _this8.canLoadMore.bind(_assertThisInitialized(_this8));
     var _props$results = props.results,
         originalResults = _props$results === void 0 ? [] : _props$results;
@@ -960,15 +962,22 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
 
     };
 
-    if (_this8.state.results.length > 0 && Array.isArray(props.defaultOpenIndices) && props.defaultOpenIndices.length > 0) {
-      _this8.state.openDetailPanes[itemUtil.atId(_this8.state.results[0])] = true;
+    if (Array.isArray(props.defaultOpenIndices) && props.defaultOpenIndices.length > 0) {
+      var lastResultIdx = results.length - 1;
+      props.defaultOpenIndices.forEach(function (indexToOpen) {
+        if (isNaN(indexToOpen)) return;
+        if (lastResultIdx < indexToOpen) return;
+        _this8.state.openDetailPanes[itemUtil.atId(_this8.state.results[indexToOpen])] = true;
+      });
     }
 
     _this8.outerRef = /*#__PURE__*/React.createRef();
     _this8.outerContainerSizeInterval = null;
     _this8.scrollHandlerUnsubscribeFxn = null;
     _this8.memoized = {
-      fullRowWidth: memoize(DimensioningContainer.fullRowWidth)
+      fullRowWidth: memoize(DimensioningContainer.fullRowWidth),
+      // Memoized just to avoid calling results.length too frequently.
+      canLoadMore: memoize(LoadMoreAsYouScroll.canLoadMore)
     };
     return _this8;
   }
@@ -1168,6 +1177,18 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
       }, cb);
     }
   }, {
+    key: "updateResultAtIndex",
+    value: function updateResultAtIndex(rowNumber, updatedResult, callback) {
+      this.setState(function (_ref8) {
+        var existingResults = _ref8.results;
+        var nextResults = existingResults.slice(0);
+        nextResults[rowNumber] = updatedResult;
+        return {
+          results: nextResults
+        };
+      }, callback);
+    }
+  }, {
     key: "canLoadMore",
     value: function canLoadMore() {
       var _this$props13 = this.props,
@@ -1179,7 +1200,7 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
           isContextLoading = _this$props13$isConte === void 0 ? false : _this$props13$isConte;
       var _this$state$results = this.state.results,
           results = _this$state$results === void 0 ? [] : _this$state$results;
-      return !isContextLoading && LoadMoreAsYouScroll.canLoadMore(total, results);
+      return !isContextLoading && this.memoized.canLoadMore(total, results);
     }
   }, {
     key: "render",
@@ -1229,7 +1250,7 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
         tableContainerScrollLeft: tableContainerScrollLeft,
         windowWidth: windowWidth,
         mounted: mounted,
-        setResults: this.setResults
+        'setResults': this.setResults
       });
 
       var headersRow = null;
@@ -1259,7 +1280,8 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
           'mounted': mounted || false,
           'rowWidth': fullRowWidth,
           'toggleDetailPaneOpen': this.toggleDetailPaneOpen,
-          'setDetailHeight': this.setDetailHeight
+          'setDetailHeight': this.setDetailHeight,
+          'updateResultAtIndex': this.updateResultAtIndex
         });
 
         headersRow = /*#__PURE__*/React.createElement(HeadersRow, headerRowCommonProps);
@@ -1379,10 +1401,10 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
     }
   }, {
     key: "getDerivedStateFromProps",
-    value: function getDerivedStateFromProps(_ref8, _ref9) {
-      var _ref8$results = _ref8.results,
-          ctxResults = _ref8$results === void 0 ? [] : _ref8$results;
-      var originalResults = _ref9.originalResults;
+    value: function getDerivedStateFromProps(_ref9, _ref10) {
+      var _ref9$results = _ref9.results,
+          ctxResults = _ref9$results === void 0 ? [] : _ref9$results;
+      var originalResults = _ref10.originalResults;
 
       if (ctxResults !== originalResults) {
         // `context` has changed upstream, reset results and detail panes.
@@ -1400,10 +1422,10 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
   return DimensioningContainer;
 }(React.PureComponent);
 
-var EndOfListItem = /*#__PURE__*/React.memo(function (_ref10) {
-  var tableContainerWidth = _ref10.tableContainerWidth,
-      fullRowWidth = _ref10.fullRowWidth,
-      isOwnPage = _ref10.isOwnPage;
+var EndOfListItem = /*#__PURE__*/React.memo(function (_ref11) {
+  var tableContainerWidth = _ref11.tableContainerWidth,
+      fullRowWidth = _ref11.fullRowWidth,
+      isOwnPage = _ref11.isOwnPage;
   return (
     /*#__PURE__*/
     // Account for vertical scrollbar decreasing width of container (-30).
