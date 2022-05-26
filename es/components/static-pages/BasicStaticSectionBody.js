@@ -1,9 +1,5 @@
-var _excluded = ["content", "children", "filetype", "element", "markdownCompilerOptions", "placeholderReplacementFxn"];
-
-function _objectWithoutProperties(source, excluded) { if (source == null) return {}; var target = _objectWithoutPropertiesLoose(source, excluded); var key, i; if (Object.getOwnPropertySymbols) { var sourceSymbolKeys = Object.getOwnPropertySymbols(source); for (i = 0; i < sourceSymbolKeys.length; i++) { key = sourceSymbolKeys[i]; if (excluded.indexOf(key) >= 0) continue; if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue; target[key] = source[key]; } } return target; }
-
-function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; var sourceKeys = Object.keys(source); var key, i; for (i = 0; i < sourceKeys.length; i++) { key = sourceKeys[i]; if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } return target; }
-
+import _objectWithoutProperties from "@babel/runtime/helpers/objectWithoutProperties";
+var _excluded = ["content", "children", "rst_html", "filetype", "element", "markdownCompilerOptions", "placeholderReplacementFxn"];
 import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
@@ -12,6 +8,7 @@ import { compiler } from 'markdown-to-jsx';
 export var BasicStaticSectionBody = /*#__PURE__*/React.memo(function (props) {
   var content = props.content,
       children = props.children,
+      rst_html = props.rst_html,
       filetype = props.filetype,
       element = props.element,
       markdownCompilerOptions = props.markdownCompilerOptions,
@@ -20,6 +17,8 @@ export var BasicStaticSectionBody = /*#__PURE__*/React.memo(function (props) {
 
   if (filetype === 'md' && typeof content === 'string') {
     return /*#__PURE__*/React.createElement(element, passProps, compiler(content, markdownCompilerOptions || undefined));
+  } else if (filetype === 'rst' && typeof content === 'string') {
+    return /*#__PURE__*/React.createElement(element, passProps, htmlToJSX(rst_html));
   } else if (filetype === 'html' && typeof content === 'string') {
     return /*#__PURE__*/React.createElement(element, passProps, htmlToJSX(content));
   } else if (filetype === 'jsx' && typeof content === 'string') {
