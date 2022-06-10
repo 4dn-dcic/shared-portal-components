@@ -15,8 +15,6 @@ export var BasicStaticSectionBody = /*#__PURE__*/React.memo(function (props) {
       placeholderReplacementFxn = props.placeholderReplacementFxn,
       passProps = _objectWithoutProperties(props, _excluded);
 
-  console.log('xxx content_as_html:', content_as_html);
-
   if (filetype === 'md' && typeof content === 'string') {
     return /*#__PURE__*/React.createElement(element, passProps, compiler(content, markdownCompilerOptions || undefined));
   } else if ((filetype === 'html' || filetype === 'rst') && (typeof content_as_html === 'string' || typeof content === 'string')) {

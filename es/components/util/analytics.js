@@ -259,7 +259,8 @@ export function registerPageView() {
    */
 
 
-  function adjustPageViewPath(pathName) {
+  // Clear query & hostname from HREF & convert accessions, uuids, and certain names to literals.
+  var adjustedPathName = function adjustPageViewPath(pathName) {
     var pathParts = pathName.split('/').filter(function (pathPart) {
       // Gen path array to adjust href further if needed.
       return pathPart.length > 0;
@@ -311,9 +312,31 @@ export function registerPageView() {
    * @private
    * @returns {boolean|Object|Object[]} Representation of what was tracked, or false if nothing was.
    */
+  (parts.pathname); // Ensure is not the same page but with a new hash or something (RARE - should only happen for Help page table of contents navigation).
 
 
-  function registerProductView() {
+  if (lastRegisteredPageViewRealPathNameAndSearch === parts.pathname + parts.search) {
+    console.warn('Page did not change, canceling PageView tracking for this navigation.');
+    return false;
+  }
+
+  lastRegisteredPageViewRealPathNameAndSearch = parts.pathname + parts.search;
+  ga2('set', 'page', adjustedPathName); // Set it as current page
+
+  if (shouldAnonymize(itemType)) {
+    // Override page title
+    pageViewObject.title = ctxAccession || ctxUUID || "[Anonymized Title]";
+  }
+
+  pageViewObject.page = adjustedPathName; // Don't need to do re: 'set' 'page', but redundant for safety.
+
+  pageViewObject.location = url.resolve(href, adjustedPathName);
+
+  pageViewObject.hitCallback = function () {
+    console.info('Successfuly sent pageview event.', adjustedPathName, pageViewObject);
+  };
+
+  (function registerProductView() {
     if (!shouldTrack()) return false;
 
     if (state.enhancedEcommercePlugin !== true) {
@@ -342,33 +365,8 @@ export function registerPageView() {
       ga2('ec:setAction', 'detail', productObj);
       return productObj;
     }
-  } // Clear query & hostname from HREF & convert accessions, uuids, and certain names to literals.
+  })();
 
-
-  var adjustedPathName = adjustPageViewPath(parts.pathname); // Ensure is not the same page but with a new hash or something (RARE - should only happen for Help page table of contents navigation).
-
-  if (lastRegisteredPageViewRealPathNameAndSearch === parts.pathname + parts.search) {
-    console.warn('Page did not change, canceling PageView tracking for this navigation.');
-    return false;
-  }
-
-  lastRegisteredPageViewRealPathNameAndSearch = parts.pathname + parts.search;
-  ga2('set', 'page', adjustedPathName); // Set it as current page
-
-  if (shouldAnonymize(itemType)) {
-    // Override page title
-    pageViewObject.title = ctxAccession || ctxUUID || "[Anonymized Title]";
-  }
-
-  pageViewObject.page = adjustedPathName; // Don't need to do re: 'set' 'page', but redundant for safety.
-
-  pageViewObject.location = url.resolve(href, adjustedPathName);
-
-  pageViewObject.hitCallback = function () {
-    console.info('Successfuly sent pageview event.', adjustedPathName, pageViewObject);
-  };
-
-  registerProductView();
   ga2('send', 'pageview', pageViewObject);
 
   if (code === 403) {

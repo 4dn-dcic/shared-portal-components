@@ -511,7 +511,6 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
     var _segments$none = segments.none,
         unselectedTermComponents = _segments$none === void 0 ? [] : _segments$none; //filter unselected terms
 
-    //filter unselected terms
     if (searchType === 'basic' && searchText && typeof searchText === 'string' && searchText.length > 0) {
       var dict = getFilteredTerms(terms, searchText);
       unselectedTermComponents = _.filter(unselectedTermComponents, function (term) {
@@ -554,7 +553,6 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
 
     retObj.persistentTerms = []; //termComponents.slice(0, unselectedStartIdx);
 
-    //termComponents.slice(0, unselectedStartIdx);
     var i;
 
     for (i = selectedLen + omittedLen; i < persistentCount; i++) {

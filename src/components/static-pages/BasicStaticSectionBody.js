@@ -8,7 +8,6 @@ import { compiler } from 'markdown-to-jsx';
 export const BasicStaticSectionBody = React.memo(function BasicStaticSectionBody(props){
     const { content, content_as_html, children, filetype, element, markdownCompilerOptions, placeholderReplacementFxn, ...passProps } = props;
 
-    console.log('xxx content_as_html:', content_as_html);
     if (filetype === 'md' && typeof content === 'string'){
         return React.createElement(element, passProps, compiler(content, markdownCompilerOptions || undefined) );
     } else if ((filetype === 'html' || filetype === 'rst') && (typeof content_as_html === 'string' || typeof content === 'string')){

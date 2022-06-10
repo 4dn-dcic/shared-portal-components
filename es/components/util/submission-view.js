@@ -374,7 +374,7 @@ export var findParentFromHierarchy = function myself(hierarchy, keyIdx) {
   if (isNaN(keyIdx) || !hierarchy) return null;
   var found_parent = null;
 
-  _.keys(hierarchy).forEach(function (key) {
+  _.keys(hierarchy).forEach(function (key, index) {
     if (keyIdx in hierarchy[key]) {
       found_parent = key;
     } else {
@@ -394,7 +394,7 @@ export var findParentFromHierarchy = function myself(hierarchy, keyIdx) {
 export var flattenHierarchy = function myself(hierarchy) {
   var found_keys = [];
 
-  _.keys(hierarchy).forEach(function (key) {
+  _.keys(hierarchy).forEach(function (key, index) {
     if (!isNaN(key)) key = parseInt(key);
     var sub_keys = myself(hierarchy[key]);
     found_keys = _.union(found_keys, sub_keys, [key]);
@@ -409,7 +409,7 @@ export var flattenHierarchy = function myself(hierarchy) {
  */
 
 export var modifyHierarchy = function myself(hierarchy, keyIdx, parentKeyIdx) {
-  _.keys(hierarchy).forEach(function (key) {
+  _.keys(hierarchy).forEach(function (key, index) {
     if (key == parentKeyIdx) {
       hierarchy[parentKeyIdx][keyIdx] = {};
     } else {
@@ -426,7 +426,7 @@ export var modifyHierarchy = function myself(hierarchy, keyIdx, parentKeyIdx) {
 export var replaceInHierarchy = function myself(hierarchy, existingValueToFind, newValue) {
   if (typeof existingValueToFind === 'number') existingValueToFind = existingValueToFind + '';
 
-  _.keys(hierarchy).forEach(function (key) {
+  _.keys(hierarchy).forEach(function (key, index) {
     if (key === existingValueToFind) {
       var downstream = hierarchy[key];
       hierarchy[newValue] = downstream;
@@ -506,7 +506,7 @@ export function delvePreExistingObjects(initObjs, json, fieldSchema, listTerm) {
     }
   } else if (json instanceof Object && json) {
     if (fieldSchema.properties) {
-      _.keys(json).forEach(function (key) {
+      _.keys(json).forEach(function (key, idx) {
         if (fieldSchema.properties[key]) {
           delvePreExistingObjects(initObjs, json[key], fieldSchema.properties[key], listTerm);
         }
@@ -531,7 +531,7 @@ export function delvePreExistingObjects(initObjs, json, fieldSchema, listTerm) {
  */
 
 export function removeNulls(context) {
-  _.keys(context).forEach(function (key) {
+  _.keys(context).forEach(function (key, index) {
     if (isValueNull(context[key])) {
       delete context[key];
     } else if (Array.isArray(context[key])) {
