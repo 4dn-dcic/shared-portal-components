@@ -1,6 +1,6 @@
 {
     "name": "@hms-dbmi-bgm/shared-portal-components",
-    "version": "0.1.46",
+    "version": "0.1.47",
     "description": "Shared components used for DBMI/BGM portal(s).",
     "repository": {
         "type": "git",
@@ -41,7 +41,7 @@
         "webpack": "^4.46.0",
         "webpack-bundle-analyzer": "^3.8.0",
         "webpack-deadcode-plugin": "^0.1.12",
-        "auth0-lock": ">=11.26.3",
+        "auth0-lock": ">=11.33.0",
         "d3": ">=5.9.0",
         "form-serialize": ">=0.6.0",
         "markdown-to-jsx": ">=6.9.3",

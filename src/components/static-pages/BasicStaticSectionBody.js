@@ -6,12 +6,12 @@ import { compiler } from 'markdown-to-jsx';
 
 
 export const BasicStaticSectionBody = React.memo(function BasicStaticSectionBody(props){
-    const { content, children, filetype, element, markdownCompilerOptions, placeholderReplacementFxn, ...passProps } = props;
+    const { content, content_as_html, children, filetype, element, markdownCompilerOptions, placeholderReplacementFxn, ...passProps } = props;
 
     if (filetype === 'md' && typeof content === 'string'){
         return React.createElement(element, passProps, compiler(content, markdownCompilerOptions || undefined) );
-    } else if (filetype === 'html' && typeof content === 'string'){
-        return React.createElement(element, passProps, htmlToJSX(content));
+    } else if ((filetype === 'html' || filetype === 'rst') && (typeof content_as_html === 'string' || typeof content === 'string')){
+        return React.createElement(element, passProps, htmlToJSX(content_as_html || content));
     } else if (filetype === 'jsx' && typeof content === 'string'){
         return placeholderReplacementFxn(content.trim(), passProps);
     } else if (filetype === 'txt' && typeof content === 'string' && content.slice(0,12) === 'placeholder:'){
@@ -23,6 +23,7 @@ export const BasicStaticSectionBody = React.memo(function BasicStaticSectionBody
 });
 BasicStaticSectionBody.propTypes = {
     "content" : PropTypes.string.isRequired,
+    "content_as_html" : PropTypes.string,
     "filetype" : PropTypes.string,
     "element" : PropTypes.string.isRequired,
     "markdownCompilerOptions" : PropTypes.any,
