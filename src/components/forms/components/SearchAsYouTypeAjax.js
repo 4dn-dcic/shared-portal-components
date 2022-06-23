@@ -200,7 +200,7 @@ SearchAsYouTypeAjax.defaultProps = {
     "optionRenderFunction" : function(result){
         const { display_title: title, "@id" : atID, description } = result;
         return (
-            <div data-tip={description} key={atID} className="py-1">
+            <div data-tip={description} key={atID}>
                 <h5 className="text-300 text-truncate my-0">{ title }</h5>
                 <h6 className="text-mono text-400 text-truncate my-0">{ atID }</h6>
             </div>
@@ -297,14 +297,14 @@ export const optionCustomizationsByType = {
             const { display_title: title, "@id" : atID, description,
                 sex = null, age = null, aliases = [] } = result;
             return ( // need to better align right col, and adjust relative widths
-                <div data-tip={description} key={atID} className="d-flex">
-                    <div className="col">
-                        <h5 className="text-300">{ title }</h5>
-                        <h6 className="text-mono text-400">{ aliases }</h6>
+                <div data-tip={description} key={atID} className="d-flex align-items-center">
+                    <div className="col-9">
+                        <h5 className="text-mono text-300 my-0">{ title }</h5>
+                        <h6 className="text-mono text-400 my-0">{ aliases }</h6>
                     </div>
-                    <div className="col">
-                        <h5 className="text-300">Age: { age || "N/A"}</h5>
-                        <h6 className="text-mono text-400"> Sex: { sexToIcon(sex, false) } </h6>
+                    <div className="col-3">
+                        <h5 className="text-300 my-0">Age: { age || "N/A"}</h5>
+                        <h6 className="text-mono text-400 my-0"> Sex: { sexToIcon(sex, false) } </h6>
                     </div>
                 </div>
             );
@@ -316,8 +316,8 @@ export const optionCustomizationsByType = {
             const { display_title: title, "@id" : atID, description, accession } = result;
             return (
                 <div data-tip={description} key={atID}>
-                    <h5 className="text-300 text-truncate">{ title }</h5>
-                    <h6 className="text-mono text-400 text-truncate">{ accession }</h6>
+                    <h5 className="text-300 text-truncate my-0">{ title }</h5>
+                    <h6 className="text-mono text-400 text-truncate my-0">{ accession }</h6>
                 </div>
             );
         },
@@ -329,8 +329,8 @@ export const optionCustomizationsByType = {
                 email, role, first_name, last_name } = result;
             return (
                 <div data-tip={description} key={atID}>
-                    <h5 className="text-300 w-100">{ title } ({ first_name } { last_name })</h5>
-                    <h6 className="text-mono text-400">{ email }</h6>
+                    <h5 className="text-300 w-100 my-0">{ title } ({ first_name } { last_name })</h5>
+                    <h6 className="text-mono text-400 my-0">{ email }</h6>
                 </div>
             );
         },
@@ -342,8 +342,8 @@ export const optionCustomizationsByType = {
                 status, date_created, submitted_by } = result;
             return (
                 <div data-tip={description} key={atID}>
-                    <h5 className="text-300 text-truncate">{ title }</h5>
-                    <h6 className="text-mono text-400 text-truncate">{ atID }</h6>
+                    <h5 className="text-300 text-truncate my-0">{ title }</h5>
+                    <h6 className="text-mono text-400 text-truncate my-0">{ atID }</h6>
                 </div>
             );
         },
@@ -355,8 +355,8 @@ export const optionCustomizationsByType = {
                 status, date_created, submitted_by } = result;
             return (
                 <div data-tip={description} key={atID}>
-                    <h5 className="text-300 text-truncate">{ title }</h5>
-                    <h6 className="text-mono text-400 text-truncate">{ atID }</h6>
+                    <h5 className="text-300 text-truncate my-0">{ title }</h5>
+                    <h6 className="text-mono text-400 text-truncate my-0">{ atID }</h6>
                 </div>
             );
         },
@@ -367,8 +367,8 @@ export const optionCustomizationsByType = {
             const { display_title: title, "@id" : atID, description, hpo_id } = result;
             return (
                 <div data-tip={description} key={atID}>
-                    <h5 className="text-300 text-truncate">{ title }</h5>
-                    <h6 className="text-mono text-400">{ hpo_id }</h6>
+                    <h5 className="text-300 text-truncate my-0">{ title }</h5>
+                    <h6 className="text-mono text-400 my-0">{ hpo_id }</h6>
                 </div>
             );
         },
@@ -560,8 +560,10 @@ export class LinkedObj extends React.PureComponent {
             }
         }
 
-        return <LinkToSelector isSelecting onSelect={this.handleFinishSelectItem} onCloseChildWindow={selectCancel}
-            childWindowAlert={this.childWindowAlert} {...{ value, dropMessage, searchURL }} />;
+        return (
+            <LinkToSelector isSelecting onSelect={this.handleFinishSelectItem} onCloseChildWindow={selectCancel}
+                childWindowAlert={this.childWindowAlert} {...{ value, dropMessage, searchURL }} />
+        );
     }
 
 

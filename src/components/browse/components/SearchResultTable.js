@@ -965,7 +965,11 @@ class DimensioningContainer extends React.PureComponent {
         } = this.props;
         const { results, tableContainerWidth, tableContainerScrollLeft, mounted, openDetailPanes } = this.state;
 
-        const fullRowWidth = this.memoized.fullRowWidth(columnDefinitions, mounted, columnWidths, windowWidth);
+        let fullRowWidth = this.memoized.fullRowWidth(columnDefinitions, mounted, columnWidths, windowWidth);
+        if (!isOwnPage) {
+            // Add some padding to end of rows so that scrollbars don't hide last columns' content.
+            fullRowWidth += 16;
+        }
         const canLoadMore = this.canLoadMore();
         const anyResults = results.length > 0;
 
