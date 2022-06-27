@@ -1,14 +1,26 @@
-import _assertThisInitialized from "@babel/runtime/helpers/assertThisInitialized";
-import _defineProperty from "@babel/runtime/helpers/defineProperty";
-import _createClass from "@babel/runtime/helpers/createClass";
-import _classCallCheck from "@babel/runtime/helpers/classCallCheck";
-import _inherits from "@babel/runtime/helpers/inherits";
-import _possibleConstructorReturn from "@babel/runtime/helpers/possibleConstructorReturn";
-import _getPrototypeOf from "@babel/runtime/helpers/getPrototypeOf";
+function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); Object.defineProperty(subClass, "prototype", { writable: false }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
 function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
 
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } else if (call !== void 0) { throw new TypeError("Derived constructors may only return object or undefined"); } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
 function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
 import React from 'react';
 import Modal from 'react-bootstrap/esm/Modal';
@@ -81,7 +93,7 @@ export var DragAndDropFileUploadController = /*#__PURE__*/function (_React$Compo
         var fileArr = [];
         var fileLimit = multiselect ? files.length : 1; // Populate an array with all of the new files
 
-        var _loop = function _loop() {
+        var _loop = function () {
           var attachment = {};
           var file = files[i]; // Check that file type is in schema (TODO: Is this too strict? MIME-types can get complicated...)
 
@@ -111,7 +123,6 @@ export var DragAndDropFileUploadController = /*#__PURE__*/function (_React$Compo
               attachment.href = e.target.result;
             } else {
               alert('ERROR: There was a problem reading the given file. Please try again.');
-              return;
             }
           }.bind(_this2);
 
@@ -280,7 +291,7 @@ export var DragAndDropFileUploadController = /*#__PURE__*/function (_React$Compo
       var files = this.state.files;
       var previouslySubmittedAtIds = [];
 
-      var newFileSubmit = function newFileSubmit(file) {
+      var newFileSubmit = function (file) {
         console.log("Attempting to upload file... ", file);
         return _this3.createItem(file, true) // Validate
         .then(function (response) {
@@ -626,7 +637,6 @@ var DragAndDropModal = /*#__PURE__*/function (_React$Component4) {
           requestVerificationMsg = _this$props7.requestVerificationMsg,
           multiselect = _this$props7.multiselect; // console.log("isLoading:", isLoading);
 
-      var showFieldName = fieldDisplayTitle && fieldName !== fieldDisplayTitle;
       var allowUpload = files.length > 0 && (requestVerificationMsg && isVerified || !requestVerificationMsg);
       return /*#__PURE__*/React.createElement(Modal, {
         centered: true,
@@ -638,7 +648,7 @@ var DragAndDropModal = /*#__PURE__*/function (_React$Component4) {
         closeButton: true
       }, /*#__PURE__*/React.createElement(Modal.Title, {
         className: "text-500"
-      }, "Upload a ", fieldName, " ", showFieldName ? "for " + fieldDisplayTitle : null)), /*#__PURE__*/React.createElement(Modal.Body, null, isLoading ? /*#__PURE__*/React.createElement("div", {
+      }, "Upload a ", fieldName, " ", fieldDisplayTitle && fieldName !== fieldDisplayTitle ? "for " + fieldDisplayTitle : null)), /*#__PURE__*/React.createElement(Modal.Body, null, isLoading ? /*#__PURE__*/React.createElement("div", {
         className: "is-loading-overlay-cont"
       }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("i", {
         className: "icon icon-spin icon-circle-notch fas"
@@ -892,33 +902,6 @@ function FileIcon(props) {
       handleRemoveFile = props.handleRemoveFile,
       _props$thisUploading = props.thisUploading,
       thisUploading = _props$thisUploading === void 0 ? false : _props$thisUploading;
-
-  function getFileIconClass(mimetype) {
-    if (mimetype.match('^image/')) {
-      return 'file-image';
-    } else {
-      switch (mimetype) {
-        case 'text/html':
-          return 'file-code';
-
-        case 'text/plain':
-          return 'file-alt';
-
-        case 'application/msword':
-          return 'file-word';
-
-        case 'application/vnd.ms-excel':
-          return 'file-excel';
-
-        case 'application/pdf':
-          return 'file-pdf';
-
-        default:
-          return 'file';
-      }
-    }
-  }
-
   return /*#__PURE__*/React.createElement("div", {
     className: "d-flex flex-column",
     style: {
@@ -933,7 +916,31 @@ function FileIcon(props) {
     },
     className: "icon fas icon-window-close text-danger"
   }), /*#__PURE__*/React.createElement("i", {
-    className: "icon far icon-2x icon-".concat(getFileIconClass(fileType), " mb-05 text-dark")
+    className: "icon far icon-2x icon-".concat(function (mimetype) {
+      if (mimetype.match('^image/')) {
+        return 'file-image';
+      } else {
+        switch (mimetype) {
+          case 'text/html':
+            return 'file-code';
+
+          case 'text/plain':
+            return 'file-alt';
+
+          case 'application/msword':
+            return 'file-word';
+
+          case 'application/vnd.ms-excel':
+            return 'file-excel';
+
+          case 'application/pdf':
+            return 'file-pdf';
+
+          default:
+            return 'file';
+        }
+      }
+    }(fileType), " mb-05 text-dark")
   }), /*#__PURE__*/React.createElement("span", {
     className: "filename text-break"
   }, fileName), /*#__PURE__*/React.createElement("span", {
