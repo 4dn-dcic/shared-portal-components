@@ -46,7 +46,12 @@ export var SearchResultDetailPane = /*#__PURE__*/function (_React$PureComponent)
   }, {
     key: "componentDidUpdate",
     value: function componentDidUpdate(pastProps) {
-      if (this.props.open && !pastProps.open) ReactTooltip.rebuild();
+      var open = this.props.open;
+      var pastOpen = pastProps.open;
+
+      if (open && !pastOpen) {
+        ReactTooltip.rebuild();
+      }
     }
   }, {
     key: "render",
@@ -55,7 +60,9 @@ export var SearchResultDetailPane = /*#__PURE__*/function (_React$PureComponent)
           result = _this$props.result,
           popLink = _this$props.popLink,
           schemas = _this$props.schemas;
-      return /*#__PURE__*/React.createElement("div", null, !result.description ? null : /*#__PURE__*/React.createElement("div", {
+      return /*#__PURE__*/React.createElement("div", {
+        className: "w-100"
+      }, !result.description ? null : /*#__PURE__*/React.createElement("div", {
         className: "flex-description-container"
       }, /*#__PURE__*/React.createElement("h5", null, /*#__PURE__*/React.createElement("i", {
         className: "icon icon-fw icon-align-left fas"
@@ -93,6 +100,7 @@ _defineProperty(SearchResultDetailPane, "propTypes", {
     'description': PropTypes.string
   }),
   'popLink': PropTypes.bool,
-  'schemas': PropTypes.object //'windowWidth' : PropTypes.number.isRequired
+  'schemas': PropTypes.object,
+  'open': PropTypes.bool //'windowWidth' : PropTypes.number.isRequired
 
 });

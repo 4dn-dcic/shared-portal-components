@@ -141,20 +141,15 @@ export class ColumnCombiner extends React.PureComponent {
  * @returns {Object[]}                      List of objects containing keys 'title', 'field', 'widthMap', and 'render'.
  */
 export function columnsToColumnDefinitions(columns, columnDefinitionMap, defaultWidthMap = DEFAULT_WIDTH_MAP){
-    const uninishedColumnDefinitions = _.pairs(columns).map(function([ field, columnProperties ]){
-        return { ...columnProperties, field };
-    });
 
-    const columnDefinitions = _.map(uninishedColumnDefinitions, function(colDef, i){
-        const colDefOverride = columnDefinitionMap && columnDefinitionMap[colDef.field];
-        if (colDefOverride){
-            var colDef2 = _.extend({}, colDefOverride, colDef);
-            colDef = colDef2;
-        }
+    const columnDefinitions = _.pairs(columns).map(function([ field, columnProperties ], colPairIndex){
+        const { [field]: colDefOverride = {} } = columnDefinitionMap || {};
+        const colDef = { ...columnProperties, ...colDefOverride, field };
 
+        // Fallbacks for undefined values
         colDef.widthMap = colDef.widthMap || defaultWidthMap;
         colDef.render = colDef.render || null;
-        colDef.order = typeof colDef.order === 'number' ? colDef.order : i;
+        colDef.order = typeof colDef.order === 'number' ? colDef.order : colPairIndex;
 
         return colDef;
     });

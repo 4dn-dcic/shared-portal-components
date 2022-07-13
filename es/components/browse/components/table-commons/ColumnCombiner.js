@@ -222,28 +222,22 @@ _defineProperty(ColumnCombiner, "defaultProps", {
 export function columnsToColumnDefinitions(columns, columnDefinitionMap) {
   var defaultWidthMap = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : DEFAULT_WIDTH_MAP;
 
-  var uninishedColumnDefinitions = _.pairs(columns).map(function (_ref5) {
+  var columnDefinitions = _.pairs(columns).map(function (_ref5, colPairIndex) {
     var _ref6 = _slicedToArray(_ref5, 2),
         field = _ref6[0],
         columnProperties = _ref6[1];
 
-    return _objectSpread(_objectSpread({}, columnProperties), {}, {
+    var _ref7$field = (columnDefinitionMap || {})[field],
+        colDefOverride = _ref7$field === void 0 ? {} : _ref7$field;
+
+    var colDef = _objectSpread(_objectSpread(_objectSpread({}, columnProperties), colDefOverride), {}, {
       field: field
-    });
-  });
+    }); // Fallbacks for undefined values
 
-  var columnDefinitions = _.map(uninishedColumnDefinitions, function (colDef, i) {
-    var colDefOverride = columnDefinitionMap && columnDefinitionMap[colDef.field];
-
-    if (colDefOverride) {
-      var colDef2 = _.extend({}, colDefOverride, colDef);
-
-      colDef = colDef2;
-    }
 
     colDef.widthMap = colDef.widthMap || defaultWidthMap;
     colDef.render = colDef.render || null;
-    colDef.order = typeof colDef.order === 'number' ? colDef.order : i;
+    colDef.order = typeof colDef.order === 'number' ? colDef.order : colPairIndex;
     return colDef;
   });
 
@@ -291,10 +285,10 @@ export function haveContextColumnsChanged(cols1, cols2) {
 function defaultHiddenColumnMapFromColumns(columns) {
   var hiddenColMap = {};
 
-  _.pairs(columns).forEach(function (_ref7) {
-    var _ref8 = _slicedToArray(_ref7, 2),
-        field = _ref8[0],
-        columnDefinition = _ref8[1];
+  _.pairs(columns).forEach(function (_ref8) {
+    var _ref9 = _slicedToArray(_ref8, 2),
+        field = _ref9[0],
+        columnDefinition = _ref9[1];
 
     if (columnDefinition.default_hidden) {
       hiddenColMap[field] = true;
