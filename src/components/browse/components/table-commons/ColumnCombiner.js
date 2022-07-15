@@ -37,19 +37,16 @@ export class ColumnCombiner extends React.PureComponent {
     }
 
     /**
-     * @param {Object<string,{ title: string }} columns - Column definitions from backend (e.g. context, StaticSection props)
+     * @param {{ field: string, title: string }[]} columns - Column definitions from backend (e.g. context, StaticSection props)
      * @param {function} filterColumnFxn - filtering function
      */
     static filteredColumns(columns, filterColumnFxn = null){
-        if (typeof filterColumnFxn !== "function" || typeof columns !== 'object'){
-            return columns;
-        }
-        const nextColumns = {};
-        Object.keys(columns).forEach(function(key){
-            if (filterColumnFxn(key, columns[key])) return;
-            nextColumns[key] = columns[key];
+        return columns.filter(function(colDef) {
+            const { disabled = false, field } = colDef;
+            if (disabled) return false;
+            if (filterColumnFxn && filterColumnFxn(field, colDef)) return false;
+            return true;
         });
-        return nextColumns;
     }
 
     static defaultProps = {
@@ -107,22 +104,26 @@ export class ColumnCombiner extends React.PureComponent {
             filterColumnFxn = null,
             ...passProps
         } = this.props;
-        const { context : { columns: contextColumns } = {} } = passProps;
-        const columns = this.memoized.filteredColumns(overridePropColumns || contextColumns || {}, filterColumnFxn);
+        const { context : { columns: contextColumns = {} } = {} } = passProps;
 
-        if (columns.length === 0) {
+        const columnDefinitions = this.memoized.filteredColumns(
+            this.memoized.getDefinitions(overridePropColumns || contextColumns, columnExtensionMap),
+            filterColumnFxn
+        );
+
+        if (columnDefinitions.length === 0) {
             console.error("No columns available in context nor props. Please provide columns. Ok if resorting to back-end provided columns and waiting for first response to load.");
         }
 
         const propsToPass = {
             ...passProps,
             /** Final form of all columns to show in table */
-            columnDefinitions: this.memoized.getDefinitions(columns, columnExtensionMap),
+            columnDefinitions,
             /**
              * Initial column keys/fields from `columnDefinitions` to be hidden from table.
              * Change of this prop value causes reset of hidden columns state.
              */
-            defaultHiddenColumns: this.memoized.getDefaultHiddenColumns(columns)
+            defaultHiddenColumns: this.memoized.getDefaultHiddenColumns(columnDefinitions)
         };
 
         return React.Children.map(children, function(child){
@@ -195,12 +196,12 @@ export function haveContextColumnsChanged(cols1, cols2){
 }
 
 /**
- * @param {Object<string, Object>} columns - Object containing some column definitions/values.
+ * @param {{ field: string, default_hidden: boolean? }} columnDefinitions - List containing some column definitions/values.
  */
-function defaultHiddenColumnMapFromColumns(columns){
+function defaultHiddenColumnMapFromColumns(columnDefinitions){
     const hiddenColMap = {};
-    _.pairs(columns).forEach(function([ field, columnDefinition ]){
-        if (columnDefinition.default_hidden){
+    columnDefinitions.forEach(function({ field, default_hidden = false }){
+        if (default_hidden){
             hiddenColMap[field] = true;
         } else {
             hiddenColMap[field] = false;

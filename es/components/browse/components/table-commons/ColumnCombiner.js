@@ -1,6 +1,6 @@
-var _excluded = ["children", "columns", "columnExtensionMap", "filterColumnFxn"];
-
 function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
+
+var _excluded = ["children", "columns", "columnExtensionMap", "filterColumnFxn"];
 
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 
@@ -140,22 +140,23 @@ export var ColumnCombiner = /*#__PURE__*/function (_React$PureComponent) {
 
       var _passProps$context = passProps.context;
       _passProps$context = _passProps$context === void 0 ? {} : _passProps$context;
-      var contextColumns = _passProps$context.columns;
-      var columns = this.memoized.filteredColumns(overridePropColumns || contextColumns || {}, filterColumnFxn);
+      var _passProps$context$co = _passProps$context.columns,
+          contextColumns = _passProps$context$co === void 0 ? {} : _passProps$context$co;
+      var columnDefinitions = this.memoized.filteredColumns(this.memoized.getDefinitions(overridePropColumns || contextColumns, columnExtensionMap), filterColumnFxn);
 
-      if (columns.length === 0) {
+      if (columnDefinitions.length === 0) {
         console.error("No columns available in context nor props. Please provide columns. Ok if resorting to back-end provided columns and waiting for first response to load.");
       }
 
       var propsToPass = _objectSpread(_objectSpread({}, passProps), {}, {
         /** Final form of all columns to show in table */
-        columnDefinitions: this.memoized.getDefinitions(columns, columnExtensionMap),
+        columnDefinitions: columnDefinitions,
 
         /**
          * Initial column keys/fields from `columnDefinitions` to be hidden from table.
          * Change of this prop value causes reset of hidden columns state.
          */
-        defaultHiddenColumns: this.memoized.getDefaultHiddenColumns(columns)
+        defaultHiddenColumns: this.memoized.getDefaultHiddenColumns(columnDefinitions)
       });
 
       return React.Children.map(children, function (child) {
@@ -179,7 +180,7 @@ export var ColumnCombiner = /*#__PURE__*/function (_React$PureComponent) {
       return columnsToColumnDefinitions(columns, columnExtensionMap);
     }
     /**
-     * @param {Object<string,{ title: string }} columns - Column definitions from backend (e.g. context, StaticSection props)
+     * @param {{ field: string, title: string }[]} columns - Column definitions from backend (e.g. context, StaticSection props)
      * @param {function} filterColumnFxn - filtering function
      */
 
@@ -187,17 +188,14 @@ export var ColumnCombiner = /*#__PURE__*/function (_React$PureComponent) {
     key: "filteredColumns",
     value: function filteredColumns(columns) {
       var filterColumnFxn = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-
-      if (typeof filterColumnFxn !== "function" || _typeof(columns) !== 'object') {
-        return columns;
-      }
-
-      var nextColumns = {};
-      Object.keys(columns).forEach(function (key) {
-        if (filterColumnFxn(key, columns[key])) return;
-        nextColumns[key] = columns[key];
+      return columns.filter(function (colDef) {
+        var _colDef$disabled = colDef.disabled,
+            disabled = _colDef$disabled === void 0 ? false : _colDef$disabled,
+            field = colDef.field;
+        if (disabled) return false;
+        if (filterColumnFxn && filterColumnFxn(field, colDef)) return false;
+        return true;
       });
-      return nextColumns;
     }
   }]);
 
@@ -279,24 +277,22 @@ export function haveContextColumnsChanged(cols1, cols2) {
   return false;
 }
 /**
- * @param {Object<string, Object>} columns - Object containing some column definitions/values.
+ * @param {{ field: string, default_hidden: boolean? }} columnDefinitions - List containing some column definitions/values.
  */
 
-function defaultHiddenColumnMapFromColumns(columns) {
+function defaultHiddenColumnMapFromColumns(columnDefinitions) {
   var hiddenColMap = {};
+  columnDefinitions.forEach(function (_ref8) {
+    var field = _ref8.field,
+        _ref8$default_hidden = _ref8.default_hidden,
+        default_hidden = _ref8$default_hidden === void 0 ? false : _ref8$default_hidden;
 
-  _.pairs(columns).forEach(function (_ref8) {
-    var _ref9 = _slicedToArray(_ref8, 2),
-        field = _ref9[0],
-        columnDefinition = _ref9[1];
-
-    if (columnDefinition.default_hidden) {
+    if (default_hidden) {
       hiddenColMap[field] = true;
     } else {
       hiddenColMap[field] = false;
     }
   });
-
   return hiddenColMap;
 }
 /**

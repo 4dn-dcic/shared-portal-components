@@ -1,6 +1,6 @@
 import React from 'react';
 
-export const AboveTablePanelWrapper = React.memo(function AboveTablePanelWrapper(props){
+export const AboveTablePanelWrapper = React.memo(React.forwardRef(function AboveTablePanelWrapper(props, ref){
     const { children, title, className, onClose } = props;
     let closeButton = null;
     if (typeof onClose === 'function'){
@@ -18,7 +18,7 @@ export const AboveTablePanelWrapper = React.memo(function AboveTablePanelWrapper
         return child;
     });
     return (
-        <div className={"search-result-config-panel" + (className ? ' ' + className : '')}>
+        <div className={"search-result-config-panel" + (className ? ' ' + className : '')} ref={ref}>
             <div className="inner">
                 <h5 className="panel-title">
                     { title }
@@ -28,4 +28,4 @@ export const AboveTablePanelWrapper = React.memo(function AboveTablePanelWrapper
             </div>
         </div>
     );
-});
+}));
