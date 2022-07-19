@@ -205,7 +205,7 @@ export var ColumnCombiner = /*#__PURE__*/function (_React$PureComponent) {
  * Convert a map of field:title to list of column definitions, setting defaults.
  *
  * @param {Object.<string>} columns         Map of field names to field/column titles, as returned from back-end.
- * @param {Object} columnDefinitionMap      Map of field names to extra column properties such 'render', 'title', 'widthMap', etc.
+ * @param {Object} columnExtensionMap       Map of field names to extra column properties such 'render', 'title', 'widthMap', etc.
  * @param {Object[]} constantDefinitions    Preset list of column definitions, each containing at least 'field' and 'title'.
  * @param {Object} defaultWidthMap          Map of responsive grid states (lg, md, sm) to pixel number sizes.
  * @returns {Object[]}                      List of objects containing keys 'title', 'field', 'widthMap', and 'render'.
@@ -217,7 +217,7 @@ _defineProperty(ColumnCombiner, "defaultProps", {
   "columnExtensionMap": basicColumnExtensionMap
 });
 
-export function columnsToColumnDefinitions(columns, columnDefinitionMap) {
+export function columnsToColumnDefinitions(columns, columnExtensionMap) {
   var defaultWidthMap = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : DEFAULT_WIDTH_MAP;
 
   var columnDefinitions = _.pairs(columns).map(function (_ref5, colPairIndex) {
@@ -225,17 +225,24 @@ export function columnsToColumnDefinitions(columns, columnDefinitionMap) {
         field = _ref6[0],
         columnProperties = _ref6[1];
 
-    var _ref7$field = (columnDefinitionMap || {})[field],
-        colDefOverride = _ref7$field === void 0 ? {} : _ref7$field;
+    var _ref7$field = (columnExtensionMap || {})[field],
+        columnExtension = _ref7$field === void 0 ? {} : _ref7$field;
+    var ceWidthMap = columnExtension.widthMap,
+        ceRender = columnExtension.render,
+        ceOrder = columnExtension.order,
+        ceDisabled = columnExtension.disabled;
+    var cpWidthMap = columnProperties.widthMap,
+        cpOrder = columnProperties.order;
 
-    var colDef = _objectSpread(_objectSpread(_objectSpread({}, columnProperties), colDefOverride), {}, {
-      field: field
-    }); // Fallbacks for undefined values
+    var colDef = _objectSpread(_objectSpread(_objectSpread({}, columnExtension), columnProperties), {}, {
+      field: field,
+      // Precedence to specific columnExtensionMap values over columnProperties ones; fallbacks
+      widthMap: ceWidthMap || cpWidthMap || defaultWidthMap,
+      render: ceRender || null,
+      disabled: typeof ceDisabled === "boolean" ? ceDisabled : typeof cpOrder === "boolean" ? cpOrder : false,
+      order: typeof ceOrder === "number" ? ceOrder : typeof cpOrder === "number" ? cpOrder : colPairIndex
+    });
 
-
-    colDef.widthMap = colDef.widthMap || defaultWidthMap;
-    colDef.render = colDef.render || null;
-    colDef.order = typeof colDef.order === 'number' ? colDef.order : colPairIndex;
     return colDef;
   });
 
