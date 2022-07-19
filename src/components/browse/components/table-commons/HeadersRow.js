@@ -38,7 +38,7 @@ export class HeadersRow extends React.PureComponent {
         'defaultMinColumnWidth' : PropTypes.number,
         'tableContainerScrollLeft' : PropTypes.number,
         'windowWidth' : PropTypes.number,
-        'stickyFirstColumn': PropTypes.bool,
+        'stickyColumnCount': PropTypes.number,
         // Passed down from CustomColumnController (if used)
         'columnWidths' : PropTypes.objectOf(PropTypes.number),
         'setColumnWidths' : PropTypes.func,
@@ -269,7 +269,7 @@ export class HeadersRow extends React.PureComponent {
             width,
             tableContainerScrollLeft,
             windowWidth,
-            stickyFirstColumn = false
+            stickyColumnCount = 0
         } = this.props;
         const { showingSortFieldsForColumn, widths, loadingField } = this.state;
         const sortColumnMap = this.memoized.getSortColumnMap(columnDefinitions, sortColumns);
@@ -320,8 +320,8 @@ export class HeadersRow extends React.PureComponent {
                                 <HeadersRowColumn {...commonProps} {...{ columnDefinition, index, showingSortOptionsMenu, isLoading, width }}
                                     key={field} sortMap={sortColumnMap[field]} />
                             );
-                            if (index === 0 && stickyFirstColumn) {
-                                // First column in header will have position:fixed,
+                            if (index < stickyColumnCount) {
+                                // First column(s) in header will have position:fixed,
                                 // so add an offeset equal to its width.
                                 return (
                                     <React.Fragment key={field}>

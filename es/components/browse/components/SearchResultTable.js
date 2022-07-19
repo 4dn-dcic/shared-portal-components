@@ -1201,6 +1201,8 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
           isContextLoading = _this$props14$isConte === void 0 ? false : _this$props14$isConte,
           setColumnWidths = _this$props14.setColumnWidths,
           columnWidths = _this$props14.columnWidths,
+          _this$props14$stickyC = _this$props14.stickyColumnCount,
+          stickyColumnCount = _this$props14$stickyC === void 0 ? 0 : _this$props14$stickyC,
           _this$props14$stickyF = _this$props14.stickyFirstColumn,
           stickyFirstColumn = _this$props14$stickyF === void 0 ? false : _this$props14$stickyF;
       var _this$state3 = this.state,
@@ -1250,7 +1252,7 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
           setColumnWidths: setColumnWidths,
           columnWidths: columnWidths,
           tableContainerScrollLeft: tableContainerScrollLeft,
-          stickyFirstColumn: stickyFirstColumn
+          stickyColumnCount: stickyColumnCount
         });
 
         var resultRowCommonProps = _objectSpread(_objectSpread({}, _.pick(this.props, 'renderDetailPane', 'detailPane', 'href', 'currentAction', 'schemas', 'termTransformFxn', 'targetTabKey')), {}, {

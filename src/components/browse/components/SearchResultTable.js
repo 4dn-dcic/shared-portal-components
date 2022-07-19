@@ -961,6 +961,7 @@ class DimensioningContainer extends React.PureComponent {
             isContextLoading = false,
             setColumnWidths,
             columnWidths,
+            stickyColumnCount = 0,
             stickyFirstColumn = false
         } = this.props;
         const { results, tableContainerWidth, tableContainerScrollLeft, mounted, openDetailPanes } = this.state;
@@ -990,7 +991,7 @@ class DimensioningContainer extends React.PureComponent {
                 ..._.pick(this.props, 'columnDefinitions', 'sortBy', 'sortColumns', 'sortColumn', 'sortReverse',
                     'defaultMinColumnWidth', 'renderDetailPane', 'detailPane', 'windowWidth'),
                 mounted, results, rowHeight, setColumnWidths, columnWidths,
-                tableContainerScrollLeft, stickyFirstColumn
+                tableContainerScrollLeft, stickyColumnCount
             };
             const resultRowCommonProps = {
                 ..._.pick(this.props, 'renderDetailPane', 'detailPane', 'href', 'currentAction', 'schemas', 'termTransformFxn', 'targetTabKey'),

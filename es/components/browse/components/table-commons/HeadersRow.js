@@ -278,8 +278,8 @@ export var HeadersRow = /*#__PURE__*/function (_React$PureComponent) {
           width = _this$props3.width,
           tableContainerScrollLeft = _this$props3.tableContainerScrollLeft,
           windowWidth = _this$props3.windowWidth,
-          _this$props3$stickyFi = _this$props3.stickyFirstColumn,
-          stickyFirstColumn = _this$props3$stickyFi === void 0 ? false : _this$props3$stickyFi;
+          _this$props3$stickyCo = _this$props3.stickyColumnCount,
+          stickyColumnCount = _this$props3$stickyCo === void 0 ? 0 : _this$props3$stickyCo;
       var _this$state2 = this.state,
           showingSortFieldsForColumn = _this$state2.showingSortFieldsForColumn,
           widths = _this$state2.widths,
@@ -344,8 +344,8 @@ export var HeadersRow = /*#__PURE__*/function (_React$PureComponent) {
           sortMap: sortColumnMap[field]
         }));
 
-        if (index === 0 && stickyFirstColumn) {
-          // First column in header will have position:fixed,
+        if (index < stickyColumnCount) {
+          // First column(s) in header will have position:fixed,
           // so add an offeset equal to its width.
           return /*#__PURE__*/React.createElement(React.Fragment, {
             key: field
@@ -502,7 +502,7 @@ _defineProperty(HeadersRow, "propTypes", {
   'defaultMinColumnWidth': PropTypes.number,
   'tableContainerScrollLeft': PropTypes.number,
   'windowWidth': PropTypes.number,
-  'stickyFirstColumn': PropTypes.bool,
+  'stickyColumnCount': PropTypes.number,
   // Passed down from CustomColumnController (if used)
   'columnWidths': PropTypes.objectOf(PropTypes.number),
   'setColumnWidths': PropTypes.func,
