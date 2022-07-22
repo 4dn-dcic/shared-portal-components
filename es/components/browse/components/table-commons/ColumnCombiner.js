@@ -232,14 +232,15 @@ export function columnsToColumnDefinitions(columns, columnExtensionMap) {
         ceOrder = columnExtension.order,
         ceDisabled = columnExtension.disabled;
     var cpWidthMap = columnProperties.widthMap,
-        cpOrder = columnProperties.order;
+        cpOrder = columnProperties.order,
+        cpDisabled = columnProperties.disabled;
 
     var colDef = _objectSpread(_objectSpread(_objectSpread({}, columnExtension), columnProperties), {}, {
       field: field,
       // Precedence to specific columnExtensionMap values over columnProperties ones; fallbacks
       widthMap: ceWidthMap || cpWidthMap || defaultWidthMap,
       render: ceRender || null,
-      disabled: typeof ceDisabled === "boolean" ? ceDisabled : typeof cpOrder === "boolean" ? cpOrder : false,
+      disabled: typeof ceDisabled === "boolean" ? ceDisabled : typeof cpDisabled === "boolean" ? cpDisabled : false,
       order: typeof ceOrder === "number" ? ceOrder : typeof cpOrder === "number" ? cpOrder : colPairIndex
     });
 

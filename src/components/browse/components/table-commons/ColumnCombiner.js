@@ -146,7 +146,7 @@ export function columnsToColumnDefinitions(columns, columnExtensionMap, defaultW
     const columnDefinitions = _.pairs(columns).map(function([ field, columnProperties ], colPairIndex){
         const { [field]: columnExtension = {} } = columnExtensionMap || {};
         const { widthMap: ceWidthMap, render: ceRender, order: ceOrder, disabled: ceDisabled } = columnExtension;
-        const { widthMap: cpWidthMap, order: cpOrder } = columnProperties;
+        const { widthMap: cpWidthMap, order: cpOrder, disabled: cpDisabled } = columnProperties;
         const colDef = {
             ...columnExtension,
             ...columnProperties,
@@ -155,7 +155,7 @@ export function columnsToColumnDefinitions(columns, columnExtensionMap, defaultW
             widthMap: ceWidthMap || cpWidthMap || defaultWidthMap,
             render: ceRender || null,
             disabled: typeof ceDisabled === "boolean" ? ceDisabled
-                : typeof cpOrder === "boolean" ? cpOrder
+                : typeof cpDisabled === "boolean" ? cpDisabled
                     : false,
             order: typeof ceOrder === "number" ? ceOrder
                 : typeof cpOrder === "number" ? cpOrder
