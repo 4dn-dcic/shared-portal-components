@@ -69,7 +69,7 @@
         "jsonwebtoken": ">=7.4.0",
         "react-draggable": ">=4.4.5",
         "@4dn-dcic/react-infinite": "github:4dn-dcic/react-infinite#1.1.9",
-        "react-json-tree": "^0.16.1"
+        "react-json-tree": "^0.17.0"
     },
     "peerDependencies": {
         "auth0-lock": ">=11.26.3",
