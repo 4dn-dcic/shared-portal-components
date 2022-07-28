@@ -37,19 +37,16 @@ export class ColumnCombiner extends React.PureComponent {
     }
 
     /**
-     * @param {Object<string,{ title: string }} columns - Column definitions from backend (e.g. context, StaticSection props)
+     * @param {{ field: string, title: string }[]} columns - Column definitions from backend (e.g. context, StaticSection props)
      * @param {function} filterColumnFxn - filtering function
      */
     static filteredColumns(columns, filterColumnFxn = null){
-        if (typeof filterColumnFxn !== "function" || typeof columns !== 'object'){
-            return columns;
-        }
-        const nextColumns = {};
-        Object.keys(columns).forEach(function(key){
-            if (filterColumnFxn(key, columns[key])) return;
-            nextColumns[key] = columns[key];
+        return columns.filter(function(colDef) {
+            const { disabled = false, field } = colDef;
+            if (disabled) return false;
+            if (filterColumnFxn && filterColumnFxn(field, colDef)) return false;
+            return true;
         });
-        return nextColumns;
     }
 
     static defaultProps = {
@@ -107,22 +104,26 @@ export class ColumnCombiner extends React.PureComponent {
             filterColumnFxn = null,
             ...passProps
         } = this.props;
-        const { context : { columns: contextColumns } = {} } = passProps;
-        const columns = this.memoized.filteredColumns(overridePropColumns || contextColumns || {}, filterColumnFxn);
+        const { context : { columns: contextColumns = {} } = {} } = passProps;
 
-        if (columns.length === 0) {
+        const columnDefinitions = this.memoized.filteredColumns(
+            this.memoized.getDefinitions(overridePropColumns || contextColumns, columnExtensionMap),
+            filterColumnFxn
+        );
+
+        if (columnDefinitions.length === 0) {
             console.error("No columns available in context nor props. Please provide columns. Ok if resorting to back-end provided columns and waiting for first response to load.");
         }
 
         const propsToPass = {
             ...passProps,
             /** Final form of all columns to show in table */
-            columnDefinitions: this.memoized.getDefinitions(columns, columnExtensionMap),
+            columnDefinitions,
             /**
              * Initial column keys/fields from `columnDefinitions` to be hidden from table.
              * Change of this prop value causes reset of hidden columns state.
              */
-            defaultHiddenColumns: this.memoized.getDefaultHiddenColumns(columns)
+            defaultHiddenColumns: this.memoized.getDefaultHiddenColumns(columnDefinitions)
         };
 
         return React.Children.map(children, function(child){
@@ -135,26 +136,31 @@ export class ColumnCombiner extends React.PureComponent {
  * Convert a map of field:title to list of column definitions, setting defaults.
  *
  * @param {Object.<string>} columns         Map of field names to field/column titles, as returned from back-end.
- * @param {Object} columnDefinitionMap      Map of field names to extra column properties such 'render', 'title', 'widthMap', etc.
+ * @param {Object} columnExtensionMap       Map of field names to extra column properties such 'render', 'title', 'widthMap', etc.
  * @param {Object[]} constantDefinitions    Preset list of column definitions, each containing at least 'field' and 'title'.
  * @param {Object} defaultWidthMap          Map of responsive grid states (lg, md, sm) to pixel number sizes.
  * @returns {Object[]}                      List of objects containing keys 'title', 'field', 'widthMap', and 'render'.
  */
-export function columnsToColumnDefinitions(columns, columnDefinitionMap, defaultWidthMap = DEFAULT_WIDTH_MAP){
-    const uninishedColumnDefinitions = _.pairs(columns).map(function([ field, columnProperties ]){
-        return { ...columnProperties, field };
-    });
+export function columnsToColumnDefinitions(columns, columnExtensionMap, defaultWidthMap = DEFAULT_WIDTH_MAP){
 
-    const columnDefinitions = _.map(uninishedColumnDefinitions, function(colDef, i){
-        const colDefOverride = columnDefinitionMap && columnDefinitionMap[colDef.field];
-        if (colDefOverride){
-            var colDef2 = _.extend({}, colDefOverride, colDef);
-            colDef = colDef2;
-        }
-
-        colDef.widthMap = colDef.widthMap || defaultWidthMap;
-        colDef.render = colDef.render || null;
-        colDef.order = typeof colDef.order === 'number' ? colDef.order : i;
+    const columnDefinitions = _.pairs(columns).map(function([ field, columnProperties ], colPairIndex){
+        const { [field]: columnExtension = {} } = columnExtensionMap || {};
+        const { widthMap: ceWidthMap, render: ceRender, order: ceOrder, disabled: ceDisabled } = columnExtension;
+        const { widthMap: cpWidthMap, order: cpOrder, disabled: cpDisabled } = columnProperties;
+        const colDef = {
+            ...columnExtension,
+            ...columnProperties,
+            field,
+            // Precedence to specific columnExtensionMap values over columnProperties ones; fallbacks
+            widthMap: ceWidthMap || cpWidthMap || defaultWidthMap,
+            render: ceRender || null,
+            disabled: typeof ceDisabled === "boolean" ? ceDisabled
+                : typeof cpDisabled === "boolean" ? cpDisabled
+                    : false,
+            order: typeof ceOrder === "number" ? ceOrder
+                : typeof cpOrder === "number" ? cpOrder
+                    : colPairIndex
+        };
 
         return colDef;
     });
@@ -200,12 +206,12 @@ export function haveContextColumnsChanged(cols1, cols2){
 }
 
 /**
- * @param {Object<string, Object>} columns - Object containing some column definitions/values.
+ * @param {{ field: string, default_hidden: boolean? }} columnDefinitions - List containing some column definitions/values.
  */
-function defaultHiddenColumnMapFromColumns(columns){
+function defaultHiddenColumnMapFromColumns(columnDefinitions){
     const hiddenColMap = {};
-    _.pairs(columns).forEach(function([ field, columnDefinition ]){
-        if (columnDefinition.default_hidden){
+    columnDefinitions.forEach(function({ field, default_hidden = false }){
+        if (default_hidden){
             hiddenColMap[field] = true;
         } else {
             hiddenColMap[field] = false;

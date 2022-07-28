@@ -1,5 +1,5 @@
 import React from 'react';
-export var AboveTablePanelWrapper = /*#__PURE__*/React.memo(function (props) {
+export var AboveTablePanelWrapper = /*#__PURE__*/React.memo( /*#__PURE__*/React.forwardRef(function (props, ref) {
   var children = props.children,
       title = props.title,
       className = props.className,
@@ -26,10 +26,11 @@ export var AboveTablePanelWrapper = /*#__PURE__*/React.memo(function (props) {
     return child;
   });
   return /*#__PURE__*/React.createElement("div", {
-    className: "search-result-config-panel" + (className ? ' ' + className : '')
+    className: "search-result-config-panel" + (className ? ' ' + className : ''),
+    ref: ref
   }, /*#__PURE__*/React.createElement("div", {
     className: "inner"
   }, /*#__PURE__*/React.createElement("h5", {
     className: "panel-title"
   }, title, closeButton), childrenWithProps));
-});
+}));
