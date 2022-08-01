@@ -4,7 +4,7 @@ import _ from 'underscore';
 import memoize from 'memoize-one';
 import Collapse from 'react-bootstrap/esm/Collapse';
 
-import { TableOfContents, HeaderWithLink } from './TableOfContents';
+import { TableOfContents, HeaderWithLink, NextPreviousPageSection } from './TableOfContents';
 import { layout, console } from './../util';
 
 
@@ -69,7 +69,7 @@ export function correctRelativeLinks(elem, context, depth=0){
 
 
 const Wrapper = React.memo(function Wrapper(props){
-    const { children, tableOfContents, title, context } = props;
+    const { children, tableOfContents, title, context, windowWidth } = props;
     const toc = (context && context['table-of-contents']) || (tableOfContents && typeof tableOfContents === 'object' ? tableOfContents : null);
     const pageTitle = title || (context && context.title) || null;
     const tocExists = toc && toc.enabled !== false;
@@ -86,6 +86,11 @@ const Wrapper = React.memo(function Wrapper(props){
                     </div>
                 ) : null }
                 <div key="main-column" className={"order-2 col-12 col-xl-" + (tocExists ? '9': '12')}>{ children }</div>
+                { tocExists ? (
+                    <div key="footer-next-prev" className="col-12 d-lg-none order-last">
+                        <NextPreviousPageSection context={context} windowInnerWidth={windowWidth} />
+                    </div>
+                ) : null}
             </div>
         </div>
     );
