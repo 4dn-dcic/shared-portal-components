@@ -37,13 +37,16 @@ var navigate = function (href) {
   var fallbackCallback = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
   var includeReduxDispatch = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : {};
   if (typeof cachedNavFunction !== 'function') throw new Error('No navigate function cached.');
-  return cachedNavFunction(href, options, function callbackFxn(jsonResponse) {
+
+  var callbackFxn = function (jsonResponse) {
     if (callbackFunctions.length > 0) _.forEach(callbackFunctions, function (cb) {
       cb(jsonResponse);
     }); // Any registered callbacks.
 
     if (typeof callback === 'function') callback(jsonResponse); // Original callback
-  }, fallbackCallback, includeReduxDispatch);
+  };
+
+  return cachedNavFunction(href, options, callbackFxn, fallbackCallback, includeReduxDispatch);
 };
 /******* PUBLIC STATIC FUNCTIONS *******/
 

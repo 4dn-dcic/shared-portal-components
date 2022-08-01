@@ -15,7 +15,7 @@ import { isServerSide } from './misc';
 export var patchedConsoleInstance = function () {
   if (!isServerSide() && window.patchedConsole) return window.patchedConsole; // Re-use instance if available.
 
-  var PatchedConsole = function () {
+  var patchedConsole = new function PatchedConsole() {
     var _this = this;
 
     /**
@@ -94,9 +94,7 @@ export var patchedConsoleInstance = function () {
     };
 
     this._patchMethods();
-  };
-
-  var patchedConsole = new PatchedConsole();
+  }();
 
   if (!isServerSide()) {
     window.patchedConsole = patchedConsole;
