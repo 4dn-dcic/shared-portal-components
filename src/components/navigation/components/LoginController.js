@@ -83,38 +83,44 @@ export class LoginController extends React.PureComponent {
         };
     }
 
-    componentDidMount () {
+    componentDidMount() {
         const { auth0ClientID, auth0Domain, auth0Options } = this.props;
         const { isAuth0LibraryLoaded } = this.state;
+        ajaxPromise("/auth0_config").then(({ auth0Client, auth0Domain }) => {
 
-        const createLock = () => {
-            this.lock = new Auth0Lock(auth0ClientID, auth0Domain, auth0Options);
-            this.lock.on("authenticated", this.auth0LoginCallback);
-            setTimeout(()=>{
-                this.setState({ "isAuth0LibraryLoaded": true });
-            }, 200);
-        };
+            if (!auth0Client || !auth0Domain) {
+                return; // Skip setting "isAuth0LibraryLoaded": true, idk.
+            }
 
-        if (!isAuth0LibraryLoaded) {
-            // prefetch & preload enabled here since is likely that user might want to click Login very quickly after loading webpage.
-            import(
-                /* webpackChunkName: "auth0-lock-bundle" */
-                /* webpackMode: "lazy" */
-                /* webpackPrefetch: true */
-                /* webpackPreload: true */
-                "auth0-lock"
-            ).then(({ default: Auth0LockImport })=>{
-                Auth0Lock = Auth0LockImport;
-                // As of 9.11.0, auth0-js (dependency of Auth0Lock) cannot work outside of browser context.
-                // We import it here in separate bundle instead to avoid issues during server-side render.
-                createLock();
+            const createLock = () => {
+                this.lock = new Auth0Lock(auth0ClientID, auth0Domain, auth0Options);
+                this.lock.on("authenticated", this.auth0LoginCallback);
                 setTimeout(()=>{
                     this.setState({ "isAuth0LibraryLoaded": true });
                 }, 200);
-            });
-        } else {
-            createLock();
-        }
+            };
+
+            if (!isAuth0LibraryLoaded) {
+                // prefetch & preload enabled here since is likely that user might want to click Login very quickly after loading webpage.
+                import(
+                    /* webpackChunkName: "auth0-lock-bundle" */
+                    /* webpackMode: "lazy" */
+                    /* webpackPrefetch: true */
+                    /* webpackPreload: true */
+                    "auth0-lock"
+                ).then(({ default: Auth0LockImport })=>{
+                    Auth0Lock = Auth0LockImport;
+                    // As of 9.11.0, auth0-js (dependency of Auth0Lock) cannot work outside of browser context.
+                    // We import it here in separate bundle instead to avoid issues during server-side render.
+                    createLock();
+                    setTimeout(()=>{
+                        this.setState({ "isAuth0LibraryLoaded": true });
+                    }, 200);
+                });
+            } else {
+                createLock();
+            }
+        });
     }
 
     showLock(){
