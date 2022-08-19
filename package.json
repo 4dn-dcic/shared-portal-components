@@ -37,7 +37,7 @@
         "sinon": "^1.17.6",
         "source-map-support": "^0.5.19",
         "string-replace-loader": "^2.3.0",
-        "terser-webpack-plugin": "^1.4.5",
+        "terser-webpack-plugin": "^4.2.3",
         "webpack": "^4.46.0",
         "webpack-bundle-analyzer": "^3.8.0",
         "webpack-deadcode-plugin": "^0.1.12",
