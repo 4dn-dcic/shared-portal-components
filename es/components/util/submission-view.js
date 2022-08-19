@@ -1,16 +1,5 @@
-function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
-
-function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
-
-function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
-
-function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter); }
-
-function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
-
-function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
-
-function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
+import _toConsumableArray from "@babel/runtime/helpers/toConsumableArray";
+import _typeof from "@babel/runtime/helpers/typeof";
 
 /*
 This file contains utilities specific to the SubmissionView component. Many of these are helpers for
@@ -385,7 +374,7 @@ export var findParentFromHierarchy = function myself(hierarchy, keyIdx) {
   if (isNaN(keyIdx) || !hierarchy) return null;
   var found_parent = null;
 
-  _.keys(hierarchy).forEach(function (key) {
+  _.keys(hierarchy).forEach(function (key, index) {
     if (keyIdx in hierarchy[key]) {
       found_parent = key;
     } else {
@@ -405,7 +394,7 @@ export var findParentFromHierarchy = function myself(hierarchy, keyIdx) {
 export var flattenHierarchy = function myself(hierarchy) {
   var found_keys = [];
 
-  _.keys(hierarchy).forEach(function (key) {
+  _.keys(hierarchy).forEach(function (key, index) {
     if (!isNaN(key)) key = parseInt(key);
     var sub_keys = myself(hierarchy[key]);
     found_keys = _.union(found_keys, sub_keys, [key]);
@@ -420,7 +409,7 @@ export var flattenHierarchy = function myself(hierarchy) {
  */
 
 export var modifyHierarchy = function myself(hierarchy, keyIdx, parentKeyIdx) {
-  _.keys(hierarchy).forEach(function (key) {
+  _.keys(hierarchy).forEach(function (key, index) {
     if (key == parentKeyIdx) {
       hierarchy[parentKeyIdx][keyIdx] = {};
     } else {
@@ -437,7 +426,7 @@ export var modifyHierarchy = function myself(hierarchy, keyIdx, parentKeyIdx) {
 export var replaceInHierarchy = function myself(hierarchy, existingValueToFind, newValue) {
   if (typeof existingValueToFind === 'number') existingValueToFind = existingValueToFind + '';
 
-  _.keys(hierarchy).forEach(function (key) {
+  _.keys(hierarchy).forEach(function (key, index) {
     if (key === existingValueToFind) {
       var downstream = hierarchy[key];
       hierarchy[newValue] = downstream;
@@ -517,7 +506,7 @@ export function delvePreExistingObjects(initObjs, json, fieldSchema, listTerm) {
     }
   } else if (json instanceof Object && json) {
     if (fieldSchema.properties) {
-      _.keys(json).forEach(function (key) {
+      _.keys(json).forEach(function (key, idx) {
         if (fieldSchema.properties[key]) {
           delvePreExistingObjects(initObjs, json[key], fieldSchema.properties[key], listTerm);
         }
@@ -542,7 +531,7 @@ export function delvePreExistingObjects(initObjs, json, fieldSchema, listTerm) {
  */
 
 export function removeNulls(context) {
-  _.keys(context).forEach(function (key) {
+  _.keys(context).forEach(function (key, index) {
     if (isValueNull(context[key])) {
       delete context[key];
     } else if (Array.isArray(context[key])) {

@@ -1,5 +1,11 @@
-function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
-
+import _objectWithoutProperties from "@babel/runtime/helpers/objectWithoutProperties";
+import _classCallCheck from "@babel/runtime/helpers/classCallCheck";
+import _createClass from "@babel/runtime/helpers/createClass";
+import _assertThisInitialized from "@babel/runtime/helpers/assertThisInitialized";
+import _inherits from "@babel/runtime/helpers/inherits";
+import _possibleConstructorReturn from "@babel/runtime/helpers/possibleConstructorReturn";
+import _getPrototypeOf from "@babel/runtime/helpers/getPrototypeOf";
+import _defineProperty from "@babel/runtime/helpers/defineProperty";
 var _excluded = ["children"],
     _excluded2 = ["children"];
 
@@ -7,31 +13,9 @@ function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (O
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 
-function _objectWithoutProperties(source, excluded) { if (source == null) return {}; var target = _objectWithoutPropertiesLoose(source, excluded); var key, i; if (Object.getOwnPropertySymbols) { var sourceSymbolKeys = Object.getOwnPropertySymbols(source); for (i = 0; i < sourceSymbolKeys.length; i++) { key = sourceSymbolKeys[i]; if (excluded.indexOf(key) >= 0) continue; if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue; target[key] = source[key]; } } return target; }
-
-function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; var sourceKeys = Object.keys(source); var key, i; for (i = 0; i < sourceKeys.length; i++) { key = sourceKeys[i]; if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } return target; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); Object.defineProperty(subClass, "prototype", { writable: false }); if (superClass) _setPrototypeOf(subClass, superClass); }
-
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
-
 function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
 
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } else if (call !== void 0) { throw new TypeError("Derived constructors may only return object or undefined"); } return _assertThisInitialized(self); }
-
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
 function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
-
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -92,44 +76,52 @@ export var LoginController = /*#__PURE__*/function (_React$PureComponent) {
           auth0Domain = _this$props.auth0Domain,
           auth0Options = _this$props.auth0Options;
       var isAuth0LibraryLoaded = this.state.isAuth0LibraryLoaded;
+      ajaxPromise("/auth0_config").then(function (_ref) {
+        var auth0Client = _ref.auth0Client,
+            auth0Domain = _ref.auth0Domain;
 
-      var createLock = function () {
-        _this2.lock = new Auth0Lock(auth0ClientID, auth0Domain, auth0Options);
+        if (!auth0Client || !auth0Domain) {
+          return; // Skip setting "isAuth0LibraryLoaded": true, idk.
+        }
 
-        _this2.lock.on("authenticated", _this2.auth0LoginCallback);
+        var createLock = function () {
+          _this2.lock = new Auth0Lock(auth0ClientID, auth0Domain, auth0Options);
 
-        setTimeout(function () {
-          _this2.setState({
-            "isAuth0LibraryLoaded": true
-          });
-        }, 200);
-      };
+          _this2.lock.on("authenticated", _this2.auth0LoginCallback);
 
-      if (!isAuth0LibraryLoaded) {
-        // prefetch & preload enabled here since is likely that user might want to click Login very quickly after loading webpage.
-        import(
-        /* webpackChunkName: "auth0-lock-bundle" */
-
-        /* webpackMode: "lazy" */
-
-        /* webpackPrefetch: true */
-
-        /* webpackPreload: true */
-        "auth0-lock").then(function (_ref) {
-          var Auth0LockImport = _ref["default"];
-          Auth0Lock = Auth0LockImport; // As of 9.11.0, auth0-js (dependency of Auth0Lock) cannot work outside of browser context.
-          // We import it here in separate bundle instead to avoid issues during server-side render.
-
-          createLock();
           setTimeout(function () {
             _this2.setState({
               "isAuth0LibraryLoaded": true
             });
           }, 200);
-        });
-      } else {
-        createLock();
-      }
+        };
+
+        if (!isAuth0LibraryLoaded) {
+          // prefetch & preload enabled here since is likely that user might want to click Login very quickly after loading webpage.
+          import(
+          /* webpackChunkName: "auth0-lock-bundle" */
+
+          /* webpackMode: "lazy" */
+
+          /* webpackPrefetch: true */
+
+          /* webpackPreload: true */
+          "auth0-lock").then(function (_ref2) {
+            var Auth0LockImport = _ref2["default"];
+            Auth0Lock = Auth0LockImport; // As of 9.11.0, auth0-js (dependency of Auth0Lock) cannot work outside of browser context.
+            // We import it here in separate bundle instead to avoid issues during server-side render.
+
+            createLock();
+            setTimeout(function () {
+              _this2.setState({
+                "isAuth0LibraryLoaded": true
+              });
+            }, 200);
+          });
+        } else {
+          createLock();
+        }
+      });
     }
   }, {
     key: "showLock",
@@ -170,9 +162,9 @@ export var LoginController = /*#__PURE__*/function (_React$PureComponent) {
             });
           }, 90000);
           /* 90 seconds */
-        })]).then(function (_ref2) {
-          var _ref2$saved_cookie = _ref2.saved_cookie,
-              saved_cookie = _ref2$saved_cookie === void 0 ? false : _ref2$saved_cookie;
+        })]).then(function (_ref3) {
+          var _ref3$saved_cookie = _ref3.saved_cookie,
+              saved_cookie = _ref3$saved_cookie === void 0 ? false : _ref3$saved_cookie;
 
           if (!saved_cookie) {
             throw new Error("Couldn't set session in /login");
@@ -284,8 +276,8 @@ export var LoginController = /*#__PURE__*/function (_React$PureComponent) {
           // User account not in system -- present a registration form
           var decodedToken = jwt.decode(idToken);
 
-          var _ref3 = decodedToken || {},
-              unverifiedUserEmail = _ref3.email;
+          var _ref4 = decodedToken || {},
+              unverifiedUserEmail = _ref4.email;
 
           if (unverifiedUserEmail) {
             // Somewhat weird/hacky approach to mask the idToken in private func enclosure
@@ -457,8 +449,8 @@ export function performLogout() {
   arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "DPxEwsZRnKDpk0VfVAxrStRKukN14ILB";
 
   // Grab here, gets deleted at end of response.
-  var _ref4 = JWT.getUserDetails() || {},
-      uuid = _ref4.uuid;
+  var _ref5 = JWT.getUserDetails() || {},
+      uuid = _ref5.uuid;
 
   return fetch("/logout").then(function (response) {
     var _response$deleted_coo = response.deleted_cookie,
