@@ -69,7 +69,7 @@ export class SelectedItemsController extends React.PureComponent {
             if (isList) {
                 // Add/overwrite only.
                 result.forEach(function(resultItem){
-                    nextItems.set(itemUtil.atId(resultItem), result);
+                    nextItems.set(itemUtil.atId(resultItem), resultItem);
                 });
             } else {
                 // Toggle on/off.
