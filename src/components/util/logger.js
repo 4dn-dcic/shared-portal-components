@@ -1,7 +1,7 @@
 
 import { isServerSide } from './misc';
 import * as Sentry from "@sentry/react";
-import { Integrations } from "@sentry/tracing";
+import { BrowserTracing } from "@sentry/tracing";
 
 let dataSourceName = null;
 let isInitialized = false;
@@ -27,7 +27,7 @@ export function initializeLogger(dsn = null){
 
     Sentry.init({
         dsn: dsn,
-        integrations   : [new Integrations.BrowserTracing()],
+        integrations   : [new BrowserTracing()],
         maxBreadcrumbs : 100,
         //Monitor the health of releases by observing user adoption, usage of the application, percentage of crashes, and session data.
         autoSessionTracking : true,
@@ -53,17 +53,17 @@ export function initializeLogger(dsn = null){
 
 export function error(message, ...arg) {
     console.error(message, arg);
-    log(message, Sentry.Severity.Error, ...arg);
+    log(message, "error", ...arg);
 }
 
 export function warning(message, ...arg) {
     console.warn(message, arg);
-    log(message, Sentry.Severity.Warning, ...arg);
+    log(message, "warning", ...arg);
 }
 
 export function info(message, ...arg) {
     console.info(message, arg);
-    log(message, Sentry.Severity.Info, ...arg);
+    log(message, "info", ...arg);
 }
 
 /**
