@@ -21,7 +21,7 @@ import PropTypes from 'prop-types';
 import _ from 'underscore';
 import memoize from 'memoize-one';
 import Collapse from 'react-bootstrap/esm/Collapse';
-import { TableOfContents, HeaderWithLink } from './TableOfContents';
+import { TableOfContents, HeaderWithLink, NextPreviousPageSection } from './TableOfContents';
 import { layout, console } from './../util';
 /**
  * Converts links to other files into links to sections from a React element and its children (recursively).
@@ -79,7 +79,8 @@ var Wrapper = /*#__PURE__*/React.memo(function (props) {
   var children = props.children,
       tableOfContents = props.tableOfContents,
       title = props.title,
-      context = props.context;
+      context = props.context,
+      windowWidth = props.windowWidth;
   var toc = context && context['table-of-contents'] || (tableOfContents && _typeof(tableOfContents) === 'object' ? tableOfContents : null);
   var pageTitle = title || context && context.title || null;
   var tocExists = toc && toc.enabled !== false;
@@ -99,7 +100,13 @@ var Wrapper = /*#__PURE__*/React.memo(function (props) {
   }, _.pick(props, 'navigate', 'windowWidth', 'windowHeight', 'context', 'href', 'registerWindowOnScrollHandler', 'fixedPositionBreakpoint')))) : null, /*#__PURE__*/React.createElement("div", {
     key: "main-column",
     className: "order-2 col-12 col-xl-" + (tocExists ? '9' : '12')
-  }, children)));
+  }, children), tocExists ? /*#__PURE__*/React.createElement("div", {
+    key: "footer-next-prev",
+    className: "col-12 d-lg-none order-last"
+  }, /*#__PURE__*/React.createElement(NextPreviousPageSection, {
+    context: context,
+    windowInnerWidth: windowWidth
+  })) : null));
 });
 Wrapper.defaultProps = {
   //'contentColSize' : 12,

@@ -99,16 +99,30 @@ export var SelectedItemsController = /*#__PURE__*/function (_React$PureComponent
       this.setState(function (_ref) {
         var prevItems = _ref.selectedItems;
         var nextItems = new Map(prevItems);
-        var resultID = itemUtil.atId(result);
+        var isList = Array.isArray(result);
 
-        if (nextItems.has(resultID)) {
-          nextItems["delete"](resultID);
+        if (!isMultiSelect && isList) {
+          throw new Error("Can only supply list if multiselect is also enabled");
+        }
+
+        if (isList) {
+          // Add/overwrite only.
+          result.forEach(function (resultItem) {
+            nextItems.set(itemUtil.atId(resultItem), resultItem);
+          });
         } else {
-          if (!isMultiSelect) {
-            nextItems.clear();
-          }
+          // Toggle on/off.
+          var resultAtID = itemUtil.atId(result);
 
-          nextItems.set(resultID, result);
+          if (nextItems.has(resultAtID)) {
+            nextItems["delete"](resultAtID);
+          } else {
+            if (!isMultiSelect) {
+              nextItems.clear();
+            }
+
+            nextItems.set(resultAtID, result);
+          }
         }
 
         return {

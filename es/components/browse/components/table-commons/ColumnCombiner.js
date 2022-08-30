@@ -1,4 +1,3 @@
-import _typeof from "@babel/runtime/helpers/typeof";
 import _objectWithoutProperties from "@babel/runtime/helpers/objectWithoutProperties";
 import _slicedToArray from "@babel/runtime/helpers/slicedToArray";
 import _classCallCheck from "@babel/runtime/helpers/classCallCheck";
@@ -113,22 +112,23 @@ export var ColumnCombiner = /*#__PURE__*/function (_React$PureComponent) {
 
       var _passProps$context = passProps.context;
       _passProps$context = _passProps$context === void 0 ? {} : _passProps$context;
-      var contextColumns = _passProps$context.columns;
-      var columns = this.memoized.filteredColumns(overridePropColumns || contextColumns || {}, filterColumnFxn);
+      var _passProps$context$co = _passProps$context.columns,
+          contextColumns = _passProps$context$co === void 0 ? {} : _passProps$context$co;
+      var columnDefinitions = this.memoized.filteredColumns(this.memoized.getDefinitions(overridePropColumns || contextColumns, columnExtensionMap), filterColumnFxn);
 
-      if (columns.length === 0) {
+      if (columnDefinitions.length === 0) {
         console.error("No columns available in context nor props. Please provide columns. Ok if resorting to back-end provided columns and waiting for first response to load.");
       }
 
       var propsToPass = _objectSpread(_objectSpread({}, passProps), {}, {
         /** Final form of all columns to show in table */
-        columnDefinitions: this.memoized.getDefinitions(columns, columnExtensionMap),
+        columnDefinitions: columnDefinitions,
 
         /**
          * Initial column keys/fields from `columnDefinitions` to be hidden from table.
          * Change of this prop value causes reset of hidden columns state.
          */
-        defaultHiddenColumns: this.memoized.getDefaultHiddenColumns(columns)
+        defaultHiddenColumns: this.memoized.getDefaultHiddenColumns(columnDefinitions)
       });
 
       return React.Children.map(children, function (child) {
@@ -152,7 +152,7 @@ export var ColumnCombiner = /*#__PURE__*/function (_React$PureComponent) {
       return columnsToColumnDefinitions(columns, columnExtensionMap);
     }
     /**
-     * @param {Object<string,{ title: string }} columns - Column definitions from backend (e.g. context, StaticSection props)
+     * @param {{ field: string, title: string }[]} columns - Column definitions from backend (e.g. context, StaticSection props)
      * @param {function} filterColumnFxn - filtering function
      */
 
@@ -160,17 +160,14 @@ export var ColumnCombiner = /*#__PURE__*/function (_React$PureComponent) {
     key: "filteredColumns",
     value: function filteredColumns(columns) {
       var filterColumnFxn = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-
-      if (typeof filterColumnFxn !== "function" || _typeof(columns) !== 'object') {
-        return columns;
-      }
-
-      var nextColumns = {};
-      Object.keys(columns).forEach(function (key) {
-        if (filterColumnFxn(key, columns[key])) return;
-        nextColumns[key] = columns[key];
+      return columns.filter(function (colDef) {
+        var _colDef$disabled = colDef.disabled,
+            disabled = _colDef$disabled === void 0 ? false : _colDef$disabled,
+            field = colDef.field;
+        if (disabled) return false;
+        if (filterColumnFxn && filterColumnFxn(field, colDef)) return false;
+        return true;
       });
-      return nextColumns;
     }
   }]);
 
@@ -180,7 +177,7 @@ export var ColumnCombiner = /*#__PURE__*/function (_React$PureComponent) {
  * Convert a map of field:title to list of column definitions, setting defaults.
  *
  * @param {Object.<string>} columns         Map of field names to field/column titles, as returned from back-end.
- * @param {Object} columnDefinitionMap      Map of field names to extra column properties such 'render', 'title', 'widthMap', etc.
+ * @param {Object} columnExtensionMap       Map of field names to extra column properties such 'render', 'title', 'widthMap', etc.
  * @param {Object[]} constantDefinitions    Preset list of column definitions, each containing at least 'field' and 'title'.
  * @param {Object} defaultWidthMap          Map of responsive grid states (lg, md, sm) to pixel number sizes.
  * @returns {Object[]}                      List of objects containing keys 'title', 'field', 'widthMap', and 'render'.
@@ -192,31 +189,33 @@ _defineProperty(ColumnCombiner, "defaultProps", {
   "columnExtensionMap": basicColumnExtensionMap
 });
 
-export function columnsToColumnDefinitions(columns, columnDefinitionMap) {
+export function columnsToColumnDefinitions(columns, columnExtensionMap) {
   var defaultWidthMap = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : DEFAULT_WIDTH_MAP;
 
-  var uninishedColumnDefinitions = _.pairs(columns).map(function (_ref5) {
+  var columnDefinitions = _.pairs(columns).map(function (_ref5, colPairIndex) {
     var _ref6 = _slicedToArray(_ref5, 2),
         field = _ref6[0],
         columnProperties = _ref6[1];
 
-    return _objectSpread(_objectSpread({}, columnProperties), {}, {
-      field: field
+    var _ref7$field = (columnExtensionMap || {})[field],
+        columnExtension = _ref7$field === void 0 ? {} : _ref7$field;
+    var ceWidthMap = columnExtension.widthMap,
+        ceRender = columnExtension.render,
+        ceOrder = columnExtension.order,
+        ceDisabled = columnExtension.disabled;
+    var cpWidthMap = columnProperties.widthMap,
+        cpOrder = columnProperties.order,
+        cpDisabled = columnProperties.disabled;
+
+    var colDef = _objectSpread(_objectSpread(_objectSpread({}, columnExtension), columnProperties), {}, {
+      field: field,
+      // Precedence to specific columnExtensionMap values over columnProperties ones; fallbacks
+      widthMap: ceWidthMap || cpWidthMap || defaultWidthMap,
+      render: ceRender || null,
+      disabled: typeof ceDisabled === "boolean" ? ceDisabled : typeof cpDisabled === "boolean" ? cpDisabled : false,
+      order: typeof ceOrder === "number" ? ceOrder : typeof cpOrder === "number" ? cpOrder : colPairIndex
     });
-  });
 
-  var columnDefinitions = _.map(uninishedColumnDefinitions, function (colDef, i) {
-    var colDefOverride = columnDefinitionMap && columnDefinitionMap[colDef.field];
-
-    if (colDefOverride) {
-      var colDef2 = _.extend({}, colDefOverride, colDef);
-
-      colDef = colDef2;
-    }
-
-    colDef.widthMap = colDef.widthMap || defaultWidthMap;
-    colDef.render = colDef.render || null;
-    colDef.order = typeof colDef.order === 'number' ? colDef.order : i;
     return colDef;
   });
 
@@ -258,24 +257,22 @@ export function haveContextColumnsChanged(cols1, cols2) {
   return false;
 }
 /**
- * @param {Object<string, Object>} columns - Object containing some column definitions/values.
+ * @param {{ field: string, default_hidden: boolean? }} columnDefinitions - List containing some column definitions/values.
  */
 
-function defaultHiddenColumnMapFromColumns(columns) {
+function defaultHiddenColumnMapFromColumns(columnDefinitions) {
   var hiddenColMap = {};
+  columnDefinitions.forEach(function (_ref8) {
+    var field = _ref8.field,
+        _ref8$default_hidden = _ref8.default_hidden,
+        default_hidden = _ref8$default_hidden === void 0 ? false : _ref8$default_hidden;
 
-  _.pairs(columns).forEach(function (_ref7) {
-    var _ref8 = _slicedToArray(_ref7, 2),
-        field = _ref8[0],
-        columnDefinition = _ref8[1];
-
-    if (columnDefinition.default_hidden) {
+    if (default_hidden) {
       hiddenColMap[field] = true;
     } else {
       hiddenColMap[field] = false;
     }
   });
-
   return hiddenColMap;
 }
 /**

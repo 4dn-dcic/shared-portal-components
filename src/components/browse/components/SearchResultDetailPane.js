@@ -15,6 +15,7 @@ export class SearchResultDetailPane extends React.PureComponent {
         }),
         'popLink' : PropTypes.bool,
         'schemas' : PropTypes.object,
+        'open' : PropTypes.bool,
         //'windowWidth' : PropTypes.number.isRequired
     };
 
@@ -23,13 +24,17 @@ export class SearchResultDetailPane extends React.PureComponent {
     }
 
     componentDidUpdate(pastProps, pastState){
-        if (this.props.open && !pastProps.open) ReactTooltip.rebuild();
+        const { open } = this.props;
+        const { open: pastOpen } = pastProps;
+        if (open && !pastOpen) {
+            ReactTooltip.rebuild();
+        }
     }
 
     render (){
         const { result, popLink, schemas } = this.props;
         return (
-            <div>
+            <div className="w-100">
                 { !result.description ? null : (
                     <div className="flex-description-container">
                         <h5><i className="icon icon-fw icon-align-left fas"/>&nbsp; Description</h5>

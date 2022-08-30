@@ -76,44 +76,52 @@ export var LoginController = /*#__PURE__*/function (_React$PureComponent) {
           auth0Domain = _this$props.auth0Domain,
           auth0Options = _this$props.auth0Options;
       var isAuth0LibraryLoaded = this.state.isAuth0LibraryLoaded;
+      ajaxPromise("/auth0_config").then(function (_ref) {
+        var auth0Client = _ref.auth0Client,
+            auth0Domain = _ref.auth0Domain;
 
-      var createLock = function () {
-        _this2.lock = new Auth0Lock(auth0ClientID, auth0Domain, auth0Options);
+        if (!auth0Client || !auth0Domain) {
+          return; // Skip setting "isAuth0LibraryLoaded": true, idk.
+        }
 
-        _this2.lock.on("authenticated", _this2.auth0LoginCallback);
+        var createLock = function () {
+          _this2.lock = new Auth0Lock(auth0ClientID, auth0Domain, auth0Options);
 
-        setTimeout(function () {
-          _this2.setState({
-            "isAuth0LibraryLoaded": true
-          });
-        }, 200);
-      };
+          _this2.lock.on("authenticated", _this2.auth0LoginCallback);
 
-      if (!isAuth0LibraryLoaded) {
-        // prefetch & preload enabled here since is likely that user might want to click Login very quickly after loading webpage.
-        import(
-        /* webpackChunkName: "auth0-lock-bundle" */
-
-        /* webpackMode: "lazy" */
-
-        /* webpackPrefetch: true */
-
-        /* webpackPreload: true */
-        "auth0-lock").then(function (_ref) {
-          var Auth0LockImport = _ref["default"];
-          Auth0Lock = Auth0LockImport; // As of 9.11.0, auth0-js (dependency of Auth0Lock) cannot work outside of browser context.
-          // We import it here in separate bundle instead to avoid issues during server-side render.
-
-          createLock();
           setTimeout(function () {
             _this2.setState({
               "isAuth0LibraryLoaded": true
             });
           }, 200);
-        });
-      } else {
-        createLock();
-      }
+        };
+
+        if (!isAuth0LibraryLoaded) {
+          // prefetch & preload enabled here since is likely that user might want to click Login very quickly after loading webpage.
+          import(
+          /* webpackChunkName: "auth0-lock-bundle" */
+
+          /* webpackMode: "lazy" */
+
+          /* webpackPrefetch: true */
+
+          /* webpackPreload: true */
+          "auth0-lock").then(function (_ref2) {
+            var Auth0LockImport = _ref2["default"];
+            Auth0Lock = Auth0LockImport; // As of 9.11.0, auth0-js (dependency of Auth0Lock) cannot work outside of browser context.
+            // We import it here in separate bundle instead to avoid issues during server-side render.
+
+            createLock();
+            setTimeout(function () {
+              _this2.setState({
+                "isAuth0LibraryLoaded": true
+              });
+            }, 200);
+          });
+        } else {
+          createLock();
+        }
+      });
     }
   }, {
     key: "showLock",
@@ -154,9 +162,9 @@ export var LoginController = /*#__PURE__*/function (_React$PureComponent) {
             });
           }, 90000);
           /* 90 seconds */
-        })]).then(function (_ref2) {
-          var _ref2$saved_cookie = _ref2.saved_cookie,
-              saved_cookie = _ref2$saved_cookie === void 0 ? false : _ref2$saved_cookie;
+        })]).then(function (_ref3) {
+          var _ref3$saved_cookie = _ref3.saved_cookie,
+              saved_cookie = _ref3$saved_cookie === void 0 ? false : _ref3$saved_cookie;
 
           if (!saved_cookie) {
             throw new Error("Couldn't set session in /login");
@@ -268,8 +276,8 @@ export var LoginController = /*#__PURE__*/function (_React$PureComponent) {
           // User account not in system -- present a registration form
           var decodedToken = jwt.decode(idToken);
 
-          var _ref3 = decodedToken || {},
-              unverifiedUserEmail = _ref3.email;
+          var _ref4 = decodedToken || {},
+              unverifiedUserEmail = _ref4.email;
 
           if (unverifiedUserEmail) {
             // Somewhat weird/hacky approach to mask the idToken in private func enclosure
@@ -441,8 +449,8 @@ export function performLogout() {
   arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "DPxEwsZRnKDpk0VfVAxrStRKukN14ILB";
 
   // Grab here, gets deleted at end of response.
-  var _ref4 = JWT.getUserDetails() || {},
-      uuid = _ref4.uuid;
+  var _ref5 = JWT.getUserDetails() || {},
+      uuid = _ref5.uuid;
 
   return fetch("/logout").then(function (response) {
     var _response$deleted_coo = response.deleted_cookie,

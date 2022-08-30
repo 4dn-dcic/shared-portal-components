@@ -13,6 +13,7 @@ export class LocalizedTime extends React.Component {
         this.memoized = {
             getDateFns: memoize(function(dateFnsDate, timestamp) {
                 const parsedTime = zonedTimeToUtc(timestamp);
+                console.log("parsedTime", parsedTime);
                 if (dateFnsDate) return dateFnsDate;
                 if (timestamp) return parsedTime;
                 return new Date();
@@ -58,8 +59,8 @@ LocalizedTime.propTypes = {
             return new Error("dateFnsDate must be an instance of date-fns.");
         }
     },
-    timestamp : PropTypes.string,
-    localize: PropTypes.bool,
+    // Timestamp can be any of the following according to: https://github.com/marnusw/date-fns-tz#zonedtimetoutc
+    timestamp : PropTypes.oneOfType([PropTypes.string, PropTypes.number, PropTypes.instanceOf(Date)]),
     formatType : PropTypes.string,
     dateTimeSeparator : PropTypes.string,
     customOutputFormat : PropTypes.string,

@@ -59,15 +59,31 @@ export class SelectedItemsController extends React.PureComponent {
     handleSelectItem(result, isMultiSelect) {
         this.setState(function({ selectedItems: prevItems }){
             const nextItems = new Map(prevItems);
-            const resultID = itemUtil.atId(result);
-            if (nextItems.has(resultID)) {
-                nextItems.delete(resultID);
-            } else {
-                if (!isMultiSelect) {
-                    nextItems.clear();
-                }
-                nextItems.set(resultID, result);
+
+            const isList = Array.isArray(result);
+
+            if (!isMultiSelect && isList) {
+                throw new Error("Can only supply list if multiselect is also enabled");
             }
+
+            if (isList) {
+                // Add/overwrite only.
+                result.forEach(function(resultItem){
+                    nextItems.set(itemUtil.atId(resultItem), resultItem);
+                });
+            } else {
+                // Toggle on/off.
+                const resultAtID = itemUtil.atId(result);
+                if (nextItems.has(resultAtID)) {
+                    nextItems.delete(resultAtID);
+                } else {
+                    if (!isMultiSelect) {
+                        nextItems.clear();
+                    }
+                    nextItems.set(resultAtID, result);
+                }
+            }
+
             return { selectedItems: nextItems };
         });
     }
