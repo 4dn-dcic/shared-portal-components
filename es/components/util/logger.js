@@ -1,6 +1,6 @@
 import { isServerSide } from './misc';
 import * as Sentry from "@sentry/react";
-import { Integrations } from "@sentry/tracing";
+import { BrowserTracing } from "@sentry/tracing";
 var dataSourceName = null;
 var isInitialized = false;
 /**
@@ -26,7 +26,7 @@ export function initializeLogger() {
 
   Sentry.init({
     dsn: dsn,
-    integrations: [new Integrations.BrowserTracing()],
+    integrations: [new BrowserTracing()],
     maxBreadcrumbs: 100,
     //Monitor the health of releases by observing user adoption, usage of the application, percentage of crashes, and session data.
     autoSessionTracking: true,
@@ -51,7 +51,7 @@ export function error(message) {
   }
 
   console.error(message, arg);
-  log.apply(void 0, [message, Sentry.Severity.Error].concat(arg));
+  log.apply(void 0, [message, "error"].concat(arg));
 }
 export function warning(message) {
   for (var _len2 = arguments.length, arg = new Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
@@ -59,7 +59,7 @@ export function warning(message) {
   }
 
   console.warn(message, arg);
-  log.apply(void 0, [message, Sentry.Severity.Warning].concat(arg));
+  log.apply(void 0, [message, "warning"].concat(arg));
 }
 export function info(message) {
   for (var _len3 = arguments.length, arg = new Array(_len3 > 1 ? _len3 - 1 : 0), _key3 = 1; _key3 < _len3; _key3++) {
@@ -67,7 +67,7 @@ export function info(message) {
   }
 
   console.info(message, arg);
-  log.apply(void 0, [message, Sentry.Severity.Info].concat(arg));
+  log.apply(void 0, [message, "info"].concat(arg));
 }
 /**
  * generic function to log into sentry
