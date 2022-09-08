@@ -56,7 +56,7 @@
         "underscore": ">=1.9.1"
     },
     "dependencies": {
-        "@sentry/react": "^7.11.1",
+        "@sentry/react": "^7.12.1",
         "@sentry/tracing": "^7.11.1",
         "aws-sdk": "^2.1096.0",
         "crypto-js": "^3.3.0",
