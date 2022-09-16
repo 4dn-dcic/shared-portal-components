@@ -29,7 +29,7 @@
         "babel-plugin-minify-dead-code-elimination": "^0.5.1",
         "eslint": "^8.10.0",
         "eslint-plugin-cypress": "^2.12.1",
-        "eslint-plugin-react": "^7.29.2",
+        "eslint-plugin-react": "^7.31.8",
         "gulp": "^4.0.2",
         "jest-cli": "^27.1.0",
         "plugin-error": "^1.0.1",
