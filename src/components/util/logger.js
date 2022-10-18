@@ -3,7 +3,6 @@ import { isServerSide } from './misc';
 import * as Sentry from "@sentry/react";
 import { BrowserTracing } from "@sentry/tracing";
 
-let dataSourceName = null;
 let isInitialized = false;
 
 /**
@@ -11,12 +10,18 @@ let isInitialized = false;
  *
  * @export
  * @param {string} [dsn] - Sentry dsn.
+ * @param {number} [sampleRate] - trace sample rate - 1.0 to capture 100% of transactions for performance monitoring.
  * @returns {boolean} true if initialized.
  */
-export function initializeLogger(dsn = null){
+export function initializeLogger(dsn = null, sampleRate = 0.1){
 
     if (dsn === null || typeof dsn !== 'string'){
         console.error("EXITING LOGGER INITIALIZATION - Logger has not dsn. Fine if expected, else check config.");
+        return false;
+    }
+
+    if (sampleRate === null || typeof sampleRate !== 'number' || sampleRate < 0 || sampleRate > 1){
+        console.error("EXITING LOGGER INITIALIZATION - Logger has not valid sampleRate. Fine if expected, else check config.");
         return false;
     }
 
@@ -41,10 +46,9 @@ export function initializeLogger(dsn = null){
         // Set tracesSampleRate to 1.0 to capture 100%
         // of transactions for performance monitoring.
         // We recommend adjusting this value in production
-        tracesSampleRate: 1.0,
+        tracesSampleRate: sampleRate,
     });
 
-    dataSourceName = dsn;
     isInitialized = true;
     console.info("Logger: Initialized");
 
