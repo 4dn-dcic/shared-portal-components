@@ -68,7 +68,7 @@
         "html-react-parser": "^1.2.8",
         "js-md5": "^0.7.3",
         "jsdom": "^19.0.0",
-        "jsonwebtoken": ">=7.4.0",
+        "jsonwebtoken": ">=9.0.0",
         "react-draggable": ">=4.4.5",
         "@4dn-dcic/react-infinite": "github:4dn-dcic/react-infinite#1.1.9",
         "react-json-tree": "^0.17.0"
