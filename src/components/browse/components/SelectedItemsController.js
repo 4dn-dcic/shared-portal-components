@@ -237,6 +237,23 @@ export const SelectStickyFooter = React.memo(function SelectStickyFooter(props){
     );
 });
 
+export const BackNavigationStickyFooter = React.memo(function BackNavigationStickyFooter(props) {
+    return (
+        <StickyFooter>
+            <div className="row selection-controls-footer">
+                <div className="col mb-05 mt-05">
+                    &nbsp;
+                </div>
+                <div className="col-12 col-md-auto">
+                    <button type="button" className="btn btn-outline-warning ml-1" onClick={() => history.go(-(window.history.length - 1))} data-tip="Go to selection page">
+                        <i className="icon icon-fw fas icon-arrow-left"></i>&nbsp; Return to Selection List
+                    </button>
+                </div>
+            </div>
+        </StickyFooter>
+    );
+});
+
 /**
  * General purpose sticky footer component
  * TODO: Component can be moved to a separate file.

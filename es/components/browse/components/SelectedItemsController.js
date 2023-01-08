@@ -333,6 +333,24 @@ export var SelectStickyFooter = /*#__PURE__*/React.memo(function (props) {
     className: "icon icon-fw fas icon-times"
   }), "\xA0 Cancel"))));
 });
+export var BackNavigationStickyFooter = /*#__PURE__*/React.memo(function () {
+  return /*#__PURE__*/React.createElement(StickyFooter, null, /*#__PURE__*/React.createElement("div", {
+    className: "row selection-controls-footer"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "col mb-05 mt-05"
+  }, "\xA0"), /*#__PURE__*/React.createElement("div", {
+    className: "col-12 col-md-auto"
+  }, /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    className: "btn btn-outline-warning ml-1",
+    onClick: function onClick() {
+      return history.go(-(window.history.length - 1));
+    },
+    "data-tip": "Go to selection page"
+  }, /*#__PURE__*/React.createElement("i", {
+    className: "icon icon-fw fas icon-arrow-left"
+  }), "\xA0 Return to Selection List"))));
+});
 /**
  * General purpose sticky footer component
  * TODO: Component can be moved to a separate file.
