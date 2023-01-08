@@ -23,6 +23,17 @@ export function isServerSide() {
   return false;
 }
 /**
+ * Check to see if localStorage is supported by the browser or environment.
+ *
+ * @private
+ * @returns {boolean} True if supported.
+ */
+
+export function storeExists() {
+  if (typeof Storage === 'undefined' || typeof localStorage === 'undefined' || !localStorage) return false;
+  return true;
+}
+/**
  * `url.parse`, but globally memoized for performance.
  * **ONLY** pass in the _current_ `props.href` here.
  * Use regular `url.parse` for e.g. `pastProps.href`.

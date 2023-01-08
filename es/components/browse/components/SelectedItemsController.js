@@ -29,7 +29,7 @@ import React, { useMemo, useCallback } from 'react';
 import _ from 'underscore';
 import { Alerts } from './../../ui/Alerts';
 import { itemUtil } from './../../util/object';
-import { isSelectAction } from './../../util/misc';
+import { isSelectAction, storeExists } from './../../util/misc';
 import * as logger from '../../util/logger';
 import { DisplayTitleColumnWrapper, DisplayTitleColumnDefault } from './../../browse/components/table-commons/basicColumnExtensionMap';
 import { getSchemaTypeFromSearchContext, getTitleForType } from './../../util/schema-transforms';
@@ -87,15 +87,29 @@ export var SelectedItemsController = /*#__PURE__*/function (_React$PureComponent
     };
     return _this;
   }
-  /**
-   * This function add/or removes the selected item into an Map in state,
-   * if `props.currentAction` is set to "multiselect" or "selection".
-   */
-
 
   _createClass(SelectedItemsController, [{
+    key: "componentDidMount",
+    value: function componentDidMount() {
+      var keepSelectionInStorage = this.props.keepSelectionInStorage;
+      this.setState(function () {
+        if (keepSelectionInStorage === true && storeExists() && localStorage.getItem("selected_items") !== null) {
+          var foundItems = JSON.parse(localStorage.getItem("selected_items"));
+          return {
+            selectedItems: new Map(foundItems)
+          };
+        }
+      });
+    }
+    /**
+     * This function add/or removes the selected item into an Map in state,
+     * if `props.currentAction` is set to "multiselect" or "selection".
+     */
+
+  }, {
     key: "handleSelectItem",
     value: function handleSelectItem(result, isMultiSelect) {
+      var keepSelectionInStorage = this.props.keepSelectionInStorage;
       this.setState(function (_ref) {
         var prevItems = _ref.selectedItems;
         var nextItems = new Map(prevItems);
@@ -123,6 +137,10 @@ export var SelectedItemsController = /*#__PURE__*/function (_React$PureComponent
 
             nextItems.set(resultAtID, result);
           }
+        }
+
+        if (keepSelectionInStorage && storeExists()) {
+          localStorage.setItem("selected_items", JSON.stringify(Array.from(nextItems.entries())));
         }
 
         return {

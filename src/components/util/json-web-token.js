@@ -1,7 +1,7 @@
 
 import _ from 'underscore';
 import memoize from 'memoize-one';
-import { isServerSide } from './misc';
+import { isServerSide, storeExists } from './misc';
 import { patchedConsoleInstance as console } from './patched-console';
 import { getNestedProperty } from './object';
 
@@ -9,18 +9,6 @@ import { getNestedProperty } from './object';
 /** Used for serverside */
 const dummyStorage = {};
 
-
-
-/**
- * Check to see if localStorage is supported by the browser or environment.
- *
- * @private
- * @returns {boolean} True if supported.
- */
-function storeExists(){
-    if (typeof(Storage) === 'undefined' || typeof localStorage === 'undefined' || !localStorage) return false;
-    return true;
-}
 
 /**
  * Checks to see if a JWT token is in proper
