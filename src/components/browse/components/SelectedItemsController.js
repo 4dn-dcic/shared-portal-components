@@ -1,4 +1,5 @@
 import React, { useMemo, useCallback } from 'react';
+import PropTypes from 'prop-types';
 import _ from 'underscore';
 import { Alerts } from './../../ui/Alerts';
 import { itemUtil } from './../../util/object';
@@ -255,21 +256,39 @@ export const SelectStickyFooter = React.memo(function SelectStickyFooter(props){
 });
 
 export const BackNavigationStickyFooter = React.memo(function BackNavigationStickyFooter(props) {
+    const { text, tooltip, navigateToInitialPage } = props;
+
+    const onBackButtonClick = useCallback(function () {
+        if (window.history.length === 0) {
+            return;
+        }
+        history.go(navigateToInitialPage === true ? -(window.history.length - 1) : -1);
+    });
+
     return (
         <StickyFooter>
-            <div className="row selection-controls-footer">
-                <div className="col mb-05 mt-05">
-                    &nbsp;
-                </div>
+            <div className="row selection-controls-footer pull-right">
                 <div className="col-12 col-md-auto">
-                    <button type="button" className="btn btn-outline-warning ml-1" onClick={() => history.go(-(window.history.length - 1))} data-tip="Go to selection page">
-                        <i className="icon icon-fw fas icon-arrow-left"></i>&nbsp; Return to Selection List
+                    <button type="button" className="btn btn-outline-warning ml-1" onClick={onBackButtonClick} data-tip={tooltip || ''}>
+                        <i className="icon icon-fw fas icon-arrow-left"></i>&nbsp; {text || ''}
                     </button>
                 </div>
             </div>
         </StickyFooter>
     );
 });
+
+BackNavigationStickyFooter.propTypes = {
+    'text': PropTypes.string,
+    'tooltip': PropTypes.string,
+    'navigateToInitialPage': PropTypes.bool
+};
+
+BackNavigationStickyFooter.defaultProps = {
+    'text': 'Return to Selection List',
+    'tooltip': 'Go to selection page',
+    'navigateToInitialPage': true
+};
 
 /**
  * General purpose sticky footer component

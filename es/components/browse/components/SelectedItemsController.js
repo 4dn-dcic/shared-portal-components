@@ -26,6 +26,7 @@ function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflec
 function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
 
 import React, { useMemo, useCallback } from 'react';
+import PropTypes from 'prop-types';
 import _ from 'underscore';
 import { Alerts } from './../../ui/Alerts';
 import { itemUtil } from './../../util/object';
@@ -351,24 +352,40 @@ export var SelectStickyFooter = /*#__PURE__*/React.memo(function (props) {
     className: "icon icon-fw fas icon-times"
   }), "\xA0 Cancel"))));
 });
-export var BackNavigationStickyFooter = /*#__PURE__*/React.memo(function () {
+export var BackNavigationStickyFooter = /*#__PURE__*/React.memo(function (props) {
+  var text = props.text,
+      tooltip = props.tooltip,
+      navigateToInitialPage = props.navigateToInitialPage;
+  var onBackButtonClick = useCallback(function () {
+    if (window.history.length === 0) {
+      return;
+    }
+
+    history.go(navigateToInitialPage === true ? -(window.history.length - 1) : -1);
+  });
   return /*#__PURE__*/React.createElement(StickyFooter, null, /*#__PURE__*/React.createElement("div", {
-    className: "row selection-controls-footer"
+    className: "row selection-controls-footer pull-right"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "col mb-05 mt-05"
-  }, "\xA0"), /*#__PURE__*/React.createElement("div", {
     className: "col-12 col-md-auto"
   }, /*#__PURE__*/React.createElement("button", {
     type: "button",
     className: "btn btn-outline-warning ml-1",
-    onClick: function onClick() {
-      return history.go(-(window.history.length - 1));
-    },
-    "data-tip": "Go to selection page"
+    onClick: onBackButtonClick,
+    "data-tip": tooltip || ''
   }, /*#__PURE__*/React.createElement("i", {
     className: "icon icon-fw fas icon-arrow-left"
-  }), "\xA0 Return to Selection List"))));
+  }), "\xA0 ", text || ''))));
 });
+BackNavigationStickyFooter.propTypes = {
+  'text': PropTypes.string,
+  'tooltip': PropTypes.string,
+  'navigateToInitialPage': PropTypes.bool
+};
+BackNavigationStickyFooter.defaultProps = {
+  'text': 'Return to Selection List',
+  'tooltip': 'Go to selection page',
+  'navigateToInitialPage': true
+};
 /**
  * General purpose sticky footer component
  * TODO: Component can be moved to a separate file.
