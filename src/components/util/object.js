@@ -323,7 +323,7 @@ export function deepClone(obj){
 
 
 export function htmlToJSX(htmlString){
-
+  
     let jsxOutput;
     let domPurifyInstance;
 
@@ -334,7 +334,17 @@ export function htmlToJSX(htmlString){
         domPurifyInstance = createDOMPurify;
     }
 
-    const sanitizedHtmlString = domPurifyInstance.sanitize(htmlString, { FORBID_TAGS: ['script'] });
+    // https://github.com/cure53/DOMPurify/blob/main/demos/hooks-target-blank-demo.html
+    domPurifyInstance.addHook('afterSanitizeAttributes', function (node) {
+        // set all elements owning target to target=_blank
+        if (node && node.target && node.target !== "") {
+            node.setAttribute('target', '_blank');
+            // prevent https://www.owasp.org/index.php/Reverse_Tabnabbing
+            node.setAttribute('rel', 'noopener noreferrer');
+        }
+    })
+        
+    const sanitizedHtmlString = domPurifyInstance.sanitize(htmlString, { FORBID_TAGS: ['script'], ADD_ATTR: ['target'] });
 
     try {
         jsxOutput = parseDOM(sanitizedHtmlString, { decodeEntities: true, lowerCaseAttributeNames: false });
