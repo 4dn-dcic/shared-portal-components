@@ -23,17 +23,12 @@ export class LoginController extends React.PureComponent {
     static propTypes = {
         'updateAppSessionState' : PropTypes.func.isRequired,
         'id'                  : PropTypes.string,
-        'auth0ClientID'       : PropTypes.string.isRequired,
-        'auth0Domain'         : PropTypes.string.isRequired,
         'auth0Options'        : PropTypes.object,
         'children'            : PropTypes.node.isRequired
     };
 
     static defaultProps = {
         // Login / logout actions must be deferred until Auth0 is ready.
-        // TODO: these (maybe) should be read in from base and production.ini
-        'auth0ClientID' : 'DPxEwsZRnKDpk0VfVAxrStRKukN14ILB',
-        'auth0Domain' : 'hms-dbmi.auth0.com',
         'auth0Options' : {
             auth: {
                 sso: false,
@@ -84,11 +79,12 @@ export class LoginController extends React.PureComponent {
     }
 
     componentDidMount() {
-        const { auth0ClientID: auth0ClientFromProps, auth0Domain: auth0DomainFromProps, auth0Options } = this.props;
+        const { auth0Options } = this.props;
         const { isAuth0LibraryLoaded } = this.state;
         ajaxPromise("/auth0_config").then(({ auth0Client, auth0Domain }) => {
 
             if (!auth0Client || !auth0Domain) {
+                // This will never happen unless network is down or issue with the orchestration... might be worth throwing an error (?)
                 return; // Skip setting "isAuth0LibraryLoaded": true, idk.
             }
 

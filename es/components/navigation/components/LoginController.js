@@ -87,16 +87,14 @@ export var LoginController = /*#__PURE__*/function (_React$PureComponent) {
     value: function componentDidMount() {
       var _this2 = this;
 
-      var _this$props = this.props,
-          auth0ClientFromProps = _this$props.auth0ClientID,
-          auth0DomainFromProps = _this$props.auth0Domain,
-          auth0Options = _this$props.auth0Options;
+      var auth0Options = this.props.auth0Options;
       var isAuth0LibraryLoaded = this.state.isAuth0LibraryLoaded;
       ajaxPromise("/auth0_config").then(function (_ref) {
         var auth0Client = _ref.auth0Client,
             auth0Domain = _ref.auth0Domain;
 
         if (!auth0Client || !auth0Domain) {
+          // This will never happen unless network is down or issue with the orchestration... might be worth throwing an error (?)
           return; // Skip setting "isAuth0LibraryLoaded": true, idk.
         }
 
@@ -153,10 +151,10 @@ export var LoginController = /*#__PURE__*/function (_React$PureComponent) {
 
       var successCallback = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
       var errorCallback = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
-      var _this$props2 = this.props,
-          updateAppSessionState = _this$props2.updateAppSessionState,
-          _this$props2$onLogin = _this$props2.onLogin,
-          onLogin = _this$props2$onLogin === void 0 ? null : _this$props2$onLogin;
+      var _this$props = this.props,
+          updateAppSessionState = _this$props.updateAppSessionState,
+          _this$props$onLogin = _this$props.onLogin,
+          onLogin = _this$props$onLogin === void 0 ? null : _this$props$onLogin;
       this.setState({
         "isLoading": true
       }, function () {
@@ -377,9 +375,9 @@ export var LoginController = /*#__PURE__*/function (_React$PureComponent) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props3 = this.props,
-          children = _this$props3.children,
-          passProps = _objectWithoutProperties(_this$props3, _excluded);
+      var _this$props2 = this.props,
+          children = _this$props2.children,
+          passProps = _objectWithoutProperties(_this$props2, _excluded);
 
       var _this$state = this.state,
           isLoading = _this$state.isLoading,
@@ -421,17 +419,12 @@ export var LoginController = /*#__PURE__*/function (_React$PureComponent) {
 _defineProperty(LoginController, "propTypes", {
   'updateAppSessionState': PropTypes.func.isRequired,
   'id': PropTypes.string,
-  'auth0ClientID': PropTypes.string.isRequired,
-  'auth0Domain': PropTypes.string.isRequired,
   'auth0Options': PropTypes.object,
   'children': PropTypes.node.isRequired
 });
 
 _defineProperty(LoginController, "defaultProps", {
   // Login / logout actions must be deferred until Auth0 is ready.
-  // TODO: these (maybe) should be read in from base and production.ini
-  'auth0ClientID': 'DPxEwsZRnKDpk0VfVAxrStRKukN14ILB',
-  'auth0Domain': 'hms-dbmi.auth0.com',
   'auth0Options': {
     auth: {
       sso: false,
@@ -556,9 +549,9 @@ export var LogoutController = /*#__PURE__*/function (_React$PureComponent2) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props4 = this.props,
-          children = _this$props4.children,
-          passProps = _objectWithoutProperties(_this$props4, _excluded2);
+      var _this$props3 = this.props,
+          children = _this$props3.children,
+          passProps = _objectWithoutProperties(_this$props3, _excluded2);
 
       var isLoading = this.state.isLoading;
       return /*#__PURE__*/React.cloneElement(children, _objectSpread(_objectSpread({}, passProps), {}, {
