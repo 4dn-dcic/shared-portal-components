@@ -84,7 +84,7 @@ export class LoginController extends React.PureComponent {
     }
 
     componentDidMount() {
-        const { auth0ClientID, auth0Domain, auth0Options } = this.props;
+        const { auth0ClientID: auth0ClientFromProps, auth0Domain: auth0DomainFromProps, auth0Options } = this.props;
         const { isAuth0LibraryLoaded } = this.state;
         ajaxPromise("/auth0_config").then(({ auth0Client, auth0Domain }) => {
 
@@ -93,7 +93,7 @@ export class LoginController extends React.PureComponent {
             }
 
             const createLock = () => {
-                this.lock = new Auth0Lock(auth0ClientID, auth0Domain, auth0Options);
+                this.lock = new Auth0Lock(auth0Client, auth0Domain, auth0Options);
                 this.lock.on("authenticated", this.auth0LoginCallback);
                 setTimeout(()=>{
                     this.setState({ "isAuth0LibraryLoaded": true });
