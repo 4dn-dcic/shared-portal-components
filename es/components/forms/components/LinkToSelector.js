@@ -16,6 +16,7 @@ import _ from 'underscore';
 import url from 'url';
 import { patchedConsoleInstance as console } from './../../util/patched-console';
 import { itemUtil } from './../../util/object';
+import { storeExists } from '../../util/misc';
 /**
  * Global variable which holds reference to child window, if any.
  * Is re-used if one is open to prevent additional windows being created.
@@ -63,7 +64,11 @@ export var LinkToSelector = /*#__PURE__*/function (_React$PureComponent) {
     value: function componentDidMount() {
       this.manageChildWindow({
         'isSelecting': false
-      }, this.props);
+      }, this.props); //clear storage
+
+      if (storeExists()) {
+        localStorage.removeItem("selected_items");
+      }
     }
   }, {
     key: "componentDidUpdate",
@@ -238,6 +243,12 @@ export var LinkToSelector = /*#__PURE__*/function (_React$PureComponent) {
 
       if (!this || !this.windowObjectReference) {
         console.warn('Child window no longer available to unbind event handlers. Fine if closed.');
+        return;
+      } //clear storage
+
+
+      if (storeExists()) {
+        localStorage.removeItem("selected_items");
       }
     }
   }, {
