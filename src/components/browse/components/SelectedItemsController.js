@@ -1,8 +1,9 @@
 import React, { useMemo, useCallback } from 'react';
+import PropTypes from 'prop-types';
 import _ from 'underscore';
 import { Alerts } from './../../ui/Alerts';
 import { itemUtil } from './../../util/object';
-import { isSelectAction } from './../../util/misc';
+import { isSelectAction, storeExists } from './../../util/misc';
 import * as logger from '../../util/logger';
 import { DisplayTitleColumnWrapper, DisplayTitleColumnDefault } from './../../browse/components/table-commons/basicColumnExtensionMap';
 import { getSchemaTypeFromSearchContext, getTitleForType } from './../../util/schema-transforms';
@@ -52,11 +53,24 @@ export class SelectedItemsController extends React.PureComponent {
         this.state = { "selectedItems": new Map() };
     }
 
+    componentDidMount() {
+        const { keepSelectionInStorage } = this.props;
+
+        this.setState(function () {
+            if (keepSelectionInStorage === true && storeExists() && localStorage.getItem("selected_items") !== null) {
+                const foundItems = JSON.parse(localStorage.getItem("selected_items"));
+                return { selectedItems: new Map(foundItems) };
+            }
+        });
+    }
+
     /**
      * This function add/or removes the selected item into an Map in state,
      * if `props.currentAction` is set to "multiselect" or "selection".
      */
     handleSelectItem(result, isMultiSelect) {
+        const { keepSelectionInStorage } = this.props;
+
         this.setState(function({ selectedItems: prevItems }){
             const nextItems = new Map(prevItems);
 
@@ -82,6 +96,10 @@ export class SelectedItemsController extends React.PureComponent {
                     }
                     nextItems.set(resultAtID, result);
                 }
+            }
+
+            if (keepSelectionInStorage && storeExists()){
+                localStorage.setItem("selected_items", JSON.stringify(Array.from(nextItems.entries())));
             }
 
             return { selectedItems: nextItems };
@@ -236,6 +254,41 @@ export const SelectStickyFooter = React.memo(function SelectStickyFooter(props){
         </StickyFooter>
     );
 });
+
+export const BackNavigationStickyFooter = React.memo(function BackNavigationStickyFooter(props) {
+    const { text, tooltip, navigateToInitialPage } = props;
+
+    const onBackButtonClick = useCallback(function () {
+        if (window.history.length === 0) {
+            return;
+        }
+        history.go(navigateToInitialPage === true ? -(window.history.length - 1) : -1);
+    });
+
+    return (
+        <StickyFooter>
+            <div className="row selection-controls-footer pull-right">
+                <div className="col-12 col-md-auto">
+                    <button type="button" className="btn btn-outline-warning ml-1" onClick={onBackButtonClick} data-tip={tooltip || ''}>
+                        <i className="icon icon-fw fas icon-arrow-left"></i>&nbsp; {text || ''}
+                    </button>
+                </div>
+            </div>
+        </StickyFooter>
+    );
+});
+
+BackNavigationStickyFooter.propTypes = {
+    'text': PropTypes.string,
+    'tooltip': PropTypes.string,
+    'navigateToInitialPage': PropTypes.bool
+};
+
+BackNavigationStickyFooter.defaultProps = {
+    'text': 'Return to Selection List',
+    'tooltip': 'Go to selection page',
+    'navigateToInitialPage': true
+};
 
 /**
  * General purpose sticky footer component

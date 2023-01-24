@@ -5,7 +5,7 @@ import _inherits from "@babel/runtime/helpers/inherits";
 import _possibleConstructorReturn from "@babel/runtime/helpers/possibleConstructorReturn";
 import _getPrototypeOf from "@babel/runtime/helpers/getPrototypeOf";
 import _defineProperty from "@babel/runtime/helpers/defineProperty";
-var _excluded = ["href", "context", "showClearFiltersButton", "schemas", "currentAction", "facets", "navigate", "columns", "columnExtensionMap", "placeholderReplacementFxn", "windowWidth"];
+var _excluded = ["href", "context", "showClearFiltersButton", "schemas", "currentAction", "facets", "navigate", "columns", "columnExtensionMap", "placeholderReplacementFxn", "keepSelectionInStorage", "windowWidth"];
 
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 
@@ -79,6 +79,7 @@ export var SearchView = /*#__PURE__*/function (_React$PureComponent) {
           _this$props$columnExt = _this$props.columnExtensionMap,
           columnExtensionMap = _this$props$columnExt === void 0 ? basicColumnExtensionMap : _this$props$columnExt,
           placeholderReplacementFxn = _this$props.placeholderReplacementFxn,
+          keepSelectionInStorage = _this$props.keepSelectionInStorage,
           windowWidth = _this$props.windowWidth,
           passProps = _objectWithoutProperties(_this$props, _excluded);
 
@@ -117,7 +118,8 @@ export var SearchView = /*#__PURE__*/function (_React$PureComponent) {
         // though if desired.
         React.createElement(SelectedItemsController, {
           columnExtensionMap: columnExtensionMap,
-          currentAction: currentAction
+          currentAction: currentAction,
+          keepSelectionInStorage: keepSelectionInStorage
         }, controllersAndView);
       }
 
@@ -150,8 +152,9 @@ _defineProperty(SearchView, "propTypes", {
   'showClearFiltersButton': PropTypes.bool,
   'isOwnPage': PropTypes.bool,
   'schemas': PropTypes.object,
-  'placeholderReplacementFxn': PropTypes.func // Passed down to AboveSearchTablePanel StaticSection
-
+  'placeholderReplacementFxn': PropTypes.func,
+  // Passed down to AboveSearchTablePanel StaticSection
+  'keepSelectionInStorage': PropTypes.bool
 });
 
 _defineProperty(SearchView, "defaultProps", {
@@ -163,5 +166,6 @@ _defineProperty(SearchView, "defaultProps", {
   'currentAction': null,
   'columnExtensionMap': basicColumnExtensionMap,
   'separateSingleTermFacets': true,
-  'isOwnPage': true
+  'isOwnPage': true,
+  'keepSelectionInStorage': false
 });
