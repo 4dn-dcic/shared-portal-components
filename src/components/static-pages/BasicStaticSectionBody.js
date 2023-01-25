@@ -7,10 +7,9 @@ import { compiler } from 'markdown-to-jsx';
 
 export const BasicStaticSectionBody = React.memo(function BasicStaticSectionBody(props){
     const { content, content_as_html, children, filetype, element, markdownCompilerOptions, placeholderReplacementFxn, ...passProps } = props;
-
-    if (filetype === 'md' && typeof content === 'string'){
+    if (filetype === 'md' && typeof content === 'string' && !content_as_html){
         return React.createElement(element, passProps, compiler(content, markdownCompilerOptions || undefined) );
-    } else if ((filetype === 'html' || filetype === 'rst') && (typeof content_as_html === 'string' || typeof content === 'string')){
+    } else if ((filetype === 'html' || filetype === 'rst' || filetype === 'md') && (typeof content_as_html === 'string' || typeof content === 'string')){
         return React.createElement(element, passProps, htmlToJSX(content_as_html || content));
     } else if (filetype === 'jsx' && typeof content === 'string'){
         return placeholderReplacementFxn(content.trim(), passProps);
