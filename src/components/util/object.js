@@ -323,7 +323,7 @@ export function deepClone(obj){
 
 
 export function htmlToJSX(htmlString){
-  
+
     let jsxOutput;
     let domPurifyInstance;
 
@@ -342,8 +342,8 @@ export function htmlToJSX(htmlString){
             // prevent https://www.owasp.org/index.php/Reverse_Tabnabbing
             node.setAttribute('rel', 'noopener noreferrer');
         }
-    })
-        
+    });
+
     const sanitizedHtmlString = domPurifyInstance.sanitize(htmlString, { FORBID_TAGS: ['script'], ADD_ATTR: ['target'] });
 
     try {

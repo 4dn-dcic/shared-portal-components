@@ -13,7 +13,8 @@ export var BasicStaticSectionBody = /*#__PURE__*/React.memo(function (props) {
       element = props.element,
       markdownCompilerOptions = props.markdownCompilerOptions,
       placeholderReplacementFxn = props.placeholderReplacementFxn,
-      passProps = _objectWithoutProperties(props, _excluded);
+      passProps = _objectWithoutProperties(props, _excluded); //In some cases, markdown to html conversion is handled by backend by assigning the content_as_html. For the rest, use markdown-to-jsx compiler.
+
 
   if (filetype === 'md' && typeof content === 'string' && !content_as_html) {
     return /*#__PURE__*/React.createElement(element, passProps, compiler(content, markdownCompilerOptions || undefined));
