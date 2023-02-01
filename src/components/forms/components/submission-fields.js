@@ -651,12 +651,15 @@ class ObjectField extends React.PureComponent {
             } else if (fieldType === "suggested_enum") {
                 enumValues = fieldSchema.suggested_enum || [];
             }
+            let nestedObjectRequired = fieldType === 'linked object' ? false : _.contains(objectSchema.required, field);
+            const values = _.values(parentObject);
+            if (values.length < 1) { nestedObjectRequired = false; }
             // format field as <this_field>.<next_field> so top level modification
             // happens correctly
             const nestedField = propNestedField + '.' + field;
             return (
                 <BuildField { ...passProps} { ...{ field, fieldType, fieldTip, enumValues, nestedField, title } }
-                    value={fieldValue} key={field} schema={fieldSchema} disabled={false} required={false} isArray={false} isMultiSelect={isMultiSelect || false} />
+                    value={fieldValue} key={field} schema={fieldSchema} disabled={false} required={nestedObjectRequired} isArray={false} isMultiSelect={isMultiSelect || false} />
             );
         });
 
@@ -1039,7 +1042,7 @@ export class AliasInputField extends React.Component {
         const { onAliasChange } = this.props;
         // Also check to see if need to add first or second part, e.g. if original value passed in was '' or null.
         if (!aliasParts[0] || aliasParts[0] === '') {
-            aliasParts[0] = this.getInitialSubmitsForPart();
+            aliasParts[0] = ''; //this.getInitialSubmitsForPart();
         }
         if (aliasParts.length === 1){
             aliasParts[1] = '';
@@ -1074,8 +1077,8 @@ export class AliasInputField extends React.Component {
         const { currentSubmittingUser, errorMessage, withinModal, value, isValid, showErrorMsg } = this.props;
         const parts = AliasInputField.splitInTwo(value);
         const submits_for_list = (currentSubmittingUser && Array.isArray(currentSubmittingUser.submits_for) && currentSubmittingUser.submits_for.length > 0 && currentSubmittingUser.submits_for) || null;
-        const initialDefaultFirstPartValue = this.getInitialSubmitsForPart();
-        const currFirstPartValue = (parts.length > 1 && parts[0]) || initialDefaultFirstPartValue;
+        //const initialDefaultFirstPartValue = this.getInitialSubmitsForPart();
+        const currFirstPartValue = (parts.length > 1 && parts[0]);
         // const userEmailAsPrefix = AliasInputField.emailToString(currentSubmittingUser.email); // TODO - maybe have as dropdown option
         let firstPartSelect;
 
@@ -1083,7 +1086,7 @@ export class AliasInputField extends React.Component {
             // Render an ordinary input box for admins (can specify any lab).
             firstPartSelect = (
                 <input type="text" inputMode="latin" id="firstPartSelect" value={currFirstPartValue || ''}
-                    placeholder={"Lab (default: " + initialDefaultFirstPartValue + ")"} onChange={this.onAliasFirstPartChangeTyped}
+                    placeholder={"No value"} onChange={this.onAliasFirstPartChangeTyped}
                     style={{ 'paddingRight' : 8, 'borderRight' : 'none' }}
                     className={"form-control" + (errorMessage ? " is-invalid" : isValid ? " is-valid" : "")} />
             );

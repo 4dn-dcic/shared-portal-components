@@ -1206,6 +1206,9 @@ export default class SubmissionView extends React.PureComponent{
                         [ responseData ] = response['@graph'];
                         submitted_at_id = object.itemUtil.atId(responseData);
                         console.log("submittedAtid=",submitted_at_id);
+                        //keyContext change - delete integer key after submission
+                        delete keyContext[inKey];
+                        stateToSet.keyContext = keyContext;
                     }
                     // handle submission for round two
                     if (roundTwo){

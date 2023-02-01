@@ -1478,7 +1478,10 @@ var SubmissionView = /*#__PURE__*/function (_React$PureComponent) {
 
               responseData = _response$Graph[0];
               submitted_at_id = object.itemUtil.atId(responseData);
-              console.log("submittedAtid=", submitted_at_id);
+              console.log("submittedAtid=", submitted_at_id); //keyContext change - delete integer key after submission
+
+              delete keyContext[inKey];
+              stateToSet.keyContext = keyContext;
             } // handle submission for round two
 
 
