@@ -23,6 +23,13 @@ $facetlist-term-block-height: default !default;
     }
     */
 
+    .facets-controls {
+        margin-left: 0;
+        margin-right: 0;
+        background-color: #fcfcfc;
+        border-bottom-color: #f0f0f0;
+    }
+
     .facets-header {
         //padding-top: ($grid-gutter-width / 2);
         //padding-bottom: ($grid-gutter-width / 2);
@@ -43,12 +50,11 @@ $facetlist-term-block-height: default !default;
             }
         }
 
-        .btn-group.properties-controls {
+        .properties-controls {
+            gap: 5px;
+
             > button {
-                padding-top: 0.2rem;
-                padding-bottom: 0.1rem;
-                padding-left: 0.35rem;
-                padding-right: 0.35rem;
+                flex: 1;
             }
         }
 

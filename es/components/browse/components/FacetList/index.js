@@ -1,22 +1,54 @@
-import _slicedToArray from "@babel/runtime/helpers/slicedToArray";
-import _extends from "@babel/runtime/helpers/extends";
-import _toConsumableArray from "@babel/runtime/helpers/toConsumableArray";
-import _toArray from "@babel/runtime/helpers/toArray";
-import _classCallCheck from "@babel/runtime/helpers/classCallCheck";
-import _createClass from "@babel/runtime/helpers/createClass";
-import _assertThisInitialized from "@babel/runtime/helpers/assertThisInitialized";
-import _inherits from "@babel/runtime/helpers/inherits";
-import _possibleConstructorReturn from "@babel/runtime/helpers/possibleConstructorReturn";
-import _getPrototypeOf from "@babel/runtime/helpers/getPrototypeOf";
-import _defineProperty from "@babel/runtime/helpers/defineProperty";
+function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
+
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
+
+function _iterableToArrayLimit(arr, i) { var _i = arr == null ? null : typeof Symbol !== "undefined" && arr[Symbol.iterator] || arr["@@iterator"]; if (_i == null) return; var _arr = []; var _n = true; var _d = false; var _s, _e; try { for (_i = _i.call(arr); !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+
+function _extends() { _extends = Object.assign ? Object.assign.bind() : function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
+
+function _toArray(arr) { return _arrayWithHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableRest(); }
+
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
+
+function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter); }
+
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); Object.defineProperty(subClass, "prototype", { writable: false }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
 function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
 
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } else if (call !== void 0) { throw new TypeError("Derived constructors may only return object or undefined"); } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
 function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf.bind() : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 import React from 'react';
 import memoize from 'memoize-one';
@@ -210,9 +242,10 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
           persistentCount = _this$props$persisten === void 0 ? 10 : _this$props$persisten,
           _this$props$persistSe = _this$props.persistSelectedTerms,
           persistSelectedTerms = _this$props$persistSe === void 0 ? true : _this$props$persistSe,
-          _this$props$context = _this$props.context;
-      _this$props$context = _this$props$context === void 0 ? {} : _this$props$context;
-      var filters = _this$props$context.filters;
+          _this$props$context = _this$props.context,
+          _this$props$context2 = _this$props$context === void 0 ? {} : _this$props$context,
+          filters = _this$props$context2.filters;
+
       var rgs = responsiveGridState(windowWidth || null);
 
       var _this$renderFacetComp = this.renderFacetComponents(),
@@ -279,8 +312,8 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
       if (context !== prevContext) {
         var stateChange = {}; // If new filterset causes a facet to drop into common properties section, clean up openFacets state accordingly.
 
-        var _this$renderFacetComp2 = this.renderFacetComponents(),
-            staticFacetElements = _this$renderFacetComp2.staticFacetElements; // Should be performant re: memoization
+        var _this$renderFacetComp3 = this.renderFacetComponents(),
+            staticFacetElements = _this$renderFacetComp3.staticFacetElements; // Should be performant re: memoization
 
 
         var nextOpenFacets = _.clone(openFacets);
@@ -347,8 +380,8 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
       if (facetFieldNames.size === 1) {
         // 2 values being set of same field
         // (this is only use-case currently for onFilterMultipleExtended, via RangeFacet, but could change in future)
-        var _ref = _toConsumableArray(facetFieldNames),
-            facetFieldName = _ref[0];
+        var _ref2 = _toConsumableArray(facetFieldNames),
+            facetFieldName = _ref2[0];
 
         if (facetFieldName !== null) {
           this.setState({
@@ -375,8 +408,8 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
     key: "handleToggleFacetOpen",
     value: function handleToggleFacetOpen(facetField) {
       var nextOpen = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-      this.setState(function (_ref2) {
-        var prevOpenFacets = _ref2.openFacets;
+      this.setState(function (_ref3) {
+        var prevOpenFacets = _ref3.openFacets;
 
         var openFacets = _.clone(prevOpenFacets);
 
@@ -400,9 +433,9 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
     value: function setOpenPopover() {
       var nextPopover = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
       var cb = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-      this.setState(function (_ref3) {
-        var _ref3$openPopover = _ref3.openPopover,
-            openPopover = _ref3$openPopover === void 0 ? null : _ref3$openPopover;
+      this.setState(function (_ref4) {
+        var _ref4$openPopover = _ref4.openPopover,
+            openPopover = _ref4$openPopover === void 0 ? null : _ref4$openPopover;
 
         if (!openPopover) {
           if (!nextPopover) return null;
@@ -510,9 +543,9 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
           openFacets = _this$state3.openFacets,
           openPopover = _this$state3.openPopover;
 
-      var _ref4 = openPopover || {},
-          popoverJSX = _ref4.popover,
-          popoverTargetRef = _ref4.ref;
+      var _ref5 = openPopover || {},
+          popoverJSX = _ref5.popover,
+          popoverTargetRef = _ref5.ref;
 
       if (!facets || !Array.isArray(facets) || facets.length === 0) {
         return /*#__PURE__*/React.createElement("div", {
@@ -530,9 +563,9 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
         } : null
       };
 
-      var _this$renderFacetComp3 = this.renderFacetComponents(),
-          staticFacetElements = _this$renderFacetComp3.staticFacetElements,
-          selectableFacetElements = _this$renderFacetComp3.selectableFacetElements;
+      var _this$renderFacetComp4 = this.renderFacetComponents(),
+          staticFacetElements = _this$renderFacetComp4.staticFacetElements,
+          selectableFacetElements = _this$renderFacetComp4.selectableFacetElements;
 
       return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
         className: "facets-container facets with-header-bg",
@@ -659,11 +692,11 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
             aggregation_type = _facet$aggregation_ty2 === void 0 ? "terms" : _facet$aggregation_ty2;
 
         if (aggregation_type === "stats" || aggregation_type === "range") {
-          var _ref5 = rangeValuesByField[facetField] || {},
-              _ref5$fromVal = _ref5.fromVal,
-              fromVal = _ref5$fromVal === void 0 ? null : _ref5$fromVal,
-              _ref5$toVal = _ref5.toVal,
-              toVal = _ref5$toVal === void 0 ? null : _ref5$toVal;
+          var _ref7 = rangeValuesByField[facetField] || {},
+              _ref6$fromVal2 = _ref7.fromVal,
+              fromVal = _ref6$fromVal2 === void 0 ? null : _ref6$fromVal2,
+              _ref6$toVal2 = _ref7.toVal,
+              toVal = _ref6$toVal2 === void 0 ? null : _ref6$toVal2;
 
           var isStatic = facet.min === facet.max; // See https://reactjs.org/blog/2018/06/07/you-probably-dont-need-derived-state.html#recommendation-fully-uncontrolled-component-with-a-key
           // This approach used for resetting state.fromVal and state.toVal within RangeFacet.
@@ -725,10 +758,10 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
       var groupsArr = _toConsumableArray(groups); // Check, render, and add groups into `componentsToReturn`
 
 
-      groupsArr.forEach(function (_ref6, groupIndex) {
-        var _ref7 = _slicedToArray(_ref6, 2),
-            groupTitle = _ref7[0],
-            facetGroup = _ref7[1];
+      groupsArr.forEach(function (_ref8, groupIndex) {
+        var _ref9 = _slicedToArray(_ref8, 2),
+            groupTitle = _ref9[0],
+            facetGroup = _ref9[1];
 
         var facetsInGroup = facetGroup.children,
             index = facetGroup.index;
@@ -750,9 +783,9 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
         // We increment facetGroup.index which is the index in `componentsToReturn`.
 
 
-        groupsArr.slice(groupIndex).forEach(function (_ref8) {
-          var _ref9 = _slicedToArray(_ref8, 2),
-              subsequentFacetGroup = _ref9[1];
+        groupsArr.slice(groupIndex).forEach(function (_ref10) {
+          var _ref11 = _slicedToArray(_ref10, 2),
+              subsequentFacetGroup = _ref11[1];
 
           subsequentFacetGroup.index++;
         });
@@ -789,12 +822,13 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
         // Finally, add in `facetOpen` state.
         // Avoid doing this in `createFacetComponents` since is memoized and does other more expensive ops.
         var _facetElem$props = facetElem.props,
-            _facetElem$props$face = _facetElem$props.facet;
-        _facetElem$props$face = _facetElem$props$face === void 0 ? {} : _facetElem$props$face;
-        var _facetElem$props$face2 = _facetElem$props$face.field,
-            field = _facetElem$props$face2 === void 0 ? null : _facetElem$props$face2,
+            _facetElem$props$face = _facetElem$props.facet,
+            _facetElem$props$face2 = _facetElem$props$face === void 0 ? {} : _facetElem$props$face,
+            _facetElem$props$face3 = _facetElem$props$face2.field,
+            field = _facetElem$props$face3 === void 0 ? null : _facetElem$props$face3,
             _facetElem$props$titl = _facetElem$props.title,
             groupTitle = _facetElem$props$titl === void 0 ? null : _facetElem$props$titl;
+
         var facetOpen = false;
 
         if (typeof field === "string") {
@@ -961,7 +995,7 @@ export var FacetListHeader = /*#__PURE__*/React.memo(function (props) {
       onClearFilters = _props$onClearFilters === void 0 ? null : _props$onClearFilters,
       onCollapseFacets = props.onCollapseFacets;
   var anyFacetsOpen = Object.keys(openFacets).length !== 0;
-  return /*#__PURE__*/React.createElement("div", {
+  return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     className: "row facets-header"
   }, /*#__PURE__*/React.createElement("div", {
     className: "col facets-title-column text-truncate"
@@ -969,25 +1003,35 @@ export var FacetListHeader = /*#__PURE__*/React.memo(function (props) {
     className: "icon icon-fw icon-filter fas"
   }), "\xA0", /*#__PURE__*/React.createElement("h4", {
     className: "facets-title"
-  }, title)), /*#__PURE__*/React.createElement("div", {
-    className: "col-auto"
+  }, title))), /*#__PURE__*/React.createElement("div", {
+    className: "row facets-controls"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "btn-group btn-group-sm properties-controls",
+    className: "d-flex w-100"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "properties-controls d-flex p-1 w-100",
     role: "group",
     "aria-label": "Properties Controls"
-  }, anyFacetsOpen ? /*#__PURE__*/React.createElement("button", {
+  }, /*#__PURE__*/React.createElement("button", {
     type: "button",
-    className: "btn btn-outline-light",
+    disabled: !anyFacetsOpen,
+    style: {
+      flex: "1"
+    },
+    className: "btn btn-xs btn-outline-primary",
     onClick: onCollapseFacets,
     "data-tip": "Collapse all facets below"
   }, /*#__PURE__*/React.createElement("i", {
     className: "icon icon-fw icon-minus fas"
-  })) : null, showClearFiltersButton && typeof onClearFilters === "function" ? /*#__PURE__*/React.createElement("button", {
+  }), " Collapse All"), showClearFiltersButton ? /*#__PURE__*/React.createElement("button", {
     type: "button",
-    className: "btn btn-outline-light",
+    disabled: typeof onClearFilters !== "function",
+    style: {
+      flex: "1"
+    },
+    className: "btn btn-xs btn-outline-primary",
     onClick: onClearFilters,
     "data-tip": "Clear all filters"
   }, /*#__PURE__*/React.createElement("i", {
     className: "icon icon-fw icon-times fas"
-  })) : null)));
+  }), " Clear All") : null))));
 });
