@@ -305,7 +305,9 @@ function DefaultFacetListComponent(props) {
       className: "py-4"
     }, /*#__PURE__*/React.createElement("h4", {
       className: "text-400 text-center"
-    }, "Compound Filter")));
+    }, "Compound Filter"), /*#__PURE__*/React.createElement("p", {
+      className: "text-center"
+    }, "Select a single filter block to edit its properties")));
   }
 
   if (isContextLoading) {
