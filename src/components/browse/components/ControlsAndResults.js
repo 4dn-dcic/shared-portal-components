@@ -194,7 +194,7 @@ function DefaultFacetListComponent(props){
         // 'real' (multiple filter blocks) compound search used, FacetList UI cannot be used -
         return (
             <div className="facets-container with-header-bg">
-                <FacetListHeader />
+                <FacetListHeader compound />
                 <div className="py-4">
                     <h4 className="text-400 text-center">Compound Filter</h4>
                 </div>

@@ -454,6 +454,7 @@ export class FacetList extends React.PureComponent {
         };
 
         this.state = {
+            including: true, // if false, show "not facets" or exclude facets
             openFacets : {},    // will be keyed by facet.field, value will be bool
             openPopover: null,  // will contain `{ ref: React Ref, popover: JSX element/component }`. We might want to move this functionality up into like App.js.
             filteringFieldTerm: null    // will contain `{ field: string, term: string|[from, to] }`. Used to show loading indicators on clicked-on terms.
@@ -736,6 +737,7 @@ export class FacetList extends React.PureComponent {
 
 export const FacetListHeader = React.memo(function FacetListHeader(props){
     const {
+        compound = false,
         title = "Properties",
         openFacets = {},
         showClearFiltersButton = false,
@@ -752,6 +754,7 @@ export const FacetListHeader = React.memo(function FacetListHeader(props){
                     <h4 className="facets-title">{ title }</h4>
                 </div>
             </div>
+            { !compound &&
             <div className="row facets-controls">
                 <div className="d-flex w-100">
                     <div className="properties-controls d-flex p-1 w-100" role="group" aria-label="Properties Controls">
@@ -764,7 +767,7 @@ export const FacetListHeader = React.memo(function FacetListHeader(props){
                             </button> : null }
                     </div>
                 </div>
-            </div>
+            </div>}
             {/*
             <div className={"col-auto clear-filters-control" + (showClearFiltersButton ? '' : ' placeholder')}>
                 <a href="#" onClick={onClearFilters} className={"btn clear-filters-btn btn-xs " + clearButtonClassName}>

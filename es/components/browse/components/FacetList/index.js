@@ -221,6 +221,8 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
       getInitialOpenFacetsAfterMount: memoize(FacetList.getInitialOpenFacetsAfterMount)
     };
     _this.state = {
+      including: true,
+      // if false, show "not facets" or exclude facets
       openFacets: {},
       // will be keyed by facet.field, value will be bool
       openPopover: null,
@@ -985,7 +987,9 @@ _defineProperty(FacetList, "defaultProps", {
 });
 
 export var FacetListHeader = /*#__PURE__*/React.memo(function (props) {
-  var _props$title = props.title,
+  var _props$compound = props.compound,
+      compound = _props$compound === void 0 ? false : _props$compound,
+      _props$title = props.title,
       title = _props$title === void 0 ? "Properties" : _props$title,
       _props$openFacets = props.openFacets,
       openFacets = _props$openFacets === void 0 ? {} : _props$openFacets,
@@ -1003,7 +1007,7 @@ export var FacetListHeader = /*#__PURE__*/React.memo(function (props) {
     className: "icon icon-fw icon-filter fas"
   }), "\xA0", /*#__PURE__*/React.createElement("h4", {
     className: "facets-title"
-  }, title))), /*#__PURE__*/React.createElement("div", {
+  }, title))), !compound && /*#__PURE__*/React.createElement("div", {
     className: "row facets-controls"
   }, /*#__PURE__*/React.createElement("div", {
     className: "d-flex w-100"
