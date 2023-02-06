@@ -25,6 +25,7 @@ import { TermsFacet } from './TermsFacet';
 import { RangeFacet, getRangeValuesFromFiltersByField } from './RangeFacet';
 import { mergeTerms, countActiveTermsByField } from './FacetTermsList';
 import { FacetOfFacets } from './FacetOfFacets';
+import FontAwesomeV6Icons from '../../../ui/FontAwesomeV6Icons';
 
 /**
  * Component to render out the FacetList for the Browse and ExperimentSet views.
@@ -749,6 +750,7 @@ export const FacetListHeader = React.memo(function FacetListHeader(props){
         <div>
             <div className="row facets-header">
                 <div className="col facets-title-column text-truncate">
+                    <FontAwesomeV6Icons />
                     <i className="icon icon-fw icon-filter fas"></i>
                     &nbsp;
                     <h4 className="facets-title">{ title }</h4>
