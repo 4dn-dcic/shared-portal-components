@@ -302,12 +302,10 @@ function DefaultFacetListComponent(props) {
     }, /*#__PURE__*/React.createElement(FacetListHeader, {
       compound: true
     }), /*#__PURE__*/React.createElement("div", {
-      className: "py-4"
+      className: "p-4"
     }, /*#__PURE__*/React.createElement("h4", {
-      className: "text-400 text-center"
-    }, "Compound Filter"), /*#__PURE__*/React.createElement("p", {
-      className: "text-center"
-    }, "Select a single filter block to edit its properties")));
+      className: "text-400"
+    }, "Compound Filter"), /*#__PURE__*/React.createElement("p", null, "Select a single filter block to edit its properties")));
   }
 
   if (isContextLoading) {

@@ -195,9 +195,9 @@ function DefaultFacetListComponent(props){
         return (
             <div className="facets-container with-header-bg">
                 <FacetListHeader compound />
-                <div className="py-4">
-                    <h4 className="text-400 text-center">Compound Filter</h4>
-                    <p className="text-center">Select a single filter block to edit its properties</p>
+                <div className="p-4">
+                    <h4 className="text-400">Compound Filter</h4>
+                    <p>Select a single filter block to edit its properties</p>
                 </div>
             </div>
         );
