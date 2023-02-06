@@ -32,3 +32,30 @@ Toggle.defaultProps = {
     'checked' : false,
     'className' : ''
 };
+
+
+/** Pulled out into own component so can style/adjust-if-needed together w. Case Review Tab */
+export const IconToggle = function IconToggle(props){
+    const {
+        activeIdx = 0,
+        options = [],
+        btnCls = "btn-sm"
+    } = props;
+
+    const renderedOptions = options.map(function(opt, optIdx){
+        const { title, disabled, onClick, dataTip } = opt;
+        return (
+            <div className="px-1 flex-grow-1" data-tip={dataTip} key={optIdx}>
+                <button type="button" {...{ onClick, disabled }} aria-pressed={activeIdx === optIdx}
+                    className={"btn btn-" + (activeIdx === optIdx ? "primary-dark active pe-none" : "link") + " " + btnCls}>
+                    { title }
+                </button>
+            </div>
+        );
+    });
+    return (
+        <div className="d-flex mr-1 border border-light flex-nowrap rounded">
+            { renderedOptions }
+        </div>
+    );
+};

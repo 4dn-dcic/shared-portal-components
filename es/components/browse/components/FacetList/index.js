@@ -76,6 +76,7 @@ import { RangeFacet, getRangeValuesFromFiltersByField } from './RangeFacet';
 import { mergeTerms, countActiveTermsByField } from './FacetTermsList';
 import { FacetOfFacets } from './FacetOfFacets';
 import FontAwesomeV6Icons from '../../../ui/FontAwesomeV6Icons';
+import { IconToggle } from '../../../forms/components/Toggle';
 /**
  * Component to render out the FacetList for the Browse and ExperimentSet views.
  * It can work with AJAX-ed in back-end data, as is used for the Browse page, or
@@ -1004,8 +1005,16 @@ export var FacetListHeader = /*#__PURE__*/React.memo(function (props) {
     className: "row facets-header"
   }, /*#__PURE__*/React.createElement("div", {
     className: "col facets-title-column text-truncate"
-  }, /*#__PURE__*/React.createElement(FontAwesomeV6Icons, null), /*#__PURE__*/React.createElement("i", {
-    className: "icon icon-fw icon-filter fas"
+  }, /*#__PURE__*/React.createElement(IconToggle, {
+    options: [{
+      title: /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("i", {
+        className: "icon icon-fw icon-filter fas"
+      }))
+    }, {
+      title: /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(FontAwesomeV6Icons, {
+        filename: "filter-circle-xmark-solid.svg"
+      }))
+    }]
   }), "\xA0", /*#__PURE__*/React.createElement("h4", {
     className: "facets-title"
   }, title))), !compound && /*#__PURE__*/React.createElement("div", {
