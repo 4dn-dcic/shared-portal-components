@@ -26,9 +26,12 @@ var FontAwesomeV6Icons = /*#__PURE__*/React.memo(function (_ref) {
       filename = _ref$filename === void 0 ? "filter-circle-xmark-solid.svg" : _ref$filename,
       _ref$hexColor = _ref.hexColor,
       hexColor = _ref$hexColor === void 0 ? "#ffffff" : _ref$hexColor,
-      width = _ref.width,
-      height = _ref.height,
-      alt = _ref.alt;
+      _ref$width = _ref.width,
+      width = _ref$width === void 0 ? "16px" : _ref$width,
+      _ref$height = _ref.height,
+      height = _ref$height === void 0 ? "16px" : _ref$height,
+      _ref$alt = _ref.alt,
+      alt = _ref$alt === void 0 ? "An icon" : _ref$alt;
   // Must generate new icon fill color from provided hex code
   var rgbArr = hexToRgb(hexColor);
   var color = new Color(rgbArr[0], rgbArr[1], rgbArr[2]);
@@ -41,7 +44,7 @@ var FontAwesomeV6Icons = /*#__PURE__*/React.memo(function (_ref) {
       filter: filter
     },
     alt: alt,
-    src: "./static/img/" + filename
+    src: "/static/img/" + filename
   });
 });
 export default FontAwesomeV6Icons;

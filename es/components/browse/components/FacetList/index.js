@@ -186,6 +186,7 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
     _this.handleCollapseAllFacets = _this.handleCollapseAllFacets.bind(_assertThisInitialized(_this));
     _this.setOpenPopover = _this.setOpenPopover.bind(_assertThisInitialized(_this));
     _this.renderFacetComponents = _this.renderFacetComponents.bind(_assertThisInitialized(_this));
+    _this.onToggleIncluding = _this.onToggleIncluding.bind(_assertThisInitialized(_this));
     _this.memoized = {
       countActiveTermsByField: memoize(countActiveTermsByField),
       getRangeValuesFromFiltersByField: memoize(getRangeValuesFromFiltersByField),
@@ -337,6 +338,21 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
 
         stateChange.filteringFieldTerm = null;
         this.setState(stateChange);
+      }
+    }
+  }, {
+    key: "onToggleIncluding",
+    value: function onToggleIncluding(e, callback) {
+      var including = this.state.including;
+
+      if (callback) {
+        this.setState({
+          including: !including
+        }, callback);
+      } else {
+        this.setState({
+          including: !including
+        });
       }
     }
     /**
@@ -545,7 +561,8 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
           isContextLoading = _this$props6$isContex === void 0 ? false : _this$props6$isContex;
       var _this$state3 = this.state,
           openFacets = _this$state3.openFacets,
-          openPopover = _this$state3.openPopover;
+          openPopover = _this$state3.openPopover,
+          including = _this$state3.including;
 
       var _ref5 = openPopover || {},
           popoverJSX = _ref5.popover,
@@ -579,6 +596,8 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
         title: title,
         onClearFilters: onClearFilters,
         showClearFiltersButton: showClearFiltersButton,
+        including: including,
+        onToggleIncluding: this.onToggleIncluding,
         onCollapseFacets: this.handleCollapseAllFacets
       }), /*#__PURE__*/React.createElement("div", bodyProps, selectableFacetElements, staticFacetElements.length > 0 ? /*#__PURE__*/React.createElement("div", {
         className: "row facet-list-separator"
@@ -989,7 +1008,9 @@ _defineProperty(FacetList, "defaultProps", {
 });
 
 export var FacetListHeader = /*#__PURE__*/React.memo(function (props) {
-  var _props$compound = props.compound,
+  var including = props.including,
+      onToggleIncluding = props.onToggleIncluding,
+      _props$compound = props.compound,
       compound = _props$compound === void 0 ? false : _props$compound,
       _props$title = props.title,
       title = _props$title === void 0 ? "Properties" : _props$title,
@@ -1005,19 +1026,26 @@ export var FacetListHeader = /*#__PURE__*/React.memo(function (props) {
     className: "row facets-header"
   }, /*#__PURE__*/React.createElement("div", {
     className: "col facets-title-column text-truncate"
-  }, /*#__PURE__*/React.createElement(IconToggle, {
+  }, !compound && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(IconToggle, {
+    activeIdx: including ? 0 : 1,
     options: [{
       title: /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("i", {
         className: "icon icon-fw icon-filter fas"
-      }))
+      })),
+      onClick: onToggleIncluding
     }, {
       title: /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(FontAwesomeV6Icons, {
         filename: "filter-circle-xmark-solid.svg"
-      }))
+      })),
+      onClick: onToggleIncluding
     }]
+  }), /*#__PURE__*/React.createElement("h4", {
+    className: "facets-title"
+  }, "".concat(including ? "Included" : "Excluded", " ").concat(title))), compound && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("i", {
+    className: "icon icon-fw icon-filter fas"
   }), "\xA0", /*#__PURE__*/React.createElement("h4", {
     className: "facets-title"
-  }, title))), !compound && /*#__PURE__*/React.createElement("div", {
+  }, title)))), !compound && /*#__PURE__*/React.createElement("div", {
     className: "row facets-controls"
   }, /*#__PURE__*/React.createElement("div", {
     className: "d-flex w-100"

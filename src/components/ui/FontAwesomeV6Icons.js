@@ -19,9 +19,9 @@ import React from 'react';
 const FontAwesomeV6Icons = React.memo(function FontAwesomeV6Icons({
     filename = "filter-circle-xmark-solid.svg",
     hexColor = "#ffffff",
-    width,
-    height,
-    alt
+    width = "16px",
+    height = "16px",
+    alt = "An icon"
 }) {
     // Must generate new icon fill color from provided hex code
     const rgbArr = hexToRgb(hexColor);
@@ -29,7 +29,7 @@ const FontAwesomeV6Icons = React.memo(function FontAwesomeV6Icons({
     const solver = new Solver(color);
     const filter = solver.solve();
 
-    return <img style={{ width, height, filter }} {...{ alt }} src={"./static/img/" + filename} />;
+    return <img style={{ width, height, filter }} {...{ alt }} src={"/static/img/" + filename} />;
 });
 
 export default FontAwesomeV6Icons;

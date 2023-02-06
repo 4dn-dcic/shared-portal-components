@@ -426,6 +426,7 @@ export class FacetList extends React.PureComponent {
         this.handleCollapseAllFacets = this.handleCollapseAllFacets.bind(this);
         this.setOpenPopover = this.setOpenPopover.bind(this);
         this.renderFacetComponents = this.renderFacetComponents.bind(this);
+        this.onToggleIncluding = this.onToggleIncluding.bind(this);
         this.memoized = {
             countActiveTermsByField: memoize(countActiveTermsByField),
             getRangeValuesFromFiltersByField: memoize(getRangeValuesFromFiltersByField),
@@ -541,6 +542,16 @@ export class FacetList extends React.PureComponent {
             this.setState(stateChange);
         }
 
+    }
+
+    onToggleIncluding(e, callback) {
+        const { including } = this.state;
+
+        if (callback) {
+            this.setState({ including: !including }, callback);
+        } else {
+            this.setState({ including: !including });
+        }
     }
 
     /**
@@ -692,7 +703,7 @@ export class FacetList extends React.PureComponent {
             maxBodyHeight: maxHeight = null,
             isContextLoading = false
         } = this.props;
-        const { openFacets, openPopover } = this.state;
+        const { openFacets, openPopover, including } = this.state;
         const { popover: popoverJSX, ref: popoverTargetRef } = openPopover || {};
 
         if (!facets || !Array.isArray(facets) || facets.length === 0) {
@@ -713,7 +724,8 @@ export class FacetList extends React.PureComponent {
         return (
             <React.Fragment>
                 <div className="facets-container facets with-header-bg" data-context-loading={isContextLoading}>
-                    <FacetListHeader {...{ openFacets, title, onClearFilters, showClearFiltersButton }} onCollapseFacets={this.handleCollapseAllFacets} />
+                    <FacetListHeader {...{ openFacets, title, onClearFilters, showClearFiltersButton, including }}
+                        onToggleIncluding={this.onToggleIncluding} onCollapseFacets={this.handleCollapseAllFacets} />
                     <div {...bodyProps}>
                         { selectableFacetElements }
                         { staticFacetElements.length > 0 ?
@@ -739,8 +751,10 @@ export class FacetList extends React.PureComponent {
 
 export const FacetListHeader = React.memo(function FacetListHeader(props){
     const {
+        including,
+        onToggleIncluding,
         compound = false,
-        title = "Properties",
+        title = "Properties", // @TODO: Is this actually in use anywhere?
         openFacets = {},
         showClearFiltersButton = false,
         onClearFilters = null,
@@ -751,17 +765,29 @@ export const FacetListHeader = React.memo(function FacetListHeader(props){
         <div>
             <div className="row facets-header">
                 <div className="col facets-title-column text-truncate">
-                    <IconToggle options={[
-                        {
-                            title: <div><i className="icon icon-fw icon-filter fas"></i></div>
-                        },
-                        {
-                            title: <div><FontAwesomeV6Icons filename="filter-circle-xmark-solid.svg"/></div>
-                        }
-                    ]} />
-                    {/* <i className="icon icon-fw icon-filter fas"></i> */}
-                    &nbsp;
-                    <h4 className="facets-title">{ title }</h4>
+                    {
+                        !compound &&
+                            <>
+                                <IconToggle activeIdx={including ? 0 : 1} options={[
+                                    {
+                                        title: <div><i className="icon icon-fw icon-filter fas"></i></div>,
+                                        onClick: onToggleIncluding
+                                    },
+                                    {
+                                        title: <div><FontAwesomeV6Icons filename="filter-circle-xmark-solid.svg"/></div>,
+                                        onClick: onToggleIncluding
+                                    }
+                                ]} />
+                                <h4 className="facets-title">{`${including ? "Included" : "Excluded"} ${title}`}</h4>
+                            </>
+                    }
+                    { compound &&
+                        <>
+                            <i className="icon icon-fw icon-filter fas"></i>
+                            &nbsp;
+                            <h4 className="facets-title">{ title }</h4>
+                        </>
+                    }
                 </div>
             </div>
             { !compound &&
