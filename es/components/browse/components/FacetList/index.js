@@ -364,9 +364,18 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
   }, {
     key: "onFilterExtended",
     value: function onFilterExtended(facet, term, callback) {
+      var including = this.state.including;
       var _this$props3 = this.props,
           onFilter = _this$props3.onFilter,
           contextFilters = _this$props3.context.filters;
+      var aggregation_type = facet.aggregation_type; // console.log("onFilterExtended facet", facet);
+      // console.log("onFilterExtended term", term);
+      // console.log("onFilterExtended aggtype", aggregation_type);
+
+      if (!including && aggregation_type != "range" && aggregation_type != "stats") {
+        facet.field += "!";
+      }
+
       FacetList.sendAnalyticsPreFilter(facet, term, contextFilters); // Used to show loading indicators on clicked-on terms.
       // (decorative, not core functionality, so not implemented for `onFilterMultipleExtended`)
       // `facet.facetFieldName` is passed in only from RangeFacet, as the real `field` would have a '.from' or '.to' appendage.

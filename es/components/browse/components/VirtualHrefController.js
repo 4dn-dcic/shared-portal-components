@@ -325,7 +325,7 @@ export var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) 
       }
 
       if (filterObjs.length === 0) {
-        console.log("Attempted multi-filter, but no objects passed in!");
+        console.error("Attempted multi-filter, but no objects passed in!");
         return null;
       } // We have a virtualContextID present if and only if we have a Compound search request
       // that has only one filter block. In such cases we render the FacetList to allow filtering.

@@ -560,7 +560,23 @@ export class FacetList extends React.PureComponent {
      * as no 'terms' exist when aggregation_type === stats.
      */
     onFilterExtended(facet, term, callback){
+        const { including } = this.state;
         const { onFilter, context: { filters: contextFilters } } = this.props;
+
+        const { aggregation_type } = facet;
+
+        // console.log("onFilterExtended facet", facet);
+        // console.log("onFilterExtended term", term);
+        // console.log("onFilterExtended aggtype", aggregation_type);
+
+        if (
+            !including
+            && aggregation_type != "range"
+            && aggregation_type != "stats"
+        ) {
+            facet.field += "!";
+        }
+
         FacetList.sendAnalyticsPreFilter(facet, term, contextFilters);
 
         // Used to show loading indicators on clicked-on terms.
