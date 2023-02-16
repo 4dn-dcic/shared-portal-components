@@ -395,7 +395,8 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
           facetOpen = _this$props7.facetOpen,
           openPopover = _this$props7.openPopover,
           setOpenPopover = _this$props7.setOpenPopover,
-          filteringFieldTerm = _this$props7.filteringFieldTerm;
+          filteringFieldTerm = _this$props7.filteringFieldTerm,
+          including = _this$props7.including;
       var aggregation_type = facet.aggregation_type,
           _facet$field_type2 = facet.field_type,
           field_type = _facet$field_type2 === void 0 ? "number" : _facet$field_type2,
@@ -416,6 +417,8 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
           facetSchemaDescription = _facet$description === void 0 ? null : _facet$description,
           _facet$hide_facet_cou = facet.hide_facet_counts,
           hideDocCounts = _facet$hide_facet_cou === void 0 ? false : _facet$hide_facet_cou;
+      if (!including) return null; // No support currently for omitting ranges or stats aggregations
+
       var fieldSchema = this.memoized.fieldSchema(field, schemas, itemTypeForSchemas);
       var fieldSchemaDescription = (fieldSchema || {}).description; // fieldSchema not present if no schemas loaded yet.
 

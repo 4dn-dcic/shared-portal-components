@@ -269,6 +269,7 @@ export class FacetList extends React.PureComponent {
      * @param {{ href: string, schemas: Object<string, Object>, itemTypeForSchemas: string, termTransformFxn: function, onFilter: function, getTermStatus: function }} props - Passed to all facet components.
      */
     static createFacetComponents(props, useFacets, activeTermCountByField, rangeValuesByField){
+        const { including } = props;
 
         // The logic within `Facet` `render`, `componentDidMount`, etc. isn't executed
         // until is rendered by some other component's render method.
@@ -286,14 +287,14 @@ export class FacetList extends React.PureComponent {
                 const isStatic = facet.min === facet.max;
                 // See https://reactjs.org/blog/2018/06/07/you-probably-dont-need-derived-state.html#recommendation-fully-uncontrolled-component-with-a-key
                 // This approach used for resetting state.fromVal and state.toVal within RangeFacet.
-                return <RangeFacet {...props} {...{ isStatic, grouping, fromVal, toVal, facet }} key={facetField} anyTermsSelected={anySelected}  />;
+                return <RangeFacet {...props} {...{ isStatic, grouping, fromVal, toVal, facet, including }} key={facetField} anyTermsSelected={anySelected}  />;
             }
 
             if (aggregation_type === "terms"){
-                const termsSelectedCount = activeTermCountByField[facetField] || 0;// countTermsSelected(facet.terms, facet, filters);
+                const termsSelectedCount = activeTermCountByField[facetField] || 0; // countTermsSelected(facet.terms, facet, filters);
                 const anySelected = termsSelectedCount !== 0;
                 const isStatic = !anySelected && facet.terms.length === 1;
-                return <TermsFacet {...props} {...{ isStatic, grouping, termsSelectedCount, facet }} key={facetField} anyTermsSelected={anySelected} />;
+                return <TermsFacet {...props} {...{ isStatic, grouping, termsSelectedCount, facet, including }} key={facetField} anyTermsSelected={anySelected} />;
             }
 
             throw new Error("Unknown aggregation_type");
@@ -565,12 +566,9 @@ export class FacetList extends React.PureComponent {
 
         const { aggregation_type } = facet;
 
-        // console.log("onFilterExtended facet", facet);
-        // console.log("onFilterExtended term", term);
-        // console.log("onFilterExtended aggtype", aggregation_type);
-
         if (
             !including
+            // @TODO One day add support for range and stats (probably just stats) here and in onFilterMultipleExtended
             && aggregation_type != "range"
             && aggregation_type != "stats"
         ) {
@@ -593,6 +591,7 @@ export class FacetList extends React.PureComponent {
     }
 
     onFilterMultipleExtended(filterObjArray, callback) {
+        const { including } = this.state;
         const { onFilterMultiple, context: { filters: contextFilters } } = this.props;
 
         // Detect if setting both values of range field and set state.filteringFieldTerm = { field: string, term:string|[from, to] }.
@@ -601,6 +600,16 @@ export class FacetList extends React.PureComponent {
 
         filterObjArray.forEach((filterObj) => {
             const { facet, term } = filterObj;
+            const { aggregation_type } = facet;
+
+            if (
+                !including
+                && aggregation_type != "range"
+                && aggregation_type != "stats"
+            ) {
+                facet.field += "!";
+            }
+
             facetFieldNames.add(facet.facetFieldName || null);
             uniqueVals.add(term.key);
             FacetList.sendAnalyticsPreFilter(facet, term, contextFilters);
@@ -681,10 +690,10 @@ export class FacetList extends React.PureComponent {
             useRadioIcon, persistSelectedTerms
         } = this.props;
         const { filters } = context;
-        const { openFacets, openPopover, filteringFieldTerm } = this.state;
+        const { openFacets, openPopover, filteringFieldTerm, including } = this.state;
         const facetComponentProps = {
             href, schemas, context, itemTypeForSchemas, termTransformFxn, persistentCount, separateSingleTermFacets,
-            openPopover,
+            openPopover, including,
             filteringFieldTerm,
             useRadioIcon, persistSelectedTerms,
             onFilter:       this.onFilterExtended,

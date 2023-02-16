@@ -396,7 +396,8 @@ export class RangeFacet extends React.PureComponent {
             facetOpen,
             openPopover,
             setOpenPopover,
-            filteringFieldTerm
+            filteringFieldTerm,
+            including
         } = this.props;
         const {
             aggregation_type,
@@ -411,6 +412,8 @@ export class RangeFacet extends React.PureComponent {
             description: facetSchemaDescription = null,
             hide_facet_counts: hideDocCounts = false
         } = facet;
+
+        if (!including) return null; // No support currently for omitting ranges or stats aggregations
 
         const fieldSchema = this.memoized.fieldSchema(field, schemas, itemTypeForSchemas);
         const { description: fieldSchemaDescription } = fieldSchema || {}; // fieldSchema not present if no schemas loaded yet.

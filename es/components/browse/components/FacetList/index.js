@@ -368,11 +368,10 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
       var _this$props3 = this.props,
           onFilter = _this$props3.onFilter,
           contextFilters = _this$props3.context.filters;
-      var aggregation_type = facet.aggregation_type; // console.log("onFilterExtended facet", facet);
-      // console.log("onFilterExtended term", term);
-      // console.log("onFilterExtended aggtype", aggregation_type);
+      var aggregation_type = facet.aggregation_type;
 
-      if (!including && aggregation_type != "range" && aggregation_type != "stats") {
+      if (!including // @TODO One day add support for range and stats (probably just stats) here and in onFilterMultipleExtended
+      && aggregation_type != "range" && aggregation_type != "stats") {
         facet.field += "!";
       }
 
@@ -392,6 +391,7 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
   }, {
     key: "onFilterMultipleExtended",
     value: function onFilterMultipleExtended(filterObjArray, callback) {
+      var including = this.state.including;
       var _this$props4 = this.props,
           onFilterMultiple = _this$props4.onFilterMultiple,
           contextFilters = _this$props4.context.filters; // Detect if setting both values of range field and set state.filteringFieldTerm = { field: string, term:string|[from, to] }.
@@ -401,6 +401,12 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
       filterObjArray.forEach(function (filterObj) {
         var facet = filterObj.facet,
             term = filterObj.term;
+        var aggregation_type = facet.aggregation_type;
+
+        if (!including && aggregation_type != "range" && aggregation_type != "stats") {
+          facet.field += "!";
+        }
+
         facetFieldNames.add(facet.facetFieldName || null);
         uniqueVals.add(term.key);
         FacetList.sendAnalyticsPreFilter(facet, term, contextFilters);
@@ -522,7 +528,8 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
       var _this$state2 = this.state,
           openFacets = _this$state2.openFacets,
           openPopover = _this$state2.openPopover,
-          filteringFieldTerm = _this$state2.filteringFieldTerm;
+          filteringFieldTerm = _this$state2.filteringFieldTerm,
+          including = _this$state2.including;
       var facetComponentProps = {
         href: href,
         schemas: schemas,
@@ -532,6 +539,7 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
         persistentCount: persistentCount,
         separateSingleTermFacets: separateSingleTermFacets,
         openPopover: openPopover,
+        including: including,
         filteringFieldTerm: filteringFieldTerm,
         useRadioIcon: useRadioIcon,
         persistSelectedTerms: persistSelectedTerms,
@@ -713,9 +721,10 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
   }, {
     key: "createFacetComponents",
     value: function createFacetComponents(props, useFacets, activeTermCountByField, rangeValuesByField) {
-      // The logic within `Facet` `render`, `componentDidMount`, etc. isn't executed
+      var including = props.including; // The logic within `Facet` `render`, `componentDidMount`, etc. isn't executed
       // until is rendered by some other component's render method.
       // We can sort/manipulate/transform these still according to their `props.` values and such.
+
       var renderedFacets = useFacets.map(function (facet) {
         var _facet$grouping = facet.grouping,
             grouping = _facet$grouping === void 0 ? null : _facet$grouping,
@@ -739,6 +748,7 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
             fromVal: fromVal,
             toVal: toVal,
             facet: facet,
+            including: including,
             key: facetField,
             anyTermsSelected: fromVal !== null || toVal !== null
           }));
@@ -756,6 +766,7 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
             grouping: grouping,
             termsSelectedCount: termsSelectedCount,
             facet: facet,
+            including: including,
             key: facetField,
             anyTermsSelected: _anySelected
           }));
