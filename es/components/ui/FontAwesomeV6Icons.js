@@ -31,13 +31,16 @@ var FontAwesomeV6Icons = /*#__PURE__*/React.memo(function (_ref) {
       _ref$height = _ref.height,
       height = _ref$height === void 0 ? "16px" : _ref$height,
       _ref$alt = _ref.alt,
-      alt = _ref$alt === void 0 ? "An icon" : _ref$alt;
+      alt = _ref$alt === void 0 ? "An icon" : _ref$alt,
+      _ref$cls = _ref.cls,
+      cls = _ref$cls === void 0 ? "" : _ref$cls;
   // Must generate new icon fill color from provided hex code
   var rgbArr = hexToRgb(hexColor);
   var color = new Color(rgbArr[0], rgbArr[1], rgbArr[2]);
   var solver = new Solver(color);
   var filter = solver.solve();
   return /*#__PURE__*/React.createElement("img", {
+    className: cls,
     style: {
       width: width,
       height: height,
