@@ -54,6 +54,7 @@ import { getSchemaProperty } from './../../../util/schema-transforms';
 import { patchedConsoleInstance as console } from './../../../util/patched-console';
 import { segmentComponentsByStatus } from './FacetTermsList';
 import { ExtendedDescriptionPopoverIcon } from './ExtendedDescriptionPopoverIcon';
+import ReactTooltip from 'react-tooltip';
 
 function getRangeStatus(range, toVal, fromVal) {
   var _ref = range || {},
@@ -196,10 +197,12 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
     key: "componentDidUpdate",
     value: function componentDidUpdate(pastProps) {
       var previousToVal = pastProps.toVal,
-          previousFromVal = pastProps.fromVal;
+          previousFromVal = pastProps.fromVal,
+          previousIncluding = pastProps.including;
       var _this$props = this.props,
           toVal = _this$props.toVal,
-          fromVal = _this$props.fromVal;
+          fromVal = _this$props.fromVal,
+          including = _this$props.including;
 
       if (toVal !== previousToVal || fromVal !== previousFromVal) {
         // console.log("update occurred! toVal ", previousToVal, " -> ", toVal);
@@ -209,6 +212,11 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
           toVal: toVal,
           fromVal: fromVal
         });
+      } // Switching to excluding; rebuild tooltips
+
+
+      if (previousIncluding && !including) {
+        ReactTooltip.rebuild();
       }
     }
   }, {
@@ -416,8 +424,7 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
           _facet$description = facet.description,
           facetSchemaDescription = _facet$description === void 0 ? null : _facet$description,
           _facet$hide_facet_cou = facet.hide_facet_counts,
-          hideDocCounts = _facet$hide_facet_cou === void 0 ? false : _facet$hide_facet_cou;
-      if (!including) return null; // No support currently for omitting ranges or stats aggregations
+          hideDocCounts = _facet$hide_facet_cou === void 0 ? false : _facet$hide_facet_cou; // if (!including) return null; // No support currently for omitting ranges or stats aggregations
 
       var fieldSchema = this.memoized.fieldSchema(field, schemas, itemTypeForSchemas);
       var fieldSchemaDescription = (fieldSchema || {}).description; // fieldSchema not present if no schemas loaded yet.
@@ -460,11 +467,14 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
         "data-field": facet.field
       }, /*#__PURE__*/React.createElement("h5", {
         className: "facet-title",
-        onClick: this.handleOpenToggleClick
+        onClick: including ? this.handleOpenToggleClick : null
       }, /*#__PURE__*/React.createElement("span", {
         className: "expand-toggle col-auto px-0"
-      }, /*#__PURE__*/React.createElement("i", {
+      }, including ? /*#__PURE__*/React.createElement("i", {
         className: "icon icon-fw icon-" + (facetOpen ? "minus fas" : "plus fas")
+      }) : /*#__PURE__*/React.createElement("i", {
+        className: "icon icon-fw icon-exclamation-triangle text-warning fas",
+        "data-tip": "Range Facets cannot be edited while in \"excluding\" mode. "
       })), /*#__PURE__*/React.createElement("div", {
         className: "col px-0 line-height-1"
       }, /*#__PURE__*/React.createElement("span", {

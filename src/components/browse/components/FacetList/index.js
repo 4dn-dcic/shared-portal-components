@@ -781,7 +781,7 @@ export const FacetListHeader = React.memo(function FacetListHeader(props){
         compound = false,
         title = "Properties", // @TODO: Is this actually in use anywhere?
         openFacets = {},
-        showClearFiltersButton = false,
+        showClearFiltersButton = false, // @Deprecated
         onClearFilters = null,
         onCollapseFacets
     } = props;
@@ -799,7 +799,7 @@ export const FacetListHeader = React.memo(function FacetListHeader(props){
                                         onClick: onToggleIncluding
                                     },
                                     {
-                                        title: <div><FontAwesomeV6Icons filename="filter-circle-xmark-solid.svg"/></div>,
+                                        title: <div><FontAwesomeV6Icons cls="mb-04" filename="filter-circle-xmark-solid.svg"/></div>,
                                         onClick: onToggleIncluding
                                     }
                                 ]} />
@@ -818,14 +818,15 @@ export const FacetListHeader = React.memo(function FacetListHeader(props){
             { !compound &&
             <div className="row facets-controls">
                 <div className="d-flex w-100">
-                    <div className="properties-controls d-flex p-1 w-100" role="group" aria-label="Properties Controls">
+                    <div className="properties-controls d-flex py-1 px-2 w-100" role="group" aria-label="Properties Controls">
                         <button type="button" disabled={!anyFacetsOpen} style={{ flex: "1" }} className="btn btn-xs btn-outline-primary" onClick={onCollapseFacets} data-tip="Collapse all facets below">
                             <i className="icon icon-fw icon-minus fas"/> Collapse All
                         </button>
-                        { showClearFiltersButton ?
-                            <button type="button" disabled={typeof onClearFilters !== "function"} style={{ flex: "1" }} className="btn btn-xs btn-outline-primary" onClick={onClearFilters} data-tip="Clear all filters">
-                                <i className="icon icon-fw icon-times fas"/> Clear All
-                            </button> : null }
+                        {/* { showClearFiltersButton ? */}
+                        <button type="button" disabled={typeof onClearFilters !== "function"} style={{ flex: "1" }} className="btn btn-xs btn-outline-primary" onClick={onClearFilters} data-tip="Clear all filters">
+                            <i className="icon icon-fw icon-times fas"/> Clear All
+                        </button>
+                        {/* : null } */}
                     </div>
                 </div>
             </div>}

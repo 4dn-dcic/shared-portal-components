@@ -48,6 +48,18 @@ $facetlist-term-block-height: default !default;
                 color: inherit;
                 display: inline;
             }
+
+            >.icon-toggle {
+                >div button {
+                    color: #fff;
+                }
+
+                >div:last-child button {
+                    &.active {
+                        background-color: #901414;
+                    }
+                }
+            }
         }
 
         .properties-controls {

@@ -59,15 +59,18 @@ export var IconToggle = function (props) {
       activeIdx = _props$activeIdx === void 0 ? 0 : _props$activeIdx,
       _props$options = props.options,
       options = _props$options === void 0 ? [] : _props$options,
-      _props$btnCls = props.btnCls,
-      btnCls = _props$btnCls === void 0 ? "btn-sm" : _props$btnCls;
+      _props$divCls = props.divCls,
+      divCls = _props$divCls === void 0 ? "" : _props$divCls;
   var renderedOptions = options.map(function (opt, optIdx) {
     var title = opt.title,
         disabled = opt.disabled,
         onClick = opt.onClick,
-        dataTip = opt.dataTip;
+        dataTip = opt.dataTip,
+        _opt$btnCls = opt.btnCls,
+        btnCls = _opt$btnCls === void 0 ? "btn-sm" : _opt$btnCls;
+    var padding = optIdx === 0 ? "pl-05" : optIdx === options.length - 1 ? "pr-05" : "px-05";
     return /*#__PURE__*/React.createElement("div", {
-      className: "px-1 flex-grow-1",
+      className: "flex-grow-1 " + padding,
       "data-tip": dataTip,
       key: optIdx
     }, /*#__PURE__*/React.createElement("button", {
@@ -79,6 +82,6 @@ export var IconToggle = function (props) {
     }, title));
   });
   return /*#__PURE__*/React.createElement("div", {
-    className: "d-flex mr-1 border border-light flex-nowrap rounded"
+    className: "d-flex mr-1 border border-light flex-nowrap rounded icon-toggle " + divCls
   }, renderedOptions);
 };

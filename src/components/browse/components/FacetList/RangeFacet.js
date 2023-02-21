@@ -14,6 +14,7 @@ import { patchedConsoleInstance as console } from './../../../util/patched-conso
 import { segmentComponentsByStatus } from './FacetTermsList';
 
 import { ExtendedDescriptionPopoverIcon } from './ExtendedDescriptionPopoverIcon';
+import ReactTooltip from 'react-tooltip';
 
 function getRangeStatus(range, toVal, fromVal) {
     const { from = null, to = null } = range || {};
@@ -244,14 +245,19 @@ export class RangeFacet extends React.PureComponent {
     }
 
     componentDidUpdate(pastProps, pastState) {
-        const { toVal: previousToVal, fromVal: previousFromVal } = pastProps;
-        const { toVal, fromVal } = this.props;
+        const { toVal: previousToVal, fromVal: previousFromVal, including: previousIncluding } = pastProps;
+        const { toVal, fromVal, including } = this.props;
 
         if ((toVal !== previousToVal) || (fromVal !== previousFromVal)) {
             // console.log("update occurred! toVal ", previousToVal, " -> ", toVal);
             // console.log("update occurred! fromVal ", previousFromVal, " -> ", fromVal);
             // force manual update TODO: update for specific filter block switch circumstances
             this.setState({ toVal, fromVal });
+        }
+
+        // Switching to excluding; rebuild tooltips
+        if (previousIncluding && !including) {
+            ReactTooltip.rebuild();
         }
     }
 
@@ -413,7 +419,7 @@ export class RangeFacet extends React.PureComponent {
             hide_facet_counts: hideDocCounts = false
         } = facet;
 
-        if (!including) return null; // No support currently for omitting ranges or stats aggregations
+        // if (!including) return null; // No support currently for omitting ranges or stats aggregations
 
         const fieldSchema = this.memoized.fieldSchema(field, schemas, itemTypeForSchemas);
         const { description: fieldSchemaDescription } = fieldSchema || {}; // fieldSchema not present if no schemas loaded yet.
@@ -465,9 +471,12 @@ export class RangeFacet extends React.PureComponent {
 
         return (
             <div className={"facet range-facet" + (facetOpen ? ' open' : ' closed')} data-field={facet.field}>
-                <h5 className="facet-title" onClick={this.handleOpenToggleClick}>
+                <h5 className="facet-title" onClick={including ? this.handleOpenToggleClick: null}>
                     <span className="expand-toggle col-auto px-0">
-                        <i className={"icon icon-fw icon-" + (facetOpen ? "minus fas" : "plus fas")}/>
+                        { including ?
+                            <i className={"icon icon-fw icon-" + (facetOpen ? "minus fas" : "plus fas")}/>:
+                            <i className="icon icon-fw icon-exclamation-triangle text-warning fas"
+                                data-tip='Range Facets cannot be edited while in "excluding" mode. '/> }
                     </span>
                     <div className="col px-0 line-height-1">
                         <span data-tip={facetSchemaDescription || fieldSchemaDescription} data-place="right">{ title }</span>

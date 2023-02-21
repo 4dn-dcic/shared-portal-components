@@ -1055,6 +1055,7 @@ export var FacetListHeader = /*#__PURE__*/React.memo(function (props) {
       onClick: onToggleIncluding
     }, {
       title: /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(FontAwesomeV6Icons, {
+        cls: "mb-04",
         filename: "filter-circle-xmark-solid.svg"
       })),
       onClick: onToggleIncluding
@@ -1070,7 +1071,7 @@ export var FacetListHeader = /*#__PURE__*/React.memo(function (props) {
   }, /*#__PURE__*/React.createElement("div", {
     className: "d-flex w-100"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "properties-controls d-flex p-1 w-100",
+    className: "properties-controls d-flex py-1 px-2 w-100",
     role: "group",
     "aria-label": "Properties Controls"
   }, /*#__PURE__*/React.createElement("button", {
@@ -1084,7 +1085,7 @@ export var FacetListHeader = /*#__PURE__*/React.memo(function (props) {
     "data-tip": "Collapse all facets below"
   }, /*#__PURE__*/React.createElement("i", {
     className: "icon icon-fw icon-minus fas"
-  }), " Collapse All"), showClearFiltersButton ? /*#__PURE__*/React.createElement("button", {
+  }), " Collapse All"), /*#__PURE__*/React.createElement("button", {
     type: "button",
     disabled: typeof onClearFilters !== "function",
     style: {
@@ -1095,5 +1096,5 @@ export var FacetListHeader = /*#__PURE__*/React.memo(function (props) {
     "data-tip": "Clear all filters"
   }, /*#__PURE__*/React.createElement("i", {
     className: "icon icon-fw icon-times fas"
-  }), " Clear All") : null))));
+  }), " Clear All")))));
 });
