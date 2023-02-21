@@ -50,10 +50,11 @@ function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Re
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf.bind() : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
 import React, { useMemo, useCallback } from 'react';
+import PropTypes from 'prop-types';
 import _ from 'underscore';
 import { Alerts } from './../../ui/Alerts';
 import { itemUtil } from './../../util/object';
-import { isSelectAction } from './../../util/misc';
+import { isSelectAction, storeExists } from './../../util/misc';
 import * as logger from '../../util/logger';
 import { DisplayTitleColumnWrapper, DisplayTitleColumnDefault } from './../../browse/components/table-commons/basicColumnExtensionMap';
 import { getSchemaTypeFromSearchContext, getTitleForType } from './../../util/schema-transforms';
@@ -111,15 +112,29 @@ export var SelectedItemsController = /*#__PURE__*/function (_React$PureComponent
     };
     return _this;
   }
-  /**
-   * This function add/or removes the selected item into an Map in state,
-   * if `props.currentAction` is set to "multiselect" or "selection".
-   */
-
 
   _createClass(SelectedItemsController, [{
+    key: "componentDidMount",
+    value: function componentDidMount() {
+      var keepSelectionInStorage = this.props.keepSelectionInStorage;
+      this.setState(function () {
+        if (keepSelectionInStorage === true && storeExists() && localStorage.getItem("selected_items") !== null) {
+          var foundItems = JSON.parse(localStorage.getItem("selected_items"));
+          return {
+            selectedItems: new Map(foundItems)
+          };
+        }
+      });
+    }
+    /**
+     * This function add/or removes the selected item into an Map in state,
+     * if `props.currentAction` is set to "multiselect" or "selection".
+     */
+
+  }, {
     key: "handleSelectItem",
     value: function handleSelectItem(result, isMultiSelect) {
+      var keepSelectionInStorage = this.props.keepSelectionInStorage;
       this.setState(function (_ref) {
         var prevItems = _ref.selectedItems;
         var nextItems = new Map(prevItems);
@@ -147,6 +162,10 @@ export var SelectedItemsController = /*#__PURE__*/function (_React$PureComponent
 
             nextItems.set(resultAtID, result);
           }
+        }
+
+        if (keepSelectionInStorage && storeExists()) {
+          localStorage.setItem("selected_items", JSON.stringify(Array.from(nextItems.entries())));
         }
 
         return {
@@ -357,6 +376,40 @@ export var SelectStickyFooter = /*#__PURE__*/React.memo(function (props) {
     className: "icon icon-fw fas icon-times"
   }), "\xA0 Cancel"))));
 });
+export var BackNavigationStickyFooter = /*#__PURE__*/React.memo(function (props) {
+  var text = props.text,
+      tooltip = props.tooltip,
+      navigateToInitialPage = props.navigateToInitialPage;
+  var onBackButtonClick = useCallback(function () {
+    if (window.history.length === 0) {
+      return;
+    }
+
+    history.go(navigateToInitialPage === true ? -(window.history.length - 1) : -1);
+  });
+  return /*#__PURE__*/React.createElement(StickyFooter, null, /*#__PURE__*/React.createElement("div", {
+    className: "row selection-controls-footer pull-right"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "col-12 col-md-auto"
+  }, /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    className: "btn btn-outline-warning ml-1",
+    onClick: onBackButtonClick,
+    "data-tip": tooltip || ''
+  }, /*#__PURE__*/React.createElement("i", {
+    className: "icon icon-fw fas icon-arrow-left"
+  }), "\xA0 ", text || ''))));
+});
+BackNavigationStickyFooter.propTypes = {
+  'text': PropTypes.string,
+  'tooltip': PropTypes.string,
+  'navigateToInitialPage': PropTypes.bool
+};
+BackNavigationStickyFooter.defaultProps = {
+  'text': 'Return to Selection List',
+  'tooltip': 'Go to selection page',
+  'navigateToInitialPage': true
+};
 /**
  * General purpose sticky footer component
  * TODO: Component can be moved to a separate file.

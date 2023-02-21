@@ -39,7 +39,8 @@ export class SearchView extends React.PureComponent {
         'showClearFiltersButton' : PropTypes.bool,
         'isOwnPage'     : PropTypes.bool,
         'schemas'       : PropTypes.object,
-        'placeholderReplacementFxn' : PropTypes.func // Passed down to AboveSearchTablePanel StaticSection
+        'placeholderReplacementFxn' : PropTypes.func, // Passed down to AboveSearchTablePanel StaticSection
+        'keepSelectionInStorage': PropTypes.bool,
     };
 
     /**
@@ -57,7 +58,8 @@ export class SearchView extends React.PureComponent {
         'currentAction' : null,
         'columnExtensionMap' : basicColumnExtensionMap,
         'separateSingleTermFacets' : true,
-        'isOwnPage'     : true
+        'isOwnPage'     : true,
+        'keepSelectionInStorage': false,
     };
 
     componentDidMount(){
@@ -80,6 +82,7 @@ export class SearchView extends React.PureComponent {
             columns = null,
             columnExtensionMap = basicColumnExtensionMap,
             placeholderReplacementFxn,
+            keepSelectionInStorage,
             //isOwnPage = true,
             windowWidth,
             ...passProps
@@ -121,7 +124,7 @@ export class SearchView extends React.PureComponent {
                 // SelectedItemsController must be above ColumnCombiner because it adjusts
                 // columnExtensionMap, rather than columnDefinitions. This can be easily changed
                 // though if desired.
-                <SelectedItemsController {...{ columnExtensionMap, currentAction }}>
+                <SelectedItemsController {...{ columnExtensionMap, currentAction, keepSelectionInStorage }}>
                     { controllersAndView }
                 </SelectedItemsController>
             );

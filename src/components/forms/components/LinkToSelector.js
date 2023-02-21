@@ -4,6 +4,7 @@ import _ from 'underscore';
 import url from 'url';
 import { patchedConsoleInstance as console } from './../../util/patched-console';
 import { itemUtil } from './../../util/object';
+import { storeExists } from '../../util/misc';
 
 /**
  * Global variable which holds reference to child window, if any.
@@ -86,6 +87,11 @@ export class LinkToSelector extends React.PureComponent {
 
     componentDidMount(){
         this.manageChildWindow({ 'isSelecting' : false }, this.props);
+
+        //clear storage
+        if (storeExists()) {
+            localStorage.removeItem("selected_items");
+        }
     }
 
     componentDidUpdate(pastProps){
@@ -237,6 +243,11 @@ export class LinkToSelector extends React.PureComponent {
         if (!this || !this.windowObjectReference) {
             console.warn('Child window no longer available to unbind event handlers. Fine if closed.');
             return;
+        }
+
+        //clear storage
+        if (storeExists()) {
+            localStorage.removeItem("selected_items");
         }
     }
 
