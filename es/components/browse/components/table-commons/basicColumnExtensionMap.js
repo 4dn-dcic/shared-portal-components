@@ -1,8 +1,8 @@
-import _defineProperty from "@babel/runtime/helpers/defineProperty";
-
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 import React, { useMemo } from 'react';
 import url from 'url';
@@ -130,10 +130,11 @@ export var basicColumnExtensionMap = {
       'sm': 120
     },
     'render': function (result) {
-      var _result$last_modified = result.last_modified;
-      _result$last_modified = _result$last_modified === void 0 ? {} : _result$last_modified;
-      var _result$last_modified2 = _result$last_modified.date_modified,
-          date_modified = _result$last_modified2 === void 0 ? null : _result$last_modified2;
+      var _result$last_modified = result.last_modified,
+          _result$last_modified2 = _result$last_modified === void 0 ? {} : _result$last_modified,
+          _result$last_modified3 = _result$last_modified2.date_modified,
+          date_modified = _result$last_modified3 === void 0 ? null : _result$last_modified3;
+
       if (!date_modified) return null;
       return /*#__PURE__*/React.createElement("span", {
         className: "value text-right"
@@ -259,9 +260,9 @@ export var DisplayTitleColumnWrapper = /*#__PURE__*/React.memo(function (props) 
         // Check parent for hrefs if none found on current evt.target
         linkElement = elementIsChildOfLink(target);
 
-        var _ref3 = linkElement || {},
-            _ref3$href = _ref3.href,
-            childLinkHref = _ref3$href === void 0 ? null : _ref3$href;
+        var _ref4 = linkElement || {},
+            _ref3$href2 = _ref4.href,
+            childLinkHref = _ref3$href2 === void 0 ? null : _ref3$href2;
 
         if (childLinkHref) {
           targetUrl = childLinkHref;
@@ -302,10 +303,10 @@ export var DisplayTitleColumnWrapper = /*#__PURE__*/React.memo(function (props) 
 });
 /** Button shown in first column (display_title) to open/close detail pane. */
 
-export var TableRowToggleOpenButton = /*#__PURE__*/React.memo(function (_ref4) {
-  var onClick = _ref4.onClick,
-      toggleDetailOpen = _ref4.toggleDetailOpen,
-      open = _ref4.open;
+export var TableRowToggleOpenButton = /*#__PURE__*/React.memo(function (_ref5) {
+  var onClick = _ref5.onClick,
+      toggleDetailOpen = _ref5.toggleDetailOpen,
+      open = _ref5.open;
   return /*#__PURE__*/React.createElement("div", {
     className: "toggle-detail-button-container"
   }, /*#__PURE__*/React.createElement("button", {

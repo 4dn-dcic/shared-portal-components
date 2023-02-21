@@ -193,10 +193,11 @@ export var LoginController = /*#__PURE__*/function (_React$PureComponent) {
           return response;
         }).then(function (userInfoResponse) {
           console.info('Received info from server about user via /session-properties endpoint', userInfoResponse);
-          var _userInfoResponse$det = userInfoResponse.details;
-          _userInfoResponse$det = _userInfoResponse$det === void 0 ? {} : _userInfoResponse$det;
-          var _userInfoResponse$det2 = _userInfoResponse$det.email,
-              userEmail = _userInfoResponse$det2 === void 0 ? null : _userInfoResponse$det2,
+
+          var _userInfoResponse$det = userInfoResponse.details,
+              _userInfoResponse$det2 = _userInfoResponse$det === void 0 ? {} : _userInfoResponse$det,
+              _userInfoResponse$det3 = _userInfoResponse$det2.email,
+              userEmail = _userInfoResponse$det3 === void 0 ? null : _userInfoResponse$det3,
               _userInfoResponse$use = userInfoResponse.user_actions,
               user_actions = _userInfoResponse$use === void 0 ? [] : _userInfoResponse$use;
 
@@ -289,9 +290,7 @@ export var LoginController = /*#__PURE__*/function (_React$PureComponent) {
         } else if (error.code === 401) {
           // User account not in system -- present a registration form
           var decodedToken = jwt.decode(idToken);
-
-          var _ref4 = decodedToken || {},
-              unverifiedUserEmail = _ref4.email;
+          var unverifiedUserEmail = (decodedToken || {}).email;
 
           if (unverifiedUserEmail) {
             // Somewhat weird/hacky approach to mask the idToken in private func enclosure
@@ -458,8 +457,8 @@ export function performLogout() {
   arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "DPxEwsZRnKDpk0VfVAxrStRKukN14ILB";
 
   // Grab here, gets deleted at end of response.
-  var _ref5 = JWT.getUserDetails() || {},
-      uuid = _ref5.uuid;
+  var _ref6 = JWT.getUserDetails() || {},
+      uuid = _ref6.uuid;
 
   return fetch("/logout").then(function (response) {
     var _response$deleted_coo = response.deleted_cookie,

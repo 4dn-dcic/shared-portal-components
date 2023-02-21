@@ -1,14 +1,26 @@
-import _assertThisInitialized from "@babel/runtime/helpers/assertThisInitialized";
-import _defineProperty from "@babel/runtime/helpers/defineProperty";
-import _createClass from "@babel/runtime/helpers/createClass";
-import _classCallCheck from "@babel/runtime/helpers/classCallCheck";
-import _inherits from "@babel/runtime/helpers/inherits";
-import _possibleConstructorReturn from "@babel/runtime/helpers/possibleConstructorReturn";
-import _getPrototypeOf from "@babel/runtime/helpers/getPrototypeOf";
+function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); Object.defineProperty(subClass, "prototype", { writable: false }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
 function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
 
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } else if (call !== void 0) { throw new TypeError("Derived constructors may only return object or undefined"); } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
 function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf.bind() : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
 import React from 'react';
 import Modal from 'react-bootstrap/esm/Modal';
@@ -285,12 +297,13 @@ export var DragAndDropFileUploadController = /*#__PURE__*/function (_React$Compo
         return _this3.createItem(file, true) // Validate
         .then(function (response) {
           if (response.status && response.status !== 'success') {
-            var _response$errors = response.errors;
-            _response$errors = _response$errors === void 0 ? {} : _response$errors;
-            var _response$errors$ = _response$errors[0];
-            _response$errors$ = _response$errors$ === void 0 ? {} : _response$errors$;
-            var description = _response$errors$.description,
+            var _response$errors3 = response.errors,
+                _response$errors4 = _response$errors3 === void 0 ? {} : _response$errors3,
+                _response$errors2$3 = _response$errors4[0],
+                _response$errors2$4 = _response$errors2$3 === void 0 ? {} : _response$errors2$3,
+                description = _response$errors2$4.description,
                 respDescription = response.description;
+
             var errorMessage = "Validation failed!\n\n".concat(respDescription, " ").concat(description);
             throw new Error(errorMessage);
           } else {
@@ -299,12 +312,13 @@ export var DragAndDropFileUploadController = /*#__PURE__*/function (_React$Compo
           }
         }).then(function (resp) {
           if (resp.status && resp.status !== 'success') {
-            var _resp$errors = resp.errors;
-            _resp$errors = _resp$errors === void 0 ? {} : _resp$errors;
-            var _resp$errors$ = _resp$errors[0];
-            _resp$errors$ = _resp$errors$ === void 0 ? {} : _resp$errors$;
-            var description = _resp$errors$.description,
+            var _resp$errors3 = resp.errors,
+                _resp$errors4 = _resp$errors3 === void 0 ? {} : _resp$errors3,
+                _resp$errors2$3 = _resp$errors4[0],
+                _resp$errors2$4 = _resp$errors2$3 === void 0 ? {} : _resp$errors2$3,
+                description = _resp$errors2$4.description,
                 respDescription = resp.description;
+
             var errorMessage = "Create item failed!\n\n".concat(respDescription, " ").concat(description);
             alert(errorMessage);
             throw new Error(errorMessage);
@@ -318,12 +332,13 @@ export var DragAndDropFileUploadController = /*#__PURE__*/function (_React$Compo
           }
         }).then(function (res) {
           if (res.status && res.status !== 'success') {
-            var _res$errors = res.errors;
-            _res$errors = _res$errors === void 0 ? {} : _res$errors;
-            var _res$errors$ = _res$errors[0];
-            _res$errors$ = _res$errors$ === void 0 ? {} : _res$errors$;
-            var description = _res$errors$.description,
+            var _res$errors3 = res.errors,
+                _res$errors4 = _res$errors3 === void 0 ? {} : _res$errors3,
+                _res$errors2$3 = _res$errors4[0],
+                _res$errors2$4 = _res$errors2$3 === void 0 ? {} : _res$errors2$3,
+                description = _res$errors2$4.description,
                 respDescription = res.description;
+
             var errorMessage = "Link Item to Individual failed!\n\n".concat(respDescription, " ").concat(description);
             alert(errorMessage);
             throw new Error(errorMessage);
