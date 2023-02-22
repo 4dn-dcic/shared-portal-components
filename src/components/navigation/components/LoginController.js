@@ -79,9 +79,9 @@ export class LoginController extends React.PureComponent {
     }
 
     componentDidMount() {
-        const { auth0Options } = this.props;
+        const { auth0Options: auth0OptionsFallback } = this.props;
         const { isAuth0LibraryLoaded } = this.state;
-        ajaxPromise("/auth0_config").then(({ auth0Client, auth0Domain }) => {
+        ajaxPromise("/auth0_config").then(({ auth0Client, auth0Domain, auth0Options }) => {
 
             if (!auth0Client || !auth0Domain) {
                 // This will never happen unless network is down or issue with the orchestration... might be worth throwing an error (?)
@@ -89,7 +89,7 @@ export class LoginController extends React.PureComponent {
             }
 
             const createLock = () => {
-                this.lock = new Auth0Lock(auth0Client, auth0Domain, auth0Options);
+                this.lock = new Auth0Lock(auth0Client, auth0Domain, auth0Options || auth0OptionsFallback);
                 this.lock.on("authenticated", this.auth0LoginCallback);
                 setTimeout(()=>{
                     this.setState({ "isAuth0LibraryLoaded": true });
