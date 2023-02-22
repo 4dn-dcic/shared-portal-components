@@ -351,10 +351,7 @@ export class LoginController extends React.PureComponent {
  *
  * @returns a Promise that can keep attaching callbacks to.
  */
-export function performLogout(
-    auth0Domain = "hms-dbmi.auth0.com",
-    auth0ClientID = "DPxEwsZRnKDpk0VfVAxrStRKukN14ILB"
-){
+export function performLogout(){
     // Grab here, gets deleted at end of response.
     const { uuid } = JWT.getUserDetails() || {};
 
