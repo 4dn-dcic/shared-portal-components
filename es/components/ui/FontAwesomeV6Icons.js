@@ -8,7 +8,7 @@ import React from 'react';
 /**
  * Since v6 of Font Awesome will require a pretty big upgrade w/some breaking changes,
  * and we have urgent need for one or two of the icons from that subset, this file will temporarily
- * house an icon component that can be used to use these as SVGs across CGAP & 4DN. This is a
+ * house an icon component that can be used to load these icons as SVGs across CGAP & 4DN. This is a
  * SHORT TERM FIX for cases where there are no alternative options than to use an icon from v6.
  *
  * (Please don't start using this everywhere; it's for iconography-related emergencies ONLY.)
@@ -17,7 +17,7 @@ import React from 'react';
  * update references.
  *
  * VERY IMPORTANT NOTE: The SVG file must be accessible on the PARENT REPO (CGAP/4DN) at
- * /static/img/<icon> in order to be used here. It must have the same name across both repos,
+ * /static/img/fontawesomev6/<icon> in order to be used here. It must have the same name across both repos,
  * so best to just keep the name of the SVG file as downloaded from Fontawesome's site.
  */
 
@@ -47,7 +47,7 @@ var FontAwesomeV6Icons = /*#__PURE__*/React.memo(function (_ref) {
       filter: filter
     },
     alt: alt,
-    src: "/static/img/" + filename
+    src: "/static/img/fontawesomev6/" + filename
   });
 });
 export default FontAwesomeV6Icons;
