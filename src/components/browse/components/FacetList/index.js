@@ -664,6 +664,9 @@ export class FacetList extends React.PureComponent {
             setOpenPopover: this.setOpenPopover,
         };
 
+        const groupByFields = _.unique(_.filter(_.pluck(facets, 'group_by'), (f) => f));
+        console.log('xxx groupByFields:', groupByFields);
+        // const filteredFacets = _.filter()
         const { staticFacetElements, selectableFacetElements: rawerSelectableFacetElems } = this.memoized.segmentOutCommonProperties(
             this.memoized.createFacetComponents(
                 facetComponentProps,

@@ -158,11 +158,11 @@ export class Term extends React.PureComponent {
 
         const statusClassName = (status !== 'none' ? (status === 'selected' ? " selected" : " omitted") : '');
         return (
-            <li className={"facet-list-element " + statusClassName} key={term.key} data-key={term.key}>
+            <li className={"facet-list-element " + statusClassName + (term.is_group_item ? " pl-3" : "")} key={term.key} data-key={term.key}>
                 <a className="term" data-selected={selected} href="#" onClick={this.handleClick} data-term={term.key}>
                     <span className="facet-selector">{icon}</span>
-                    <span className="facet-item" data-tip={title.length > 30 ? title : null}>{title}</span>
-                    <span className="facet-count">{count}</span>
+                    <span className={"facet-item" + (term.is_group_header ? " font-weight-bold" : "")} data-tip={title.length > 30 ? title : null}>{title}</span>
+                    {term.is_group_header ? null : <span className="facet-count">{count}</span>}
                 </a>
             </li>
         );
@@ -339,11 +339,36 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
     } = useMemo(function(){
         const { field } = facet;
 
-        const allTermComponents = terms.map(function(term){
-            const { field: currFilteringField, term: currFilteringTerm } = filteringFieldTerm || {};
-            const isFiltering = field === currFilteringField && term.key === currFilteringTerm;
-            return <Term {...{ facet, term, termTransformFxn, isFiltering, useRadioIcon }} onClick={onTermClick} key={term.key} status={getTermStatus(term, facet)} />;
-        });
+        let allTermComponents = null;
+        if (!facet.group_by) {
+            allTermComponents = terms.map(function (term) {
+                const { field: currFilteringField, term: currFilteringTerm } = filteringFieldTerm || {};
+                const isFiltering = field === currFilteringField && term.key === currFilteringTerm;
+                return <Term {...{ facet, term, termTransformFxn, isFiltering, useRadioIcon }} onClick={onTermClick} key={term.key} status={getTermStatus(term, facet)} />;
+            });
+        } else {
+            allTermComponents = [];
+            let currGroupingKey = null;
+            _.chain(terms).sortBy((term) => term.key).sortBy((term) => term.grouping_key).value().forEach(function(term){
+                console.log('xxx facet:' ,facet);
+                if (term.grouping_key !== currGroupingKey) {
+                    const groupingTerm = { doc_count: 10, 'key': term.grouping_key, 'is_group_header': true };
+                    const isFiltering = field === currFilteringField && term.key === currFilteringTerm;
+                    const groupByFacet = { ...facet };
+                    groupByFacet.field = facet.group_by;
+                    delete groupByFacet.group_by;
+                    allTermComponents.push(<Term {...{ facet: groupByFacet, term: groupingTerm, termTransformFxn, isFiltering, useRadioIcon }} onClick={onTermClick} key={groupingTerm.key} status={getTermStatus(groupingTerm, facet)} />);
+                    currGroupingKey = term.grouping_key;
+                }
+                const { field: currFilteringField, term: currFilteringTerm } = filteringFieldTerm || {};
+                const isFiltering = field === currFilteringField && term.key === currFilteringTerm;
+                allTermComponents.push(<Term {...{ facet, term, termTransformFxn, isFiltering, useRadioIcon }} onClick={onTermClick} key={term.key} status={getTermStatus(term, facet)} />);
+            });
+        }
+        // if (facet.group_by) {
+        //     const groupingTerm = { doc_count: 10, 'key': 'Utku', 'is_group_header': true };
+        //     allTermComponents.unshift(<Term {...{ facet, term: groupingTerm, termTransformFxn, isFiltering: false, useRadioIcon }} onClick={onTermClick} key={groupingTerm.key} status={getTermStatus(groupingTerm, facet)} />);
+        // }
         const segments = segmentComponentsByStatus(allTermComponents);
 
         const { selected: selectedTermComponents = [], omitted : omittedTermComponents = [] } = segments;
@@ -432,7 +457,6 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
                 </div>
             );
         }
-
         if (Array.isArray(collapsibleTerms)) {
             let expandButtonTitle;
 
