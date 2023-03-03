@@ -23,17 +23,12 @@ export class LoginController extends React.PureComponent {
     static propTypes = {
         'updateAppSessionState' : PropTypes.func.isRequired,
         'id'                  : PropTypes.string,
-        'auth0ClientID'       : PropTypes.string.isRequired,
-        'auth0Domain'         : PropTypes.string.isRequired,
         'auth0Options'        : PropTypes.object,
         'children'            : PropTypes.node.isRequired
     };
 
     static defaultProps = {
         // Login / logout actions must be deferred until Auth0 is ready.
-        // TODO: these (maybe) should be read in from base and production.ini
-        'auth0ClientID' : 'DPxEwsZRnKDpk0VfVAxrStRKukN14ILB',
-        'auth0Domain' : 'hms-dbmi.auth0.com',
         'auth0Options' : {
             auth: {
                 sso: false,
@@ -84,16 +79,23 @@ export class LoginController extends React.PureComponent {
     }
 
     componentDidMount() {
-        const { auth0ClientID, auth0Domain, auth0Options } = this.props;
+        const { auth0Options: auth0OptionsFallback } = this.props;
         const { isAuth0LibraryLoaded } = this.state;
-        ajaxPromise("/auth0_config").then(({ auth0Client, auth0Domain }) => {
+        ajaxPromise("/auth0_config").then(({ auth0Client, auth0Domain, auth0Options }) => {
 
             if (!auth0Client || !auth0Domain) {
+                // This will never happen unless network is down or issue with the orchestration... might be worth throwing an error (?)
                 return; // Skip setting "isAuth0LibraryLoaded": true, idk.
             }
 
+            // Overwrite the fallback options with auth0Options, but also keep anything that was passed in
+            // and not replaced by a value from /auth0_config (mostly a temp fix until endpoint updated,
+            // but will remain necessary for container specification on CGAP to keep login modal from
+            // appearing on page load)
+            const options = { ...auth0OptionsFallback, ...auth0Options };
+
             const createLock = () => {
-                this.lock = new Auth0Lock(auth0ClientID, auth0Domain, auth0Options);
+                this.lock = new Auth0Lock(auth0Client, auth0Domain, options);
                 this.lock.on("authenticated", this.auth0LoginCallback);
                 setTimeout(()=>{
                     this.setState({ "isAuth0LibraryLoaded": true });
@@ -355,10 +357,7 @@ export class LoginController extends React.PureComponent {
  *
  * @returns a Promise that can keep attaching callbacks to.
  */
-export function performLogout(
-    auth0Domain = "hms-dbmi.auth0.com",
-    auth0ClientID = "DPxEwsZRnKDpk0VfVAxrStRKukN14ILB"
-){
+export function performLogout(){
     // Grab here, gets deleted at end of response.
     const { uuid } = JWT.getUserDetails() || {};
 

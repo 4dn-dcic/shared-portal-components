@@ -1,17 +1,20 @@
-import _extends from "@babel/runtime/helpers/extends";
-import _objectWithoutProperties from "@babel/runtime/helpers/objectWithoutProperties";
-import _classCallCheck from "@babel/runtime/helpers/classCallCheck";
-import _createClass from "@babel/runtime/helpers/createClass";
-import _assertThisInitialized from "@babel/runtime/helpers/assertThisInitialized";
-import _inherits from "@babel/runtime/helpers/inherits";
-import _possibleConstructorReturn from "@babel/runtime/helpers/possibleConstructorReturn";
-import _getPrototypeOf from "@babel/runtime/helpers/getPrototypeOf";
+function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
 var _excluded = ["searchList", "filterMethod", "optionsHeader", "allowCustomValue", "customFilterFunction"];
-
+function _extends() { _extends = Object.assign ? Object.assign.bind() : function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
+function _objectWithoutProperties(source, excluded) { if (source == null) return {}; var target = _objectWithoutPropertiesLoose(source, excluded); var key, i; if (Object.getOwnPropertySymbols) { var sourceSymbolKeys = Object.getOwnPropertySymbols(source); for (i = 0; i < sourceSymbolKeys.length; i++) { key = sourceSymbolKeys[i]; if (excluded.indexOf(key) >= 0) continue; if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue; target[key] = source[key]; } } return target; }
+function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; var sourceKeys = Object.keys(source); var key, i; for (i = 0; i < sourceKeys.length; i++) { key = sourceKeys[i]; if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } return target; }
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, _toPropertyKey(descriptor.key), descriptor); } }
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return _typeof(key) === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (_typeof(input) !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (_typeof(res) !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); Object.defineProperty(subClass, "prototype", { writable: false }); if (superClass) _setPrototypeOf(subClass, superClass); }
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
-
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } else if (call !== void 0) { throw new TypeError("Derived constructors may only return object or undefined"); } return _assertThisInitialized(self); }
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
-
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf.bind() : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 import React from 'react';
 import PropTypes from 'prop-types';
 import memoize from 'memoize-one';
@@ -19,14 +22,10 @@ import { SearchSelectionMenu } from './SearchSelectionMenu';
 import { valueTransforms } from './../../util';
 export var SearchAsYouTypeLocal = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(SearchAsYouTypeLocal, _React$PureComponent);
-
   var _super = _createSuper(SearchAsYouTypeLocal);
-
   function SearchAsYouTypeLocal(props) {
     var _this;
-
     _classCallCheck(this, SearchAsYouTypeLocal);
-
     _this = _super.call(this, props);
     _this.onTextInputChange = _this.onTextInputChange.bind(_assertThisInitialized(_this));
     _this.onDropdownSelect = _this.onDropdownSelect.bind(_assertThisInitialized(_this));
@@ -38,21 +37,18 @@ export var SearchAsYouTypeLocal = /*#__PURE__*/function (_React$PureComponent) {
     };
     return _this;
   }
-
   _createClass(SearchAsYouTypeLocal, [{
     key: "onTextInputChange",
     value: function onTextInputChange(evt) {
       var _this$props = this.props,
-          onChange = _this$props.onChange,
-          _this$props$allowCust = _this$props.allowCustomValue,
-          allowCustomValue = _this$props$allowCust === void 0 ? false : _this$props$allowCust;
+        onChange = _this$props.onChange,
+        _this$props$allowCust = _this$props.allowCustomValue,
+        allowCustomValue = _this$props$allowCust === void 0 ? false : _this$props$allowCust;
       var _evt$target$value = evt.target.value,
-          value = _evt$target$value === void 0 ? null : _evt$target$value;
-
+        value = _evt$target$value === void 0 ? null : _evt$target$value;
       if (allowCustomValue) {
         onChange(value);
       }
-
       this.setState({
         currentTextValue: value
       });
@@ -68,18 +64,16 @@ export var SearchAsYouTypeLocal = /*#__PURE__*/function (_React$PureComponent) {
     key: "render",
     value: function render() {
       var _this$props2 = this.props,
-          searchList = _this$props2.searchList,
-          _this$props2$filterMe = _this$props2.filterMethod,
-          filterMethod = _this$props2$filterMe === void 0 ? "startsWith" : _this$props2$filterMe,
-          propOptionsHeader = _this$props2.optionsHeader,
-          allowCustomValue = _this$props2.allowCustomValue,
-          customFilterFunction = _this$props2.customFilterFunction,
-          passProps = _objectWithoutProperties(_this$props2, _excluded);
-
+        searchList = _this$props2.searchList,
+        _this$props2$filterMe = _this$props2.filterMethod,
+        filterMethod = _this$props2$filterMe === void 0 ? "startsWith" : _this$props2$filterMe,
+        propOptionsHeader = _this$props2.optionsHeader,
+        allowCustomValue = _this$props2.allowCustomValue,
+        customFilterFunction = _this$props2.customFilterFunction,
+        passProps = _objectWithoutProperties(_this$props2, _excluded);
       var currentTextValue = this.state.currentTextValue;
       var filteredOptions;
       var optionsHeader = propOptionsHeader;
-
       if (!Array.isArray(searchList)) {
         // Likely, schemas are not yet loaded?
         filteredOptions = [];
@@ -94,14 +88,12 @@ export var SearchAsYouTypeLocal = /*#__PURE__*/function (_React$PureComponent) {
         } else {
           filteredOptions = this.memoized.filterOptions(currentTextValue, searchList, filterMethod);
         }
-
         if (filteredOptions.length === 0) {
           optionsHeader = /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("em", {
             className: "d-block text-center px-4 py-3"
           }, allowCustomValue ? "Adding new entry" : "No results found"), optionsHeader);
         }
       }
-
       return /*#__PURE__*/React.createElement(SearchSelectionMenu, _extends({}, passProps, {
         optionsHeader: optionsHeader,
         currentTextValue: currentTextValue,
@@ -117,7 +109,6 @@ export var SearchAsYouTypeLocal = /*#__PURE__*/function (_React$PureComponent) {
       switch (filterMethod) {
         case "includes":
           return valueTransforms.escapeRegExp(value.toLowerCase());
-
         case "startsWith":
         default:
           return "^" + valueTransforms.escapeRegExp(value.toLowerCase()) + "(.+)?$";
@@ -135,7 +126,6 @@ export var SearchAsYouTypeLocal = /*#__PURE__*/function (_React$PureComponent) {
       });
     }
   }]);
-
   return SearchAsYouTypeLocal;
 }(React.PureComponent);
 SearchAsYouTypeLocal.propTypes = {

@@ -1,21 +1,37 @@
-import _objectWithoutProperties from "@babel/runtime/helpers/objectWithoutProperties";
-import _classCallCheck from "@babel/runtime/helpers/classCallCheck";
-import _createClass from "@babel/runtime/helpers/createClass";
-import _assertThisInitialized from "@babel/runtime/helpers/assertThisInitialized";
-import _inherits from "@babel/runtime/helpers/inherits";
-import _possibleConstructorReturn from "@babel/runtime/helpers/possibleConstructorReturn";
-import _getPrototypeOf from "@babel/runtime/helpers/getPrototypeOf";
-import _defineProperty from "@babel/runtime/helpers/defineProperty";
+function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
+
 var _excluded = ["children"],
     _excluded2 = ["children"];
+
+function _objectWithoutProperties(source, excluded) { if (source == null) return {}; var target = _objectWithoutPropertiesLoose(source, excluded); var key, i; if (Object.getOwnPropertySymbols) { var sourceSymbolKeys = Object.getOwnPropertySymbols(source); for (i = 0; i < sourceSymbolKeys.length; i++) { key = sourceSymbolKeys[i]; if (excluded.indexOf(key) >= 0) continue; if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue; target[key] = source[key]; } } return target; }
+
+function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; var sourceKeys = Object.keys(source); var key, i; for (i = 0; i < sourceKeys.length; i++) { key = sourceKeys[i]; if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } return target; }
 
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); Object.defineProperty(subClass, "prototype", { writable: false }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
 function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
 
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } else if (call !== void 0) { throw new TypeError("Derived constructors may only return object or undefined"); } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
 function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf.bind() : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -71,21 +87,26 @@ export var LoginController = /*#__PURE__*/function (_React$PureComponent) {
     value: function componentDidMount() {
       var _this2 = this;
 
-      var _this$props = this.props,
-          auth0ClientID = _this$props.auth0ClientID,
-          auth0Domain = _this$props.auth0Domain,
-          auth0Options = _this$props.auth0Options;
+      var auth0OptionsFallback = this.props.auth0Options;
       var isAuth0LibraryLoaded = this.state.isAuth0LibraryLoaded;
       ajaxPromise("/auth0_config").then(function (_ref) {
         var auth0Client = _ref.auth0Client,
-            auth0Domain = _ref.auth0Domain;
+            auth0Domain = _ref.auth0Domain,
+            auth0Options = _ref.auth0Options;
 
         if (!auth0Client || !auth0Domain) {
+          // This will never happen unless network is down or issue with the orchestration... might be worth throwing an error (?)
           return; // Skip setting "isAuth0LibraryLoaded": true, idk.
-        }
+        } // Overwrite the fallback options with auth0Options, but also keep anything that was passed in
+        // and not replaced by a value from /auth0_config (mostly a temp fix until endpoint updated,
+        // but will remain necessary for container specification on CGAP to keep login modal from
+        // appearing on page load)
+
+
+        var options = _objectSpread(_objectSpread({}, auth0OptionsFallback), auth0Options);
 
         var createLock = function () {
-          _this2.lock = new Auth0Lock(auth0ClientID, auth0Domain, auth0Options);
+          _this2.lock = new Auth0Lock(auth0Client, auth0Domain, options);
 
           _this2.lock.on("authenticated", _this2.auth0LoginCallback);
 
@@ -137,10 +158,10 @@ export var LoginController = /*#__PURE__*/function (_React$PureComponent) {
 
       var successCallback = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
       var errorCallback = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
-      var _this$props2 = this.props,
-          updateAppSessionState = _this$props2.updateAppSessionState,
-          _this$props2$onLogin = _this$props2.onLogin,
-          onLogin = _this$props2$onLogin === void 0 ? null : _this$props2$onLogin;
+      var _this$props = this.props,
+          updateAppSessionState = _this$props.updateAppSessionState,
+          _this$props$onLogin = _this$props.onLogin,
+          onLogin = _this$props$onLogin === void 0 ? null : _this$props$onLogin;
       this.setState({
         "isLoading": true
       }, function () {
@@ -179,10 +200,11 @@ export var LoginController = /*#__PURE__*/function (_React$PureComponent) {
           return response;
         }).then(function (userInfoResponse) {
           console.info('Received info from server about user via /session-properties endpoint', userInfoResponse);
-          var _userInfoResponse$det = userInfoResponse.details;
-          _userInfoResponse$det = _userInfoResponse$det === void 0 ? {} : _userInfoResponse$det;
-          var _userInfoResponse$det2 = _userInfoResponse$det.email,
-              userEmail = _userInfoResponse$det2 === void 0 ? null : _userInfoResponse$det2,
+
+          var _userInfoResponse$det = userInfoResponse.details,
+              _userInfoResponse$det2 = _userInfoResponse$det === void 0 ? {} : _userInfoResponse$det,
+              _userInfoResponse$det3 = _userInfoResponse$det2.email,
+              userEmail = _userInfoResponse$det3 === void 0 ? null : _userInfoResponse$det3,
               _userInfoResponse$use = userInfoResponse.user_actions,
               user_actions = _userInfoResponse$use === void 0 ? [] : _userInfoResponse$use;
 
@@ -275,9 +297,7 @@ export var LoginController = /*#__PURE__*/function (_React$PureComponent) {
         } else if (error.code === 401) {
           // User account not in system -- present a registration form
           var decodedToken = jwt.decode(idToken);
-
-          var _ref4 = decodedToken || {},
-              unverifiedUserEmail = _ref4.email;
+          var unverifiedUserEmail = (decodedToken || {}).email;
 
           if (unverifiedUserEmail) {
             // Somewhat weird/hacky approach to mask the idToken in private func enclosure
@@ -361,9 +381,9 @@ export var LoginController = /*#__PURE__*/function (_React$PureComponent) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props3 = this.props,
-          children = _this$props3.children,
-          passProps = _objectWithoutProperties(_this$props3, _excluded);
+      var _this$props2 = this.props,
+          children = _this$props2.children,
+          passProps = _objectWithoutProperties(_this$props2, _excluded);
 
       var _this$state = this.state,
           isLoading = _this$state.isLoading,
@@ -405,17 +425,12 @@ export var LoginController = /*#__PURE__*/function (_React$PureComponent) {
 _defineProperty(LoginController, "propTypes", {
   'updateAppSessionState': PropTypes.func.isRequired,
   'id': PropTypes.string,
-  'auth0ClientID': PropTypes.string.isRequired,
-  'auth0Domain': PropTypes.string.isRequired,
   'auth0Options': PropTypes.object,
   'children': PropTypes.node.isRequired
 });
 
 _defineProperty(LoginController, "defaultProps", {
   // Login / logout actions must be deferred until Auth0 is ready.
-  // TODO: these (maybe) should be read in from base and production.ini
-  'auth0ClientID': 'DPxEwsZRnKDpk0VfVAxrStRKukN14ILB',
-  'auth0Domain': 'hms-dbmi.auth0.com',
   'auth0Options': {
     auth: {
       sso: false,
@@ -445,12 +460,9 @@ _defineProperty(LoginController, "defaultProps", {
 });
 
 export function performLogout() {
-  arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "hms-dbmi.auth0.com";
-  arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "DPxEwsZRnKDpk0VfVAxrStRKukN14ILB";
-
   // Grab here, gets deleted at end of response.
-  var _ref5 = JWT.getUserDetails() || {},
-      uuid = _ref5.uuid;
+  var _ref6 = JWT.getUserDetails() || {},
+      uuid = _ref6.uuid;
 
   return fetch("/logout").then(function (response) {
     var _response$deleted_coo = response.deleted_cookie,
@@ -540,9 +552,9 @@ export var LogoutController = /*#__PURE__*/function (_React$PureComponent2) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props4 = this.props,
-          children = _this$props4.children,
-          passProps = _objectWithoutProperties(_this$props4, _excluded2);
+      var _this$props3 = this.props,
+          children = _this$props3.children,
+          passProps = _objectWithoutProperties(_this$props3, _excluded2);
 
       var isLoading = this.state.isLoading;
       return /*#__PURE__*/React.cloneElement(children, _objectSpread(_objectSpread({}, passProps), {}, {
