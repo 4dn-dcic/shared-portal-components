@@ -1,27 +1,17 @@
 function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
-
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, _toPropertyKey(descriptor.key), descriptor); } }
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
-
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); Object.defineProperty(subClass, "prototype", { writable: false }); if (superClass) _setPrototypeOf(subClass, superClass); }
-
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
-
 function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
-
 function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } else if (call !== void 0) { throw new TypeError("Derived constructors may only return object or undefined"); } return _assertThisInitialized(self); }
-
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
 function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
-
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf.bind() : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
+function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return _typeof(key) === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (_typeof(input) !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (_typeof(res) !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
 import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
@@ -29,12 +19,13 @@ import url from 'url';
 import { patchedConsoleInstance as console } from './../../util/patched-console';
 import { itemUtil } from './../../util/object';
 import { storeExists } from '../../util/misc';
+
 /**
  * Global variable which holds reference to child window, if any.
  * Is re-used if one is open to prevent additional windows being created.
  */
-
 var linkedObjChildWindow = null;
+
 /**
  * Use to help select Items from a second/child window's SearchView.
  *
@@ -52,17 +43,12 @@ var linkedObjChildWindow = null;
  *
  * This component does not render any of its own JSX/HTML, but will render children if any are passed in.
  */
-
 export var LinkToSelector = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(LinkToSelector, _React$PureComponent);
-
   var _super = _createSuper(LinkToSelector);
-
   function LinkToSelector(props) {
     var _this2;
-
     _classCallCheck(this, LinkToSelector);
-
     _this2 = _super.call(this, props);
     _this2.showAlertInChildWindow = _this2.showAlertInChildWindow.bind(_assertThisInitialized(_this2));
     _this2.setChildWindowMessageHandler = _this2.setChildWindowMessageHandler.bind(_assertThisInitialized(_this2));
@@ -70,14 +56,14 @@ export var LinkToSelector = /*#__PURE__*/function (_React$PureComponent) {
     _this2.receiveData = _this2.receiveData.bind(_assertThisInitialized(_this2));
     return _this2;
   }
-
   _createClass(LinkToSelector, [{
     key: "componentDidMount",
     value: function componentDidMount() {
       this.manageChildWindow({
         'isSelecting': false
-      }, this.props); //clear storage
+      }, this.props);
 
+      //clear storage
       if (storeExists()) {
         localStorage.removeItem("selected_items");
       }
@@ -100,21 +86,17 @@ export var LinkToSelector = /*#__PURE__*/function (_React$PureComponent) {
     key: "manageChildWindow",
     value: function manageChildWindow(pastProps, nextProps) {
       var _this3 = this;
-
       var willUnmount = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-
       if (!window) {
         console.error('No window object available. Fine if this appears in a test.');
         return;
       }
-
       var _this$props = this.props,
-          searchURL = _this$props.searchURL,
-          value = _this$props.value,
-          onCloseChildWindow = _this$props.onCloseChildWindow;
+        searchURL = _this$props.searchURL,
+        value = _this$props.value,
+        onCloseChildWindow = _this$props.onCloseChildWindow;
       var pastInSelection = pastProps.isSelecting;
       var nowInSelection = nextProps.isSelecting;
-
       if (!pastInSelection && nowInSelection) {
         if (linkedObjChildWindow && !linkedObjChildWindow.closed && linkedObjChildWindow.fourfront && typeof linkedObjChildWindow.fourfront.navigate === 'function') {
           // We have access to the JS of our child window.
@@ -125,30 +107,26 @@ export var LinkToSelector = /*#__PURE__*/function (_React$PureComponent) {
           this.windowObjectReference.focus();
         } else {
           var windowFeaturesStr = "menubar=0,toolbar=1,location=0,resizable=1,scrollbars=1,status=1,navigation=1",
-              desktopScreenWidth = window && window.screen && (window.screen.availWidth || window.screen.width),
-              // Screen dimensions, not window dimensions.
-          desktopScreenHeight = window && window.screen && (window.screen.availHeight || window.screen.height),
-              childWindowHeight = 600,
-              // Defaults if can't get screen dimensions
-          childWindowWidth = 1010;
-
+            desktopScreenWidth = window && window.screen && (window.screen.availWidth || window.screen.width),
+            // Screen dimensions, not window dimensions.
+            desktopScreenHeight = window && window.screen && (window.screen.availHeight || window.screen.height),
+            childWindowHeight = 600,
+            // Defaults if can't get screen dimensions
+            childWindowWidth = 1010;
           if (typeof desktopScreenWidth === 'number' && !isNaN(desktopScreenWidth)) {
             childWindowWidth = Math.max(Math.min(1200, desktopScreenWidth - 200), 800);
             windowFeaturesStr += ',left=' + (desktopScreenWidth - childWindowWidth) / 2;
           }
-
           if (typeof desktopScreenHeight === 'number' && !isNaN(desktopScreenHeight)) {
             childWindowHeight = Math.max(Math.min(800, desktopScreenHeight - 200), 400);
             windowFeaturesStr += ',top=' + (desktopScreenHeight - childWindowHeight) / 2;
           }
-
           windowFeaturesStr += ',width=' + childWindowWidth + ',height=' + childWindowHeight;
           this.windowObjectReference = linkedObjChildWindow = window.open("about:blank", "selection-search", windowFeaturesStr);
           setTimeout(function () {
             _this3.windowObjectReference && _this3.windowObjectReference.location.assign(searchURL);
           }, 100);
         }
-
         this.setChildWindowMessageHandler();
         this.childWindowClosedInterval = setInterval(function () {
           // Check every 1s if our child window is still open.
@@ -156,15 +134,12 @@ export var LinkToSelector = /*#__PURE__*/function (_React$PureComponent) {
           if (!_this3 || !_this3.windowObjectReference || _this3.windowObjectReference.closed) {
             clearInterval(_this3.childWindowClosedInterval);
             delete _this3.childWindowClosedInterval;
-
             if (_this3 && _this3.windowObjectReference && _this3.windowObjectReference.closed) {
               if (typeof onCloseChildWindow === 'function') {
                 onCloseChildWindow(value);
               }
             }
-
             _this3.cleanChildWindowEventHandlers();
-
             _this3.windowObjectReference = linkedObjChildWindow = null;
           }
         }, 1000);
@@ -172,7 +147,6 @@ export var LinkToSelector = /*#__PURE__*/function (_React$PureComponent) {
         if (this.childWindowClosedInterval) {
           clearInterval(this.childWindowClosedInterval);
           delete this.childWindowClosedInterval;
-
           if (willUnmount) {
             this.cleanChildWindow();
           } else {
@@ -181,59 +155,53 @@ export var LinkToSelector = /*#__PURE__*/function (_React$PureComponent) {
         }
       }
     }
+
     /**
      * This functioned is used as a listener/handler for messages received to this window.
      * Messages might be sent from child window directly to this parent window via e.g. `window.opener.postMessage(message, origin, ...)`
      *
      * @param {MessageEvent} evt - See https://developer.mozilla.org/en-US/docs/Web/API/MessageEvent.
      */
-
   }, {
     key: "handleChildWindowMessage",
     value: function handleChildWindowMessage(evt) {
       var _this$props2 = this.props,
-          value = _this$props2.value,
-          onCloseChildWindow = _this$props2.onCloseChildWindow;
+        value = _this$props2.value,
+        onCloseChildWindow = _this$props2.onCloseChildWindow;
       var eventType = evt && evt.data && evt.data.eventType;
-
       if (!eventType) {
         // We require an 'eventType' to be present in cross-window messages to help ID what the message is.
         console.error("No eventType specified in message. Canceling.");
         return;
-      } // Authenticate message origin to prevent XSS attacks.
+      }
 
-
+      // Authenticate message origin to prevent XSS attacks.
       var eventOriginParts = url.parse(evt.origin);
-
       if (window.location.host !== eventOriginParts.host) {
         console.error('Received message from unauthorized host. Canceling.');
         return;
       }
-
       if (window.location.protocol !== eventOriginParts.protocol) {
         console.error('Received message from unauthorized protocol. Canceling.');
         return;
-      } // The meat of this function/handler. This is what we listen to / expect.
+      }
 
-
+      // The meat of this function/handler. This is what we listen to / expect.
       if (eventType === 'fourfrontselectionclick') {
         var items = evt.data && evt.data.items || evt.detail && evt.detail.items || null;
-
         if (items && Array.isArray(items) && items.length > 0 && _.every(items, function (item) {
           return item.id && typeof item.id === 'string' && item.json;
         })) {
           return this.receiveData(items);
         }
-
         return null;
       }
-
       if (eventType === 'fourfrontcancelclick') {
         this.cleanChildWindow();
         onCloseChildWindow(value);
-      } // If we have a `props.childWindowAlert`, show it once child window lets us know it has initialized it JS environment.
+      }
 
-
+      // If we have a `props.childWindowAlert`, show it once child window lets us know it has initialized it JS environment.
       if (eventType === 'fourfrontinitialized') {
         return this.showAlertInChildWindow();
       }
@@ -242,7 +210,6 @@ export var LinkToSelector = /*#__PURE__*/function (_React$PureComponent) {
     key: "setChildWindowMessageHandler",
     value: function setChildWindowMessageHandler() {
       var _this4 = this;
-
       setTimeout(function () {
         window && window.addEventListener('message', _this4.handleChildWindowMessage);
         console.log('Updated \'message\' event handler');
@@ -252,13 +219,12 @@ export var LinkToSelector = /*#__PURE__*/function (_React$PureComponent) {
     key: "cleanChildWindowEventHandlers",
     value: function cleanChildWindowEventHandlers() {
       window.removeEventListener('message', this.handleChildWindowMessage);
-
       if (!this || !this.windowObjectReference) {
         console.warn('Child window no longer available to unbind event handlers. Fine if closed.');
         return;
-      } //clear storage
+      }
 
-
+      //clear storage
       if (storeExists()) {
         localStorage.removeItem("selected_items");
       }
@@ -272,31 +238,29 @@ export var LinkToSelector = /*#__PURE__*/function (_React$PureComponent) {
         this.windowObjectReference = linkedObjChildWindow = null;
       }
     }
+
     /**
      *
      * @param {Array} items - array of {id:ID of selected Item, if any, json:JSON of selected Item, if present (NOT GUARANTEED TO BE PROVIDED)} object
      */
-
   }, {
     key: "receiveData",
     value: function receiveData(items) {
       this.cleanChildWindow();
       this.props.onSelect(items, true);
     }
+
     /**
      * THIS MAY NOT WORK FOR ALL BROWSERS
      */
-
   }, {
     key: "showAlertInChildWindow",
     value: function showAlertInChildWindow() {
       var childWindowAlert = this.props.childWindowAlert;
       if (!childWindowAlert) return;
-
       if (typeof childWindowAlert === 'function') {
         childWindowAlert = childWindowAlert(this.props);
       }
-
       var childAlerts = this.windowObjectReference && this.windowObjectReference.fourfront && this.windowObjectReference.fourfront.alerts;
       if (!childAlerts) return;
       childAlerts.queue(childWindowAlert);
@@ -307,42 +271,32 @@ export var LinkToSelector = /*#__PURE__*/function (_React$PureComponent) {
       if (this.props.enableWindowDrop) {
         return /*#__PURE__*/React.createElement(WindowDropReceiver, this.props);
       }
-
       return null;
     }
   }]);
-
   return LinkToSelector;
 }(React.PureComponent);
-
 _defineProperty(LinkToSelector, "propTypes", {
   /** Whether component should be listening for Item to be selected */
   'isSelecting': PropTypes.bool.isRequired,
-
   /** Callback called when Items are received. Should accept array of {id:@ID, json:Item context (not guaranteed)} object and endDataPost (bool) as param */
   'onSelect': PropTypes.func.isRequired,
-
   /** Search URL to direct child window to */
   'searchURL': PropTypes.string.isRequired,
-
   /** Optional alert to show in child window upon initialization. Not guaranteed to appear in all browsers. */
   'childWindowAlert': PropTypes.shape({
     'title': PropTypes.string.isRequired,
     'message': PropTypes.any.isRequired,
     'style': PropTypes.string
   }),
-
   /** Optional callback called with no params when child window is closed. Could/should unset `props.isSelecting`. */
   'onCloseChildWindow': PropTypes.func,
   // When used with SV, will generally be the IndvObject.selectCancel method
-
   /** If true, then allows to drag & drop Item to window */
   'enableWindowDrop': PropTypes.bool.isRequired,
-
   /** Text content of message filling window when being dragged over */
   'dropMessage': PropTypes.string.isRequired
 });
-
 _defineProperty(LinkToSelector, "defaultProps", {
   'isSelecting': false,
   'onSelect': function onSelect(selectedItems, endDataPost) {
@@ -364,17 +318,12 @@ _defineProperty(LinkToSelector, "defaultProps", {
   'dropMessage': "Drop Item Here",
   'enableWindowDrop': true
 });
-
 export var WindowDropReceiver = /*#__PURE__*/function (_React$PureComponent2) {
   _inherits(WindowDropReceiver, _React$PureComponent2);
-
   var _super2 = _createSuper(WindowDropReceiver);
-
   function WindowDropReceiver(props) {
     var _this5;
-
     _classCallCheck(this, WindowDropReceiver);
-
     _this5 = _super2.call(this, props);
     _this5.handleWindowDragOver = _this5.handleWindowDragOver.bind(_assertThisInitialized(_this5));
     _this5.refreshWindowDropReceiver = _.throttle(_this5.refreshWindowDropReceiver.bind(_assertThisInitialized(_this5)), 300);
@@ -384,7 +333,6 @@ export var WindowDropReceiver = /*#__PURE__*/function (_React$PureComponent2) {
     _this5.windowDropReceiverHideTimeout = null;
     return _this5;
   }
-
   _createClass(WindowDropReceiver, [{
     key: "componentDidMount",
     value: function componentDidMount() {
@@ -413,10 +361,8 @@ export var WindowDropReceiver = /*#__PURE__*/function (_React$PureComponent2) {
         console.error('No window object available. Fine if this appears in a test.');
         return;
       }
-
       var pastInSelection = pastProps.isSelecting,
-          nowInSelection = nextProps.isSelecting;
-
+        nowInSelection = nextProps.isSelecting;
       if (pastInSelection && !nowInSelection) {
         window.removeEventListener('dragenter', this.handleWindowDragEnter);
         window.removeEventListener('dragover', this.handleWindowDragOver);
@@ -425,10 +371,9 @@ export var WindowDropReceiver = /*#__PURE__*/function (_React$PureComponent2) {
         console.log('Removed window event handlers for WindowDropReceiver');
       } else if (!pastInSelection && nowInSelection) {
         var _this = this;
-
         setTimeout(function () {
-          if (!_this || !_this.props.isSelecting) return false; //if (!_this || !_this.isInSelectionField(_this.props)) return false;
-
+          if (!_this || !_this.props.isSelecting) return false;
+          //if (!_this || !_this.isInSelectionField(_this.props)) return false;
           window.addEventListener('dragenter', _this.handleWindowDragEnter);
           window.addEventListener('dragover', _this.handleWindowDragOver);
           window.addEventListener('drop', _this.handleDrop);
@@ -436,6 +381,7 @@ export var WindowDropReceiver = /*#__PURE__*/function (_React$PureComponent2) {
         }, 250);
       }
     }
+
     /**
      * Handles drop event for the (temporarily-existing-while-dragging-over) window drop receiver element.
      * Grabs @ID of Item from evt.dataTransfer, attempting to grab from 'text/4dn-item-id', 'text/4dn-item-json', or 'text/plain'.
@@ -443,7 +389,6 @@ export var WindowDropReceiver = /*#__PURE__*/function (_React$PureComponent2) {
      * @see Notes and inline comments for handleChildFourFrontSelectionClick re isValidAtId.
      * @param {DragEvent} Drag event.
      */
-
   }, {
     key: "handleDrop",
     value: function handleDrop(evt) {
@@ -472,7 +417,6 @@ export var WindowDropReceiver = /*#__PURE__*/function (_React$PureComponent2) {
     key: "closeWindowDropReceiver",
     value: function closeWindowDropReceiver() {
       var _this6 = this;
-
       var elem = this.windowDropReceiverElement;
       if (!elem) return;
       elem.style.opacity = 0;
@@ -486,19 +430,17 @@ export var WindowDropReceiver = /*#__PURE__*/function (_React$PureComponent2) {
     key: "refreshWindowDropReceiver",
     value: function refreshWindowDropReceiver() {
       var _this7 = this;
-
       if (!document || !document.createElement) return;
-
       if (this.windowDropReceiverHideTimeout !== null) {
         clearTimeout(this.windowDropReceiverHideTimeout);
         this.windowDropReceiverHideTimeout = setTimeout(this.closeWindowDropReceiver, 500);
         return;
       }
-
       var dropMessage = this.props.dropMessage,
-          element = document.createElement('div');
+        element = document.createElement('div');
       element.className = "full-window-drop-receiver";
-      var //"Drop " + (itemType || "Item") + " for field '" + (prettyTitle || nestedField) +  "'",
+      var
+      //"Drop " + (itemType || "Item") + " for field '" + (prettyTitle || nestedField) +  "'",
       innerBoldElem = document.createElement('h2');
       innerBoldElem.appendChild(document.createTextNode(dropMessage));
       element.appendChild(innerBoldElem);
@@ -521,7 +463,6 @@ export var WindowDropReceiver = /*#__PURE__*/function (_React$PureComponent2) {
           console.error(e);
         }
       }
-
       this.props.onSelect([{
         'id': itemAtID,
         'json': itemContext
@@ -533,21 +474,16 @@ export var WindowDropReceiver = /*#__PURE__*/function (_React$PureComponent2) {
       return null;
     }
   }]);
-
   return WindowDropReceiver;
 }(React.PureComponent);
-
 _defineProperty(WindowDropReceiver, "propTypes", {
   /** Whether component should be listening for Item to be selected */
   'isSelecting': PropTypes.bool.isRequired,
-
   /** Callback called when Item is received. Should accept @ID and Item context (not guaranteed) as params. */
   'onSelect': PropTypes.func.isRequired,
-
   /** Text content of message filling window when being dragged over */
   'dropMessage': PropTypes.string.isRequired
 });
-
 _defineProperty(WindowDropReceiver, "defaultProps", {
   'isSelecting': false,
   'onSelect': function onSelect(items, endDataPost) {

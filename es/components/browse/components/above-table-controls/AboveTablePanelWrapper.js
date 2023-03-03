@@ -1,11 +1,10 @@
 import React from 'react';
 export var AboveTablePanelWrapper = /*#__PURE__*/React.memo( /*#__PURE__*/React.forwardRef(function (props, ref) {
   var children = props.children,
-      title = props.title,
-      className = props.className,
-      onClose = props.onClose;
+    title = props.title,
+    className = props.className,
+    onClose = props.onClose;
   var closeButton = null;
-
   if (typeof onClose === 'function') {
     closeButton = /*#__PURE__*/React.createElement("a", {
       className: "close-button",
@@ -14,7 +13,6 @@ export var AboveTablePanelWrapper = /*#__PURE__*/React.memo( /*#__PURE__*/React.
       className: "icon icon-fw icon-angle-up fas"
     }));
   }
-
   var childrenWithProps = React.Children.map(children, function (child) {
     // checking isValidElement is the safe way and avoids a typescript error too
     if ( /*#__PURE__*/React.isValidElement(child)) {
@@ -22,7 +20,6 @@ export var AboveTablePanelWrapper = /*#__PURE__*/React.memo( /*#__PURE__*/React.
         onClose: onClose
       });
     }
-
     return child;
   });
   return /*#__PURE__*/React.createElement("div", {

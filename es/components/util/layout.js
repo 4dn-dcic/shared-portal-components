@@ -11,7 +11,6 @@ import * as d3 from 'd3'; // TODO change to only import d3.select and d3.interpo
  */
 
 /** Get distance from top of browser viewport to an element's top. */
-
 export function getElementTop(el) {
   if (!(typeof window !== 'undefined' && window && document && document.body)) return null;
   if (!el || typeof el.getBoundingClientRect !== 'function') return null;
@@ -32,19 +31,18 @@ export function getElementOffset(el) {
 export function getElementOffsetFine(el) {
   var x = 0;
   var y = 0;
-
   while (el && !isNaN(el.offsetLeft) && !isNaN(el.offsetTop)) {
     // FF & IE don't support body's scrollTop - use window instead
     x += el.offsetLeft - (el.tagName === 'BODY' ? window.pageXOffset : el.scrollLeft);
     y += el.offsetTop - (el.tagName === 'BODY' ? window.pageYOffset : el.scrollTop);
     el = el.offsetParent;
   }
-
   return {
     left: x,
     top: y
   };
 }
+
 /**
  * Shorten a string to a maximum character length, splitting on word break (or other supplied character).
  * Optionally append an ellipsis.
@@ -54,28 +52,25 @@ export function getElementOffsetFine(el) {
  * @param {boolean} [addEllipsis=true]
  * @param {string}  [splitOn=' ']
  */
-
 export var shortenString = memoize(function (originalText) {
   var maxChars = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 28;
   var addEllipsis = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
   var splitOn = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : ' ';
   var textArr = originalText.split(splitOn),
-      nextLength,
-      returnArr = [],
-      returnStrLen = 0;
-
+    nextLength,
+    returnArr = [],
+    returnStrLen = 0;
   while (typeof textArr[0] === 'string') {
     nextLength = textArr[0].length + splitOn.length;
-
     if (returnStrLen + nextLength <= maxChars) {
       returnArr.push(textArr.shift());
       returnStrLen += nextLength;
     } else break;
   }
-
   if (textArr.length === 0) return originalText;
   return returnArr.join(splitOn) + (addEllipsis ? '...' : '');
 });
+
 /**
  * Get current grid size, if need to sidestep CSS.
  * Keep widths in sync with stylesheet, e.g. $screen-sm-min, $screen-md-min, & $screen-lg-min
@@ -90,22 +85,20 @@ export var shortenString = memoize(function (originalText) {
  * @param {number} width - Width of the current browser _window_.
  * @return {string} - Abbreviation for column/grid Bootstrap size, e.g. 'lg', 'md', 'sm', or 'xs'.
  */
-
 export var responsiveGridState = memoize(function () {
   var width = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
-
   if (typeof width !== 'number') {
     // Assumed to be null or undefined which should mean we are
     // server-side or not yet mounted.
     return 'xl';
   }
-
   if (width >= 1200) return 'xl';
   if (width >= 992) return 'lg';
   if (width >= 768) return 'md';
   if (width >= 576) return 'sm';
   return 'xs';
 });
+
 /**
  * Get the width of what a 12-column bootstrap section would be in current viewport size.
  * Keep widths in sync with stylesheet, e.g.
@@ -121,29 +114,24 @@ export var responsiveGridState = memoize(function () {
  * @param {number} [windowWidth] Optional current window width to supply.
  * @return {integer}
  */
-
 export function gridContainerWidth() {
   var windowWidth = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
-
   // Subtract 20 for padding/margins.
   switch (responsiveGridState(windowWidth)) {
     case 'xl':
       return 1120;
-
     case 'lg':
       return 940;
-
     case 'md':
       return 700;
-
     case 'sm':
       return 520;
-
     case 'xs':
       if (isServerSide()) return 400;
       return (windowWidth || window.innerWidth) - 20;
   }
 }
+
 /**
  * Check width of text if it were to fit on one line.
  * Must only be called client-side. Will throw error server-side.
@@ -153,12 +141,10 @@ export function gridContainerWidth() {
  * @param {boolean} [roundToPixel] - Whether to round result up.
  * @return {integer} - Width of text if whitespace style set to nowrap, or object containing 'containerHeight' & 'textWidth' if widthForHeightCheck is set.
  */
-
 export var textWidth = memoize(function (textContent) {
   var font = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "1rem 'Work Sans'";
   var roundToPixel = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
   var canvas, context, width;
-
   try {
     // Attempt to use HTML5 canvas for sub-pixel accuracy, no DOM update, etc.
     canvas = textWidth.canvas || (textWidth.canvas = document.createElement("canvas"));
@@ -173,7 +159,6 @@ export var textWidth = memoize(function (textContent) {
       'font': font
     });
   }
-
   if (roundToPixel) {
     return Math.floor(width) + 1;
   } else {
@@ -187,23 +172,18 @@ export var textHeight = memoize(function () {
   var style = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
   var containerElement = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : null;
   var height, contElem;
-
   if (containerElement && typeof containerElement.cloneNode === 'function') {
     contElem = containerElement.cloneNode(false);
   } else {
     contElem = document.createElement('div');
   }
-
   contElem.className = "off-screen " + (containerClassName || '');
   contElem.innerHTML = textContent;
-
   if (style) {
     _.extend(contElem.style, style);
   }
-
   contElem.style.display = "block";
   contElem.style.width = width + "px";
-
   if (containerElement && containerElement.parentElement) {
     containerElement.parentElement.appendChild(contElem);
     height = contElem.clientHeight;
@@ -213,9 +193,9 @@ export var textHeight = memoize(function () {
     height = contElem.clientHeight;
     document.body.removeChild(contElem);
   }
-
   return height;
 });
+
 /**
  * Check width of text or text-like content if it were to fit on one line.
  *
@@ -226,7 +206,6 @@ export var textHeight = memoize(function () {
  * @param {?Object} [style=null]                    Any additional style properties.
  * @return {integer|{ containerHeight: number, textWidth: number }} Width of text if whitespace style set to nowrap, or object containing 'containerHeight' & 'textWidth' if widthForHeightCheck is set.
  */
-
 export var textContentWidth = function (textContent) {
   var containerElementType = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'div';
   var containerClassName = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
@@ -235,36 +214,31 @@ export var textContentWidth = function (textContent) {
   var contElem = document.createElement(containerElementType);
   contElem.className = "off-screen " + (containerClassName || '');
   var constOffsetHeight = contElem.offsetHeight;
-
   for (var i = 0; i < constOffsetHeight; i++) {
     textContent += " ";
   }
-
   contElem.innerHTML = textContent;
   if (style) contElem.style = style;
   contElem.style.whiteSpace = "nowrap";
   document.body.appendChild(contElem);
   var textLineWidth = contElem.clientWidth;
   var fullContainerHeight;
-
   if (widthForHeightCheck) {
     contElem.style.whiteSpace = "";
     contElem.style.display = "block";
     contElem.style.width = widthForHeightCheck + "px";
     fullContainerHeight = contElem.clientHeight;
   }
-
   document.body.removeChild(contElem);
-
   if (fullContainerHeight) {
     return {
       containerHeight: fullContainerHeight,
       textWidth: textLineWidth
     };
   }
-
   return textLineWidth;
 };
+
 /**
  * Grabs the outer-most scrolling container for the page, either <body> or <html>.
  * Needed because the outer-most scrolling container differs between Google Chrome (which use `document.body`, aka <body>)
@@ -272,28 +246,26 @@ export var textContentWidth = function (textContent) {
  *
  * @returns {HTMLElement}
  */
-
 export function getScrollingOuterElement() {
-  if (!window || !document) return null; // Best. Chrome will return document.body automatically here.
+  if (!window || !document) return null;
 
+  // Best. Chrome will return document.body automatically here.
   if (typeof document.scrollingElement !== 'undefined' && document.scrollingElement) {
     return document.scrollingElement;
   }
-
   if (document.documentElement && typeof document.documentElement.scrollTop === 'number') {
     return document.documentElement;
   }
-
   if (document.body && typeof document.body.scrollTop === 'number') {
     return document.body;
   }
-
   return document.body;
 }
 export function getPageVerticalScrollPosition() {
   if (isServerSide() || !window || !document) return null;
   return window.pageYOffset || document.scrollingElement && document.scrollingElement.scrollTop || document.documentElement && document.documentElement.scrollTop || document.body.scrollTop;
 }
+
 /**
  * Scroll to a target element, element ID, or scrollTop position over a period of time via transition.
  *
@@ -303,7 +275,6 @@ export function getPageVerticalScrollPosition() {
  * @param {?function} [callback=null] - Optional callback.
  * @returns {void}
  */
-
 export function animateScrollTo(to) {
   var duration = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 750;
   var offsetBeforeTarget = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 112;
@@ -311,23 +282,20 @@ export function animateScrollTo(to) {
   if (!document || !document.body) return null;
   var scrollElement = getScrollingOuterElement();
   var elementTop;
-
   if (typeof to === 'string') {
     var elem = document.getElementById(to);
     if (!elem) throw new Error(to + " not found in document.");
-    elementTop = getElementTop(elem); //} else if (typeof to === "ELEMENT" /* FIND PROPER TYPEOF */){
+    elementTop = getElementTop(elem);
+    //} else if (typeof to === "ELEMENT" /* FIND PROPER TYPEOF */){
   } else if (typeof to === 'number') {
     elementTop = to;
   } else throw new Error("Invalid argument 'to' supplied.");
-
   if (elementTop === null) return null;
   elementTop = Math.max(0, elementTop - offsetBeforeTarget); // - offset re: nav bar header.
-
   if (scrollElement && scrollElement.scrollHeight && window && window.innerHeight) {
     // Try to prevent from trying to scroll past max scrollable height.
     elementTop = Math.min(scrollElement.scrollHeight - window.innerHeight, elementTop);
   }
-
   //var origScrollTop = scrollElement.scrollTop;
   var animation = d3.select(scrollElement).interrupt().transition().duration(duration).tween("bodyScroll", function (scrollTop) {
     return function () {
@@ -335,12 +303,10 @@ export function animateScrollTo(to) {
       // eslint-disable-next-line no-invalid-this
       var interpolate = d3.interpolateNumber(this.scrollTop, scrollTop);
       return function (t) {
-        window.scrollTo(0, interpolate(t));
-        /*scrollElement.scrollTop = interpolate(t);*/
+        window.scrollTo(0, interpolate(t)); /*scrollElement.scrollTop = interpolate(t);*/
       };
     };
   }(elementTop));
-
   if (typeof callback === 'function') {
     animation.on('end', callback);
   }
@@ -350,17 +316,13 @@ export function toggleBodyClass(className) {
   var bodyElement = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
   bodyElement = bodyElement || window && document && document.body || null;
   var allClasses = Array.isArray(className) ? className : typeof className === 'string' ? allClasses = className.split(' ') : null;
-
   if (!className) {
     throw new Error('Invalid className supplied. Must be a string or array.');
   }
-
   if (bodyElement) {
     var bodyClasses = bodyElement.className.split(' ');
-
     _.forEach(allClasses, function (classToToggle, i) {
       var willSet;
-
       if (typeof toggleTo === 'boolean') {
         willSet = toggleTo;
       } else if (Array.isArray(toggleTo) && typeof toggleTo[i] === 'boolean') {
@@ -368,19 +330,16 @@ export function toggleBodyClass(className) {
       } else {
         willSet = bodyClasses.indexOf(classToToggle) === -1;
       }
-
       if (willSet) {
         bodyClasses.push(classToToggle);
         bodyClasses = _.uniq(bodyClasses);
       } else {
         var indexToRemove = bodyClasses.indexOf(classToToggle);
-
         if (indexToRemove > -1) {
           bodyClasses = _.uniq(bodyClasses.slice(0, indexToRemove).concat(bodyClasses.slice(indexToRemove + 1)));
         }
       }
     });
-
     bodyElement.className = bodyClasses.length > 0 ? bodyClasses.length === 1 ? bodyClasses[0] : bodyClasses.join(' ') : null;
   }
 }
@@ -388,21 +347,18 @@ export function isDOMElementChildOfElementWithClass(elem, className) {
   var maxDepth = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 5;
   var depth = 0;
   var currElem = elem;
-
   while (depth < maxDepth) {
     console.log('E', elem, elemClasses);
     var elemClasses = (currElem.getAttribute('class') || '').split(' ');
-
     if (elemClasses.indexOf(className) > -1) {
       return true;
     }
-
     depth++;
     currElem = currElem.parentElement;
   }
-
   return false;
 }
+
 /**
  * Designed to work similarly to `Array.find()`.
  *
@@ -410,25 +366,22 @@ export function isDOMElementChildOfElementWithClass(elem, className) {
  * @param {function} Assertion function, should return `true` if valid element or false if not.
  * @returns {HTMLElement|undefined} Ancestor (or self) element for which searchFxn returns true, if any.
  */
-
 export function findParentElement(startElement, searchFxn) {
   var domElem = startElement;
-
   while (domElem) {
     if (searchFxn(domElem)) {
       return domElem;
     }
-
     domElem = domElem.parentElement;
-  } // undefined
-
+  }
+  // undefined
 }
+
 /**
  * Meant to be used in click handlers. See app.js.
  * Memoized in case multiple click handlers bound to
  * event bubble chain (same event bubbles up).
  */
-
 export var elementIsChildOfLink = memoize(function (initDomElement) {
   var foundElem = findParentElement(initDomElement, function (domElem) {
     // SVG anchor elements have tagName == 'a' while HTML anchor elements have tagName == 'A'
@@ -436,6 +389,7 @@ export var elementIsChildOfLink = memoize(function (initDomElement) {
   });
   return foundElem || initDomElement;
 });
+
 /**
  * Handle browser capabilities, a la Modernizr.
  *
@@ -449,67 +403,66 @@ export var elementIsChildOfLink = memoize(function (initDomElement) {
 
 export var BrowserFeat = {
   'feat': {},
-
   /**
    * Return object with browser capabilities; return from cache if available.
    */
   'getBrowserCaps': function getBrowserCaps(feat) {
     if (Object.keys(this.feat).length === 0) {
       // Detect SVG
-      this.feat.svg = document.implementation.hasFeature('http://www.w3.org/TR/SVG11/feature#Image', '1.1'); // Detect <canvas>
+      this.feat.svg = document.implementation.hasFeature('http://www.w3.org/TR/SVG11/feature#Image', '1.1');
 
+      // Detect <canvas>
       this.feat.canvas = function () {
         var elem = document.createElement('canvas');
         return !!(elem.getContext && elem.getContext('2d'));
-      }(); // Detect toDataURL
+      }();
 
-
+      // Detect toDataURL
       this.feat.todataurlpng = function () {
         var canvas = document.createElement('canvas');
         return !!(canvas && canvas.toDataURL && canvas.toDataURL('image/png').indexOf('data:image/png') === 0);
-      }(); // Detect CSS transforms
+      }();
 
-
+      // Detect CSS transforms
       this.feat.csstransforms = function () {
         var elem = document.createElement('tspan');
         return 'transform' in elem.style;
-      }(); // Detect FlexBox
+      }();
 
-
+      // Detect FlexBox
       this.feat.flexbox = function () {
         var elem = document.createElement('tspan');
         return 'flexBasis' in elem.style;
-      }(); // UA checks; should be retired as soon as possible
+      }();
 
-
+      // UA checks; should be retired as soon as possible
       this.feat.uaTrident = function () {
         return navigator.userAgent.indexOf('Trident') > 0;
-      }(); // UA checks; should be retired as soon as possible
+      }();
 
-
+      // UA checks; should be retired as soon as possible
       this.feat.uaEdge = function () {
         return navigator.userAgent.indexOf('Edge') > 0;
       }();
     }
-
     return feat ? this.feat[feat] : this.feat;
   },
   'setHtmlFeatClass': function setHtmlFeatClass() {
     var htmlclass = [];
-    this.getBrowserCaps(); // For each set feature, add to the <html> element's class
+    this.getBrowserCaps();
 
+    // For each set feature, add to the <html> element's class
     var keys = Object.keys(this.feat);
     var i = keys.length;
-
     while (i--) {
       if (this.feat[keys[i]]) {
         htmlclass.push(keys[i]);
       } else {
         htmlclass.push('no-' + keys[i]);
       }
-    } // Now write the classes to the <html> DOM element
+    }
 
-
+    // Now write the classes to the <html> DOM element
     document.documentElement.className = htmlclass.join(' ');
   }
 };

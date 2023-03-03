@@ -1,10 +1,11 @@
+function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, _toPropertyKey(descriptor.key), descriptor); } }
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
-
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return _typeof(key) === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (_typeof(input) !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (_typeof(res) !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
 import React from 'react';
+
 /**
  * Since v6 of Font Awesome will require a pretty big upgrade w/some breaking changes,
  * and we have urgent need for one or two of the icons from that subset, this file will temporarily
@@ -23,17 +24,17 @@ import React from 'react';
 
 var FontAwesomeV6Icons = /*#__PURE__*/React.memo(function (_ref) {
   var _ref$filename = _ref.filename,
-      filename = _ref$filename === void 0 ? "filter-circle-xmark-solid.svg" : _ref$filename,
-      _ref$hexColor = _ref.hexColor,
-      hexColor = _ref$hexColor === void 0 ? "#ffffff" : _ref$hexColor,
-      _ref$width = _ref.width,
-      width = _ref$width === void 0 ? "16px" : _ref$width,
-      _ref$height = _ref.height,
-      height = _ref$height === void 0 ? "16px" : _ref$height,
-      _ref$alt = _ref.alt,
-      alt = _ref$alt === void 0 ? "An icon" : _ref$alt,
-      _ref$cls = _ref.cls,
-      cls = _ref$cls === void 0 ? "" : _ref$cls;
+    filename = _ref$filename === void 0 ? "filter-circle-xmark-solid.svg" : _ref$filename,
+    _ref$hexColor = _ref.hexColor,
+    hexColor = _ref$hexColor === void 0 ? "#ffffff" : _ref$hexColor,
+    _ref$width = _ref.width,
+    width = _ref$width === void 0 ? "16px" : _ref$width,
+    _ref$height = _ref.height,
+    height = _ref$height === void 0 ? "16px" : _ref$height,
+    _ref$alt = _ref.alt,
+    alt = _ref$alt === void 0 ? "An icon" : _ref$alt,
+    _ref$cls = _ref.cls,
+    cls = _ref$cls === void 0 ? "" : _ref$cls;
   // Must generate new icon fill color from provided hex code
   var rgbArr = hexToRgb(hexColor);
   var color = new Color(rgbArr[0], rgbArr[1], rgbArr[2]);
@@ -51,19 +52,17 @@ var FontAwesomeV6Icons = /*#__PURE__*/React.memo(function (_ref) {
   });
 });
 export default FontAwesomeV6Icons;
+
 /**
  * Code snatched from here: https://codepen.io/sosuke/pen/Pjoqqp (and slightly adjusted)
  * for purposes of generating filter strings from hex code, since fill/bg-color/color attributes
  * do not seem to work on SVGs imported via img tags.
  */
-
 var Color = /*#__PURE__*/function () {
   function Color(r, g, b) {
     _classCallCheck(this, Color);
-
     this.set(r, g, b);
   }
-
   _createClass(Color, [{
     key: "toString",
     value: function toString() {
@@ -152,32 +151,26 @@ var Color = /*#__PURE__*/function () {
       var max = Math.max(r, g, b);
       var min = Math.min(r, g, b);
       var h,
-          s,
-          l = (max + min) / 2;
-
+        s,
+        l = (max + min) / 2;
       if (max === min) {
         h = s = 0;
       } else {
         var d = max - min;
         s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-
         switch (max) {
           case r:
             h = (g - b) / d + (g < b ? 6 : 0);
             break;
-
           case g:
             h = (b - r) / d + 2;
             break;
-
           case b:
             h = (r - g) / d + 4;
             break;
         }
-
         h /= 6;
       }
-
       return {
         h: h * 100,
         s: s * 100,
@@ -192,23 +185,18 @@ var Color = /*#__PURE__*/function () {
       } else if (value < 0) {
         value = 0;
       }
-
       return value;
     }
   }]);
-
   return Color;
 }();
-
 var Solver = /*#__PURE__*/function () {
   function Solver(target) {
     _classCallCheck(this, Solver);
-
     this.target = target;
     this.targetHSL = target.hsl();
     this.reusedColor = new Color(0, 0, 0);
   }
-
   _createClass(Solver, [{
     key: "solve",
     value: function solve() {
@@ -222,15 +210,13 @@ var Solver = /*#__PURE__*/function () {
       var best = {
         loss: Infinity
       };
-
       for (var i = 0; best.loss > 25 && i < 3; i++) {
-        var result = this.spsa(5, a, 15, [50, 20, 3750, 50, 100, 100], 1000);
-
+        var initial = [50, 20, 3750, 50, 100, 100];
+        var result = this.spsa(5, a, 15, initial, 1000);
         if (result.loss < best.loss) {
           best = result;
         }
       }
-
       return best;
     }
   }, {
@@ -248,55 +234,37 @@ var Solver = /*#__PURE__*/function () {
       var deltas = new Array(6);
       var highArgs = new Array(6);
       var lowArgs = new Array(6);
-
       for (var k = 0; k < iters; k++) {
         var ck = c / Math.pow(k + 1, 0.16666666666666666);
-
         for (var i = 0; i < 6; i++) {
           deltas[i] = Math.random() > 0.5 ? 1 : -1;
           highArgs[i] = values[i] + ck * deltas[i];
           lowArgs[i] = values[i] - ck * deltas[i];
         }
-
         var lossDiff = this.loss(highArgs) - this.loss(lowArgs);
-
-        for (var _i2 = 0; _i2 < 6; _i2++) {
-          var g = lossDiff / (2 * ck) * deltas[_i2];
-          var ak = a[_i2] / Math.pow(A + k + 1, 1);
-          values[_i2] = fix(values[_i2] - ak * g, _i2);
+        for (var _i = 0; _i < 6; _i++) {
+          var g = lossDiff / (2 * ck) * deltas[_i];
+          var ak = a[_i] / Math.pow(A + k + 1, 1);
+          values[_i] = fix(values[_i] - ak * g, _i);
         }
-
         var loss = this.loss(values);
-
         if (loss < bestLoss) {
           best = values.slice(0);
           bestLoss = loss;
         }
       }
-
       return {
         values: best,
         loss: bestLoss
       };
-
       function fix(value, idx) {
         var max = 100;
-
-        if (idx === 2
-        /* saturate */
-        ) {
+        if (idx === 2 /* saturate */) {
           max = 7500;
-        } else if (idx === 4
-        /* brightness */
-        || idx === 5
-        /* contrast */
-        ) {
+        } else if (idx === 4 /* brightness */ || idx === 5 /* contrast */) {
           max = 200;
         }
-
-        if (idx === 3
-        /* hue-rotate */
-        ) {
+        if (idx === 3 /* hue-rotate */) {
           if (value > max) {
             value %= max;
           } else if (value < 0) {
@@ -307,7 +275,6 @@ var Solver = /*#__PURE__*/function () {
         } else if (value > max) {
           value = max;
         }
-
         return value;
       }
     }
@@ -333,16 +300,14 @@ var Solver = /*#__PURE__*/function () {
         var multiplier = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
         return Math.round(filters[idx] * multiplier);
       }
-
       return "invert(".concat(fmt(0), "%) sepia(").concat(fmt(1), "%) saturate(").concat(fmt(2), "%) hue-rotate(").concat(fmt(3, 3.6), "deg) brightness(").concat(fmt(4), "%) contrast(").concat(fmt(5), "%)");
     }
   }]);
-
   return Solver;
 }();
-
 function hexToRgb(hex) {
   // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
+
   hex = hex.replace(/^#?([a-f\d])([a-f\d])([a-f\d])$/i, function (m, r, g, b) {
     return r + r + g + g + b + b;
   });
