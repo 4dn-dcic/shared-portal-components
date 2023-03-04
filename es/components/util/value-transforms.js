@@ -11,7 +11,6 @@ export var byteLevels = ['Bytes', 'kB', 'MB', 'GB', 'TB', 'PB', 'Exabytes', 'Zet
 export var numberLevels = ['', 'k', 'm', ' billion', ' trillion', ' quadrillion', ' quintillion'];
 export function bytesToLargerUnit(bytes) {
   var level = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
-
   if (bytes >= 1024 && level < byteLevels.length) {
     return bytesToLargerUnit(bytes / 1024, level + 1);
   } else {
@@ -21,7 +20,6 @@ export function bytesToLargerUnit(bytes) {
 export function roundLargeNumber(num) {
   var decimalPlaces = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 2;
   var level = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
-
   if (num >= 1000 && level < numberLevels.length) {
     return roundLargeNumber(num / 1000, decimalPlaces, level + 1);
   } else {
@@ -36,16 +34,15 @@ export function roundDecimal(num) {
   return Math.round(num * multiplier) / multiplier;
 }
 export function decorateNumberWithCommas(num) {
-  if (!num || typeof num !== 'number' || num < 1000) return num; // Put full number into tooltip w. commas.
-
+  if (!num || typeof num !== 'number' || num < 1000) return num;
+  // Put full number into tooltip w. commas.
   var chunked = _.chunk((num + '').split('').reverse(), 3);
-
   return _.map(chunked, function (c) {
     return c.reverse().join('');
   }).reverse().join(',');
 }
-/** Only use where filename is expected. */
 
+/** Only use where filename is expected. */
 export function hrefToFilename(href) {
   var linkTitle = href.split('/');
   return linkTitle = linkTitle.pop();

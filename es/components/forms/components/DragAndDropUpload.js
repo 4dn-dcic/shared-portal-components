@@ -1,15 +1,17 @@
-import _assertThisInitialized from "@babel/runtime/helpers/assertThisInitialized";
-import _defineProperty from "@babel/runtime/helpers/defineProperty";
-import _createClass from "@babel/runtime/helpers/createClass";
-import _classCallCheck from "@babel/runtime/helpers/classCallCheck";
-import _inherits from "@babel/runtime/helpers/inherits";
-import _possibleConstructorReturn from "@babel/runtime/helpers/possibleConstructorReturn";
-import _getPrototypeOf from "@babel/runtime/helpers/getPrototypeOf";
-
+function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
+function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, _toPropertyKey(descriptor.key), descriptor); } }
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return _typeof(key) === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (_typeof(input) !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (_typeof(res) !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); Object.defineProperty(subClass, "prototype", { writable: false }); if (superClass) _setPrototypeOf(subClass, superClass); }
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
-
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } else if (call !== void 0) { throw new TypeError("Derived constructors may only return object or undefined"); } return _assertThisInitialized(self); }
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
-
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf.bind() : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 import React from 'react';
 import Modal from 'react-bootstrap/esm/Modal';
 import PropTypes from 'prop-types';
@@ -17,17 +19,14 @@ import { ajax } from './../../util';
 import _ from 'underscore';
 export var DragAndDropUploadSubmissionViewController = /*#__PURE__*/function (_React$Component) {
   _inherits(DragAndDropUploadSubmissionViewController, _React$Component);
-
   var _super = _createSuper(DragAndDropUploadSubmissionViewController);
-
   function DragAndDropUploadSubmissionViewController() {
     _classCallCheck(this, DragAndDropUploadSubmissionViewController);
-
     return _super.apply(this, arguments);
   }
-
   return _createClass(DragAndDropUploadSubmissionViewController);
 }(React.Component);
+
 /**
  * Main component for independent drag and drop file upload. May eventually be updated to take a prop
  * for onUploadStart... OR patchToParent, to update SV SAYTAJAX interface via SV-onchange or SV-selectcomplete.
@@ -38,17 +37,12 @@ export var DragAndDropUploadSubmissionViewController = /*#__PURE__*/function (_R
  *
  * Heavily reworked from this reference: https://medium.com/@650egor/simple-drag-and-drop-file-upload-in-react-2cb409d88929
  */
-
 export var DragAndDropFileUploadController = /*#__PURE__*/function (_React$Component2) {
   _inherits(DragAndDropFileUploadController, _React$Component2);
-
   var _super2 = _createSuper(DragAndDropFileUploadController);
-
   function DragAndDropFileUploadController(props) {
     var _this;
-
     _classCallCheck(this, DragAndDropFileUploadController);
-
     _this = _super2.call(this, props);
     _this.state = {
       files: [],
@@ -62,50 +56,44 @@ export var DragAndDropFileUploadController = /*#__PURE__*/function (_React$Compo
     _this.onUploadStart = _this.onUploadStart.bind(_assertThisInitialized(_this));
     return _this;
   }
-
   _createClass(DragAndDropFileUploadController, [{
     key: "handleAddFile",
     value: function handleAddFile(evt) {
       var _this2 = this;
-
       var _evt$dataTransfer = evt.dataTransfer,
-          items = _evt$dataTransfer.items,
-          files = _evt$dataTransfer.files;
+        items = _evt$dataTransfer.items,
+        files = _evt$dataTransfer.files;
       var _this$props = this.props,
-          multiselect = _this$props.multiselect,
-          fileSchema = _this$props.fileSchema;
+        multiselect = _this$props.multiselect,
+        fileSchema = _this$props.fileSchema;
       var currFiles = this.state.files;
-
       if (items && items.length > 0) {
         // Add all dragged items
         var fileArr = [];
-        var fileLimit = multiselect ? files.length : 1; // Populate an array with all of the new files
-
+        var fileLimit = multiselect ? files.length : 1;
+        // Populate an array with all of the new files
         var _loop = function _loop() {
           var attachment = {};
-          var file = files[i]; // Check that file type is in schema (TODO: Is this too strict? MIME-types can get complicated...)
+          var file = files[i];
 
+          // Check that file type is in schema (TODO: Is this too strict? MIME-types can get complicated...)
           var acceptableFileTypes = fileSchema.properties.attachment.properties.type["enum"];
-
           if (_.indexOf(acceptableFileTypes, file.type) === -1) {
             var listOfTypes = acceptableFileTypes.toString();
             alert("FILE NOT ADDED: File \"".concat(file.name, "\" is not of the correct file type for this field.\n\nMust be of type: ").concat(listOfTypes, "."));
             return "continue";
           }
+          attachment.type = file.type;
 
-          attachment.type = file.type; // TODO: Figure out how best to check/limit file size pre-attachment...
-
+          // TODO: Figure out how best to check/limit file size pre-attachment...
           if (file.size) {
             attachment.size = file.size;
           }
-
           if (file.name) {
             attachment.download = file.name;
           }
-
           fileReader = new window.FileReader();
           fileReader.readAsDataURL(file);
-
           fileReader.onloadend = function (e) {
             if (e.target.result) {
               attachment.href = e.target.result;
@@ -114,25 +102,21 @@ export var DragAndDropFileUploadController = /*#__PURE__*/function (_React$Compo
               return;
             }
           }.bind(_this2);
-
           fileArr.push(attachment);
         };
-
         for (var i = 0; i < fileLimit; i++) {
           var fileReader;
-
           var _ret = _loop();
-
           if (_ret === "continue") continue;
-        } // Concat with previous files
+        }
 
+        // Concat with previous files
+        var allFiles = currFiles.concat(fileArr);
 
-        var allFiles = currFiles.concat(fileArr); // Filter out duplicates (based on just filename for now; may need more criteria in future)
-
+        // Filter out duplicates (based on just filename for now; may need more criteria in future)
         var dedupedFiles = _.uniq(allFiles, false, function (file) {
           return file.download;
         });
-
         this.setState({
           files: dedupedFiles
         });
@@ -142,15 +126,14 @@ export var DragAndDropFileUploadController = /*#__PURE__*/function (_React$Compo
     key: "handleRemoveFile",
     value: function handleRemoveFile(filename) {
       var multiselect = this.props.multiselect;
-
       if (multiselect) {
-        var files = this.state.files; // Filter to remove the clicked file by name (assuming no duplicate filenames)
+        var files = this.state.files;
 
+        // Filter to remove the clicked file by name (assuming no duplicate filenames)
         var newFiles = files.filter(function (file) {
           if (file.download === filename) {
             return false;
           }
-
           return true;
         });
         this.setState({
@@ -167,6 +150,7 @@ export var DragAndDropFileUploadController = /*#__PURE__*/function (_React$Compo
         files: []
       });
     }
+
     /**
      * Constructs payload from props. If this is a payload for PATCH request with attachment, set attachmentPresent to true.
      * @param {object} file                  A single file object, equivalent to something in this.state.files[i]
@@ -176,99 +160,100 @@ export var DragAndDropFileUploadController = /*#__PURE__*/function (_React$Compo
      * this isn't necessary in the current non-SV implementation, so has been left in a half-working state until that
      * functionality is needed. In non-SV cases on CGAP pedigreeviz, this will skip those conditionals.
      */
-
   }, {
     key: "generatePayload",
     value: function generatePayload(file, attachmentPresent) {
       var _this$props2 = this.props,
-          award = _this$props2.award,
-          lab = _this$props2.lab,
-          institution = _this$props2.institution,
-          project = _this$props2.project;
+        award = _this$props2.award,
+        lab = _this$props2.lab,
+        institution = _this$props2.institution,
+        project = _this$props2.project;
       var aliasFilename = file.download.split(' ').join('');
       var alias;
-      var payloadObj = {}; // If on 4DN, use lab and award data (institution/project should be null)
+      var payloadObj = {};
 
+      // If on 4DN, use lab and award data (institution/project should be null)
       if (lab && award) {
         // Generate an alias for the file
         var aliasLab = lab.split('/')[2];
         alias = aliasLab + ":" + aliasFilename + Date.now();
         payloadObj.award = award;
         payloadObj.lab = lab;
-        payloadObj.aliases = [alias]; // on CGAP, use this data instead (lab & award should be null)
+        payloadObj.aliases = [alias];
+
+        // on CGAP, use this data instead (lab & award should be null)
       } else if (institution && project) {
         payloadObj.institution = institution['@id'];
         payloadObj.project = project['@id'];
-      } // Add attachment, if provided
+      }
 
-
+      // Add attachment, if provided
       if (attachmentPresent) {
         payloadObj.attachment = file;
-      } // console.log("Generated payload:", payloadObj);
+      }
 
-
+      // console.log("Generated payload:", payloadObj);
       return payloadObj;
     }
+
     /**
      * Returns a promise that resolves when Item has been successfully validated/submitted
      */
-
   }, {
     key: "createItem",
     value: function createItem(file, isValidationTest) {
       var fieldName = this.props.fieldName;
       var destination = "/".concat(fieldName, "/");
-
       if (isValidationTest) {
         destination = "/".concat(fieldName, "/?check_only=true");
       }
-
       var payloadObj = this.generatePayload(file, true);
       var payload = JSON.stringify(payloadObj);
       return ajax.promise(destination, 'POST', {}, payload).then(function (response) {
         console.log("validateItem response", response); // for testing
-
         return response;
       });
     }
+
     /**
      * Makes a patch request to link new file metadata object to the current Individual (or other Item).
      * @param {object}  createItemResponse      JSON response from server post-Item creation.
      * @param {array}   recentlyCreatedItems    Array of atIDs of other items created in this batch of uploads
      * Note: This method is meant to chain off of a f(x) like this.createItem.
      */
-
   }, {
     key: "patchToParent",
     value: function patchToParent(createItemResponse, recentlyCreatedItems) {
       var _this$props3 = this.props,
-          individualId = _this$props3.individualId,
-          files = _this$props3.files,
-          fieldType = _this$props3.fieldType,
-          multiselect = _this$props3.multiselect;
+        individualId = _this$props3.individualId,
+        files = _this$props3.files,
+        fieldType = _this$props3.fieldType,
+        multiselect = _this$props3.multiselect;
       var _createItemResponse$ = createItemResponse['@graph'],
-          graph = _createItemResponse$ === void 0 ? [] : _createItemResponse$;
+        graph = _createItemResponse$ === void 0 ? [] : _createItemResponse$;
       var responseData = graph[0];
-      var submitted_at_id = responseData['@id']; // Update with passed down items, other items that were just created
+      var submitted_at_id = responseData['@id'];
 
+      // Update with passed down items, other items that were just created
       var current_docs = [];
-
       if (multiselect) {
         // Add items that were loaded from db w/individual
         files.forEach(function (file) {
           return current_docs.push(file["@id"]);
-        }); // Add recently created items to the list of items to patch
+        });
 
+        // Add recently created items to the list of items to patch
         if (recentlyCreatedItems && recentlyCreatedItems.length > 0) {
           recentlyCreatedItems.forEach(function (atId) {
             return current_docs.push(atId);
           });
         }
-      } // Add the current item
+      }
 
+      // Add the current item
+      current_docs.push(submitted_at_id);
 
-      current_docs.push(submitted_at_id); // Ensure no duplicates (obviously more relevant in multiselect cases)
-
+      // Ensure no duplicates (obviously more relevant in multiselect cases)
       current_docs = _.uniq(current_docs);
       return ajax.promise(individualId, "PATCH", {}, JSON.stringify(_defineProperty({}, fieldType, current_docs)));
     }
@@ -276,21 +261,19 @@ export var DragAndDropFileUploadController = /*#__PURE__*/function (_React$Compo
     key: "onUploadStart",
     value: function onUploadStart() {
       var _this3 = this;
-
       var files = this.state.files;
       var previouslySubmittedAtIds = [];
-
       var newFileSubmit = function newFileSubmit(file) {
         console.log("Attempting to upload file... ", file);
         return _this3.createItem(file, true) // Validate
         .then(function (response) {
           if (response.status && response.status !== 'success') {
-            var _response$errors = response.errors;
-            _response$errors = _response$errors === void 0 ? {} : _response$errors;
-            var _response$errors$ = _response$errors[0];
-            _response$errors$ = _response$errors$ === void 0 ? {} : _response$errors$;
-            var description = _response$errors$.description,
-                respDescription = response.description;
+            var _response$errors = response.errors,
+              _response$errors2 = _response$errors === void 0 ? {} : _response$errors,
+              _response$errors2$ = _response$errors2[0],
+              _response$errors2$2 = _response$errors2$ === void 0 ? {} : _response$errors2$,
+              description = _response$errors2$2.description,
+              respDescription = response.description;
             var errorMessage = "Validation failed!\n\n".concat(respDescription, " ").concat(description);
             throw new Error(errorMessage);
           } else {
@@ -299,56 +282,56 @@ export var DragAndDropFileUploadController = /*#__PURE__*/function (_React$Compo
           }
         }).then(function (resp) {
           if (resp.status && resp.status !== 'success') {
-            var _resp$errors = resp.errors;
-            _resp$errors = _resp$errors === void 0 ? {} : _resp$errors;
-            var _resp$errors$ = _resp$errors[0];
-            _resp$errors$ = _resp$errors$ === void 0 ? {} : _resp$errors$;
-            var description = _resp$errors$.description,
-                respDescription = resp.description;
+            var _resp$errors = resp.errors,
+              _resp$errors2 = _resp$errors === void 0 ? {} : _resp$errors,
+              _resp$errors2$ = _resp$errors2[0],
+              _resp$errors2$2 = _resp$errors2$ === void 0 ? {} : _resp$errors2$,
+              description = _resp$errors2$2.description,
+              respDescription = resp.description;
             var errorMessage = "Create item failed!\n\n".concat(respDescription, " ").concat(description);
             alert(errorMessage);
             throw new Error(errorMessage);
           } else {
             console.log("Create item succeeded");
             var responseData = resp['@graph'][0];
-            var submitted_at_id = responseData['@id']; // Also pass through the atIds of other new files
+            var submitted_at_id = responseData['@id'];
 
+            // Also pass through the atIds of other new files
             previouslySubmittedAtIds.push(submitted_at_id);
             return _this3.patchToParent(resp, previouslySubmittedAtIds);
           }
         }).then(function (res) {
           if (res.status && res.status !== 'success') {
-            var _res$errors = res.errors;
-            _res$errors = _res$errors === void 0 ? {} : _res$errors;
-            var _res$errors$ = _res$errors[0];
-            _res$errors$ = _res$errors$ === void 0 ? {} : _res$errors$;
-            var description = _res$errors$.description,
-                respDescription = res.description;
+            var _res$errors = res.errors,
+              _res$errors2 = _res$errors === void 0 ? {} : _res$errors,
+              _res$errors2$ = _res$errors2[0],
+              _res$errors2$2 = _res$errors2$ === void 0 ? {} : _res$errors2$,
+              description = _res$errors2$2.description,
+              respDescription = res.description;
             var errorMessage = "Link Item to Individual failed!\n\n".concat(respDescription, " ").concat(description);
             alert(errorMessage);
             throw new Error(errorMessage);
           } else {
             alert("".concat(file.download, " uploaded and linked successfully."));
-
             _this3.handleRemoveFile(file.download);
           }
         })["catch"](function (error) {
           console.log("Error occurred", error);
         });
       };
-
       this.setState({
         isLoading: true
       }, function () {
         var promiseQueue = new ajax.PromiseQueue();
-        var allPromises = []; // Add each file submission chain to the queue, so each file uploads sequentially
-
+        var allPromises = [];
+        // Add each file submission chain to the queue, so each file uploads sequentially
         files.forEach(function (file) {
           allPromises.push(promiseQueue.enqueue(function () {
             return newFileSubmit(file);
           }));
-        }); // Update loading state once everything is resolved
+        });
 
+        // Update loading state once everything is resolved
         Promise.all(allPromises).then(function (result) {
           console.log("Completed all uploads!", result);
         })["catch"](function (error) {
@@ -364,14 +347,14 @@ export var DragAndDropFileUploadController = /*#__PURE__*/function (_React$Compo
     key: "render",
     value: function render() {
       var _this$props4 = this.props,
-          cls = _this$props4.cls,
-          fieldDisplayTitle = _this$props4.fieldDisplayTitle,
-          fieldName = _this$props4.fieldName,
-          requestVerificationMsg = _this$props4.requestVerificationMsg,
-          multiselect = _this$props4.multiselect;
+        cls = _this$props4.cls,
+        fieldDisplayTitle = _this$props4.fieldDisplayTitle,
+        fieldName = _this$props4.fieldName,
+        requestVerificationMsg = _this$props4.requestVerificationMsg,
+        multiselect = _this$props4.multiselect;
       var _this$state = this.state,
-          files = _this$state.files,
-          isLoading = _this$state.isLoading;
+        files = _this$state.files,
+        isLoading = _this$state.isLoading;
       return /*#__PURE__*/React.createElement(DragAndDropUploadButton, {
         cls: cls,
         fieldDisplayTitle: fieldDisplayTitle,
@@ -387,10 +370,8 @@ export var DragAndDropFileUploadController = /*#__PURE__*/function (_React$Compo
       });
     }
   }]);
-
   return DragAndDropFileUploadController;
 }(React.Component);
-
 _defineProperty(DragAndDropFileUploadController, "propTypes", {
   files: PropTypes.array.isRequired,
   // File objects containing already-linked files (will eventually be updated via websockets)
@@ -413,23 +394,16 @@ _defineProperty(DragAndDropFileUploadController, "propTypes", {
   // lab: PropTypes.string,                      // Will be required for 4DN SV
   // institution: PropTypes.object,              // Will be required for CGAP SV
   // project: PropTypes.object,                  // Will be required for CGAP SV
-
 });
-
 _defineProperty(DragAndDropFileUploadController, "defaultProps", {
   cls: "btn"
 });
-
 var DragAndDropUploadButton = /*#__PURE__*/function (_React$Component3) {
   _inherits(DragAndDropUploadButton, _React$Component3);
-
   var _super3 = _createSuper(DragAndDropUploadButton);
-
   function DragAndDropUploadButton(props) {
     var _this4;
-
     _classCallCheck(this, DragAndDropUploadButton);
-
     _this4 = _super3.call(this, props);
     _this4.state = {
       showModal: false
@@ -440,12 +414,10 @@ var DragAndDropUploadButton = /*#__PURE__*/function (_React$Component3) {
     _this4.handleHideModal = _this4.handleHideModal.bind(_assertThisInitialized(_this4));
     return _this4;
   }
-
   _createClass(DragAndDropUploadButton, [{
     key: "onHide",
     value: function onHide() {
       var showModal = this.state.showModal;
-
       if (showModal) {
         this.setState({
           showModal: false
@@ -456,7 +428,6 @@ var DragAndDropUploadButton = /*#__PURE__*/function (_React$Component3) {
     key: "onShow",
     value: function onShow() {
       var showModal = this.state.showModal;
-
       if (!showModal) {
         this.setState({
           showModal: true
@@ -477,17 +448,17 @@ var DragAndDropUploadButton = /*#__PURE__*/function (_React$Component3) {
     value: function render() {
       var show = this.state.showModal;
       var _this$props5 = this.props,
-          onUploadStart = _this$props5.onUploadStart,
-          handleAddFile = _this$props5.handleAddFile,
-          handleRemoveFile = _this$props5.handleRemoveFile,
-          handleClearAllFiles = _this$props5.handleClearAllFiles,
-          multiselect = _this$props5.multiselect,
-          fieldName = _this$props5.fieldName,
-          cls = _this$props5.cls,
-          fieldDisplayTitle = _this$props5.fieldDisplayTitle,
-          files = _this$props5.files,
-          isLoading = _this$props5.isLoading,
-          requestVerificationMsg = _this$props5.requestVerificationMsg;
+        onUploadStart = _this$props5.onUploadStart,
+        handleAddFile = _this$props5.handleAddFile,
+        handleRemoveFile = _this$props5.handleRemoveFile,
+        handleClearAllFiles = _this$props5.handleClearAllFiles,
+        multiselect = _this$props5.multiselect,
+        fieldName = _this$props5.fieldName,
+        cls = _this$props5.cls,
+        fieldDisplayTitle = _this$props5.fieldDisplayTitle,
+        files = _this$props5.files,
+        isLoading = _this$props5.isLoading,
+        requestVerificationMsg = _this$props5.requestVerificationMsg;
       return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(DragAndDropModal, {
         handleHideModal: this.handleHideModal,
         multiselect: multiselect,
@@ -510,10 +481,8 @@ var DragAndDropUploadButton = /*#__PURE__*/function (_React$Component3) {
       }), " Quick Upload a new ", fieldName));
     }
   }]);
-
   return DragAndDropUploadButton;
 }(React.Component);
-
 _defineProperty(DragAndDropUploadButton, "propTypes", {
   onUploadStart: PropTypes.func.isRequired,
   // Actions to take upon upload; exact status of upload controlled by data controller wrapper
@@ -536,28 +505,22 @@ _defineProperty(DragAndDropUploadButton, "propTypes", {
   isLoading: PropTypes.bool,
   // Are items currently being uploaded?
   requestVerificationMsg: PropTypes.element // HTML message to be displayed on verification request (uses dangerouslySetInnerHtml -- should be OK since this is not user-generated)
-
 });
-
 _defineProperty(DragAndDropUploadButton, "defaultProps", {
   fieldName: "Document",
   files: []
 });
-
 var DragAndDropModal = /*#__PURE__*/function (_React$Component4) {
   _inherits(DragAndDropModal, _React$Component4);
-
   var _super4 = _createSuper(DragAndDropModal);
-
   /*
       Drag and Drop File Manager Component that accepts an onHide and onContainerKeyDown function
       Functions for hiding, and handles files.
   */
+
   function DragAndDropModal(props) {
     var _this5;
-
     _classCallCheck(this, DragAndDropModal);
-
     _this5 = _super4.call(this, props);
     _this5.state = {
       isVerified: false
@@ -567,7 +530,6 @@ var DragAndDropModal = /*#__PURE__*/function (_React$Component4) {
     _this5.handleAddFileAndResetVerification = _this5.handleAddFileAndResetVerification.bind(_assertThisInitialized(_this5));
     return _this5;
   }
-
   _createClass(DragAndDropModal, [{
     key: "toggleCheckbox",
     value: function toggleCheckbox() {
@@ -580,26 +542,24 @@ var DragAndDropModal = /*#__PURE__*/function (_React$Component4) {
     key: "disableCheckbox",
     value: function disableCheckbox() {
       var isVerified = this.state.isVerified;
-
       if (isVerified) {
         this.setState({
           isVerified: false
         });
       }
     }
+
     /**
      * Basically just wraps the handleAddFile f(x) from props in the case verification is enabled and resets checkbox if new files are added
      * @param {Object} evt  The click event to be passed to handleAddFile
      */
-
   }, {
     key: "handleAddFileAndResetVerification",
     value: function handleAddFileAndResetVerification(evt) {
       var _this$props6 = this.props,
-          handleAddFile = _this$props6.handleAddFile,
-          requestVerificationMsg = _this$props6.requestVerificationMsg;
+        handleAddFile = _this$props6.handleAddFile,
+        requestVerificationMsg = _this$props6.requestVerificationMsg;
       var isVerified = this.state.isVerified;
-
       if (isVerified && requestVerificationMsg) {
         // reset verification status on add new files if already checked
         this.setState({
@@ -614,17 +574,18 @@ var DragAndDropModal = /*#__PURE__*/function (_React$Component4) {
     value: function render() {
       var isVerified = this.state.isVerified;
       var _this$props7 = this.props,
-          show = _this$props7.show,
-          onUploadStart = _this$props7.onUploadStart,
-          fieldName = _this$props7.fieldName,
-          fieldDisplayTitle = _this$props7.fieldDisplayTitle,
-          handleAddFile = _this$props7.handleAddFile,
-          handleRemoveFile = _this$props7.handleRemoveFile,
-          files = _this$props7.files,
-          handleHideModal = _this$props7.handleHideModal,
-          isLoading = _this$props7.isLoading,
-          requestVerificationMsg = _this$props7.requestVerificationMsg,
-          multiselect = _this$props7.multiselect; // console.log("isLoading:", isLoading);
+        show = _this$props7.show,
+        onUploadStart = _this$props7.onUploadStart,
+        fieldName = _this$props7.fieldName,
+        fieldDisplayTitle = _this$props7.fieldDisplayTitle,
+        handleAddFile = _this$props7.handleAddFile,
+        handleRemoveFile = _this$props7.handleRemoveFile,
+        files = _this$props7.files,
+        handleHideModal = _this$props7.handleHideModal,
+        isLoading = _this$props7.isLoading,
+        requestVerificationMsg = _this$props7.requestVerificationMsg,
+        multiselect = _this$props7.multiselect;
+      // console.log("isLoading:", isLoading);
 
       var showFieldName = fieldDisplayTitle && fieldName !== fieldDisplayTitle;
       var allowUpload = files.length > 0 && (requestVerificationMsg && isVerified || !requestVerificationMsg);
@@ -668,10 +629,8 @@ var DragAndDropModal = /*#__PURE__*/function (_React$Component4) {
       }), " Upload ", fieldDisplayTitle)));
     }
   }]);
-
   return DragAndDropModal;
 }(React.Component);
-
 _defineProperty(DragAndDropModal, "propTypes", {
   handleAddFile: PropTypes.func.isRequired,
   // DragAndDropUploadFileUploadController method for adding multiple files
@@ -696,19 +655,16 @@ _defineProperty(DragAndDropModal, "propTypes", {
   requestVerificationMsg: PropTypes.element,
   // HTML message to be displayed on verification request (uses dangerouslySetInnerHtml -- should be OK since this is not user-generated)
   multiselect: PropTypes.bool // Can you select more than one file at a time for upload?
-
 });
-
 _defineProperty(DragAndDropModal, "defaultProps", {
   show: false,
   isLoading: false
 });
-
 function RequestVerification(props) {
   var _props$isVerified = props.isVerified,
-      isVerified = _props$isVerified === void 0 ? true : _props$isVerified,
-      requestVerificationMsg = props.requestVerificationMsg,
-      toggleVerification = props.toggleVerification;
+    isVerified = _props$isVerified === void 0 ? true : _props$isVerified,
+    requestVerificationMsg = props.requestVerificationMsg,
+    toggleVerification = props.toggleVerification;
   return /*#__PURE__*/React.createElement("div", {
     className: "mb-1 mt-2 text-center"
   }, /*#__PURE__*/React.createElement("input", {
@@ -721,17 +677,12 @@ function RequestVerification(props) {
     htmlFor: "file-verification"
   }, requestVerificationMsg, " "));
 }
-
 export var DragAndDropZone = /*#__PURE__*/function (_React$Component5) {
   _inherits(DragAndDropZone, _React$Component5);
-
   var _super5 = _createSuper(DragAndDropZone);
-
   function DragAndDropZone(props) {
     var _this6;
-
     _classCallCheck(this, DragAndDropZone);
-
     _this6 = _super5.call(this, props);
     _this6.state = {
       dragging: false
@@ -744,7 +695,6 @@ export var DragAndDropZone = /*#__PURE__*/function (_React$Component5) {
     _this6.handleDropzoneClick = _this6.handleDropzoneClick.bind(_assertThisInitialized(_this6));
     return _this6;
   }
-
   _createClass(DragAndDropZone, [{
     key: "componentDidMount",
     value: function componentDidMount() {
@@ -795,8 +745,9 @@ export var DragAndDropZone = /*#__PURE__*/function (_React$Component5) {
     key: "handleDrop",
     value: function handleDrop(evt) {
       evt.preventDefault();
-      evt.stopPropagation(); // Add dropped files to the file manager
+      evt.stopPropagation();
 
+      // Add dropped files to the file manager
       var handleAddFile = this.props.handleAddFile;
       handleAddFile(evt);
     }
@@ -814,11 +765,9 @@ export var DragAndDropZone = /*#__PURE__*/function (_React$Component5) {
       var files = evt.target.files;
       var numFiles = files.length;
       var items = [];
-
       for (var i = 0; i < numFiles; i++) {
         items.push(files[i]);
       }
-
       var obj = {
         dataTransfer: {
           items: items,
@@ -831,11 +780,10 @@ export var DragAndDropZone = /*#__PURE__*/function (_React$Component5) {
     key: "render",
     value: function render() {
       var _this7 = this;
-
       var _this$props8 = this.props,
-          files = _this$props8.files,
-          handleRemoveFile = _this$props8.handleRemoveFile,
-          multiselect = _this$props8.multiselect;
+        files = _this$props8.files,
+        handleRemoveFile = _this$props8.handleRemoveFile,
+        multiselect = _this$props8.multiselect;
       return /*#__PURE__*/React.createElement("div", {
         className: "dropzone panel text-center d-flex flex-row justify-content-center",
         ref: this.dropZoneRef,
@@ -868,10 +816,8 @@ export var DragAndDropZone = /*#__PURE__*/function (_React$Component5) {
       })));
     }
   }]);
-
   return DragAndDropZone;
 }(React.Component);
-
 _defineProperty(DragAndDropZone, "propTypes", {
   /** Callback called when Item is received. Should accept @ID and Item context (not guaranteed) as params. */
   'handleAddFile': PropTypes.func.isRequired,
@@ -879,20 +825,17 @@ _defineProperty(DragAndDropZone, "propTypes", {
   'files': PropTypes.array,
   'multiselect': PropTypes.bool
 });
-
 _defineProperty(DragAndDropZone, "defaultProps", {
   'files': []
 });
-
 function FileIcon(props) {
   // Note: thisUploading not yet in use; currently just a placeholder for potential future per-file loading indicator
   var fileType = props.fileType,
-      fileName = props.fileName,
-      fileSize = props.fileSize,
-      handleRemoveFile = props.handleRemoveFile,
-      _props$thisUploading = props.thisUploading,
-      thisUploading = _props$thisUploading === void 0 ? false : _props$thisUploading;
-
+    fileName = props.fileName,
+    fileSize = props.fileSize,
+    handleRemoveFile = props.handleRemoveFile,
+    _props$thisUploading = props.thisUploading,
+    thisUploading = _props$thisUploading === void 0 ? false : _props$thisUploading;
   function getFileIconClass(mimetype) {
     if (mimetype.match('^image/')) {
       return 'file-image';
@@ -900,25 +843,19 @@ function FileIcon(props) {
       switch (mimetype) {
         case 'text/html':
           return 'file-code';
-
         case 'text/plain':
           return 'file-alt';
-
         case 'application/msword':
           return 'file-word';
-
         case 'application/vnd.ms-excel':
           return 'file-excel';
-
         case 'application/pdf':
           return 'file-pdf';
-
         default:
           return 'file';
       }
     }
   }
-
   return /*#__PURE__*/React.createElement("div", {
     className: "d-flex flex-column",
     style: {

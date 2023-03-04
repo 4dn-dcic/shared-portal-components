@@ -1,22 +1,23 @@
-import _extends from "@babel/runtime/helpers/extends";
-import _objectWithoutProperties from "@babel/runtime/helpers/objectWithoutProperties";
-import _classCallCheck from "@babel/runtime/helpers/classCallCheck";
-import _createClass from "@babel/runtime/helpers/createClass";
-import _assertThisInitialized from "@babel/runtime/helpers/assertThisInitialized";
-import _inherits from "@babel/runtime/helpers/inherits";
-import _possibleConstructorReturn from "@babel/runtime/helpers/possibleConstructorReturn";
-import _getPrototypeOf from "@babel/runtime/helpers/getPrototypeOf";
-import _defineProperty from "@babel/runtime/helpers/defineProperty";
 var _excluded = ["columnDefinitions", "mounted", "columnWidths", "windowWidth"];
-
+function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
+function _extends() { _extends = Object.assign ? Object.assign.bind() : function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-
+function _objectWithoutProperties(source, excluded) { if (source == null) return {}; var target = _objectWithoutPropertiesLoose(source, excluded); var key, i; if (Object.getOwnPropertySymbols) { var sourceSymbolKeys = Object.getOwnPropertySymbols(source); for (i = 0; i < sourceSymbolKeys.length; i++) { key = sourceSymbolKeys[i]; if (excluded.indexOf(key) >= 0) continue; if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue; target[key] = source[key]; } } return target; }
+function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; var sourceKeys = Object.keys(source); var key, i; for (i = 0; i < sourceKeys.length; i++) { key = sourceKeys[i]; if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } return target; }
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, _toPropertyKey(descriptor.key), descriptor); } }
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); Object.defineProperty(subClass, "prototype", { writable: false }); if (superClass) _setPrototypeOf(subClass, superClass); }
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
-
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } else if (call !== void 0) { throw new TypeError("Derived constructors may only return object or undefined"); } return _assertThisInitialized(self); }
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
-
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf.bind() : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return _typeof(key) === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (_typeof(input) !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (_typeof(res) !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
 import React from 'react';
 import PropTypes from 'prop-types';
 import url from 'url';
@@ -43,8 +44,8 @@ import { HeadersRow } from './table-commons/HeadersRow';
 import { basicColumnExtensionMap } from './table-commons/basicColumnExtensionMap';
 var ResultRowColumnBlock = /*#__PURE__*/React.memo(function (props) {
   var columnDefinition = props.columnDefinition,
-      columnNumber = props.columnNumber,
-      width = props.width;
+    columnNumber = props.columnNumber,
+    width = props.width;
   var field = columnDefinition.field;
   return (
     /*#__PURE__*/
@@ -67,8 +68,8 @@ ResultRowColumnBlock.propTypes = {
   "columnDefinition": PropTypes.object.isRequired,
   "columnNumber": PropTypes.number.isRequired
 };
-/** Not used anywhere (?) */
 
+/** Not used anywhere (?) */
 var DefaultDetailPane = /*#__PURE__*/React.memo(function (_ref) {
   var result = _ref.result;
   return /*#__PURE__*/React.createElement("div", {
@@ -84,59 +85,49 @@ var DefaultDetailPane = /*#__PURE__*/React.memo(function (_ref) {
     open: false
   })));
 });
-
 var ResultDetail = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(ResultDetail, _React$PureComponent);
-
   var _super = _createSuper(ResultDetail);
-
   function ResultDetail(props) {
     var _this;
-
     _classCallCheck(this, ResultDetail);
-
     _this = _super.call(this, props);
     _this.setDetailHeightFromPane = _this.setDetailHeightFromPane.bind(_assertThisInitialized(_this));
     _this.state = {
       'closing': false
     };
-    _this.detailRef = /*#__PURE__*/React.createRef(); // Unsure if worth keeping/using still?
+    _this.detailRef = /*#__PURE__*/React.createRef();
+
+    // Unsure if worth keeping/using still?
     // Is potentially relevant but not ideally-implemented for BrowseView
     // which has DetailPane which itself has collapsible areas and the height
     // can thus vary outside of the open/closed toggle state in this table.
     // Ideally, those things could hook into `setDetailHeight` maybe...
-
     _this.lastFoundHeight = null;
     return _this;
   }
+
   /**
    * @todo Call this function in ExperimentSetDetailPane to keep heights up-to-date
    * when Processed Files or Raw Files sections are expanded/collapsed as well as just row itself.
    */
-
-
   _createClass(ResultDetail, [{
     key: "setDetailHeightFromPane",
     value: function setDetailHeightFromPane() {
       var height = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
       var setDetailHeight = this.props.setDetailHeight;
       var domElem = null;
-
       if (typeof height !== 'number') {
         domElem = this.detailRef && this.detailRef.current;
         height = domElem && parseInt(domElem.offsetHeight);
-
         if (typeof height === 'number' && !isNaN(height)) {
           height += 2; // Account for border top & bottom of outer container
-
           this.lastFoundHeight = height;
         }
       }
-
       if (isNaN(height) || typeof height !== 'number') {
         height = this.lastFoundHeight || null;
       }
-
       setDetailHeight(height);
       return height;
     }
@@ -144,15 +135,14 @@ var ResultDetail = /*#__PURE__*/function (_React$PureComponent) {
     key: "componentDidUpdate",
     value: function componentDidUpdate(pastProps) {
       var _this$props = this.props,
-          open = _this$props.open,
-          setDetailHeight = _this$props.setDetailHeight,
-          result = _this$props.result,
-          context = _this$props.context,
-          rowNumber = _this$props.rowNumber,
-          href = _this$props.href,
-          isOwnPage = _this$props.isOwnPage;
+        open = _this$props.open,
+        setDetailHeight = _this$props.setDetailHeight,
+        result = _this$props.result,
+        context = _this$props.context,
+        rowNumber = _this$props.rowNumber,
+        href = _this$props.href,
+        isOwnPage = _this$props.isOwnPage;
       var pastOpen = pastProps.open;
-
       if (pastOpen !== open) {
         if (open && typeof setDetailHeight === 'function') {
           this.setDetailHeightFromPane();
@@ -173,19 +163,20 @@ var ResultDetail = /*#__PURE__*/function (_React$PureComponent) {
     key: "render",
     value: function render() {
       var _this$props2 = this.props,
-          open = _this$props2.open,
-          rowNumber = _this$props2.rowNumber,
-          result = _this$props2.result,
-          _this$props2$isOwnPag = _this$props2.isOwnPage,
-          isOwnPage = _this$props2$isOwnPag === void 0 ? true : _this$props2$isOwnPag,
-          tableContainerWidth = _this$props2.tableContainerWidth,
-          propDetailPane = _this$props2.detailPane,
-          renderDetailPane = _this$props2.renderDetailPane,
-          toggleDetailOpen = _this$props2.toggleDetailOpen,
-          setDetailHeight = _this$props2.setDetailHeight,
-          detailPaneHeight = _this$props2.detailPaneHeight;
-      var closing = this.state.closing; // Account for vertical scrollbar decreasing width of container.
+        open = _this$props2.open,
+        rowNumber = _this$props2.rowNumber,
+        result = _this$props2.result,
+        _this$props2$isOwnPag = _this$props2.isOwnPage,
+        isOwnPage = _this$props2$isOwnPag === void 0 ? true : _this$props2$isOwnPag,
+        tableContainerWidth = _this$props2.tableContainerWidth,
+        propDetailPane = _this$props2.detailPane,
+        renderDetailPane = _this$props2.renderDetailPane,
+        toggleDetailOpen = _this$props2.toggleDetailOpen,
+        setDetailHeight = _this$props2.setDetailHeight,
+        detailPaneHeight = _this$props2.detailPaneHeight;
+      var closing = this.state.closing;
 
+      // Account for vertical scrollbar decreasing width of container.
       var containerWidth = isOwnPage ? tableContainerWidth : tableContainerWidth - 30;
       var propsFromTable = {
         open: open,
@@ -220,10 +211,8 @@ var ResultDetail = /*#__PURE__*/function (_React$PureComponent) {
       })), detailPane) : /*#__PURE__*/React.createElement("div", null));
     }
   }]);
-
   return ResultDetail;
 }(React.PureComponent);
-
 _defineProperty(ResultDetail, "propTypes", {
   'result': PropTypes.object.isRequired,
   'open': PropTypes.bool.isRequired,
@@ -238,19 +227,13 @@ _defineProperty(ResultDetail, "propTypes", {
   'href': PropTypes.string,
   // For analytics
   'context': PropTypes.object // For analyitics
-
 });
-
 var ResultRow = /*#__PURE__*/function (_React$PureComponent2) {
   _inherits(ResultRow, _React$PureComponent2);
-
   var _super2 = _createSuper(ResultRow);
-
   function ResultRow(props) {
     var _this2;
-
     _classCallCheck(this, ResultRow);
-
     _this2 = _super2.call(this, props);
     _this2.toggleDetailOpen = _.throttle(_this2.toggleDetailOpen.bind(_assertThisInitialized(_this2)), 250);
     _this2.setDetailHeight = _this2.setDetailHeight.bind(_assertThisInitialized(_this2));
@@ -259,63 +242,65 @@ var ResultRow = /*#__PURE__*/function (_React$PureComponent2) {
       getStyles: memoize(ResultRow.getStyles)
     };
     return _this2;
-  } // componentDidUpdate(pastProps){
+  }
+
+  // componentDidUpdate(pastProps){
   //     _.keys(this.props).forEach((k)=>{
   //         if (pastProps[k] !== this.props[k]){
   //             console.log(k, this.props[k], pastProps[k]);
   //         }
   //     });
   // }
-
-
   _createClass(ResultRow, [{
     key: "setDetailHeight",
     value: function setDetailHeight() {
       var _this$props3 = this.props,
-          id = _this$props3.id,
-          parentSetDetailHeight = _this$props3.setDetailHeight;
+        id = _this$props3.id,
+        parentSetDetailHeight = _this$props3.setDetailHeight;
       parentSetDetailHeight.apply(void 0, [id].concat(Array.prototype.slice.call(arguments)));
     }
   }, {
     key: "toggleDetailOpen",
     value: function toggleDetailOpen() {
       var _this$props4 = this.props,
-          id = _this$props4.id,
-          toggleDetailPaneOpen = _this$props4.toggleDetailPaneOpen;
+        id = _this$props4.id,
+        toggleDetailPaneOpen = _this$props4.toggleDetailPaneOpen;
       toggleDetailPaneOpen(id);
     }
-    /** Add some JSON data about the result item upon initiating dragstart. */
 
+    /** Add some JSON data about the result item upon initiating dragstart. */
   }, {
     key: "handleDragStart",
     value: function handleDragStart(evt) {
       if (!evt || !evt.dataTransfer) return;
       var _this$props5 = this.props,
-          result = _this$props5.result,
-          href = _this$props5.href,
-          schemas = _this$props5.schemas; // TODO: handle lack of href and grab from window.location instead.
+        result = _this$props5.result,
+        href = _this$props5.href,
+        schemas = _this$props5.schemas;
+
+      // TODO: handle lack of href and grab from window.location instead.
+
       // Result JSON itself.
+      evt.dataTransfer.setData('text/4dn-item-json', JSON.stringify(result));
 
-      evt.dataTransfer.setData('text/4dn-item-json', JSON.stringify(result)); // Result URL and @id.
-
+      // Result URL and @id.
       var hrefParts = typeof href === "string" ? url.parse(href) : window.location;
       var atId = itemUtil.atId(result);
       var formedURL = (hrefParts.protocol || '') + (hrefParts.hostname ? '//' + hrefParts.hostname + (hrefParts.port ? ':' + hrefParts.port : '') : '') + atId;
       evt.dataTransfer.setData('text/plain', formedURL);
       evt.dataTransfer.setData('text/uri-list', formedURL);
-      evt.dataTransfer.setData('text/4dn-item-id', atId); // Add cool drag image (generate HTML element showing display_title and item type)
+      evt.dataTransfer.setData('text/4dn-item-id', atId);
 
+      // Add cool drag image (generate HTML element showing display_title and item type)
       if (!document || !document.createElement) return;
       var element = document.createElement('div');
       element.className = "draggable-item-cursor";
       var innerText = result.display_title; // document.createTextNode('')
-
       var innerBoldElem = document.createElement('strong');
       innerBoldElem.appendChild(document.createTextNode(innerText));
       element.appendChild(innerBoldElem);
       element.appendChild(document.createElement('br'));
       innerText = getItemTypeTitle(result, schemas); // document.createTextNode('')
-
       element.appendChild(document.createTextNode(innerText));
       document.body.appendChild(element);
       evt.dataTransfer.setDragImage(element, 150, 30);
@@ -327,37 +312,30 @@ var ResultRow = /*#__PURE__*/function (_React$PureComponent2) {
     key: "renderColumns",
     value: function renderColumns() {
       var _this3 = this;
-
       // TODO (?) prop func to do this to control which columns get which props.
       var _this$props6 = this.props,
-          columnDefinitions = _this$props6.columnDefinitions,
-          mounted = _this$props6.mounted,
-          columnWidths = _this$props6.columnWidths,
-          windowWidth = _this$props6.windowWidth,
-          remainingProps = _objectWithoutProperties(_this$props6, _excluded); // Contains required 'result', 'rowNumber', 'href', 'schemas', 'currentAction', 'detailOpen'
-
-
+        columnDefinitions = _this$props6.columnDefinitions,
+        mounted = _this$props6.mounted,
+        columnWidths = _this$props6.columnWidths,
+        windowWidth = _this$props6.windowWidth,
+        remainingProps = _objectWithoutProperties(_this$props6, _excluded);
+      // Contains required 'result', 'rowNumber', 'href', 'schemas', 'currentAction', 'detailOpen'
       var commonProps = _.omit(remainingProps, 'tableContainerWidth', 'renderDetailPane', 'detailPane', 'id', 'toggleDetailPaneOpen');
-
       return columnDefinitions.map(function (columnDefinition, columnNumber) {
         // todo: rename columnNumber to columnIndex
         var field = columnDefinition.field;
-
         var passedProps = _objectSpread(_objectSpread({}, commonProps), {}, {
           columnDefinition: columnDefinition,
           columnNumber: columnNumber,
           // Only needed on first column (contains title, checkbox)
           'toggleDetailOpen': columnNumber === 0 ? _this3.toggleDetailOpen : null
         });
-
         var width;
-
         if (mounted) {
           width = columnWidths[field] || getColumnWidthFromDefinition(columnDefinition, mounted, windowWidth);
         } else {
           width = getColumnWidthFromDefinition(columnDefinition, mounted, windowWidth);
         }
-
         return /*#__PURE__*/React.createElement(ResultRowColumnBlock, _extends({}, passedProps, {
           width: width,
           key: field
@@ -368,33 +346,30 @@ var ResultRow = /*#__PURE__*/function (_React$PureComponent2) {
     key: "render",
     value: function render() {
       var _this$props7 = this.props,
-          rowNumber = _this$props7.rowNumber,
-          currentAction = _this$props7.currentAction,
-          rowHeight = _this$props7.rowHeight,
-          rowWidth = _this$props7.rowWidth,
-          detailOpen = _this$props7.detailOpen;
+        rowNumber = _this$props7.rowNumber,
+        currentAction = _this$props7.currentAction,
+        rowHeight = _this$props7.rowHeight,
+        rowWidth = _this$props7.rowWidth,
+        detailOpen = _this$props7.detailOpen;
       var isDraggable = isSelectAction(currentAction);
       var styles = this.memoized.getStyles(rowWidth, rowHeight);
+
       /**
        * Props passed to ResultDetail include:
        * `result`, `renderDetailPane`, `rowNumber`, `tableContainerWidth`.
        */
-
       var detailProps = _.omit(this.props, 'mounted', 'columnDefinitions', 'detailOpen', 'setDetailHeight', 'columnWidths', 'setColumnWidths');
-
       var cls = "search-result-row" + " detail-" + (detailOpen ? 'open' : 'closed') + (isDraggable ? ' is-draggable' : '');
       return /*#__PURE__*/React.createElement("div", {
         className: cls,
         "data-row-number": rowNumber,
-        style: styles.outer
-        /* ref={(r)=>{
-        // TODO POTENTIALLY: Use to set height on open/close icon & sticky title column.
-        var height = (r && r.offsetHeight) || null;
-        if (height && height !== this.rowFullHeight){
-        this.rowFullHeight = height;
-        }
-        }}*/
-
+        style: styles.outer /* ref={(r)=>{
+                            // TODO POTENTIALLY: Use to set height on open/close icon & sticky title column.
+                            var height = (r && r.offsetHeight) || null;
+                            if (height && height !== this.rowFullHeight){
+                            this.rowFullHeight = height;
+                            }
+                            }}*/
       }, /*#__PURE__*/React.createElement("div", {
         className: "columns clearfix result-table-row",
         draggable: isDraggable,
@@ -412,11 +387,9 @@ var ResultRow = /*#__PURE__*/function (_React$PureComponent2) {
     key: "areWidthsEqual",
     value: function areWidthsEqual(arr1, arr2) {
       if (arr1.length !== arr2.length) return false;
-
       for (var i = 0; i < arr1.length; i++) {
         if (arr1[i] !== arr2[i]) return false;
       }
-
       return true;
     }
   }, {
@@ -432,10 +405,8 @@ var ResultRow = /*#__PURE__*/function (_React$PureComponent2) {
       };
     }
   }]);
-
   return ResultRow;
 }(React.PureComponent);
-
 _defineProperty(ResultRow, "propTypes", {
   'result': PropTypes.shape({
     '@type': PropTypes.arrayOf(PropTypes.string).isRequired,
@@ -457,27 +428,20 @@ _defineProperty(ResultRow, "propTypes", {
   'id': PropTypes.string.isRequired,
   'context': PropTypes.object.isRequired
 });
-
 var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$Component) {
   _inherits(LoadMoreAsYouScroll, _React$Component);
-
   var _super3 = _createSuper(LoadMoreAsYouScroll);
-
   function LoadMoreAsYouScroll(props) {
     var _this4;
-
     _classCallCheck(this, LoadMoreAsYouScroll);
-
     _this4 = _super3.call(this, props);
     _this4.handleLoad = _.throttle(_this4.handleLoad.bind(_assertThisInitialized(_this4)), 3000);
     _this4.state = {
       'isLoading': false
     };
-
     if (typeof props.mounted === 'undefined') {
       _this4.state.mounted = false;
     }
-
     _this4.memoized = {
       getStyles: memoize(LoadMoreAsYouScroll.getStyles),
       getElementHeight: memoize(LoadMoreAsYouScroll.getElementHeight)
@@ -487,7 +451,6 @@ var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$Component) {
     _this4.currRequest = null;
     return _this4;
   }
-
   _createClass(LoadMoreAsYouScroll, [{
     key: "componentDidMount",
     value: function componentDidMount() {
@@ -501,27 +464,24 @@ var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$Component) {
     key: "handleLoad",
     value: function handleLoad() {
       var _this5 = this;
-
       var _this$props8 = this.props,
-          origHref = _this$props8.href,
-          _this$props8$requeste = _this$props8.requestedCompoundFilterSet,
-          origCompoundFilterSet = _this$props8$requeste === void 0 ? null : _this$props8$requeste,
-          _this$props8$results = _this$props8.results,
-          existingResults = _this$props8$results === void 0 ? [] : _this$props8$results,
-          _this$props8$isOwnPag = _this$props8.isOwnPage,
-          isOwnPage = _this$props8$isOwnPag === void 0 ? true : _this$props8$isOwnPag,
-          onDuplicateResultsFoundCallback = _this$props8.onDuplicateResultsFoundCallback,
-          setResults = _this$props8.setResults,
-          _this$props8$navigate = _this$props8.navigate,
-          navigate = _this$props8$navigate === void 0 ? globalPageNavigate : _this$props8$navigate;
+        origHref = _this$props8.href,
+        _this$props8$requeste = _this$props8.requestedCompoundFilterSet,
+        origCompoundFilterSet = _this$props8$requeste === void 0 ? null : _this$props8$requeste,
+        _this$props8$results = _this$props8.results,
+        existingResults = _this$props8$results === void 0 ? [] : _this$props8$results,
+        _this$props8$isOwnPag = _this$props8.isOwnPage,
+        isOwnPage = _this$props8$isOwnPag === void 0 ? true : _this$props8$isOwnPag,
+        onDuplicateResultsFoundCallback = _this$props8.onDuplicateResultsFoundCallback,
+        setResults = _this$props8.setResults,
+        _this$props8$navigate = _this$props8.navigate,
+        navigate = _this$props8$navigate === void 0 ? globalPageNavigate : _this$props8$navigate;
       var nextFromValue = existingResults.length;
       var nextHref = null;
       var nextCompoundFilterSetRequest = null;
-
       if (!origCompoundFilterSet) {
         // Assumed href/string request
         var parts = url.parse(origHref, true); // memoizedUrlParse not used in case is EmbeddedSearchView.
-
         var query = parts.query;
         query.from = nextFromValue;
         parts.search = '?' + queryString.stringify(query);
@@ -531,35 +491,27 @@ var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$Component) {
           "from": nextFromValue
         });
       }
-
       var requestInThisScope = null;
-
       if (this.currRequest) {
         this.currRequest.abort();
       }
-
       var loadCallback = function (resp) {
         if (requestInThisScope !== _this5.currRequest) {
           // Shouldn't occur - extra redundancy
           console.warn("Throwing out outdated load-more-as-you-scroll request.");
           return false;
         }
-
         var _ref2$Graph = (resp || {})['@graph'],
-            nextResults = _ref2$Graph === void 0 ? [] : _ref2$Graph;
+          nextResults = _ref2$Graph === void 0 ? [] : _ref2$Graph;
         var nextResultsLen = nextResults.length;
-
         if (nextResultsLen > 0) {
           // Check if have same result, if so, refresh all results (something has changed on back-end)
           var oldKeys = _.map(existingResults, itemUtil.atId);
-
           var newKeys = _.map(nextResults, itemUtil.atId);
-
           var keyIntersection = _.intersection(oldKeys.sort(), newKeys.sort());
-
           if (keyIntersection.length > 0) {
-            logger.error("FOUND ALREADY-PRESENT RESULT IN NEW RESULTS.'", keyIntersection, newKeys); // We can refresh current page to get newest results.
-
+            logger.error("FOUND ALREADY-PRESENT RESULT IN NEW RESULTS.'", keyIntersection, newKeys);
+            // We can refresh current page to get newest results.
             _this5.setState({
               'isLoading': false
             }, function () {
@@ -591,10 +543,8 @@ var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$Component) {
             'isLoading': false
           });
         }
-
         _this5.currRequest = null;
       };
-
       this.setState({
         'isLoading': true
       }, function () {
@@ -605,26 +555,24 @@ var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$Component) {
     key: "render",
     value: function render() {
       var _this$props9 = this.props,
-          children = _this$props9.children,
-          rowHeight = _this$props9.rowHeight,
-          openRowHeight = _this$props9.openRowHeight,
-          openDetailPanes = _this$props9.openDetailPanes,
-          tableContainerWidth = _this$props9.tableContainerWidth,
-          tableContainerScrollLeft = _this$props9.tableContainerScrollLeft,
-          propMounted = _this$props9.mounted,
-          isOwnPage = _this$props9.isOwnPage,
-          maxHeight = _this$props9.maxHeight,
-          canLoadMore = _this$props9.canLoadMore;
+        children = _this$props9.children,
+        rowHeight = _this$props9.rowHeight,
+        openRowHeight = _this$props9.openRowHeight,
+        openDetailPanes = _this$props9.openDetailPanes,
+        tableContainerWidth = _this$props9.tableContainerWidth,
+        tableContainerScrollLeft = _this$props9.tableContainerScrollLeft,
+        propMounted = _this$props9.mounted,
+        isOwnPage = _this$props9.isOwnPage,
+        maxHeight = _this$props9.maxHeight,
+        canLoadMore = _this$props9.canLoadMore;
       var _this$state = this.state,
-          stateMounted = _this$state.mounted,
-          isLoading = _this$state.isLoading;
-
+        stateMounted = _this$state.mounted,
+        isLoading = _this$state.isLoading;
       if (!(propMounted || stateMounted)) {
         return /*#__PURE__*/React.createElement("div", {
           className: "react-infinite-container"
         }, /*#__PURE__*/React.createElement("div", null, children));
       }
-
       var elementHeight = this.memoized.getElementHeight(openDetailPanes, rowHeight, children, openRowHeight || rowHeight);
       return /*#__PURE__*/React.createElement(Infinite, {
         className: "react-infinite-container",
@@ -634,7 +582,8 @@ var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$Component) {
         useWindowAsScrollContainer: isOwnPage,
         onInfiniteLoad: this.handleLoad,
         isInfiniteLoading: isLoading,
-        timeScrollStateLastsForAfterUserScrolls: 250 //onChangeScrollState={this.handleScrollingStateChange}
+        timeScrollStateLastsForAfterUserScrolls: 250
+        //onChangeScrollState={this.handleScrollingStateChange}
         ,
         loadingSpinnerDelegate: /*#__PURE__*/React.createElement(LoadingSpinner, {
           width: tableContainerWidth,
@@ -651,11 +600,11 @@ var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$Component) {
     value: function canLoadMore(totalExpected, results) {
       return totalExpected > results.length;
     }
+
     /**
      * Used for memoization of styles that dont frequently change (prevent needless PureComponent updates).
      * `scrollableStyle` is applied to Infinite's outermost div element/container.
      */
-
   }, {
     key: "getStyles",
     value: function getStyles(maxHeight) {
@@ -665,15 +614,14 @@ var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$Component) {
         height: null,
         // Unset, let maxHeight take over.
         overflow: "auto" // Override "hidden scroll" default.
-
       };
+
       return styles;
     }
   }, {
     key: "getElementHeight",
     value: function getElementHeight(openDetailPanes, rowHeight, children, openRowHeightToUse) {
       var openDetailPaneResultIDs = Object.keys(openDetailPanes);
-
       if (openDetailPaneResultIDs.length === 0) {
         return rowHeight; // Use same value for all rows.
       }
@@ -681,19 +629,15 @@ var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$Component) {
       return React.Children.map(children, function (c) {
         // openRowHeight + openDetailPane height, if detail pane open for this result.
         var savedDetailPaneHeight = openDetailPanes[c.props.id];
-
         if (savedDetailPaneHeight && typeof savedDetailPaneHeight === 'number') {
           return savedDetailPaneHeight + openRowHeightToUse;
         }
-
         return rowHeight;
       });
     }
   }]);
-
   return LoadMoreAsYouScroll;
 }(React.Component);
-
 _defineProperty(LoadMoreAsYouScroll, "propTypes", {
   'href': PropTypes.string,
   'requestedCompoundFilterSet': PropTypes.object,
@@ -719,7 +663,6 @@ _defineProperty(LoadMoreAsYouScroll, "propTypes", {
   'navigate': PropTypes.func,
   'openRowHeight': PropTypes.number
 });
-
 _defineProperty(LoadMoreAsYouScroll, "defaultProps", {
   'debouncePointerEvents': 150,
   'onDuplicateResultsFoundCallback': function onDuplicateResultsFoundCallback() {
@@ -731,11 +674,10 @@ _defineProperty(LoadMoreAsYouScroll, "defaultProps", {
   },
   'isOwnPage': true
 });
-
 var LoadingSpinner = /*#__PURE__*/React.memo(function (_ref3) {
   var maxWidth = _ref3.width,
-      _ref3$scrollLeft = _ref3.scrollLeft,
-      scrollLeft = _ref3$scrollLeft === void 0 ? 0 : _ref3$scrollLeft;
+    _ref3$scrollLeft = _ref3.scrollLeft,
+    scrollLeft = _ref3$scrollLeft === void 0 ? 0 : _ref3$scrollLeft;
   var style = {
     maxWidth: maxWidth,
     'transform': vizStyle.translate3d(scrollLeft)
@@ -747,17 +689,12 @@ var LoadingSpinner = /*#__PURE__*/React.memo(function (_ref3) {
     className: "icon icon-circle-notch icon-spin fas"
   }), "\xA0 Loading..."));
 });
-
 var ShadowBorderLayer = /*#__PURE__*/function (_React$Component2) {
   _inherits(ShadowBorderLayer, _React$Component2);
-
   var _super4 = _createSuper(ShadowBorderLayer);
-
   function ShadowBorderLayer(props) {
     var _this6;
-
     _classCallCheck(this, ShadowBorderLayer);
-
     _this6 = _super4.call(this, props);
     _this6.scrolling = false;
     _this6.performScrollAction = _this6.performScrollAction.bind(_assertThisInitialized(_this6));
@@ -769,17 +706,16 @@ var ShadowBorderLayer = /*#__PURE__*/function (_React$Component2) {
     };
     return _this6;
   }
-
   _createClass(ShadowBorderLayer, [{
     key: "shouldComponentUpdate",
     value: function shouldComponentUpdate(nextProps) {
       var _this$props10 = this.props,
-          fullRowWidth = _this$props10.fullRowWidth,
-          tableContainerScrollLeft = _this$props10.tableContainerScrollLeft,
-          tableContainerWidth = _this$props10.tableContainerWidth;
+        fullRowWidth = _this$props10.fullRowWidth,
+        tableContainerScrollLeft = _this$props10.tableContainerScrollLeft,
+        tableContainerWidth = _this$props10.tableContainerWidth;
       var nxtRowWidth = nextProps.fullRowWidth,
-          nxtLeft = nextProps.tableContainerScrollLeft,
-          nxtTableWidth = nextProps.tableContainerWidth;
+        nxtLeft = nextProps.tableContainerScrollLeft,
+        nxtTableWidth = nextProps.tableContainerWidth;
       if (typeof nextProps.tableContainerWidth !== "number") return false;
       var pastEdges = this.memoized.edgeHiddenContentWidths(fullRowWidth, tableContainerScrollLeft, tableContainerWidth);
       var newEdges = ShadowBorderLayer.edgeHiddenContentWidths(nxtRowWidth, nxtLeft, nxtTableWidth);
@@ -791,7 +727,6 @@ var ShadowBorderLayer = /*#__PURE__*/function (_React$Component2) {
     value: function handleScrollButtonMouseDown() {
       var direction = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "right";
       var evt = arguments.length > 1 ? arguments[1] : undefined;
-
       if (evt.button === 0) {
         // Left click
         this.scrolling = true;
@@ -802,16 +737,14 @@ var ShadowBorderLayer = /*#__PURE__*/function (_React$Component2) {
     key: "performScrollAction",
     value: function performScrollAction() {
       var _this7 = this;
-
       var direction = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "right";
       var _this$props11 = this.props,
-          horizontalScrollRateOnEdgeButton = _this$props11.horizontalScrollRateOnEdgeButton,
-          tableContainerWidth = _this$props11.tableContainerWidth,
-          fullRowWidth = _this$props11.fullRowWidth,
-          tableContainerScrollLeft = _this$props11.tableContainerScrollLeft,
-          getScrollContainer = _this$props11.getScrollContainer,
-          setContainerScrollLeft = _this$props11.setContainerScrollLeft;
-
+        horizontalScrollRateOnEdgeButton = _this$props11.horizontalScrollRateOnEdgeButton,
+        tableContainerWidth = _this$props11.tableContainerWidth,
+        fullRowWidth = _this$props11.fullRowWidth,
+        tableContainerScrollLeft = _this$props11.tableContainerScrollLeft,
+        getScrollContainer = _this$props11.getScrollContainer,
+        setContainerScrollLeft = _this$props11.setContainerScrollLeft;
       var scrollAction = function (depth) {
         var scrollContainer = getScrollContainer();
         if (!scrollContainer) return;
@@ -819,19 +752,16 @@ var ShadowBorderLayer = /*#__PURE__*/function (_React$Component2) {
         var leftOffset = Math.max(0, Math.min(fullRowWidth - tableContainerWidth, scrollContainer.scrollLeft + change));
         scrollContainer.scrollLeft = leftOffset;
         setContainerScrollLeft(leftOffset);
-
         if (depth >= 10000) {
           logger.error("Reached depth 10k on a recursive function 'performScrollAction.'");
           return;
         }
-
         if (_this7.scrolling) {
           raf(function () {
             scrollAction(depth + 1);
           });
         }
       };
-
       scrollAction(0);
     }
   }, {
@@ -843,11 +773,11 @@ var ShadowBorderLayer = /*#__PURE__*/function (_React$Component2) {
     key: "render",
     value: function render() {
       var _this$props12 = this.props,
-          tableContainerWidth = _this$props12.tableContainerWidth,
-          fullRowWidth = _this$props12.fullRowWidth,
-          tableContainerScrollLeft = _this$props12.tableContainerScrollLeft,
-          _this$props12$fixedPo = _this$props12.fixedPositionArrows,
-          fixedPositionArrows = _this$props12$fixedPo === void 0 ? true : _this$props12$fixedPo;
+        tableContainerWidth = _this$props12.tableContainerWidth,
+        fullRowWidth = _this$props12.fullRowWidth,
+        tableContainerScrollLeft = _this$props12.tableContainerScrollLeft,
+        _this$props12$fixedPo = _this$props12.fixedPositionArrows,
+        fixedPositionArrows = _this$props12$fixedPo === void 0 ? true : _this$props12$fixedPo;
       if (!tableContainerWidth) return null;
       if (fullRowWidth <= tableContainerWidth) return null;
       var edges = this.memoized.edgeHiddenContentWidths(fullRowWidth, tableContainerScrollLeft, tableContainerWidth);
@@ -887,51 +817,41 @@ var ShadowBorderLayer = /*#__PURE__*/function (_React$Component2) {
         'left': 0,
         'right': 0
       };
-
       if (fullRowWidth > tableContainerWidth) {
         if (tableContainerScrollLeft > 5) {
           edges.left = tableContainerScrollLeft;
         }
-
         if (tableContainerScrollLeft + tableContainerWidth <= fullRowWidth - 5) {
           edges.right = fullRowWidth - tableContainerWidth - tableContainerScrollLeft;
         }
       }
-
       return edges;
     }
   }]);
-
   return ShadowBorderLayer;
 }(React.Component);
-
 _defineProperty(ShadowBorderLayer, "defaultProps", {
   'horizontalScrollRateOnEdgeButton': 10
 });
-
 var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
   _inherits(DimensioningContainer, _React$PureComponent3);
-
   var _super5 = _createSuper(DimensioningContainer);
-
   function DimensioningContainer(props) {
     var _this8;
-
     _classCallCheck(this, DimensioningContainer);
-
     _this8 = _super5.call(this, props);
     _this8.getScrollContainer = _this8.getScrollContainer.bind(_assertThisInitialized(_this8));
     _this8.getScrollableElement = _this8.getScrollableElement.bind(_assertThisInitialized(_this8));
     _this8.throttledUpdate = _.debounce(_this8.forceUpdate.bind(_assertThisInitialized(_this8)), 500);
     _this8.toggleDetailPaneOpen = _.throttle(_this8.toggleDetailPaneOpen.bind(_assertThisInitialized(_this8)), 500);
-    _this8.setDetailHeight = _this8.setDetailHeight.bind(_assertThisInitialized(_this8)); //this.setContainerScrollLeft = this.setContainerScrollLeft.bind(this);
-
+    _this8.setDetailHeight = _this8.setDetailHeight.bind(_assertThisInitialized(_this8));
+    //this.setContainerScrollLeft = this.setContainerScrollLeft.bind(this);
     _this8.setContainerScrollLeft = _.throttle(_this8.setContainerScrollLeft.bind(_assertThisInitialized(_this8)), 250);
     _this8.onHorizontalScroll = _this8.onHorizontalScroll.bind(_assertThisInitialized(_this8));
     _this8.setResults = _this8.setResults.bind(_assertThisInitialized(_this8));
     _this8.canLoadMore = _this8.canLoadMore.bind(_assertThisInitialized(_this8));
     var _props$results = props.results,
-        originalResults = _props$results === void 0 ? [] : _props$results;
+      originalResults = _props$results === void 0 ? [] : _props$results;
     _this8.state = {
       'mounted': false,
       'results': originalResults.slice(0),
@@ -940,13 +860,11 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
       'tableContainerScrollLeft': 0,
       'tableContainerWidth': 0,
       originalResults: originalResults // Reference to original results in order to utilize getDerivedStateFromProps.
-
     };
 
     if (_this8.state.results.length > 0 && Array.isArray(props.defaultOpenIndices) && props.defaultOpenIndices.length > 0) {
       _this8.state.openDetailPanes[itemUtil.atId(_this8.state.results[0])] = true;
     }
-
     _this8.outerRef = /*#__PURE__*/React.createRef();
     _this8.outerContainerSizeInterval = null;
     _this8.scrollHandlerUnsubscribeFxn = null;
@@ -955,23 +873,21 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
     };
     return _this8;
   }
-
   _createClass(DimensioningContainer, [{
     key: "getScrollContainer",
     value: function getScrollContainer() {
-      var outerContainerElem = this.outerRef.current; // THIS IS SUBJECT TO CHANGE RE: REACT-INFINITE LIBRARY. ACCESSING IN SUCH WAY IS ANTI-PATTERN TO BEGIN WITH...
+      var outerContainerElem = this.outerRef.current;
+      // THIS IS SUBJECT TO CHANGE RE: REACT-INFINITE LIBRARY. ACCESSING IN SUCH WAY IS ANTI-PATTERN TO BEGIN WITH...
       // React-infinite hasn't been updated as of mid-2018 (as of January 2020) so certain newer patterns aren't being utilized,
       // such as forwardRef. Theoretically it might be worth considering making PRs to the library if can be more certain they'd be
       // reviewed and merged..
+
       //const scrollContainer = infiniteComponent && infiniteComponent.scrollable;
-
       var scrollContainer = outerContainerElem.querySelector(".react-infinite-container");
-
       if (!scrollContainer) {
         logger.error("Could not get scroll container from React-Infinite. Check to see if library has been updated");
         throw new Error("Could not get scroll container from React-Infinite. Check to see if library has been updated");
       }
-
       return scrollContainer;
     }
   }, {
@@ -983,7 +899,6 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
     key: "componentDidMount",
     value: function componentDidMount() {
       var _this9 = this;
-
       // Maybe todo: play with 'experimental technology' for controlling columing widths (& compare performance),
       // see https://developer.mozilla.org/en-US/docs/Web/API/DocumentOrShadowRoot/styleSheets
       // and https://developer.mozilla.org/en-US/docs/Web/API/CSSStylesheet.
@@ -996,6 +911,7 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
       //    re: props.widths (this table's state.widths) changes.
       //    (This all within new component if supported, else pass widths down to cols as fallback (?) from this component)
       // }
+
       // Detect if table width changes (and update dims if true) every 5sec
       // No way to attach resize event listener to an element (only to window)
       // and element might change width independent of window (e.g. open/hide
@@ -1005,11 +921,9 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
           var pastWidth = _ref4.tableContainerWidth;
           var windowWidth = _ref5.windowWidth;
           var currDims = DimensioningContainer.getTableDims(_this9.getScrollContainer(), windowWidth);
-
           if (pastWidth !== currDims.tableContainerWidth) {
             return currDims;
           }
-
           return null;
         });
       }, 5000);
@@ -1024,12 +938,10 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
         this.scrollHandlerUnsubscribeFxn();
         delete this.scrollHandlerUnsubscribeFxn;
       }
-
       if (this.outerContainerSizeInterval) {
         clearInterval(this.outerContainerSizeInterval);
         this.outerContainerSizeInterval = null;
       }
-
       var scrollContainer = this.getScrollContainer();
       scrollContainer && scrollContainer.removeEventListener('scroll', this.onHorizontalScroll);
     }
@@ -1037,26 +949,22 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
     key: "componentDidUpdate",
     value: function componentDidUpdate(pastProps, pastState) {
       var _this$state2 = this.state,
-          loadedResults = _this$state2.results,
-          mounted = _this$state2.mounted;
+        loadedResults = _this$state2.results,
+        mounted = _this$state2.mounted;
       var pastLoadedResults = pastState.results,
-          pastMounted = pastState.mounted;
+        pastMounted = pastState.mounted;
       var windowWidth = this.props.windowWidth;
       var pastWindowWidth = pastProps.windowWidth;
-
       if (pastLoadedResults !== loadedResults) {
         ReactTooltip.rebuild();
       }
-
       var didMount = !pastMounted && mounted;
-
       if (didMount || pastWindowWidth !== windowWidth) {
         // This used to be in componentDidMount, however X-axis scroll container is now react-infinite elem
         // which doesn't appear until after mount
         var scrollContainer = this.getScrollContainer();
         var nextState = DimensioningContainer.getTableDims(scrollContainer, windowWidth);
         this.setState(nextState, didMount ? ReactTooltip.rebuild : null);
-
         if (didMount && scrollContainer) {
           scrollContainer.addEventListener('scroll', this.onHorizontalScroll);
         }
@@ -1069,13 +977,11 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
       this.setState(function (_ref6) {
         var openDetailPanes = _ref6.openDetailPanes;
         openDetailPanes = _.clone(openDetailPanes);
-
         if (openDetailPanes[rowKey]) {
           delete openDetailPanes[rowKey];
         } else {
           openDetailPanes[rowKey] = true;
         }
-
         return {
           openDetailPanes: openDetailPanes
         };
@@ -1087,11 +993,9 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
       this.setState(function (_ref7) {
         var openDetailPanes = _ref7.openDetailPanes;
         openDetailPanes = _.clone(openDetailPanes);
-
         if (typeof openDetailPanes[rowKey] === 'undefined') {
           return null;
         }
-
         openDetailPanes[rowKey] = typeof height === "number" && !isNaN(height) ? height : true;
         return {
           openDetailPanes: openDetailPanes
@@ -1109,8 +1013,9 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
     key: "onHorizontalScroll",
     value: function onHorizontalScroll(e) {
       var _this10 = this;
+      var innerElem = e.target;
 
-      var innerElem = e.target; // ( Shouldn't need to do commented out stuff if layout is within width )
+      // ( Shouldn't need to do commented out stuff if layout is within width )
       // Bound it, test again
       // const { columnDefinitions, windowWidth } = this.props;
       // const fullRowWidth = this.memoized.fullRowWidth(columnDefinitions, mounted, widths, windowWidth);
@@ -1122,23 +1027,19 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
       if (this.horizScrollRAF) {
         caf(this.horizScrollRAF);
       }
-
       this.horizScrollRAF = raf(function () {
         var tableContainerScrollLeft = _this10.state.tableContainerScrollLeft;
         var nextScrollLeft = innerElem.scrollLeft;
-
         if (nextScrollLeft < 0) {
           nextScrollLeft = 0; // Might occur right after changing column widths or something.
         }
 
         var columnsWrapperElement = innerElem.parentElement.childNodes[0].childNodes[0].childNodes[0];
         columnsWrapperElement.style.left = "-".concat(nextScrollLeft, "px");
-
         if (nextScrollLeft !== tableContainerScrollLeft) {
           // Shouldn't occur or matter but presence of this seems to improve smoothness (?)
           _this10.setContainerScrollLeft(nextScrollLeft);
         }
-
         delete _this10.horizScrollRAF;
       });
       return false;
@@ -1154,54 +1055,51 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
     key: "canLoadMore",
     value: function canLoadMore() {
       var _this$props13 = this.props,
-          _this$props13$context = _this$props13.context;
-      _this$props13$context = _this$props13$context === void 0 ? {} : _this$props13$context;
-      var _this$props13$context2 = _this$props13$context.total,
-          total = _this$props13$context2 === void 0 ? 0 : _this$props13$context2,
-          _this$props13$isConte = _this$props13.isContextLoading,
-          isContextLoading = _this$props13$isConte === void 0 ? false : _this$props13$isConte;
+        _this$props13$context = _this$props13.context,
+        _this$props13$context2 = _this$props13$context === void 0 ? {} : _this$props13$context,
+        _this$props13$context3 = _this$props13$context2.total,
+        total = _this$props13$context3 === void 0 ? 0 : _this$props13$context3,
+        _this$props13$isConte = _this$props13.isContextLoading,
+        isContextLoading = _this$props13$isConte === void 0 ? false : _this$props13$isConte;
       var _this$state$results = this.state.results,
-          results = _this$state$results === void 0 ? [] : _this$state$results;
+        results = _this$state$results === void 0 ? [] : _this$state$results;
       return !isContextLoading && LoadMoreAsYouScroll.canLoadMore(total, results);
     }
   }, {
     key: "render",
     value: function render() {
       var _this$props14 = this.props,
-          columnDefinitions = _this$props14.columnDefinitions,
-          windowWidth = _this$props14.windowWidth,
-          context = _this$props14.context,
-          _this$props14$isOwnPa = _this$props14.isOwnPage,
-          isOwnPage = _this$props14$isOwnPa === void 0 ? true : _this$props14$isOwnPa,
-          navigate = _this$props14.navigate,
-          _this$props14$rowHeig = _this$props14.rowHeight,
-          rowHeight = _this$props14$rowHeig === void 0 ? 47 : _this$props14$rowHeig,
-          _this$props14$openRow = _this$props14.openRowHeight,
-          openRowHeight = _this$props14$openRow === void 0 ? null : _this$props14$openRow,
-          _this$props14$maxHeig = _this$props14.maxHeight,
-          maxHeight = _this$props14$maxHeig === void 0 ? 500 : _this$props14$maxHeig,
-          _this$props14$isConte = _this$props14.isContextLoading,
-          isContextLoading = _this$props14$isConte === void 0 ? false : _this$props14$isConte,
-          setColumnWidths = _this$props14.setColumnWidths,
-          columnWidths = _this$props14.columnWidths,
-          _this$props14$stickyF = _this$props14.stickyFirstColumn,
-          stickyFirstColumn = _this$props14$stickyF === void 0 ? false : _this$props14$stickyF;
+        columnDefinitions = _this$props14.columnDefinitions,
+        windowWidth = _this$props14.windowWidth,
+        context = _this$props14.context,
+        _this$props14$isOwnPa = _this$props14.isOwnPage,
+        isOwnPage = _this$props14$isOwnPa === void 0 ? true : _this$props14$isOwnPa,
+        navigate = _this$props14.navigate,
+        _this$props14$rowHeig = _this$props14.rowHeight,
+        rowHeight = _this$props14$rowHeig === void 0 ? 47 : _this$props14$rowHeig,
+        _this$props14$openRow = _this$props14.openRowHeight,
+        openRowHeight = _this$props14$openRow === void 0 ? null : _this$props14$openRow,
+        _this$props14$maxHeig = _this$props14.maxHeight,
+        maxHeight = _this$props14$maxHeig === void 0 ? 500 : _this$props14$maxHeig,
+        _this$props14$isConte = _this$props14.isContextLoading,
+        isContextLoading = _this$props14$isConte === void 0 ? false : _this$props14$isConte,
+        setColumnWidths = _this$props14.setColumnWidths,
+        columnWidths = _this$props14.columnWidths,
+        _this$props14$stickyF = _this$props14.stickyFirstColumn,
+        stickyFirstColumn = _this$props14$stickyF === void 0 ? false : _this$props14$stickyF;
       var _this$state3 = this.state,
-          results = _this$state3.results,
-          tableContainerWidth = _this$state3.tableContainerWidth,
-          tableContainerScrollLeft = _this$state3.tableContainerScrollLeft,
-          mounted = _this$state3.mounted,
-          openDetailPanes = _this$state3.openDetailPanes;
+        results = _this$state3.results,
+        tableContainerWidth = _this$state3.tableContainerWidth,
+        tableContainerScrollLeft = _this$state3.tableContainerScrollLeft,
+        mounted = _this$state3.mounted,
+        openDetailPanes = _this$state3.openDetailPanes;
       var fullRowWidth = this.memoized.fullRowWidth(columnDefinitions, mounted, columnWidths, windowWidth);
-
       if (!isOwnPage) {
         // Add some padding to end of rows so that scrollbars don't hide last columns' content.
         fullRowWidth += 16;
       }
-
       var canLoadMore = this.canLoadMore();
       var anyResults = results.length > 0;
-
       var loadMoreAsYouScrollProps = _objectSpread(_objectSpread({}, _.pick(this.props, 'href', 'onDuplicateResultsFoundCallback', 'schemas', 'requestedCompoundFilterSet')), {}, {
         context: context,
         navigate: navigate,
@@ -1220,11 +1118,9 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
         mounted: mounted,
         setResults: this.setResults
       });
-
       var headersRow = null;
       var shadowBorderLayer = null;
       var childrenToShow = null;
-
       if (anyResults) {
         var headerRowCommonProps = _objectSpread(_objectSpread({}, _.pick(this.props, 'columnDefinitions', 'sortBy', 'sortColumns', 'sortColumn', 'sortReverse', 'defaultMinColumnWidth', 'renderDetailPane', 'detailPane', 'windowWidth')), {}, {
           mounted: mounted,
@@ -1235,7 +1131,6 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
           tableContainerScrollLeft: tableContainerScrollLeft,
           stickyFirstColumn: stickyFirstColumn
         });
-
         var resultRowCommonProps = _objectSpread(_objectSpread({}, _.pick(this.props, 'renderDetailPane', 'detailPane', 'href', 'currentAction', 'schemas', 'termTransformFxn', 'targetTabKey')), {}, {
           context: context,
           rowHeight: rowHeight,
@@ -1250,7 +1145,6 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
           'toggleDetailPaneOpen': this.toggleDetailPaneOpen,
           'setDetailHeight': this.setDetailHeight
         });
-
         headersRow = /*#__PURE__*/React.createElement(HeadersRow, headerRowCommonProps);
         shadowBorderLayer = /*#__PURE__*/React.createElement(ShadowBorderLayer, {
           tableContainerScrollLeft: tableContainerScrollLeft,
@@ -1262,10 +1156,10 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
         });
         childrenToShow = results.map(function (result, idx) {
           var id = itemUtil.atId(result);
-          var detailOpen = openDetailPanes[id] || false; // We can skip passing tableContainerScrollLeft unless detail pane open to improve performance
+          var detailOpen = openDetailPanes[id] || false;
+          // We can skip passing tableContainerScrollLeft unless detail pane open to improve performance
           // else all rows get re-rendered (in virtual DOM atleast) on horizontal scroll due to prop value
           // changing. Alternatively could've made a shouldComponentUpdate in ResultRow (but need to keep track of more).
-
           return /*#__PURE__*/React.createElement(ResultRow, _extends({}, resultRowCommonProps, {
             result: result,
             id: id,
@@ -1274,7 +1168,6 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
             key: id
           }));
         });
-
         if (!canLoadMore) {
           childrenToShow.push( /*#__PURE__*/React.createElement(EndOfListItem, {
             tableContainerWidth: tableContainerWidth,
@@ -1293,7 +1186,6 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
           className: "text-300"
         }, context ? "No Results" : "Initializing..."));
       }
-
       var cls = "search-results-outer-container" + (isOwnPage ? " is-own-page" : " is-within-page") + (stickyFirstColumn ? " sticky-first-column" : "");
       return /*#__PURE__*/React.createElement("div", {
         className: cls,
@@ -1309,15 +1201,12 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
     value: function setDetailPanesLeftOffset(detailPanes) {
       var leftOffset = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
       var cb = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
-
       if (detailPanes && detailPanes.length > 0) {
         var transformStyle = vizStyle.translate3d(leftOffset);
-
         _.forEach(detailPanes, function (d) {
           d.style.transform = transformStyle;
         });
       }
-
       if (typeof cb === 'function') cb();
     }
   }, {
@@ -1326,7 +1215,6 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
       if (document && document.querySelectorAll) {
         return Array.from(document.querySelectorAll('.result-table-detail'));
       }
-
       return null;
     }
   }, {
@@ -1337,17 +1225,14 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
       var windowWidth = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
       return _.reduce(visibleColumnDefinitions, function (fw, colDef) {
         var w;
-
         if (dynamicWidths && typeof dynamicWidths[colDef.field] === "number") {
           w = dynamicWidths[colDef.field];
         } else {
           w = getColumnWidthFromDefinition(colDef, mounted, windowWidth);
         }
-
         if (isNaN(w)) {
           throw new Error("Could not get row/col width");
         }
-
         return fw + w;
       }, 0);
     }
@@ -1360,7 +1245,6 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
           'tableContainerScrollLeft': null
         };
       }
-
       return {
         'tableContainerWidth': scrollContainer && scrollContainer.offsetWidth || null,
         'tableContainerScrollLeft': scrollContainer && typeof scrollContainer.scrollLeft === 'number' ? scrollContainer.scrollLeft : null
@@ -1370,9 +1254,8 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
     key: "getDerivedStateFromProps",
     value: function getDerivedStateFromProps(_ref8, _ref9) {
       var _ref8$results = _ref8.results,
-          ctxResults = _ref8$results === void 0 ? [] : _ref8$results;
+        ctxResults = _ref8$results === void 0 ? [] : _ref8$results;
       var originalResults = _ref9.originalResults;
-
       if (ctxResults !== originalResults) {
         // `context` has changed upstream, reset results and detail panes.
         return {
@@ -1381,18 +1264,15 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
           'originalResults': ctxResults
         };
       }
-
       return null;
     }
   }]);
-
   return DimensioningContainer;
 }(React.PureComponent);
-
 var EndOfListItem = /*#__PURE__*/React.memo(function (_ref10) {
   var tableContainerWidth = _ref10.tableContainerWidth,
-      fullRowWidth = _ref10.fullRowWidth,
-      isOwnPage = _ref10.isOwnPage;
+    fullRowWidth = _ref10.fullRowWidth,
+    isOwnPage = _ref10.isOwnPage;
   return (
     /*#__PURE__*/
     // Account for vertical scrollbar decreasing width of container (-30).
@@ -1409,6 +1289,7 @@ var EndOfListItem = /*#__PURE__*/React.memo(function (_ref10) {
     }, "- ", /*#__PURE__*/React.createElement("span", null, "fin"), " -"))
   );
 });
+
 /**
  * Reusable table for displaying search results according to column definitions.
  *
@@ -1426,29 +1307,23 @@ var EndOfListItem = /*#__PURE__*/React.memo(function (_ref10) {
  * @prop {function}         sortBy              Callback function for performing a sort, acceping 'sortColumn' and 'sortReverse' as params. As fed by SortController.
  * @prop {function}         termTransformFxn    Function passed from parent portal to transform system values into human readable values. Is portal-specific; not used if `render` for field in columnExtensionMap/columnDefinition exists/used.
  */
-
 export var SearchResultTable = /*#__PURE__*/function (_React$Component3) {
   _inherits(SearchResultTable, _React$Component3);
-
   var _super6 = _createSuper(SearchResultTable);
-
   function SearchResultTable() {
     _classCallCheck(this, SearchResultTable);
-
     return _super6.apply(this, arguments);
   }
-
   _createClass(SearchResultTable, [{
     key: "render",
     value: function render() {
       var _this$props15 = this.props,
-          context = _this$props15.context,
-          visibleColumnDefinitions = _this$props15.visibleColumnDefinitions,
-          columnDefinitions = _this$props15.columnDefinitions,
-          _this$props15$isConte = _this$props15.isContextLoading,
-          isContextLoading = _this$props15$isConte === void 0 ? false : _this$props15$isConte,
-          isOwnPage = _this$props15.isOwnPage;
-
+        context = _this$props15.context,
+        visibleColumnDefinitions = _this$props15.visibleColumnDefinitions,
+        columnDefinitions = _this$props15.columnDefinitions,
+        _this$props15$isConte = _this$props15.isContextLoading,
+        isContextLoading = _this$props15$isConte === void 0 ? false : _this$props15$isConte,
+        isOwnPage = _this$props15.isOwnPage;
       if (isContextLoading && !context) {
         // Initial context (pre-sort, filter, etc) loading.
         // Only applicable for EmbeddedSearchView
@@ -1460,11 +1335,11 @@ export var SearchResultTable = /*#__PURE__*/function (_React$Component3) {
         }, /*#__PURE__*/React.createElement("i", {
           className: "icon icon-fw icon-spin icon-circle-notch fas icon-2x"
         })));
-      } // We filter down the columnDefinitions here (rather than in CustomColumnController)
+      }
+
+      // We filter down the columnDefinitions here (rather than in CustomColumnController)
       // because they are still necessary for UI for selection of visible/invisible columns
       // in SearchView/ControlsAndResults/AboveSearchViewTableControls/....
-
-
       return /*#__PURE__*/React.createElement(DimensioningContainer, _extends({}, _.omit(this.props, 'hiddenColumns', 'columnDefinitionOverrideMap', 'defaultWidthMap'), {
         columnDefinitions: visibleColumnDefinitions || columnDefinitions
       }));
@@ -1475,10 +1350,8 @@ export var SearchResultTable = /*#__PURE__*/function (_React$Component3) {
       return !isServerSide() && responsiveGridState(windowWidth) !== 'xs';
     }
   }]);
-
   return SearchResultTable;
 }(React.Component);
-
 _defineProperty(SearchResultTable, "propTypes", {
   'results': PropTypes.arrayOf(ResultRow.propTypes.result),
   // Either href or requestedCompoundFilterSet should be present:
@@ -1519,7 +1392,6 @@ _defineProperty(SearchResultTable, "propTypes", {
   //PropTypes.oneOfType([PropTypes.number, PropTypes.string]) // Used only if isOwnPage is false
   'isContextLoading': PropTypes.bool
 });
-
 _defineProperty(SearchResultTable, "defaultProps", {
   //'columnExtensionMap' : basicColumnExtensionMap,
   'columnDefinitions': columnsToColumnDefinitions({
@@ -1550,5 +1422,4 @@ _defineProperty(SearchResultTable, "defaultProps", {
   'maxHeight': 400,
   // Used only if isOwnPage is false; todo: maybe move this defaultProp definition higher up into EmbeddedSearchView and leave null here.
   'isContextLoading': false // Used only if isOwnPage is false
-
 });
