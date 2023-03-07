@@ -610,7 +610,8 @@ export var CopyWrapper = /*#__PURE__*/function (_React$PureComponent) {
         wrapperElement = _this$props2.wrapperElement,
         iconProps = _this$props2.iconProps,
         includeIcon = _this$props2.includeIcon,
-        className = _this$props2.className;
+        className = _this$props2.className,
+        stopPropagation = _this$props2.stopPropagation;
       if (!value) return null;
 
       // eslint-disable-next-line react/destructuring-assignment
@@ -630,8 +631,11 @@ export var CopyWrapper = /*#__PURE__*/function (_React$PureComponent) {
           'transformOrigin': '50% 50%'
         },
         'className': 'clickable copy-wrapper ' + className || '',
-        'onClick': function copy() {
-          return CopyWrapper.copyToClipboard(value, function (v) {
+        'onClick': function copy(e) {
+          if (stopPropagation) {
+            e.stopPropagation();
+          }
+          CopyWrapper.copyToClipboard(value, function (v) {
             _this2.onCopy();
             analytics.event('CopyWrapper', 'Copy', {
               'eventLabel': 'Value',
