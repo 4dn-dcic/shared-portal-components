@@ -382,9 +382,6 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
         facetSchemaDescription = _facet$description === void 0 ? null : _facet$description,
         _facet$hide_facet_cou = facet.hide_facet_counts,
         hideDocCounts = _facet$hide_facet_cou === void 0 ? false : _facet$hide_facet_cou;
-
-      // if (!including) return null; // No support currently for omitting ranges or stats aggregations
-
       var fieldSchema = this.memoized.fieldSchema(field, schemas, itemTypeForSchemas);
       var fieldSchemaDescription = (fieldSchema || {}).description; // fieldSchema not present if no schemas loaded yet.
       var _this$state2 = this.state,
@@ -454,11 +451,11 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
         className: "icon icon-fw icon-greater-than-equal fas"
       })))), /*#__PURE__*/React.createElement("div", {
         className: "facet-list",
-        "data-open": facetOpen,
+        "data-open": including ? facetOpen : false,
         "data-any-active": savedFromVal || savedToVal ? true : false
       }, /*#__PURE__*/React.createElement(PartialList, {
         className: "inner-panel",
-        open: facetOpen,
+        open: including ? facetOpen : false,
         persistent: [/*#__PURE__*/React.createElement(RangeClear, {
           savedFromVal: savedFromVal,
           savedToVal: savedToVal,

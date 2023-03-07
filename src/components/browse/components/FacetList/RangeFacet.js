@@ -419,8 +419,6 @@ export class RangeFacet extends React.PureComponent {
             hide_facet_counts: hideDocCounts = false
         } = facet;
 
-        // if (!including) return null; // No support currently for omitting ranges or stats aggregations
-
         const fieldSchema = this.memoized.fieldSchema(field, schemas, itemTypeForSchemas);
         const { description: fieldSchemaDescription } = fieldSchema || {}; // fieldSchema not present if no schemas loaded yet.
         const { fromVal, toVal, expanded } = this.state;
@@ -491,8 +489,8 @@ export class RangeFacet extends React.PureComponent {
                         </span>
                     </Fade>
                 </h5>
-                <div className="facet-list" data-open={facetOpen} data-any-active={(savedFromVal || savedToVal) ? true : false}>
-                    <PartialList className="inner-panel" open={facetOpen}
+                <div className="facet-list" data-open={including ? facetOpen: false} data-any-active={(savedFromVal || savedToVal) ? true : false}>
+                    <PartialList className="inner-panel" open={including ? facetOpen: false}
                         persistent={[
                             <RangeClear {...{ savedFromVal, savedToVal, facet, fieldSchema, termTransformFxn, filteringFieldTerm }}
                                 resetAll={this.resetAll}
