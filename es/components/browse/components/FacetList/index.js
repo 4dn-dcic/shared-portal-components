@@ -914,7 +914,8 @@ _defineProperty(FacetList, "defaultProps", {
   'persistSelectedTerms': true
 });
 export var FacetListHeader = /*#__PURE__*/React.memo(function (props) {
-  var including = props.including,
+  var _props$including = props.including,
+    including = _props$including === void 0 ? true : _props$including,
     onToggleIncluding = props.onToggleIncluding,
     _props$compound = props.compound,
     compound = _props$compound === void 0 ? false : _props$compound,
@@ -929,7 +930,8 @@ export var FacetListHeader = /*#__PURE__*/React.memo(function (props) {
     onCollapseFacets = props.onCollapseFacets;
   var anyFacetsOpen = Object.keys(openFacets).length !== 0;
   return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
-    className: "row facets-header"
+    className: "row facets-header",
+    "data-excluding": !including
   }, /*#__PURE__*/React.createElement("div", {
     className: "col facets-title-column text-truncate"
   }, !compound && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(IconToggle, {

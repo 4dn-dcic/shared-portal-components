@@ -776,7 +776,7 @@ export class FacetList extends React.PureComponent {
 
 export const FacetListHeader = React.memo(function FacetListHeader(props){
     const {
-        including,
+        including = true,
         onToggleIncluding,
         compound = false,
         title = "Properties", // @TODO: Is this actually in use anywhere?
@@ -788,7 +788,7 @@ export const FacetListHeader = React.memo(function FacetListHeader(props){
     const anyFacetsOpen = Object.keys(openFacets).length !== 0;
     return (
         <div>
-            <div className="row facets-header">
+            <div className="row facets-header" data-excluding={!including}>
                 <div className="col facets-title-column text-truncate">
                     {
                         !compound &&

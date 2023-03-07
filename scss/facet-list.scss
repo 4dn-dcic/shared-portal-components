@@ -79,6 +79,10 @@ $facetlist-term-block-height: default !default;
     }
 
     &.with-header-bg .facets-header {
+        &[data-excluding="true"] {
+            background-color: $facetlist-excluding;
+        }
+        
         background-color: $primary-dark;
         border-bottom: none;
         color: #fff;
