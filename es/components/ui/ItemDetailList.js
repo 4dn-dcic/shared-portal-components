@@ -1043,7 +1043,6 @@ _defineProperty(Detail, "propTypes", {
   'context': PropTypes.object.isRequired,
   'columnDefinitions': PropTypes.object
 });
-/** For the most part, these are 4DN-specific and overriden as needed in CGAP portal. */
 _defineProperty(Detail, "defaultProps", {
   'excludedKeys': ['@context', 'actions', 'principals_allowed',
   // Visible elsewhere on page
