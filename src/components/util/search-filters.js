@@ -146,6 +146,9 @@ export function getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters(t
                 found = true;
                 status = "omitted";
                 break;
+            } else if (term.is_group_header && facet.group_by === filter.field && filter.term === term.key) {
+                found = true;
+                break;
             }
         }
     }

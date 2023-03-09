@@ -248,7 +248,6 @@ export class FacetList extends React.PureComponent {
         const openFacets = {};
 
         for (var i = 0; i < facetIndexWherePastXTerms; i++) {
-            //console.log("XX", facetIndexWherePastXTerms, filteredFlattenedComponents[i], filteredFlattenedComponents, filteredFlattenedComponents[i].props.facet.grouping)
             openFacets[filteredFlattenedComponents[i].props.facet.field] = true;
             if (filteredFlattenedComponents[i].props.facet.grouping) {
                 // Set group to be open as well
@@ -546,6 +545,8 @@ export class FacetList extends React.PureComponent {
      * as no 'terms' exist when aggregation_type === stats.
      */
     onFilterExtended(facet, term, callback){
+        // console.log('XXX term:', term);
+        // console.log('XXX facet:', facet);
         const { onFilter, context: { filters: contextFilters } } = this.props;
         FacetList.sendAnalyticsPreFilter(facet, term, contextFilters);
 
@@ -664,15 +665,16 @@ export class FacetList extends React.PureComponent {
             setOpenPopover: this.setOpenPopover,
         };
 
+        // TODO: memoize for performance improvement
         const groupByFields = _.unique(_.filter(_.pluck(facets, 'group_by'), (f) => f));
-        console.log('xxx groupByFields:', groupByFields);
-        // const filteredFacets = _.filter()
+        const facetsWithoutGroupingItems = _.filter(facets, function (f) { return groupByFields.indexOf(f.field) < 0; });
+
         const { staticFacetElements, selectableFacetElements: rawerSelectableFacetElems } = this.memoized.segmentOutCommonProperties(
             this.memoized.createFacetComponents(
                 facetComponentProps,
-                this.memoized.sortedFinalFacetObjects(facets, filters),
+                this.memoized.sortedFinalFacetObjects(facetsWithoutGroupingItems, filters),
                 this.memoized.countActiveTermsByField(filters),
-                this.memoized.getRangeValuesFromFiltersByField(facets, filters),
+                this.memoized.getRangeValuesFromFiltersByField(facetsWithoutGroupingItems, filters),
             ),
             separateSingleTermFacets
         );

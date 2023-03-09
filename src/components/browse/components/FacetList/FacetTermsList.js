@@ -92,7 +92,14 @@ export function segmentComponentsByStatus(termComponents){
         if (!Array.isArray(groups[status])) {
             groups[status] = [];
         }
-        groups[status].push(t);
+        if(t.props.facet.group_by) {
+            if (!Array.isArray(groups['none'])) {
+                groups['none'] = [];
+            }
+            groups['none'].push(t);
+        } else {
+            groups[status].push(t);
+        }
     });
     return groups;
 }
@@ -109,7 +116,9 @@ export class Term extends React.PureComponent {
         }).isRequired,
         'term'              : PropTypes.shape({
             'key'               : PropTypes.string.isRequired,
-            'doc_count'         : PropTypes.number
+            'doc_count'         : PropTypes.number,
+            'is_group_header'   : PropTypes.bool,
+            'is_group_item'     : PropTypes.bool
         }).isRequired,
         'isFiltering'       : PropTypes.bool,
         'filteringFieldTerm': PropTypes.shape({ field: PropTypes.string, term: PropTypes.string }),
@@ -157,12 +166,13 @@ export class Term extends React.PureComponent {
         }
 
         const statusClassName = (status !== 'none' ? (status === 'selected' ? " selected" : " omitted") : '');
+        const { is_group_header: isGroupHeader, is_group_item: isGroupItem } = term;
         return (
-            <li className={"facet-list-element " + statusClassName + (term.is_group_item ? " pl-3" : "")} key={term.key} data-key={term.key}>
+            <li className={"facet-list-element " + statusClassName + (isGroupItem ? " pl-3" : "")} key={term.key} data-key={term.key}>
                 <a className="term" data-selected={selected} href="#" onClick={this.handleClick} data-term={term.key}>
                     <span className="facet-selector">{icon}</span>
-                    <span className={"facet-item" + (term.is_group_header ? " font-weight-bold" : "")} data-tip={title.length > 30 ? title : null}>{title}</span>
-                    {term.is_group_header ? null : <span className="facet-count">{count}</span>}
+                    <span className={"facet-item" + (isGroupHeader ? " facet-item-group-header" : "")} data-tip={title.length > 30 ? title : null}>{title}</span>
+                    {isGroupHeader ? null : <span className="facet-count">{count}</span>}
                 </a>
             </li>
         );
@@ -225,9 +235,9 @@ export class FacetTermsList extends React.PureComponent {
     }
 
     handleSaytTermSearch(e) {
-        var { facet,onTermClick } = this.props;
+        const { facet, onTermClick } = this.props;
         const key = { 'key': e.display_title };
-        onTermClick(facet,key);
+        onTermClick(facet, key);
     }
 
     render(){
@@ -247,11 +257,13 @@ export class FacetTermsList extends React.PureComponent {
             filteringFieldTerm,
             setOpenPopover,
             useRadioIcon,
-            persistSelectedTerms,
+            persistSelectedTerms: propPersistSelectedTerms,
             context,
             schemas,
         } = this.props;
-        const { description: facetSchemaDescription = null, field, title: facetTitle, terms = [] } = facet;
+        const { description: facetSchemaDescription = null, field, title: facetTitle, terms = [], persist_selected_terms: facetPersistSelectedTerms } = facet;
+        // if it's defined within facet, override global persis selected terms
+        const persistSelectedTerms = (typeof facetPersistSelectedTerms === 'boolean') ? facetPersistSelectedTerms : propPersistSelectedTerms;
         const { expanded, searchText } = this.state;
         const termsLen = terms.length;
         const allTermsSelected = termsSelectedCount === termsLen;
@@ -315,10 +327,13 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
         getTermStatus,
         termTransformFxn,
         searchText, onBasicTermSearch, onSaytTermSearch,
-        basicSearchAutoDisplayLimit, useRadioIcon, persistSelectedTerms = true
+        basicSearchAutoDisplayLimit, useRadioIcon, persistSelectedTerms: propPersistSelectedTerms = true
     } = props;
     let { search_type: searchType = 'none' } = facet;
+    const { persist_selected_terms: facetPersistSelectedTerms } = facet;
 
+    // if it's defined within facet, override global persis selected terms
+    const persistSelectedTerms = (typeof facetPersistSelectedTerms === 'boolean') ? facetPersistSelectedTerms : propPersistSelectedTerms;
     /**
      * even if search type is not defined, display basic search option when terms count
      * is greater than basicSearchAutoDisplayLimit (for persistSelectedTerms is true)
@@ -349,15 +364,14 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
         } else {
             allTermComponents = [];
             let currGroupingKey = null;
-            _.chain(terms).sortBy((term) => term.key).sortBy((term) => term.grouping_key).value().forEach(function(term){
-                console.log('xxx facet:' ,facet);
-                if (term.grouping_key !== currGroupingKey) {
-                    const groupingTerm = { doc_count: 10, 'key': term.grouping_key, 'is_group_header': true };
+            _.chain(terms).sortBy((term) => -term.doc_count).sortBy((term) => term.grouping_key).value().forEach(function(term){
+                if (term.grouping_key && term.grouping_key !== currGroupingKey) {
+                    const groupingTerm = { doc_count: 99, 'key': term.grouping_key, 'is_group_header': true };
                     const isFiltering = field === currFilteringField && term.key === currFilteringTerm;
                     const groupByFacet = { ...facet };
                     groupByFacet.field = facet.group_by;
                     delete groupByFacet.group_by;
-                    allTermComponents.push(<Term {...{ facet: groupByFacet, term: groupingTerm, termTransformFxn, isFiltering, useRadioIcon }} onClick={onTermClick} key={groupingTerm.key} status={getTermStatus(groupingTerm, facet)} />);
+                    allTermComponents.push(<Term {...{ facet: groupByFacet, term: groupingTerm, termTransformFxn, isFiltering, useRadioIcon }} onClick={onTermClick} key={'g-' + groupingTerm.key} status={getTermStatus(groupingTerm, facet)} />);
                     currGroupingKey = term.grouping_key;
                 }
                 const { field: currFilteringField, term: currFilteringTerm } = filteringFieldTerm || {};
@@ -365,10 +379,6 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
                 allTermComponents.push(<Term {...{ facet, term, termTransformFxn, isFiltering, useRadioIcon }} onClick={onTermClick} key={term.key} status={getTermStatus(term, facet)} />);
             });
         }
-        // if (facet.group_by) {
-        //     const groupingTerm = { doc_count: 10, 'key': 'Utku', 'is_group_header': true };
-        //     allTermComponents.unshift(<Term {...{ facet, term: groupingTerm, termTransformFxn, isFiltering: false, useRadioIcon }} onClick={onTermClick} key={groupingTerm.key} status={getTermStatus(groupingTerm, facet)} />);
-        // }
         const segments = segmentComponentsByStatus(allTermComponents);
 
         const { selected: selectedTermComponents = [], omitted : omittedTermComponents = [] } = segments;
