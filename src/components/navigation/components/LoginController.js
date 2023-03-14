@@ -27,33 +27,35 @@ export class LoginController extends React.PureComponent {
         'children'            : PropTypes.node.isRequired
     };
 
-    static defaultProps = {
+    getDefaultProps() {
         // Login / logout actions must be deferred until Auth0 is ready.
-        'auth0Options' : {
-            auth: {
-                sso: false,
-                redirect: false,
-                responseType: 'token',
-                params: {
-                    scope: 'openid email',
-                    prompt: 'select_account'
+        return {
+            'auth0Options' : {
+                auth: {
+                    sso: false,
+                    redirect: false,
+                    responseType: 'token',
+                    params: {
+                        scope: 'openid email',
+                        prompt: 'select_account'
+                    }
+                },
+                socialButtonStyle: 'big',
+                theme: {
+                    logo: '/static/img/4dn_logo.svg',
+                    icon: '/static/img/4dn_logo.svg',
+                    primaryColor: '#009aad'
+                },
+                allowedConnections: ['github', 'google-oauth2', 'partners'],
+                languageDictionary: {
+                    title: 'Log In',
+                    emailInputPlaceholder: 'email@partners.org',
+                    databaseEnterpriseAlternativeLoginInstructions: 'or login via Partners'
                 }
             },
-            socialButtonStyle: 'big',
-            theme: {
-                logo: '/static/img/4dn_logo.svg',
-                icon: '/static/img/4dn_logo.svg',
-                primaryColor: '#009aad'
-            },
-            allowedConnections: ['github', 'google-oauth2', 'partners'],
-            languageDictionary: {
-                title: 'Log In',
-                emailInputPlaceholder: 'email@partners.org',
-                databaseEnterpriseAlternativeLoginInstructions: 'or login via Partners'
+            'onLogin' : function(profile){
+                console.log("Logged in", profile);
             }
-        },
-        'onLogin' : function(profile){
-            console.log("Logged in", profile);
         }
     };
 

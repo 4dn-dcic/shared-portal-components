@@ -25,7 +25,10 @@ First, if not already the case, clone both parent/portal repo as well as this re
    - **NO LONGER NEEDED:** ~~`node ./setup-npm-links-for-local-development.js <path_to_parent_repo>`~~
        - ~~e.g. _`<path_to_parent_repo>`_ might be `../../cgap_portal`.~~
 
-4. From **parent** component:
+4. From **parent** component if building fresh or after running `make clean`:
+   - `npm run build-scss`
+
+5. From **parent** component:
    - `npm link @hms-dbmi-bgm/shared-portal-components`
    - followed by your build/dev script, e.g. `npm run dev-quick`, `npm run build`, etc.
 
