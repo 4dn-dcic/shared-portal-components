@@ -27,21 +27,15 @@ export class RedisLoginController extends LoginController {
     componentDidMount() {
         const { auth0Options: auth0OptionsFallback } = this.props;
         const { isAuth0LibraryLoaded } = this.state;
-        ajaxPromise("/auth0_config").then(({ auth0Client, auth0Domain, auth0Options, callback }) => {
-            console.log("grabbing auth0 config");
+        ajaxPromise("/auth0_config").then(({ auth0Client, auth0Domain, auth0Options }) => {
+            console.log("calling componentDidMount");
             if (!auth0Client || !auth0Domain) {
                 // This will never happen unless network is down or issue with the orchestration... might be worth throwing an error (?)
                 return; // Skip setting "isAuth0LibraryLoaded": true, idk.
             }
 
-            const options = { ...auth0OptionsFallback };
-            options['auth']['redirectUrl'] = callback;
-            options['auth']['responseType'] = 'code';
-            options['auth']['redirect'] = true;
+            const options = { ...auth0OptionsFallback, ...auth0Options };
             const createLock = () => {
-                console.log(this.props);
-                console.log("trying to create lock");
-                console.log(options);
                 this.lock = new Auth0Lock(auth0Client, auth0Domain, options);
                 this.lock.on("authenticated", this.validateCookieAndObtainAdditionalUserInfo);
                 setTimeout(()=>{
@@ -76,7 +70,7 @@ export class RedisLoginController extends LoginController {
     // Slightly modified - send code returned from Auth0 to /callback to get a session token
     validateCookieAndObtainAdditionalUserInfo(token, successCallback = null, errorCallback = null){
         const { updateAppSessionState, onLogin = null } = this.props;
-
+        console.log('calling validateCookieAndObtainAdditionalUserInfo')
         this.setState({ "isLoading" : true }, ()=>{
 
             this.lock.hide();
@@ -85,14 +79,14 @@ export class RedisLoginController extends LoginController {
             // We probably can get rid of this Promise.race wrapper, since request/server will likely time out in 30s, idk..
             Promise.race([
                 // Server will save as httpOnly cookie.
-                fetch('/callback', { method: "POST", body: JSON.stringify({ "code": token }) }),
+                fetch('/callback', { method: "GET", body: JSON.stringify({ "code": token }) }),
                 new Promise(function(resolve, reject){
                     setTimeout(function(){ reject({ 'description' : 'timed out', 'type' : 'timed-out' }); }, 90000); /* 90 seconds */
                 })
             ])
                 .then(({ saved_cookie = false }) => {
                     if (!saved_cookie) {
-                        throw new Error("Couldn't set session in /login");
+                        throw new Error("Couldn't set session in /callback");
                     }
                     // This should return a 401 error if user not found, to caught and handled as 'unregistered user'
                     return fetch("/session-properties");
@@ -175,59 +169,5 @@ export class RedisLoginController extends LoginController {
                 });
 
         });
-    }
-
-    render(){
-        const { children, ...passProps } = this.props;
-        const { isLoading, isAuth0LibraryLoaded, unverifiedUserEmail } = this.state;
-
-        const childProps = {
-            ...passProps,
-            isLoading, unverifiedUserEmail, isAuth0LibraryLoaded,
-            "showLock": this.showLock
-        };
-
-        if (unverifiedUserEmail) {
-            // aka in registration mode.
-            childProps.onRegistrationComplete = this.onRegistrationCompleteBoundWithToken;
-            childProps.onRegistrationCancel = this.onRegistrationCancel;
-        }
-
-        return React.Children.map(children, function(child){
-            if (!React.isValidElement(child) || typeof child.type === "string") {
-                return child;
-            }
-            return React.cloneElement(child, childProps);
-        });
-    }
-}
-
-RedisLoginController.defaultProps = {
-    // Login / logout actions must be deferred until Auth0 is ready.
-    'auth0Options' : {
-        auth: {
-            sso: false,
-            redirect: true,
-            responseType: 'code',
-            params: {
-                scope: 'openid email',
-                prompt: 'select_account'
-            }
-        },
-        socialButtonStyle: 'big',
-        theme: {
-            logo: '/static/img/4dn_logo.svg',
-            icon: '/static/img/4dn_logo.svg',
-            primaryColor: '#009aad'
-        },
-        allowedConnections: ['github', 'google-oauth2', 'partners'],
-        languageDictionary: {
-            title: 'Log In',
-            emailInputPlaceholder: 'email@partners.org',
-            databaseEnterpriseAlternativeLoginInstructions: 'or login via Partners'
-        }
-    },
-    'onLogin' : function(profile){
-        console.log("Logged in", profile);
     }
 };

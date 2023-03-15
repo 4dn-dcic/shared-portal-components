@@ -111,6 +111,7 @@ export function load(url, callback) {
   var data = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : null;
   var headers = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : {};
   var deleteHeaders = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : [];
+  arguments.length > 7 && arguments[7] !== undefined ? arguments[7] : false;
   if (typeof window === 'undefined') return null;
   var xhr = new XMLHttpRequest();
   xhr.onreadystatechange = function () {

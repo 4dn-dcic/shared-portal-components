@@ -94,7 +94,7 @@ function setHeaders(xhr, headers = {}, deleteHeaders = []) {
 }
 
 
-export function load(url, callback, method = 'GET', fallback = null, data = null, headers = {}, deleteHeaders = []){
+export function load(url, callback, method = 'GET', fallback = null, data = null, headers = {}, deleteHeaders = [], sync = false){
     if (typeof window === 'undefined') return null;
 
     var xhr = new XMLHttpRequest();

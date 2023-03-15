@@ -57,39 +57,6 @@ export var LoginController = /*#__PURE__*/function (_React$PureComponent) {
     return _this;
   }
   _createClass(LoginController, [{
-    key: "getDefaultProps",
-    value: function getDefaultProps() {
-      // Login / logout actions must be deferred until Auth0 is ready.
-      return {
-        'auth0Options': {
-          auth: {
-            sso: false,
-            redirect: false,
-            responseType: 'token',
-            params: {
-              scope: 'openid email',
-              prompt: 'select_account'
-            }
-          },
-          socialButtonStyle: 'big',
-          theme: {
-            logo: '/static/img/4dn_logo.svg',
-            icon: '/static/img/4dn_logo.svg',
-            primaryColor: '#009aad'
-          },
-          allowedConnections: ['github', 'google-oauth2', 'partners'],
-          languageDictionary: {
-            title: 'Log In',
-            emailInputPlaceholder: 'email@partners.org',
-            databaseEnterpriseAlternativeLoginInstructions: 'or login via Partners'
-          }
-        },
-        'onLogin': function onLogin(profile) {
-          console.log("Logged in", profile);
-        }
-      };
-    }
-  }, {
     key: "componentDidMount",
     value: function componentDidMount() {
       var _this2 = this;
@@ -272,7 +239,7 @@ export var LoginController = /*#__PURE__*/function (_React$PureComponent) {
       // First stage: we just have gotten JWT from the Auth0 widget but have not auth'd it against it our own system
       // to see if this is a valid user account or some random person who just logged into their Google account.
       var idToken = authResult.idToken;
-
+      console.log('calling auth0LoginCallback');
       // Server will ensure that we have a validly signed JWT token/cookie and that the user account exists in system.
       this.validateCookieAndObtainAdditionalUserInfo(idToken, null, function (error) {
         console.error(error);
@@ -403,6 +370,35 @@ _defineProperty(LoginController, "propTypes", {
   'id': PropTypes.string,
   'auth0Options': PropTypes.object,
   'children': PropTypes.node.isRequired
+});
+_defineProperty(LoginController, "defaultProps", {
+  // Login / logout actions must be deferred until Auth0 is ready.
+  'auth0Options': {
+    auth: {
+      sso: false,
+      redirect: false,
+      responseType: 'token',
+      params: {
+        scope: 'openid email',
+        prompt: 'select_account'
+      }
+    },
+    socialButtonStyle: 'big',
+    theme: {
+      logo: '/static/img/4dn_logo.svg',
+      icon: '/static/img/4dn_logo.svg',
+      primaryColor: '#009aad'
+    },
+    allowedConnections: ['github', 'google-oauth2', 'partners'],
+    languageDictionary: {
+      title: 'Log In',
+      emailInputPlaceholder: 'email@partners.org',
+      databaseEnterpriseAlternativeLoginInstructions: 'or login via Partners'
+    }
+  },
+  'onLogin': function onLogin(profile) {
+    console.log("Logged in", profile);
+  }
 });
 export function performLogout() {
   // Grab here, gets deleted at end of response.

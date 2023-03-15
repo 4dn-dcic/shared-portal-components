@@ -3,6 +3,7 @@ import memoize from 'memoize-one';
 import { isServerSide, storeExists } from './misc';
 import { patchedConsoleInstance as console } from './patched-console';
 import { getNestedProperty } from './object';
+import { fetch, load } from './ajax';
 
 /** Used for serverside */
 var dummyStorage = {};
@@ -47,7 +48,22 @@ export function getUserGroups() {
 export function getUserInfo() {
   try {
     if (storeExists()) {
-      return JSON.parse(localStorage.getItem('user_info'));
+      var result = JSON.parse(localStorage.getItem('user_info'));
+      if (result === null) {
+        var xhr = load('/session-properties', function (response) {
+          return response;
+        }, 'GET', function () {
+          return null;
+        }, null, {}, [], true);
+        if (xhr.status === 401) {
+          return null;
+        } else {
+          var parsedUserInfo = JSON.parse(xhr.response);
+          saveUserInfoLocalStorage(parsedUserInfo);
+          return parsedUserInfo;
+        }
+      }
+      return result;
     } else {
       return JSON.parse(dummyStorage.user_info);
     }

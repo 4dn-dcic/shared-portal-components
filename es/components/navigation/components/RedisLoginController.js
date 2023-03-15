@@ -1,11 +1,9 @@
-import _objectWithoutProperties from "@babel/runtime/helpers/objectWithoutProperties";
 import _defineProperty from "@babel/runtime/helpers/defineProperty";
 import _classCallCheck from "@babel/runtime/helpers/classCallCheck";
 import _createClass from "@babel/runtime/helpers/createClass";
 import _inherits from "@babel/runtime/helpers/inherits";
 import _possibleConstructorReturn from "@babel/runtime/helpers/possibleConstructorReturn";
 import _getPrototypeOf from "@babel/runtime/helpers/getPrototypeOf";
-var _excluded = ["children"];
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
@@ -43,22 +41,15 @@ export var RedisLoginController = /*#__PURE__*/function (_LoginController) {
       ajaxPromise("/auth0_config").then(function (_ref) {
         var auth0Client = _ref.auth0Client,
           auth0Domain = _ref.auth0Domain,
-          auth0Options = _ref.auth0Options,
-          callback = _ref.callback;
-        console.log("grabbing auth0 config");
+          auth0Options = _ref.auth0Options;
+        console.log("calling componentDidMount");
         if (!auth0Client || !auth0Domain) {
           // This will never happen unless network is down or issue with the orchestration... might be worth throwing an error (?)
           return; // Skip setting "isAuth0LibraryLoaded": true, idk.
         }
 
-        var options = _objectSpread({}, auth0OptionsFallback);
-        options['auth']['redirectUrl'] = callback;
-        options['auth']['responseType'] = 'code';
-        options['auth']['redirect'] = true;
+        var options = _objectSpread(_objectSpread({}, auth0OptionsFallback), auth0Options);
         var createLock = function () {
-          console.log(_this.props);
-          console.log("trying to create lock");
-          console.log(options);
           _this.lock = new Auth0Lock(auth0Client, auth0Domain, options);
           _this.lock.on("authenticated", _this.validateCookieAndObtainAdditionalUserInfo);
           setTimeout(function () {
@@ -102,6 +93,7 @@ export var RedisLoginController = /*#__PURE__*/function (_LoginController) {
         updateAppSessionState = _this$props.updateAppSessionState,
         _this$props$onLogin = _this$props.onLogin,
         onLogin = _this$props$onLogin === void 0 ? null : _this$props$onLogin;
+      console.log('calling validateCookieAndObtainAdditionalUserInfo');
       this.setState({
         "isLoading": true
       }, function () {
@@ -112,7 +104,7 @@ export var RedisLoginController = /*#__PURE__*/function (_LoginController) {
         Promise.race([
         // Server will save as httpOnly cookie.
         fetch('/callback', {
-          method: "POST",
+          method: "GET",
           body: JSON.stringify({
             "code": token
           })
@@ -127,7 +119,7 @@ export var RedisLoginController = /*#__PURE__*/function (_LoginController) {
           var _ref3$saved_cookie = _ref3.saved_cookie,
             saved_cookie = _ref3$saved_cookie === void 0 ? false : _ref3$saved_cookie;
           if (!saved_cookie) {
-            throw new Error("Couldn't set session in /login");
+            throw new Error("Couldn't set session in /callback");
           }
           // This should return a 401 error if user not found, to caught and handled as 'unregistered user'
           return fetch("/session-properties");
@@ -210,63 +202,6 @@ export var RedisLoginController = /*#__PURE__*/function (_LoginController) {
         });
       });
     }
-  }, {
-    key: "render",
-    value: function render() {
-      var _this$props2 = this.props,
-        children = _this$props2.children,
-        passProps = _objectWithoutProperties(_this$props2, _excluded);
-      var _this$state = this.state,
-        isLoading = _this$state.isLoading,
-        isAuth0LibraryLoaded = _this$state.isAuth0LibraryLoaded,
-        unverifiedUserEmail = _this$state.unverifiedUserEmail;
-      var childProps = _objectSpread(_objectSpread({}, passProps), {}, {
-        isLoading: isLoading,
-        unverifiedUserEmail: unverifiedUserEmail,
-        isAuth0LibraryLoaded: isAuth0LibraryLoaded,
-        "showLock": this.showLock
-      });
-      if (unverifiedUserEmail) {
-        // aka in registration mode.
-        childProps.onRegistrationComplete = this.onRegistrationCompleteBoundWithToken;
-        childProps.onRegistrationCancel = this.onRegistrationCancel;
-      }
-      return React.Children.map(children, function (child) {
-        if (! /*#__PURE__*/React.isValidElement(child) || typeof child.type === "string") {
-          return child;
-        }
-        return /*#__PURE__*/React.cloneElement(child, childProps);
-      });
-    }
   }]);
   return RedisLoginController;
 }(LoginController);
-RedisLoginController.defaultProps = {
-  // Login / logout actions must be deferred until Auth0 is ready.
-  'auth0Options': {
-    auth: {
-      sso: false,
-      redirect: true,
-      responseType: 'code',
-      params: {
-        scope: 'openid email',
-        prompt: 'select_account'
-      }
-    },
-    socialButtonStyle: 'big',
-    theme: {
-      logo: '/static/img/4dn_logo.svg',
-      icon: '/static/img/4dn_logo.svg',
-      primaryColor: '#009aad'
-    },
-    allowedConnections: ['github', 'google-oauth2', 'partners'],
-    languageDictionary: {
-      title: 'Log In',
-      emailInputPlaceholder: 'email@partners.org',
-      databaseEnterpriseAlternativeLoginInstructions: 'or login via Partners'
-    }
-  },
-  'onLogin': function onLogin(profile) {
-    console.log("Logged in", profile);
-  }
-};
