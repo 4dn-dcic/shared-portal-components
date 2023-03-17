@@ -444,3 +444,26 @@ export class LogoutController extends React.PureComponent {
     }
 
 }
+
+/**
+ * Component that essentially handles the "callback" interaction previously done by
+ * the UI. The interaction in the Redis state now proceeds as follows:
+ *      1. The UI renders the Auth0Lock component in 'code' mode
+ *      2. The user logs in via the Auth0Lock and transmits the code to the back-end 
+ *         via GET /callback?code=abcdefg...
+ *      3. The back-end calls into Auth0 to get JWT and returns a session token to
+ *         the browser, redirecting the client to /login-success
+ *      4. This component loads, triggering the acquisition of /session-properties
+ *         and thus the population of the user_info in local storage
+ */
+export default class LoginSuccessView extends React.PureComponent {
+
+    render() {
+        console.log('rendering login success view');
+        return (
+          <div>
+            <h2>Login Successful</h2>
+          </div>
+        );
+      }
+}

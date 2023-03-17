@@ -497,3 +497,32 @@ export var LogoutController = /*#__PURE__*/function (_React$PureComponent2) {
   }]);
   return LogoutController;
 }(React.PureComponent);
+
+/**
+ * Component that essentially handles the "callback" interaction previously done by
+ * the UI. The interaction in the Redis state now proceeds as follows:
+ *      1. The UI renders the Auth0Lock component in 'code' mode
+ *      2. The user logs in via the Auth0Lock and transmits the code to the back-end 
+ *         via GET /callback?code=abcdefg...
+ *      3. The back-end calls into Auth0 to get JWT and returns a session token to
+ *         the browser, redirecting the client to /login-success
+ *      4. This component loads, triggering the acquisition of /session-properties
+ *         and thus the population of the user_info in local storage
+ */
+var LoginSuccessView = /*#__PURE__*/function (_React$PureComponent3) {
+  _inherits(LoginSuccessView, _React$PureComponent3);
+  var _super3 = _createSuper(LoginSuccessView);
+  function LoginSuccessView() {
+    _classCallCheck(this, LoginSuccessView);
+    return _super3.apply(this, arguments);
+  }
+  _createClass(LoginSuccessView, [{
+    key: "render",
+    value: function render() {
+      console.log('rendering login success view');
+      return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h2", null, "Login Successful"));
+    }
+  }]);
+  return LoginSuccessView;
+}(React.PureComponent);
+export { LoginSuccessView as default };

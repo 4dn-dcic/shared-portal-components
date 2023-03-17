@@ -49,20 +49,25 @@ export function getUserInfo() {
   try {
     if (storeExists()) {
       var result = JSON.parse(localStorage.getItem('user_info'));
-      if (result === null) {
-        var xhr = load('/session-properties', function (response) {
-          return response;
-        }, 'GET', function () {
-          return null;
-        }, null, {}, [], true);
-        if (xhr.status === 401) {
-          return null;
-        } else {
-          var parsedUserInfo = JSON.parse(xhr.response);
-          saveUserInfoLocalStorage(parsedUserInfo);
-          return parsedUserInfo;
-        }
-      }
+      // if (result === null) {
+      //     console.log('trying to get session properties');
+      //     let xhr = load('/session-properties', (response)=>{
+      //         return response;
+      //     }, 'GET', () => {
+      //         return null;
+      //     }, null, {}, [], true);
+      //     if (xhr.status === 401) {
+      //         console.log('returning null session properties');
+      //         return null;
+      //     }
+      //     else {
+      //         let parsedUserInfo = JSON.parse(xhr.response);
+      //         saveUserInfoLocalStorage(parsedUserInfo);
+      //         console.log('returning parsed userinfo', parsedUserInfo);
+      //         return parsedUserInfo;
+      //     }
+      // }
+      console.log('returning non-null userinfo', result);
       return result;
     } else {
       return JSON.parse(dummyStorage.user_info);
