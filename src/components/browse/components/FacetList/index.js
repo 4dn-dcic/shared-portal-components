@@ -291,10 +291,16 @@ export class FacetList extends React.PureComponent {
             }
 
             if (aggregation_type === "terms"){
-                const termsSelectedCount = activeTermCountByField[facetField] || 0; // countTermsSelected(facet.terms, facet, filters);
+                // Account for omitted fields; ensure a facet with the cleaned field is passed in
+                const cleanFacet = { ...facet };
+                const lastCharIdx = facetField.length - 1;
+                const cleanField = facetField.charAt(lastCharIdx) === "!" ? facetField.slice(0, lastCharIdx) : facetField;
+                cleanFacet.field = cleanField;
+
+                const termsSelectedCount = activeTermCountByField[cleanField] || 0; // countTermsSelected(facet.terms, facet, filters);
                 const anySelected = termsSelectedCount !== 0;
                 const isStatic = !anySelected && facet.terms.length === 1;
-                return <TermsFacet {...props} {...{ isStatic, grouping, termsSelectedCount, facet, including }} key={facetField} anyTermsSelected={anySelected} />;
+                return <TermsFacet {...props} facet={cleanFacet} {...{ isStatic, grouping, termsSelectedCount, including }} key={facetField} anyTermsSelected={anySelected} />;
             }
 
             throw new Error("Unknown aggregation_type");

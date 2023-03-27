@@ -669,14 +669,19 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
           }));
         }
         if (aggregation_type === "terms") {
-          var termsSelectedCount = activeTermCountByField[facetField] || 0; // countTermsSelected(facet.terms, facet, filters);
+          // Account for omitted fields; ensure a facet with the cleaned field is passed in
+          var cleanFacet = _objectSpread({}, facet);
+          var lastCharIdx = facetField.length - 1;
+          var cleanField = facetField.charAt(lastCharIdx) === "!" ? facetField.slice(0, lastCharIdx) : facetField;
+          cleanFacet.field = cleanField;
+          var termsSelectedCount = activeTermCountByField[cleanField] || 0; // countTermsSelected(facet.terms, facet, filters);
           var _anySelected = termsSelectedCount !== 0;
           var _isStatic = !_anySelected && facet.terms.length === 1;
           return /*#__PURE__*/React.createElement(TermsFacet, _extends({}, props, {
+            facet: cleanFacet,
             isStatic: _isStatic,
             grouping: grouping,
             termsSelectedCount: termsSelectedCount,
-            facet: facet,
             including: including,
             key: facetField,
             anyTermsSelected: _anySelected
