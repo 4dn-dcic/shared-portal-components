@@ -340,8 +340,19 @@ export function htmlToJSX(htmlString) {
   } else {
     domPurifyInstance = createDOMPurify;
   }
+
+  // https://github.com/cure53/DOMPurify/blob/main/demos/hooks-target-blank-demo.html
+  domPurifyInstance.addHook('afterSanitizeAttributes', function (node) {
+    // set all elements owning target to target=_blank
+    if (node && node.target && node.target !== "") {
+      node.setAttribute('target', '_blank');
+      // prevent https://www.owasp.org/index.php/Reverse_Tabnabbing
+      node.setAttribute('rel', 'noopener noreferrer');
+    }
+  });
   var sanitizedHtmlString = domPurifyInstance.sanitize(htmlString, {
-    FORBID_TAGS: ['script']
+    FORBID_TAGS: ['script'],
+    ADD_ATTR: ['target']
   });
   try {
     jsxOutput = parseDOM(sanitizedHtmlString, {

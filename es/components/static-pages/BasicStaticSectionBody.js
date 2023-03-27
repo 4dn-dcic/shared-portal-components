@@ -14,9 +14,10 @@ export var BasicStaticSectionBody = /*#__PURE__*/React.memo(function (props) {
     markdownCompilerOptions = props.markdownCompilerOptions,
     placeholderReplacementFxn = props.placeholderReplacementFxn,
     passProps = _objectWithoutProperties(props, _excluded);
-  if (filetype === 'md' && typeof content === 'string') {
+  //In some cases, markdown to html conversion is handled by backend by assigning the content_as_html. For the rest, use markdown-to-jsx compiler.
+  if (filetype === 'md' && typeof content === 'string' && !content_as_html) {
     return /*#__PURE__*/React.createElement(element, passProps, compiler(content, markdownCompilerOptions || undefined));
-  } else if ((filetype === 'html' || filetype === 'rst') && (typeof content_as_html === 'string' || typeof content === 'string')) {
+  } else if ((filetype === 'html' || filetype === 'rst' || filetype === 'md') && (typeof content_as_html === 'string' || typeof content === 'string')) {
     return /*#__PURE__*/React.createElement(element, passProps, htmlToJSX(content_as_html || content));
   } else if (filetype === 'jsx' && typeof content === 'string') {
     return placeholderReplacementFxn(content.trim(), passProps);
