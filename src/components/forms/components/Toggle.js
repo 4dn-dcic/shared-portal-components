@@ -44,11 +44,9 @@ export const IconToggle = function IconToggle(props){
 
     const renderedOptions = options.map(function(opt, optIdx){
         const { title, disabled, onClick, dataTip, btnCls = "btn-sm" } = opt;
-        const padding = optIdx === 0 ? "pl-05" :
-            optIdx === options.length - 1 ? "pr-05": "px-05";
 
         return (
-            <div className={"flex-grow-1 " + padding} data-tip={dataTip} key={optIdx}>
+            <div className="flex-grow-1" data-tip={dataTip} key={optIdx}>
                 <button type="button" {...{ onClick, disabled }} aria-pressed={activeIdx === optIdx}
                     className={"btn btn-" + (activeIdx === optIdx ? "primary-dark active pe-none" : "link") + " " + btnCls}>
                     { title }

@@ -63,9 +63,8 @@ export var IconToggle = function (props) {
       dataTip = opt.dataTip,
       _opt$btnCls = opt.btnCls,
       btnCls = _opt$btnCls === void 0 ? "btn-sm" : _opt$btnCls;
-    var padding = optIdx === 0 ? "pl-05" : optIdx === options.length - 1 ? "pr-05" : "px-05";
     return /*#__PURE__*/React.createElement("div", {
-      className: "flex-grow-1 " + padding,
+      className: "flex-grow-1",
       "data-tip": dataTip,
       key: optIdx
     }, /*#__PURE__*/React.createElement("button", {
