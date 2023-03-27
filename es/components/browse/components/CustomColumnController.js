@@ -8,15 +8,10 @@ import _possibleConstructorReturn from "@babel/runtime/helpers/possibleConstruct
 import _getPrototypeOf from "@babel/runtime/helpers/getPrototypeOf";
 import _defineProperty from "@babel/runtime/helpers/defineProperty";
 var _excluded = ["children", "hiddenColumns", "columnDefinitions", "filterColumnFxn"];
-
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-
 function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
-
 function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
-
 import React from 'react';
 import PropTypes from 'prop-types';
 import memoize from 'memoize-one';
@@ -24,6 +19,7 @@ import _ from 'underscore';
 import ReactTooltip from 'react-tooltip';
 import { Checkbox } from './../../forms/components/Checkbox';
 import { listToObj } from './../../util/object';
+
 /**
  * This component stores an object of `hiddenColumns` in state which contains field names as keys and booleans as values.
  * This, along with functions `addHiddenColumn(field: string)` and `removeHiddenColumn(field: string)`, are passed down to
@@ -33,19 +29,14 @@ import { listToObj } from './../../util/object';
  *
  * @prop {Object.<boolean>} [defaultHiddenColumns] - Initial hidden columns state object, if any.
  */
-
 export var CustomColumnController = /*#__PURE__*/function (_React$Component) {
   _inherits(CustomColumnController, _React$Component);
-
   var _super = _createSuper(CustomColumnController);
-
   function CustomColumnController(props) {
     var _this;
-
     _classCallCheck(this, CustomColumnController);
-
-    _this = _super.call(this, props); //this.getResetWidths = this.getResetWidths.bind(this);
-
+    _this = _super.call(this, props);
+    //this.getResetWidths = this.getResetWidths.bind(this);
     _this.setColumnWidths = _this.setColumnWidths.bind(_assertThisInitialized(_this));
     _this.addHiddenColumn = _this.addHiddenColumn.bind(_assertThisInitialized(_this));
     _this.removeHiddenColumn = _this.removeHiddenColumn.bind(_assertThisInitialized(_this));
@@ -60,21 +51,17 @@ export var CustomColumnController = /*#__PURE__*/function (_React$Component) {
     };
     return _this;
   }
-
   _createClass(CustomColumnController, [{
     key: "componentDidUpdate",
     value: function componentDidUpdate(pastProps, pastState) {
       var defaultHiddenColumns = this.props.defaultHiddenColumns;
       var hiddenColumns = this.state.hiddenColumns;
-
       if (pastProps.defaultHiddenColumns !== defaultHiddenColumns) {
         this.setState({
           "hiddenColumns": _.clone(defaultHiddenColumns || {})
         }); // Reset state.hiddenColumns.
-
         return;
       }
-
       if (hiddenColumns !== pastState.hiddenColumns) {
         setTimeout(ReactTooltip.rebuild, 0);
       }
@@ -91,11 +78,9 @@ export var CustomColumnController = /*#__PURE__*/function (_React$Component) {
     value: function addHiddenColumn(field) {
       this.setState(function (_ref) {
         var currHiddenColumns = _ref.hiddenColumns;
-
         if (currHiddenColumns[field] === true) {
           return null;
         }
-
         return {
           hiddenColumns: _objectSpread(_objectSpread({}, currHiddenColumns), {}, _defineProperty({}, field, true))
         };
@@ -106,13 +91,10 @@ export var CustomColumnController = /*#__PURE__*/function (_React$Component) {
     value: function removeHiddenColumn(field) {
       this.setState(function (_ref2) {
         var currHiddenColumns = _ref2.hiddenColumns;
-
         if (currHiddenColumns[field] === false) {
           return null;
         }
-
         var hiddenColumns = _objectSpread({}, currHiddenColumns);
-
         delete hiddenColumns[field];
         return {
           hiddenColumns: hiddenColumns
@@ -123,25 +105,21 @@ export var CustomColumnController = /*#__PURE__*/function (_React$Component) {
     key: "render",
     value: function render() {
       var _this$props = this.props,
-          children = _this$props.children,
-          _this$props$hiddenCol = _this$props.hiddenColumns,
-          alwaysHiddenColsList = _this$props$hiddenCol === void 0 ? [] : _this$props$hiddenCol,
-          allColumnDefinitions = _this$props.columnDefinitions,
-          filterColumnFxn = _this$props.filterColumnFxn,
-          remainingProps = _objectWithoutProperties(_this$props, _excluded);
-
+        children = _this$props.children,
+        _this$props$hiddenCol = _this$props.hiddenColumns,
+        alwaysHiddenColsList = _this$props$hiddenCol === void 0 ? [] : _this$props$hiddenCol,
+        allColumnDefinitions = _this$props.columnDefinitions,
+        filterColumnFxn = _this$props.filterColumnFxn,
+        remainingProps = _objectWithoutProperties(_this$props, _excluded);
       var _this$state = this.state,
-          hiddenColumns = _this$state.hiddenColumns,
-          columnWidths = _this$state.columnWidths;
-
+        hiddenColumns = _this$state.hiddenColumns,
+        columnWidths = _this$state.columnWidths;
       if (! /*#__PURE__*/React.isValidElement(children)) {
         throw new Error('CustomColumnController expects props.children to be a valid React component instance.');
       }
-
       var alwaysHiddenCols = Array.isArray(alwaysHiddenColsList) ? this.memoized.hiddenColsListToObj(alwaysHiddenColsList) : null;
       var columnDefinitions = this.memoized.filterOutPropHiddenCols(allColumnDefinitions, alwaysHiddenCols, filterColumnFxn);
       var visibleColumnDefinitions = this.memoized.filterOutStateHiddenCols(columnDefinitions, hiddenColumns);
-
       var propsToPass = _objectSpread(_objectSpread({}, remainingProps), {}, {
         hiddenColumns: hiddenColumns,
         columnDefinitions: columnDefinitions,
@@ -151,7 +129,6 @@ export var CustomColumnController = /*#__PURE__*/function (_React$Component) {
         'addHiddenColumn': this.addHiddenColumn,
         'removeHiddenColumn': this.removeHiddenColumn
       });
-
       return React.Children.map(children, function (child) {
         return /*#__PURE__*/React.cloneElement(child, propsToPass);
       });
@@ -161,28 +138,22 @@ export var CustomColumnController = /*#__PURE__*/function (_React$Component) {
     value: function filterOutHiddenCols(columnDefinitions) {
       var hiddenColumns = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
       var filterColumnFxn = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
-
       if (hiddenColumns || typeof filterColumnFxn === "function") {
         return columnDefinitions.filter(function (colDef, i, a) {
           if (hiddenColumns && hiddenColumns[colDef.field] === true) {
             return false;
           }
-
           if (typeof filterColumnFxn === "function") {
             return filterColumnFxn(colDef, i, a);
           }
-
           return true;
         });
       }
-
       return columnDefinitions;
     }
   }]);
-
   return CustomColumnController;
 }(React.Component);
-
 _defineProperty(CustomColumnController, "propTypes", {
   "children": PropTypes.element,
   "columnDefinitions": PropTypes.arrayOf(PropTypes.shape({
@@ -190,17 +161,12 @@ _defineProperty(CustomColumnController, "propTypes", {
   })),
   "defaultHiddenColumns": PropTypes.object
 });
-
 export var CustomColumnSelector = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(CustomColumnSelector, _React$PureComponent);
-
   var _super2 = _createSuper(CustomColumnSelector);
-
   function CustomColumnSelector(props) {
     var _this2;
-
     _classCallCheck(this, CustomColumnSelector);
-
     _this2 = _super2.call(this, props);
     _this2.handleOptionVisibilityChange = _.throttle(_this2.handleOptionVisibilityChange.bind(_assertThisInitialized(_this2)), 300);
     _this2.memoized = {
@@ -208,17 +174,15 @@ export var CustomColumnSelector = /*#__PURE__*/function (_React$PureComponent) {
     };
     return _this2;
   }
-
   _createClass(CustomColumnSelector, [{
     key: "handleOptionVisibilityChange",
     value: function handleOptionVisibilityChange(evt) {
       evt.stopPropagation();
       var field = evt.target.value;
       var _this$props2 = this.props,
-          hiddenColumns = _this$props2.hiddenColumns,
-          removeHiddenColumn = _this$props2.removeHiddenColumn,
-          addHiddenColumn = _this$props2.addHiddenColumn;
-
+        hiddenColumns = _this$props2.hiddenColumns,
+        removeHiddenColumn = _this$props2.removeHiddenColumn,
+        addHiddenColumn = _this$props2.addHiddenColumn;
       if (hiddenColumns[field] === true) {
         removeHiddenColumn(field);
       } else {
@@ -229,10 +193,9 @@ export var CustomColumnSelector = /*#__PURE__*/function (_React$PureComponent) {
     key: "render",
     value: function render() {
       var _this3 = this;
-
       var _this$props3 = this.props,
-          columnDefinitions = _this$props3.columnDefinitions,
-          hiddenColumns = _this$props3.hiddenColumns;
+        columnDefinitions = _this$props3.columnDefinitions,
+        hiddenColumns = _this$props3.hiddenColumns;
       return /*#__PURE__*/React.createElement("div", {
         className: "row clearfix"
       }, this.memoized.columnDefinitionsWithHiddenState(columnDefinitions, hiddenColumns).map(function (colDef, idx, all) {
@@ -265,7 +228,6 @@ export var CustomColumnSelector = /*#__PURE__*/function (_React$PureComponent) {
       });
     }
   }]);
-
   return CustomColumnSelector;
 }(React.PureComponent);
 CustomColumnSelector.propTypes = {
@@ -275,21 +237,18 @@ CustomColumnSelector.propTypes = {
 };
 var ColumnOption = /*#__PURE__*/React.memo(function (props) {
   var hiddenState = props.hiddenState,
-      allColumns = props.allColumns,
-      field = props.field,
-      title = props.title,
-      description = props.description,
-      index = props.index,
-      handleOptionVisibilityChange = props.handleOptionVisibilityChange;
+    allColumns = props.allColumns,
+    field = props.field,
+    title = props.title,
+    description = props.description,
+    index = props.index,
+    handleOptionVisibilityChange = props.handleOptionVisibilityChange;
   var checked = !hiddenState;
-
   var sameTitleColExists = _.any(allColumns.slice(0, index).concat(allColumns.slice(index + 1)), {
     title: title
   });
-
   var className = "clickable" + (checked ? ' is-active' : '');
   var showDescription = description;
-
   if (sameTitleColExists) {
     if (!description) {
       showDescription = '<i class="icon icon-fw fas icon-code mr-07"></i><span class="text-300 text-monospace">' + field + '</span>';
@@ -297,7 +256,6 @@ var ColumnOption = /*#__PURE__*/React.memo(function (props) {
       showDescription += '<br/><i class="icon icon-fw fas icon-code mr-07"></i><span class="text-300 text-monospace">' + field + '</span>';
     }
   }
-
   return /*#__PURE__*/React.createElement("div", {
     className: "col-12 col-sm-6 col-lg-3 column-option",
     key: field,

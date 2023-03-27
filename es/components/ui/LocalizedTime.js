@@ -3,11 +3,8 @@ import _createClass from "@babel/runtime/helpers/createClass";
 import _inherits from "@babel/runtime/helpers/inherits";
 import _possibleConstructorReturn from "@babel/runtime/helpers/possibleConstructorReturn";
 import _getPrototypeOf from "@babel/runtime/helpers/getPrototypeOf";
-
 function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
-
 function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
-
 import React from 'react';
 import PropTypes from 'prop-types';
 import memoize from 'memoize-one';
@@ -17,14 +14,10 @@ import { enUS } from "date-fns/locale";
 import { isServerSide } from './../util/misc';
 export var LocalizedTime = /*#__PURE__*/function (_React$Component) {
   _inherits(LocalizedTime, _React$Component);
-
   var _super = _createSuper(LocalizedTime);
-
   function LocalizedTime(props) {
     var _this;
-
     _classCallCheck(this, LocalizedTime);
-
     _this = _super.call(this, props);
     _this.memoized = {
       getDateFns: memoize(function (dateFnsDate, timestamp) {
@@ -40,7 +33,6 @@ export var LocalizedTime = /*#__PURE__*/function (_React$Component) {
     };
     return _this;
   }
-
   _createClass(LocalizedTime, [{
     key: "componentDidMount",
     value: function componentDidMount() {
@@ -52,16 +44,15 @@ export var LocalizedTime = /*#__PURE__*/function (_React$Component) {
     key: "render",
     value: function render() {
       var _this$props = this.props,
-          formatType = _this$props.formatType,
-          dateTimeSeparator = _this$props.dateTimeSeparator,
-          localize = _this$props.localize,
-          customOutputFormat = _this$props.customOutputFormat,
-          className = _this$props.className,
-          dateFnsDate = _this$props.dateFnsDate,
-          timestamp = _this$props.timestamp;
+        formatType = _this$props.formatType,
+        dateTimeSeparator = _this$props.dateTimeSeparator,
+        localize = _this$props.localize,
+        customOutputFormat = _this$props.customOutputFormat,
+        className = _this$props.className,
+        dateFnsDate = _this$props.dateFnsDate,
+        timestamp = _this$props.timestamp;
       var mounted = this.state.mounted;
       var selfDateFns = this.memoized.getDateFns(dateFnsDate, timestamp);
-
       if (!mounted || isServerSide()) {
         return /*#__PURE__*/React.createElement("span", {
           className: className + ' utc'
@@ -73,7 +64,6 @@ export var LocalizedTime = /*#__PURE__*/function (_React$Component) {
       }
     }
   }]);
-
   return LocalizedTime;
 }(React.Component);
 LocalizedTime.propTypes = {
@@ -100,65 +90,53 @@ LocalizedTime.defaultProps = {
   className: "localized-date-time",
   localize: true
 };
+
 /**
  * @see https://date-fns.org/v2.28.0/docs/format
  */
-
 export function preset() {
   var formatType = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'date-md';
   var dateTimeSeparator = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : " ";
-
   function date(ft) {
     switch (ft) {
       case 'date-file':
         return "yyyy-MM-dd";
-
       case 'date-xs':
         // 11/03/2016 (for USA, localized for other places)
         return "P";
-
       case 'date-sm':
         // Nov 3rd, 2016
         return "MMM do, yyyy";
-
       case 'date-md':
         // November 3rd, 2016   (default)
         return "MMMM do, yyyy";
-
       case 'date-lg':
         // Thursday, November 3rd, 2016
         return "dddd, MMMM do, yyyy";
-
       case 'date-month':
         // November 2016
         return "MMMM yyyy";
-
       case 'date-year':
         // November 2016
         return "yyyy";
     }
   }
-
   function time(ft) {
     switch (ft) {
       case 'time-file':
         return "HH'h'-mm'm'";
-
       case 'time-xs':
         // 12pm
         return "haaa";
-
       case 'time-sm':
       case 'time-md':
         // 12:27pm
         return "h:mmaaa";
-
       case 'time-lg':
         // 12:27:34 pm
         return "h:mm:ss aaa";
     }
   }
-
   if (formatType.indexOf('date-time-') > -1) {
     return date(formatType.replace('time-', '')) + "'" + dateTimeSeparator.concat() + "'" + time(formatType.replace('date-', ''));
   } else if (formatType.indexOf('date-') > -1) {
@@ -166,9 +144,9 @@ export function preset() {
   } else if (formatType.indexOf('time-') > -1) {
     return time(formatType);
   }
-
   return null;
 }
+
 /**
  * Presets for date/time output formats for 4DN.
  * Uses bootstrap grid sizing name convention, so may utilize with responsiveGridState
@@ -179,7 +157,6 @@ export function preset() {
  * @param {string} [formatType] - Key for date/time format to display. Defaults to 'date-md'.
  * @param {string} [dateTimeSeparator] - Separator between date and time if formatting a date-time. Defaults to ' '.
  */
-
 export function format(timestamp) {
   var formatType = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'date-md';
   var dateTimeSeparator = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : " ";
@@ -193,19 +170,17 @@ export function display(dateObj) {
   var localize = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
   var customOutputFormat = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : null;
   var outputFormat;
-
   if (customOutputFormat) {
     outputFormat = customOutputFormat;
   } else {
     outputFormat = preset(formatType, dateTimeSeparator);
   }
-
   if (localize) {
     return localFormat(utcToZonedTime(dateObj), outputFormat);
   }
-
   return formatDate(dateObj, outputFormat);
 }
+
 /**
  * This function is meant to accept a UTC/GMT date string
  * and return a formatted version of it _without_ performing
@@ -216,33 +191,25 @@ export function display(dateObj) {
  * @param {boolean} [includeMonth] - If false, only year will be returned.
  * @return {string} Formatted year and possibly month.
  */
-
 export function formatPublicationDate(utcDate) {
   var includeMonth = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
   var includeDay = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
   var yearString, monthString, monthIndex, dayString, dayInteger;
-
   if (typeof utcDate !== 'string' || utcDate.length < 4) {
     throw new Error('Expected a date string.');
   }
-
   yearString = utcDate.slice(0, 4);
-
   if (includeMonth && utcDate.length >= 7) {
     monthString = utcDate.slice(5, 7);
     monthIndex = parseInt(monthString) - 1; // 0-based.
-
     monthString = enUS.localize.month(monthIndex);
-
     if (includeDay && utcDate.length >= 10) {
       dayString = utcDate.slice(8, 10);
       dayInteger = parseInt(dayString);
       dayString = enUS.localize.ordinalNumber(dayInteger);
       return monthString + ' ' + dayString + ', ' + yearString;
     }
-
     return monthString + ' ' + yearString;
   }
-
   return yearString;
 }

@@ -4,24 +4,21 @@ import _assertThisInitialized from "@babel/runtime/helpers/assertThisInitialized
 import _inherits from "@babel/runtime/helpers/inherits";
 import _possibleConstructorReturn from "@babel/runtime/helpers/possibleConstructorReturn";
 import _getPrototypeOf from "@babel/runtime/helpers/getPrototypeOf";
-
 function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
-
 function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
-
 import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
 import { SearchResultTable } from './../SearchResultTable';
 export var RightButtonsSection = /*#__PURE__*/React.memo(function (props) {
   var currentOpenPanel = props.currentOpenPanel,
-      onColumnsBtnClick = props.onColumnsBtnClick,
-      onMultiColumnSortBtnClick = props.onMultiColumnSortBtnClick,
-      windowWidth = props.windowWidth,
-      isFullscreen = props.isFullscreen,
-      toggleFullScreen = props.toggleFullScreen,
-      _props$showMultiColum = props.showMultiColumnSort,
-      showMultiColumnSort = _props$showMultiColum === void 0 ? true : _props$showMultiColum;
+    onColumnsBtnClick = props.onColumnsBtnClick,
+    onMultiColumnSortBtnClick = props.onMultiColumnSortBtnClick,
+    windowWidth = props.windowWidth,
+    isFullscreen = props.isFullscreen,
+    toggleFullScreen = props.toggleFullScreen,
+    _props$showMultiColum = props.showMultiColumnSort,
+    showMultiColumnSort = _props$showMultiColum === void 0 ? true : _props$showMultiColum;
   return /*#__PURE__*/React.createElement("div", {
     className: "right-buttons col-auto"
   }, /*#__PURE__*/React.createElement(ConfigureVisibleColumnsButton, {
@@ -38,8 +35,8 @@ export var RightButtonsSection = /*#__PURE__*/React.memo(function (props) {
 });
 export var ConfigureVisibleColumnsButton = /*#__PURE__*/React.memo(function (_ref) {
   var open = _ref.open,
-      onClick = _ref.onClick,
-      className = _ref.className;
+    onClick = _ref.onClick,
+    className = _ref.className;
   return /*#__PURE__*/React.createElement("button", {
     type: "button",
     key: "toggle-visible-columns",
@@ -59,8 +56,8 @@ ConfigureVisibleColumnsButton.defaultProps = {
 };
 export var MultiColumnSortButton = /*#__PURE__*/React.memo(function (_ref2) {
   var open = _ref2.open,
-      onClick = _ref2.onClick,
-      className = _ref2.className;
+    onClick = _ref2.onClick,
+    className = _ref2.className;
   return /*#__PURE__*/React.createElement("button", {
     type: "button",
     key: "toggle-visible-columns",
@@ -78,45 +75,38 @@ export var MultiColumnSortButton = /*#__PURE__*/React.memo(function (_ref2) {
 MultiColumnSortButton.defaultProps = {
   "className": "btn btn-outline-primary"
 };
-/** Toggles between regular & full screen views */
 
+/** Toggles between regular & full screen views */
 export var ToggleLayoutButton = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(ToggleLayoutButton, _React$PureComponent);
-
   var _super = _createSuper(ToggleLayoutButton);
-
   function ToggleLayoutButton(props) {
     var _this;
-
     _classCallCheck(this, ToggleLayoutButton);
-
     _this = _super.call(this, props);
     _this.handleLayoutToggle = _.throttle(_this.handleLayoutToggle.bind(_assertThisInitialized(_this)), 350);
     return _this;
   }
-
   _createClass(ToggleLayoutButton, [{
     key: "handleLayoutToggle",
     value: function handleLayoutToggle() {
       var _this$props = this.props,
-          windowWidth = _this$props.windowWidth,
-          isFullscreen = _this$props.isFullscreen,
-          toggleFullScreen = _this$props.toggleFullScreen;
+        windowWidth = _this$props.windowWidth,
+        isFullscreen = _this$props.isFullscreen,
+        toggleFullScreen = _this$props.toggleFullScreen;
       if (!SearchResultTable.isDesktopClientside(windowWidth)) return null;
-
       if (typeof toggleFullScreen !== 'function') {
         console.error('No toggleFullscreen function passed in.');
         return null;
       }
-
       setTimeout(toggleFullScreen, 0, !isFullscreen);
     }
   }, {
     key: "render",
     value: function render() {
       var _this$props2 = this.props,
-          isFullscreen = _this$props2.isFullscreen,
-          className = _this$props2.className;
+        isFullscreen = _this$props2.isFullscreen,
+        className = _this$props2.className;
       var cls = className + " expand-layout-button" + (!isFullscreen ? '' : ' expanded');
       return /*#__PURE__*/React.createElement("button", {
         type: "button",
@@ -130,7 +120,6 @@ export var ToggleLayoutButton = /*#__PURE__*/function (_React$PureComponent) {
       }, !isFullscreen ? "Full Screen" : "Collapse Table Width"));
     }
   }]);
-
   return ToggleLayoutButton;
 }(React.PureComponent);
 ToggleLayoutButton.propTypes = {

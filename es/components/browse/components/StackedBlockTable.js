@@ -6,20 +6,19 @@ import _inherits from "@babel/runtime/helpers/inherits";
 import _possibleConstructorReturn from "@babel/runtime/helpers/possibleConstructorReturn";
 import _getPrototypeOf from "@babel/runtime/helpers/getPrototypeOf";
 import _defineProperty from "@babel/runtime/helpers/defineProperty";
-
 function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
-
 function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
-
 import React from 'react';
 import PropTypes from 'prop-types';
 import memoize from 'memoize-one';
 import _ from 'underscore';
 import Collapse from 'react-bootstrap/esm/Collapse';
 import ReactTooltip from 'react-tooltip';
-import { object, typedefs } from './../../util'; // eslint-disable-next-line no-unused-vars
+import { object, typedefs } from './../../util';
 
+// eslint-disable-next-line no-unused-vars
 var Item = typedefs.Item;
+
 /**
  * @todo:
  * - improve/cleanup code
@@ -30,10 +29,10 @@ var Item = typedefs.Item;
 
 export function StackedBlockNameLabel(props) {
   var title = props.title,
-      subtitle = props.subtitle,
-      accession = props.accession,
-      className = props.className,
-      subtitleVisible = props.subtitleVisible;
+    subtitle = props.subtitle,
+    accession = props.accession,
+    className = props.className,
+    subtitleVisible = props.subtitleVisible;
   var cls = "label-ext-info" + (className ? ' ' + className : '') + (subtitle || accession ? ' has-subtitle' : '') + (subtitleVisible ? ' subtitle-visible' : '');
   return /*#__PURE__*/React.createElement("div", {
     className: cls,
@@ -56,30 +55,26 @@ StackedBlockNameLabel.propTypes = {
   // Pass in place of or in addition to subtitle (takes precedence).
   'accession': PropTypes.string
 };
-/** Name element to be put inside of StackedBlocks as the first child. */
 
+/** Name element to be put inside of StackedBlocks as the first child. */
 export var StackedBlockName = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(StackedBlockName, _React$PureComponent);
-
   var _super = _createSuper(StackedBlockName);
-
   function StackedBlockName() {
     _classCallCheck(this, StackedBlockName);
-
     return _super.apply(this, arguments);
   }
-
   _createClass(StackedBlockName, [{
     key: "render",
     value: function render() {
       var _this$props = this.props,
-          children = _this$props.children,
-          style = _this$props.style,
-          relativePosition = _this$props.relativePosition,
-          colWidthStyles = _this$props.colWidthStyles,
-          columnClass = _this$props.columnClass,
-          label = _this$props.label,
-          className = _this$props.className;
+        children = _this$props.children,
+        style = _this$props.style,
+        relativePosition = _this$props.relativePosition,
+        colWidthStyles = _this$props.colWidthStyles,
+        columnClass = _this$props.columnClass,
+        label = _this$props.label,
+        className = _this$props.className;
       var useStyle = {};
       var colWidthStyle = colWidthStyles[columnClass];
       if (style) _.extend(useStyle, style);
@@ -91,40 +86,33 @@ export var StackedBlockName = /*#__PURE__*/function (_React$PureComponent) {
       }, label, children);
     }
   }]);
-
   return StackedBlockName;
 }(React.PureComponent);
+
 /**
  * Button to toggle collapse/visible of longer StacedkBlockLists. Used in StackedBlockLists.
  */
-
 _defineProperty(StackedBlockName, "Label", StackedBlockNameLabel);
-
 export var StackedBlockListViewMoreButton = /*#__PURE__*/function (_React$PureComponent2) {
   _inherits(StackedBlockListViewMoreButton, _React$PureComponent2);
-
   var _super2 = _createSuper(StackedBlockListViewMoreButton);
-
   function StackedBlockListViewMoreButton() {
     _classCallCheck(this, StackedBlockListViewMoreButton);
-
     return _super2.apply(this, arguments);
   }
-
   _createClass(StackedBlockListViewMoreButton, [{
     key: "render",
     value: function render() {
       var _this$props2 = this.props,
-          collapsibleChildren = _this$props2.collapsibleChildren,
-          collapsed = _this$props2.collapsed,
-          title = _this$props2.title,
-          showMoreExtTitle = _this$props2.showMoreExtTitle,
-          handleCollapseToggle = _this$props2.handleCollapseToggle,
-          _this$props2$preventE = _this$props2.preventExpand,
-          preventExpand = _this$props2$preventE === void 0 ? false : _this$props2$preventE;
+        collapsibleChildren = _this$props2.collapsibleChildren,
+        collapsed = _this$props2.collapsed,
+        title = _this$props2.title,
+        showMoreExtTitle = _this$props2.showMoreExtTitle,
+        handleCollapseToggle = _this$props2.handleCollapseToggle,
+        _this$props2$preventE = _this$props2.preventExpand,
+        preventExpand = _this$props2$preventE === void 0 ? false : _this$props2$preventE;
       var collapsibleChildrenLen = collapsibleChildren.length;
       if (collapsibleChildrenLen === 0) return null;
-
       if (preventExpand) {
         // Show information label instead of button.
         return /*#__PURE__*/React.createElement("div", {
@@ -135,7 +123,6 @@ export var StackedBlockListViewMoreButton = /*#__PURE__*/function (_React$PureCo
           className: "ext text-400"
         }, " ", showMoreExtTitle) : null);
       }
-
       var titleStr = (collapsed ? preventExpand ? collapsibleChildrenLen + " More" : "Show ".concat(collapsibleChildrenLen, " More") : "Show Fewer") + (title ? ' ' + title : '');
       var cls = "view-more-button" + (preventExpand ? "" : " clickable");
       return /*#__PURE__*/React.createElement("div", {
@@ -148,32 +135,27 @@ export var StackedBlockListViewMoreButton = /*#__PURE__*/function (_React$PureCo
       }, " ", showMoreExtTitle) : null);
     }
   }]);
-
   return StackedBlockListViewMoreButton;
 }(React.PureComponent);
+
 /**
  * List which can be put inside a StackedBlock, after a StackedBlockName, and which holds other StackedBlocks.
  */
-
 _defineProperty(StackedBlockListViewMoreButton, "propTypes", {
   'collapsibleChildren': PropTypes.array,
   'collapsed': PropTypes.bool,
   'handleCollapseToggle': PropTypes.func,
   'preventExpand': PropTypes.bool,
-  'showMoreExtTitle': PropTypes.oneOfType([PropTypes.string, PropTypes.element]) // + those from parent .List
-
+  'showMoreExtTitle': PropTypes.oneOfType([PropTypes.string, PropTypes.element])
+  // + those from parent .List
 });
 
 export var StackedBlockList = /*#__PURE__*/function (_React$PureComponent3) {
   _inherits(StackedBlockList, _React$PureComponent3);
-
   var _super3 = _createSuper(StackedBlockList);
-
   function StackedBlockList(props) {
     var _this;
-
     _classCallCheck(this, StackedBlockList);
-
     _this = _super3.call(this, props);
     _this.adjustedChildren = _this.adjustedChildren.bind(_assertThisInitialized(_this));
     _this.handleCollapseToggle = _this.handleCollapseToggle.bind(_assertThisInitialized(_this));
@@ -183,18 +165,16 @@ export var StackedBlockList = /*#__PURE__*/function (_React$PureComponent3) {
     };
     return _this;
   }
-
   _createClass(StackedBlockList, [{
     key: "adjustedChildren",
     value: function adjustedChildren() {
       var _this2 = this;
-
       var _this$props3 = this.props,
-          children = _this$props3.children,
-          stackDepth = _this$props3.stackDepth,
-          colWidthStyles = _this$props3.colWidthStyles,
-          columnHeaders = _this$props3.columnHeaders,
-          columnClass = _this$props3.columnClass;
+        children = _this$props3.children,
+        stackDepth = _this$props3.stackDepth,
+        colWidthStyles = _this$props3.colWidthStyles,
+        columnHeaders = _this$props3.columnHeaders,
+        columnClass = _this$props3.columnClass;
       return React.Children.map(children, function (c) {
         //if (c.type.displayName !== 'StackedBlock') return c; // Only add props to StackedBlocks
         // TODO: TEST MIGRATION FROM _.PICK
@@ -202,20 +182,19 @@ export var StackedBlockList = /*#__PURE__*/function (_React$PureComponent3) {
           colWidthStyles: colWidthStyles,
           columnHeaders: columnHeaders,
           stackDepth: stackDepth + 1
-        }; //const childProps = _.pick(this.props, 'colWidthStyles', 'selectedFiles', 'columnHeaders', 'handleFileCheckboxChange');
+        };
+        //const childProps = _.pick(this.props, 'colWidthStyles', 'selectedFiles', 'columnHeaders', 'handleFileCheckboxChange');
 
         _.forEach(['collapseLongLists', 'collapseLimit', 'collapseShow', 'defaultCollapsed', 'incrementalExpandLimit'], function (prop) {
           if (typeof c.props[prop] === 'undefined') {
             childProps[prop] = _this2.props[prop] || null;
           }
         });
-
         _.forEach(_.keys(_this2.props), function (prop) {
           if (typeof c.props[prop] === 'undefined' && typeof childProps[prop] === 'undefined' && !StackedBlock.excludedPassedProps.has(prop)) {
             childProps[prop] = _this2.props[prop];
           }
         });
-
         return /*#__PURE__*/React.cloneElement(c, childProps, c.props.children);
       });
     }
@@ -249,26 +228,24 @@ export var StackedBlockList = /*#__PURE__*/function (_React$PureComponent3) {
     key: "render",
     value: function render() {
       var _this$props4 = this.props,
-          collapseLongLists = _this$props4.collapseLongLists,
-          stackDepth = _this$props4.stackDepth,
-          collapseLimit = _this$props4.collapseLimit,
-          collapseShow = _this$props4.collapseShow,
-          _this$props4$title = _this$props4.title,
-          title = _this$props4$title === void 0 ? 'Items' : _this$props4$title,
-          className = _this$props4.className,
-          colWidthStyles = _this$props4.colWidthStyles,
-          columnClass = _this$props4.columnClass,
-          preventExpand = _this$props4.preventExpand,
-          incrementalExpandLimit = _this$props4.incrementalExpandLimit,
-          incrementalExpandStep = _this$props4.incrementalExpandStep;
+        collapseLongLists = _this$props4.collapseLongLists,
+        stackDepth = _this$props4.stackDepth,
+        collapseLimit = _this$props4.collapseLimit,
+        collapseShow = _this$props4.collapseShow,
+        _this$props4$title = _this$props4.title,
+        title = _this$props4$title === void 0 ? 'Items' : _this$props4$title,
+        className = _this$props4.className,
+        colWidthStyles = _this$props4.colWidthStyles,
+        columnClass = _this$props4.columnClass,
+        preventExpand = _this$props4.preventExpand,
+        incrementalExpandLimit = _this$props4.incrementalExpandLimit,
+        incrementalExpandStep = _this$props4.incrementalExpandStep;
       var _this$state = this.state,
-          collapsed = _this$state.collapsed,
-          incrementalExpandVisibleCount = _this$state.incrementalExpandVisibleCount;
+        collapsed = _this$state.collapsed,
+        incrementalExpandVisibleCount = _this$state.incrementalExpandVisibleCount;
       var children = this.adjustedChildren();
       var useStyle = colWidthStyles["list:" + columnClass]; // columnClass here is of parent StackedBlock, not of its children.
-
       var cls = "s-block-list " + (className || '') + (' stack-depth-' + stackDepth);
-
       if (collapseLongLists === false || !Array.isArray(children) || children.length <= collapseLimit) {
         // Don't have enough items for collapsible element, return plain list.
         return /*#__PURE__*/React.createElement("div", {
@@ -276,12 +253,10 @@ export var StackedBlockList = /*#__PURE__*/function (_React$PureComponent3) {
           style: useStyle
         }, children);
       }
-
       var isIncrementalExpand = children.length > incrementalExpandLimit && !preventExpand;
       var collapsibleChildren = !isIncrementalExpand ? children.slice(collapseShow) : children.slice(collapseShow, incrementalExpandVisibleCount);
       var collapsibleChildrenLen = collapsibleChildren.length;
       var collapsibleChildrenElemsList;
-
       if (collapsibleChildrenLen > Math.min(collapseShow, 10) || isIncrementalExpand) {
         // Don't transition
         collapsibleChildrenElemsList = !collapsed || isIncrementalExpand && collapsibleChildrenLen > 0 ? /*#__PURE__*/React.createElement("div", {
@@ -294,12 +269,9 @@ export var StackedBlockList = /*#__PURE__*/function (_React$PureComponent3) {
           className: "collapsible-s-block-ext"
         }, collapsibleChildren));
       }
-
       var viewMoreButton = null;
-
       if (isIncrementalExpand) {
         var titleStr, nextCount;
-
         if (collapsibleChildrenLen + collapseShow >= children.length) {
           titleStr = "Show Fewer ".concat(title);
           nextCount = collapseShow;
@@ -310,7 +282,6 @@ export var StackedBlockList = /*#__PURE__*/function (_React$PureComponent3) {
           titleStr = "Show ".concat(incrementalExpandStep, " More ").concat(title, " (Total ").concat(children.length - collapsibleChildren.length - collapseShow, " ").concat(title, " to Show)");
           nextCount = incrementalExpandVisibleCount + incrementalExpandStep;
         }
-
         viewMoreButton = /*#__PURE__*/React.createElement("div", {
           className: "view-more-button clickable",
           onClick: this.handleIncrementalExpandClick.bind(this, nextCount)
@@ -324,7 +295,6 @@ export var StackedBlockList = /*#__PURE__*/function (_React$PureComponent3) {
           handleCollapseToggle: this.handleCollapseToggle
         }));
       }
-
       return /*#__PURE__*/React.createElement("div", {
         className: cls,
         "data-count-collapsed": collapsibleChildren.length,
@@ -332,12 +302,9 @@ export var StackedBlockList = /*#__PURE__*/function (_React$PureComponent3) {
       }, children.slice(0, collapseShow), collapsibleChildrenElemsList, viewMoreButton);
     }
   }]);
-
   return StackedBlockList;
 }(React.PureComponent);
-
 _defineProperty(StackedBlockList, "ViewMoreButton", StackedBlockListViewMoreButton);
-
 _defineProperty(StackedBlockList, "propTypes", {
   'showMoreExtTitle': PropTypes.oneOfType([PropTypes.string, PropTypes.element]),
   'collapseLimit': PropTypes.number,
@@ -350,35 +317,29 @@ _defineProperty(StackedBlockList, "propTypes", {
   'incrementalExpandLimit': PropTypes.number,
   'incrementalExpandStep': PropTypes.number
 });
-
 export var StackedBlock = /*#__PURE__*/function (_React$PureComponent4) {
   _inherits(StackedBlock, _React$PureComponent4);
-
   var _super4 = _createSuper(StackedBlock);
-
   /** TODO MAYBE USE HERE & ON LIST */
+
   function StackedBlock(props) {
     var _this3;
-
     _classCallCheck(this, StackedBlock);
-
     _this3 = _super4.call(this, props);
     _this3.adjustedChildren = _this3.adjustedChildren.bind(_assertThisInitialized(_this3));
     return _this3;
   }
-
   _createClass(StackedBlock, [{
     key: "adjustedChildren",
     value: function adjustedChildren() {
       var _this4 = this;
-
       var _this$props5 = this.props,
-          children = _this$props5.children,
-          columnClass = _this$props5.columnClass,
-          columnHeaders = _this$props5.columnHeaders,
-          label = _this$props5.label,
-          stackDepth = _this$props5.stackDepth,
-          colWidthStyles = _this$props5.colWidthStyles;
+        children = _this$props5.children,
+        columnClass = _this$props5.columnClass,
+        columnHeaders = _this$props5.columnHeaders,
+        label = _this$props5.label,
+        stackDepth = _this$props5.stackDepth,
+        colWidthStyles = _this$props5.colWidthStyles;
       return React.Children.map(children, function (c) {
         if (c === null) return null;
         var childProps = {
@@ -400,13 +361,11 @@ export var StackedBlock = /*#__PURE__*/function (_React$PureComponent4) {
             childProps[prop] = _this4.props[prop];
           }
         });
-
         _.forEach(_.keys(_this4.props), function (prop) {
           if (typeof c.props[prop] === 'undefined' && typeof childProps[prop] === 'undefined' && !StackedBlock.excludedPassedProps.has(prop)) {
             childProps[prop] = _this4.props[prop];
           }
         });
-
         if (_.keys(childProps).length > 0) {
           return /*#__PURE__*/React.cloneElement(c, childProps, c.props.children);
         } else return c;
@@ -416,21 +375,21 @@ export var StackedBlock = /*#__PURE__*/function (_React$PureComponent4) {
     key: "render",
     value: function render() {
       var _this$props6 = this.props,
-          columnClass = _this$props6.columnClass,
-          className = _this$props6.className,
-          stackDepth = _this$props6.stackDepth,
-          stripe = _this$props6.stripe,
-          hideNameOnHover = _this$props6.hideNameOnHover,
-          keepLabelOnHover = _this$props6.keepLabelOnHover;
+        columnClass = _this$props6.columnClass,
+        className = _this$props6.className,
+        stackDepth = _this$props6.stackDepth,
+        stripe = _this$props6.stripe,
+        hideNameOnHover = _this$props6.hideNameOnHover,
+        keepLabelOnHover = _this$props6.keepLabelOnHover;
       var classNames = ["s-block", "stack-depth-" + stackDepth, columnClass || null, hideNameOnHover ? ' hide-name-on-block-hover' : null, keepLabelOnHover ? ' keep-label-on-name-hover' : null, className || null, typeof stripe !== 'undefined' && stripe !== null ? stripe === true || stripe === "even" ? "even" : "odd" : null];
       return /*#__PURE__*/React.createElement("div", {
         className: _.filter(classNames).join(' ')
       }, this.adjustedChildren());
     }
   }]);
-
   return StackedBlock;
 }(React.PureComponent);
+
 /**
  * To be used within Experiments Set View/Page, or
  * within a collapsible row on the browse page.
@@ -441,23 +400,15 @@ export var StackedBlock = /*#__PURE__*/function (_React$PureComponent4) {
  * or for a parentController (passed in as a prop) to take over management
  * of "selectedFiles" Set and "checked", for integration with other pages/UI.
  */
-
 _defineProperty(StackedBlock, "Name", StackedBlockName);
-
 _defineProperty(StackedBlock, "List", StackedBlockList);
-
 _defineProperty(StackedBlock, "excludedPassedProps", new Set(['stripe', 'hideNameOnHover', 'keepLabelOnHover', 'className', 'children', 'showMoreExtTitle']));
-
 export var StackedBlockTable = /*#__PURE__*/function (_React$PureComponent5) {
   _inherits(StackedBlockTable, _React$PureComponent5);
-
   var _super5 = _createSuper(StackedBlockTable);
-
   function StackedBlockTable(props) {
     var _this5;
-
     _classCallCheck(this, StackedBlockTable);
-
     _this5 = _super5.call(this, props);
     _this5.adjustedChildren = _this5.adjustedChildren.bind(_assertThisInitialized(_this5));
     _this5.setCollapsingState = _.throttle(_this5.setCollapsingState.bind(_assertThisInitialized(_this5)));
@@ -470,7 +421,6 @@ export var StackedBlockTable = /*#__PURE__*/function (_React$PureComponent5) {
     };
     return _this5;
   }
-
   _createClass(StackedBlockTable, [{
     key: "componentDidMount",
     value: function componentDidMount() {
@@ -489,17 +439,16 @@ export var StackedBlockTable = /*#__PURE__*/function (_React$PureComponent5) {
     key: "adjustedChildren",
     value: function adjustedChildren() {
       var _this6 = this;
-
       var _this$props7 = this.props,
-          children = _this$props7.children,
-          columnHeaders = _this$props7.columnHeaders,
-          defaultInitialColumnWidth = _this$props7.defaultInitialColumnWidth;
+        children = _this$props7.children,
+        columnHeaders = _this$props7.columnHeaders,
+        defaultInitialColumnWidth = _this$props7.defaultInitialColumnWidth;
       var colWidthStyles = this.memoized.colWidthStyles(columnHeaders, defaultInitialColumnWidth);
       return React.Children.map(children, function (c) {
         // Includes handleFileCheckboxChange, selectedFiles, etc. if present
-        var addedProps = _.omit(_this6.props, 'columnHeaders', 'stackDepth', 'colWidthStyles', 'width'); // REQUIRED & PASSED DOWN TO STACKEDBLOCKLIST
+        var addedProps = _.omit(_this6.props, 'columnHeaders', 'stackDepth', 'colWidthStyles', 'width');
 
-
+        // REQUIRED & PASSED DOWN TO STACKEDBLOCKLIST
         addedProps.colWidthStyles = colWidthStyles;
         addedProps.stackDepth = 0;
         addedProps.columnHeaders = columnHeaders;
@@ -510,26 +459,24 @@ export var StackedBlockTable = /*#__PURE__*/function (_React$PureComponent5) {
     key: "render",
     value: function render() {
       var _this$props8 = this.props,
-          _this$props8$width = _this$props8.width,
-          width = _this$props8$width === void 0 ? 0 : _this$props8$width,
-          fadeIn = _this$props8.fadeIn,
-          columnHeaders = _this$props8.columnHeaders,
-          className = _this$props8.className,
-          children = _this$props8.children,
-          defaultInitialColumnWidth = _this$props8.defaultInitialColumnWidth;
+        _this$props8$width = _this$props8.width,
+        width = _this$props8$width === void 0 ? 0 : _this$props8$width,
+        fadeIn = _this$props8.fadeIn,
+        columnHeaders = _this$props8.columnHeaders,
+        className = _this$props8.className,
+        children = _this$props8.children,
+        defaultInitialColumnWidth = _this$props8.defaultInitialColumnWidth;
       var mounted = this.state.mounted;
-
       if (!children) {
         return /*#__PURE__*/React.createElement("h6", {
           className: "text-center text-400"
         }, /*#__PURE__*/React.createElement("em", null, "No Results"));
       }
-
       var totalColsWidth = this.memoized.totalColumnsMinWidth(columnHeaders, defaultInitialColumnWidth);
-      var minTotalWidth = Math.max(width, totalColsWidth); // Includes width, columnHeaders, defaultColumnWidth, [handleFileCheckboxChange, allFiles, selectedFiles, etc.] if present
+      var minTotalWidth = Math.max(width, totalColsWidth);
 
+      // Includes width, columnHeaders, defaultColumnWidth, [handleFileCheckboxChange, allFiles, selectedFiles, etc.] if present
       var tableHeaderProps = _.omit(this.props, 'fadeIn', 'className', 'children', 'stackDepth', 'colWidthStyles', 'width');
-
       return /*#__PURE__*/React.createElement("div", {
         style: {
           'width': minTotalWidth
@@ -557,51 +504,43 @@ export var StackedBlockTable = /*#__PURE__*/function (_React$PureComponent5) {
     key: "colWidthStyles",
     value: function colWidthStyles(columnHeaders, defaultInitialColumnWidth) {
       // { 'experiment' : { width } , 'biosample' : { width }, ... }
+
       var orderedMapList = columnHeaders.map(function (col) {
         var field = col.field,
-            title = col.title,
-            columnClass = col.columnClass,
-            initialWidth = col.initialWidth;
+          title = col.title,
+          columnClass = col.columnClass,
+          initialWidth = col.initialWidth;
         var width = initialWidth || defaultInitialColumnWidth;
         var key;
-
         if (columnClass === 'file-detail') {
           key = field || title || 'file-detail';
         } else {
           key = columnClass;
         }
-
         return [key, {
           flex: "1 0 " + width + "px",
           minWidth: width
         }];
       });
-
       var retObj = _.object(orderedMapList);
-
       columnHeaders.slice().reverse().reduce(function (m, col, idx) {
         var columnClass = col.columnClass,
-            initialWidth = col.initialWidth;
-
+          initialWidth = col.initialWidth;
         if (columnClass !== 'file-detail' && columnClass !== 'file') {
           retObj["list:" + columnClass] = {
             flex: "".concat(idx, " 0 ").concat(m, "px"),
             minWidth: m
           };
         }
-
         m += initialWidth || defaultInitialColumnWidth;
         return m;
       }, 0);
       return retObj;
     }
   }]);
-
   return StackedBlockTable;
 }(React.PureComponent);
-
 _defineProperty(StackedBlockTable, "StackedBlock", StackedBlock);
-
 _defineProperty(StackedBlockTable, "propTypes", {
   'columnHeaders': PropTypes.arrayOf(PropTypes.shape({
     'columnClass': PropTypes.string.isRequired,
@@ -612,7 +551,6 @@ _defineProperty(StackedBlockTable, "propTypes", {
   })).isRequired,
   'preventExpand': PropTypes.bool
 });
-
 _defineProperty(StackedBlockTable, "defaultProps", {
   'columnHeaders': [{
     columnClass: 'biosample',
@@ -645,35 +583,30 @@ _defineProperty(StackedBlockTable, "defaultProps", {
   'incrementalExpandStep': 100,
   'defaultCollapsed': true
 });
-
 function TableHeaders(props) {
   var columnHeaders = props.columnHeaders,
-      defaultInitialColumnWidth = props.defaultInitialColumnWidth;
-
+    defaultInitialColumnWidth = props.defaultInitialColumnWidth;
   var headers = _.map(columnHeaders, function (colHeader, index) {
     var field = colHeader.field,
-        title = colHeader.title,
-        vTitle = colHeader.visibleTitle,
-        title_tooltip = colHeader.title_tooltip,
-        initialWidth = colHeader.initialWidth,
-        columnClass = colHeader.columnClass,
-        className = colHeader.className;
+      title = colHeader.title,
+      vTitle = colHeader.visibleTitle,
+      title_tooltip = colHeader.title_tooltip,
+      initialWidth = colHeader.initialWidth,
+      columnClass = colHeader.columnClass,
+      className = colHeader.className;
     var visibleTitle = vTitle || title;
     if (typeof visibleTitle === 'function') visibleTitle = visibleTitle(props);
     var colWidth = initialWidth || defaultInitialColumnWidth;
     var cls = "heading-block col-" + columnClass + (className ? ' ' + className : '');
     var tooltip;
-
     if (title_tooltip && typeof title_tooltip === 'string' && title_tooltip.length > 0) {
       tooltip = title_tooltip;
     } else {
       tooltip = typeof visibleTitle === 'string' ? visibleTitle : typeof title === 'string' ? title : null;
     }
-
     if (tooltip && tooltip.length < 6) {
       tooltip = null;
     }
-
     return /*#__PURE__*/React.createElement("div", {
       className: cls,
       key: field || index,
@@ -685,17 +618,14 @@ function TableHeaders(props) {
       "data-tip": tooltip
     }, visibleTitle);
   });
-
   return /*#__PURE__*/React.createElement("div", {
     className: "headers stacked-block-table-headers"
   }, headers);
 }
-
 TableHeaders.propTypes = {
   /** Basic props */
   'columnHeaders': PropTypes.array.isRequired,
   'defaultInitialColumnWidth': PropTypes.number,
-
   /** Below needed to feed into visibleTitle func for e.g. checkbox in column title. */
   'allFiles': PropTypes.arrayOf(PropTypes.object),
   'selectedFiles': PropTypes.objectOf(PropTypes.oneOfType([PropTypes.object, PropTypes.bool])),

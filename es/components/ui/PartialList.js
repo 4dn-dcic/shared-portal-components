@@ -3,14 +3,12 @@ import _createClass from "@babel/runtime/helpers/createClass";
 import _inherits from "@babel/runtime/helpers/inherits";
 import _possibleConstructorReturn from "@babel/runtime/helpers/possibleConstructorReturn";
 import _getPrototypeOf from "@babel/runtime/helpers/getPrototypeOf";
-
 function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
-
 function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
-
 import React from 'react';
 import Collapse from 'react-bootstrap/esm/Collapse';
 import { console } from './../util';
+
 /**
  * Bootstrap 'Row' component which may be used in PartialList's props.collapsible or props.persistent.
  * Renders two row columns: one for props.label and one for props.value or props.children.
@@ -24,18 +22,17 @@ import { console } from './../util';
  * @prop {Component|Element|string} title - Alias for props.label.
  * @prop {Component|Element|string} children - Alias for props.value.
  */
-
 var Row = /*#__PURE__*/React.memo(function (props) {
   var colSm = props.colSm,
-      colMd = props.colMd,
-      colLg = props.colLg,
-      field = props.field,
-      className = props.className,
-      label = props.label,
-      title = props.title,
-      value = props.value,
-      val = props.val,
-      children = props.children;
+    colMd = props.colMd,
+    colLg = props.colLg,
+    field = props.field,
+    className = props.className,
+    label = props.label,
+    title = props.title,
+    value = props.value,
+    val = props.val,
+    children = props.children;
   var valSm = 12 - colSm;
   var valMd = 12 - colMd;
   var valLg = 12 - colLg;
@@ -61,6 +58,7 @@ Row.defaultProps = {
   'colLg': 4,
   'className': ''
 };
+
 /**
  * Renders a list using elements along the Bootstrap grid.
  * Takes two lists as props: 'persistent' and 'collapsible'.
@@ -76,14 +74,10 @@ Row.defaultProps = {
 
 export var PartialList = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(PartialList, _React$PureComponent);
-
   var _super = _createSuper(PartialList);
-
   function PartialList(props) {
     var _this;
-
     _classCallCheck(this, PartialList);
-
     _this = _super.call(this, props);
     _this.state = {
       closing: false,
@@ -92,18 +86,15 @@ export var PartialList = /*#__PURE__*/function (_React$PureComponent) {
     _this.timeout = null;
     return _this;
   }
-
   _createClass(PartialList, [{
     key: "componentDidUpdate",
     value: function componentDidUpdate(pastProps) {
       var _this2 = this;
-
       var _this$props = this.props,
-          open = _this$props.open,
-          _this$props$timeout = _this$props.timeout,
-          timeout = _this$props$timeout === void 0 ? 400 : _this$props$timeout;
+        open = _this$props.open,
+        _this$props$timeout = _this$props.timeout,
+        timeout = _this$props$timeout === void 0 ? 400 : _this$props$timeout;
       var pastOpen = pastProps.open;
-
       if (!open && pastOpen) {
         clearTimeout(this.timeout);
         this.timeout = setTimeout(function () {
@@ -117,24 +108,24 @@ export var PartialList = /*#__PURE__*/function (_React$PureComponent) {
     key: "render",
     value: function render() {
       var _this$props2 = this.props,
-          _this$props2$classNam = _this$props2.className,
-          className = _this$props2$classNam === void 0 ? null : _this$props2$classNam,
-          _this$props2$containe = _this$props2.containerClassName,
-          containerClassName = _this$props2$containe === void 0 ? "" : _this$props2$containe,
-          _this$props2$containe2 = _this$props2.containerPersistentClassName,
-          containerPersistentClassName = _this$props2$containe2 === void 0 ? "" : _this$props2$containe2,
-          _this$props2$containe3 = _this$props2.containerCollapseClassName,
-          containerCollapseClassName = _this$props2$containe3 === void 0 ? "" : _this$props2$containe3,
-          _this$props2$containe4 = _this$props2.containerType,
-          containerType = _this$props2$containe4 === void 0 ? "div" : _this$props2$containe4,
-          collapsible = _this$props2.collapsible,
-          _this$props2$persiste = _this$props2.persistent,
-          persistent = _this$props2$persiste === void 0 ? [] : _this$props2$persiste,
-          children = _this$props2.children,
-          _this$props2$open = _this$props2.open,
-          open = _this$props2$open === void 0 ? false : _this$props2$open;
+        _this$props2$classNam = _this$props2.className,
+        className = _this$props2$classNam === void 0 ? null : _this$props2$classNam,
+        _this$props2$containe = _this$props2.containerClassName,
+        containerClassName = _this$props2$containe === void 0 ? "" : _this$props2$containe,
+        _this$props2$containe2 = _this$props2.containerPersistentClassName,
+        containerPersistentClassName = _this$props2$containe2 === void 0 ? "" : _this$props2$containe2,
+        _this$props2$containe3 = _this$props2.containerCollapseClassName,
+        containerCollapseClassName = _this$props2$containe3 === void 0 ? "" : _this$props2$containe3,
+        _this$props2$containe4 = _this$props2.containerType,
+        containerType = _this$props2$containe4 === void 0 ? "div" : _this$props2$containe4,
+        collapsible = _this$props2.collapsible,
+        _this$props2$persiste = _this$props2.persistent,
+        persistent = _this$props2$persiste === void 0 ? [] : _this$props2$persiste,
+        children = _this$props2.children,
+        _this$props2$open = _this$props2.open,
+        open = _this$props2$open === void 0 ? false : _this$props2$open;
       var _this$state$closing = this.state.closing,
-          closing = _this$state$closing === void 0 ? false : _this$state$closing;
+        closing = _this$state$closing === void 0 ? false : _this$state$closing;
       return /*#__PURE__*/React.createElement("div", {
         className: "expandable-list " + (open ? "open" : "closed") + (className ? " " + className : "")
       }, persistent || children ? /*#__PURE__*/React.createElement(containerType, {
@@ -150,27 +141,23 @@ export var PartialList = /*#__PURE__*/function (_React$PureComponent) {
     key: "getDerivedStateFromProps",
     value: function getDerivedStateFromProps(props, state) {
       var lastOpen = props.open;
-
       if (lastOpen) {
         return {
           closing: false,
           lastOpen: lastOpen
         };
       }
-
       if (!lastOpen && state.lastOpen) {
         return {
           closing: true,
           lastOpen: lastOpen
         };
       }
-
       return {
         lastOpen: lastOpen
       };
     }
   }]);
-
   return PartialList;
 }(React.PureComponent);
 PartialList.Row = Row;

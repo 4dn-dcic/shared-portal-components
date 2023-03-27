@@ -3,6 +3,7 @@
  *
  * @module
  */
+
 // ----------------------------------------------------------------------------
 // Common type-defs, e.g. for Item, JSONContentResponse, SearchResponse.
 
@@ -15,6 +16,7 @@
  * @property {string} [display_title] - Title for Item or page.
  */
 export var JSONContentResponse;
+
 /**
  * @typedef {JSONContentResponse} Item
  * @property {string}       @id             Identifier and/or URL to Item.
@@ -24,8 +26,8 @@ export var JSONContentResponse;
  * @property {string}       [status]        Current status of Item.
  * @property {string}       [date_created]  Date Item was added to database.
  */
-
 export var Item;
+
 /**
  * @typedef {Object} URLParts
  * @property {string}       host            Full lower-cased host portion of the URL, including the port if specified.
@@ -41,8 +43,9 @@ export var Item;
  *
  * @see https://nodejs.org/docs/latest/api/url.html#url_legacy_urlobject
  */
+export var URLParts;
 
-export var URLParts; // ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Item Related Type-Defs
 
 /**
@@ -50,8 +53,8 @@ export var URLParts; // --------------------------------------------------------
  * @property {string}       content         Content of the static section.
  * @property {string}       [filetype=text] Format of the content. Could be 'md', 'html', 'text', 'code', etc.
  */
-
 export var StaticSection;
+
 /**
  * @typedef {Item} StaticPage
  * @property {string}               @id         URI/ID of current page. May differ from database-item `@ID`.
@@ -61,30 +64,30 @@ export var StaticSection;
  * @property {StaticPage}           [next]      Reference to previous sibling page.
  * @property {{ enabled: boolean }} toc         Options for table of contents.
  */
-
 export var StaticPage;
+
 /**
  * @typedef {Item} File
  * @property {?string} href                 URI/pathname to where File may be downloaded.
  * @property {{ display_title: string, file_format: string }} file_format - LinkTo/Object containing file format information.
  * @property {string} [higlass_uid]         UID of file on HiGlass server, if any.
  */
-
 export var File;
+
 /**
  * @typedef {Item} Experiment
  * @property {?File[]} files                Objects/linkTos representing File items.
  * @property {?File[]} processed_files      Objects/linkTos representing Processed File items.
  */
-
 export var Experiment;
+
 /**
  * @typedef {Item} ExperimentSet
  * @property {?Experiment[]} experiments_in_set     Objects/linkTos representing File items.
  * @property {?File[]} processed_files              Objects/linkTos representing Processed File items.
  */
-
 export var ExperimentSet;
+
 /**
  * An object containing data to fully represent a tab of a tab view.
  *
@@ -109,8 +112,9 @@ export var ExperimentSet;
  *          )
  *      }
  */
+export var TabObject;
 
-export var TabObject; // ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Browse/Search Related Type-Defs
 
 /**
@@ -121,8 +125,8 @@ export var TabObject; // -------------------------------------------------------
  * @property {{ terms: { key: string, doc_count: number }[]}[]} facets - Faceting options which are available for search request/response, including options and counts.
  * @property {number} total - Total number of results expected for query.
  */
-
 export var SearchResponse;
+
 /**
  * @typedef {function} ColumnDefinitionRenderFxn
  * @param {Item} result - Item from search result. Not parsed in any way.
@@ -136,8 +140,8 @@ export var SearchResponse;
  *          return <DateUtility.LocalizedTime timestamp={result.last_modified.date_modified} formatType='date-sm' />;
  *      }
  */
-
 export var ColumnDefinitionRenderFxn;
+
 /**
  * A JSON object which contains some properties that define a renderable column.
  *
@@ -148,8 +152,9 @@ export var ColumnDefinitionRenderFxn;
  * @property {{ sm: number, md: number, lg: number }} [widthMap] - Default width (before sizing) per response-width level.
  * @property {ColumnDefinitionRenderFxn} [render] - Optional function to render column in some custom way, for example in order to format a date-time value.
  */
+export var ColumnDefinition;
 
-export var ColumnDefinition; // ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Common-ish type-defs
 
 /**
@@ -164,8 +169,8 @@ export var ColumnDefinition; // ------------------------------------------------
  * @property {boolean} cache                Set to false to explicitly not cache response. Shouldn't be necessary (browser does this by default).
  * @property {boolean} dontScrollToTop      Don't scroll to top of page after completion.
  */
-
 export var NavigateOpts;
+
 /**
  * Object used to represent alert message element contents at top of page.
  *
@@ -175,5 +180,4 @@ export var NavigateOpts;
  * @property {?string} style                Style of alert box. May be any Bootstrap-compliant style, e.g. "danger", "warning", "info".
  * @property {number} [navigateDisappearThreshold=1] - After how many navigations should this alert be automatically removed.
  */
-
 export var AlertObj;

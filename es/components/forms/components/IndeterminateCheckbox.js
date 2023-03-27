@@ -4,9 +4,9 @@ var _excluded = ["indeterminate"];
 import React from 'react';
 export function IndeterminateCheckbox(props) {
   var _props$indeterminate = props.indeterminate,
-      indeterminate = _props$indeterminate === void 0 ? false : _props$indeterminate,
-      passProps = _objectWithoutProperties(props, _excluded); // See https://reactjs.org/docs/refs-and-the-dom.html#callback-refs
-
+    indeterminate = _props$indeterminate === void 0 ? false : _props$indeterminate,
+    passProps = _objectWithoutProperties(props, _excluded);
+  // See https://reactjs.org/docs/refs-and-the-dom.html#callback-refs
 
   return /*#__PURE__*/React.createElement("input", _extends({
     type: "checkbox"

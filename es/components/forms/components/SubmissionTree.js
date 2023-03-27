@@ -10,29 +10,23 @@ import _possibleConstructorReturn from "@babel/runtime/helpers/possibleConstruct
 import _getPrototypeOf from "@babel/runtime/helpers/getPrototypeOf";
 import _defineProperty from "@babel/runtime/helpers/defineProperty";
 var _excluded = ["keyIdx"];
-
 function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
-
 function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
-
 import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
 import ReactTooltip from 'react-tooltip';
-import Collapse from 'react-bootstrap/esm/Collapse'; // Create a custom tree to represent object hierarchy in front end submission.
-// Each leaf is clickable and will bring you to a view of the new object
+import Collapse from 'react-bootstrap/esm/Collapse';
 
+// Create a custom tree to represent object hierarchy in front end submission.
+// Each leaf is clickable and will bring you to a view of the new object
 export var SubmissionTree = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(SubmissionTree, _React$PureComponent);
-
   var _super = _createSuper(SubmissionTree);
-
   function SubmissionTree() {
     _classCallCheck(this, SubmissionTree);
-
     return _super.apply(this, arguments);
   }
-
   _createClass(SubmissionTree, [{
     key: "componentDidMount",
     value: function componentDidMount() {
@@ -42,9 +36,8 @@ export var SubmissionTree = /*#__PURE__*/function (_React$PureComponent) {
     key: "render",
     value: function render() {
       var _this$props = this.props,
-          keyIdx = _this$props.keyIdx,
-          others = _objectWithoutProperties(_this$props, _excluded);
-
+        keyIdx = _this$props.keyIdx,
+        others = _objectWithoutProperties(_this$props, _excluded);
       return /*#__PURE__*/React.createElement("div", {
         className: "submission-view-navigation-tree"
       }, /*#__PURE__*/React.createElement("h4", {
@@ -55,15 +48,14 @@ export var SubmissionTree = /*#__PURE__*/function (_React$PureComponent) {
       })));
     }
   }]);
-
   return SubmissionTree;
 }(React.PureComponent);
+
 /*
 Generate an entry in SubmissionTree that corresponds to an object. When clicked
 on, either change the currKey to that object's key if a custom object, or
 open that object's page in a new tab if a pre-existing or submitted object.
 */
-
 _defineProperty(SubmissionTree, "propTypes", {
   'hierarchy': PropTypes.object.isRequired,
   'keyValid': PropTypes.object.isRequired,
@@ -76,17 +68,12 @@ _defineProperty(SubmissionTree, "propTypes", {
   'setSubmissionState': PropTypes.func.isRequired,
   'schemas': PropTypes.object
 });
-
 var SubmissionLeaf = /*#__PURE__*/function (_React$PureComponent2) {
   _inherits(SubmissionLeaf, _React$PureComponent2);
-
   var _super2 = _createSuper(SubmissionLeaf);
-
   function SubmissionLeaf(props) {
     var _this;
-
     _classCallCheck(this, SubmissionLeaf);
-
     _this = _super2.call(this, props);
     _this.handleClick = _.throttle(_this.handleClick.bind(_assertThisInitialized(_this)), 500, {
       'trailing': false
@@ -99,16 +86,16 @@ var SubmissionLeaf = /*#__PURE__*/function (_React$PureComponent2) {
     };
     return _this;
   }
-
   _createClass(SubmissionLeaf, [{
     key: "generateChild",
     value: function generateChild(childKey) {
       if (!isNaN(childKey)) childKey = parseInt(childKey);
       var _this$props2 = this.props,
-          hierarchy = _this$props2.hierarchy,
-          keyIdx = _this$props2.keyIdx,
-          depth = _this$props2.depth; // replace key and hierarchy in props
+        hierarchy = _this$props2.hierarchy,
+        keyIdx = _this$props2.keyIdx,
+        depth = _this$props2.depth;
 
+      // replace key and hierarchy in props
       return /*#__PURE__*/React.createElement(SubmissionLeaf, _extends({}, this.props, {
         key: childKey,
         keyIdx: childKey,
@@ -121,33 +108,30 @@ var SubmissionLeaf = /*#__PURE__*/function (_React$PureComponent2) {
     key: "placeholderSortFxn",
     value: function placeholderSortFxn(fieldA, fieldB) {
       var _this$props3 = this.props,
-          schemas = _this$props3.schemas,
-          keyTypes = _this$props3.keyTypes,
-          keyIdx = _this$props3.keyIdx;
+        schemas = _this$props3.schemas,
+        keyTypes = _this$props3.keyTypes,
+        keyIdx = _this$props3.keyIdx;
       var itemSchema = schemas[keyTypes[keyIdx]];
       if (!itemSchema) return 0;
-
       var _fieldA$split = fieldA.split('.'),
-          _fieldA$split2 = _slicedToArray(_fieldA$split, 1),
-          fieldABase = _fieldA$split2[0];
-
+        _fieldA$split2 = _slicedToArray(_fieldA$split, 1),
+        fieldABase = _fieldA$split2[0];
       var _fieldB$split = fieldB.split('.'),
-          _fieldB$split2 = _slicedToArray(_fieldB$split, 1),
-          fieldBBase = _fieldB$split2[0];
-
+        _fieldB$split2 = _slicedToArray(_fieldB$split, 1),
+        fieldBBase = _fieldB$split2[0];
       if (Array.isArray(itemSchema.required)) {
         if (_.contains(itemSchema.required, fieldA)) return -1;
         if (_.contains(itemSchema.required, fieldB)) return 1;
         if (_.contains(itemSchema.required, fieldABase)) return -1;
         if (_.contains(itemSchema.required, fieldBBase)) return -1;
       }
-
       var fieldASchema = itemSchema.properties[fieldABase];
       var fieldBSchema = itemSchema.properties[fieldBBase];
       if ((fieldASchema.lookup || 750) > (fieldBSchema.lookup || 750)) return -1;
       if ((fieldASchema.lookup || 750) < (fieldBSchema.lookup || 750)) return 1;
       return 0;
     }
+
     /**
      * Generate placeholders in the SubmissionTree for every linkTo name and
      * create a SubmissionLeaf for each child object under its corresponding
@@ -155,15 +139,13 @@ var SubmissionLeaf = /*#__PURE__*/function (_React$PureComponent2) {
      *
      * @returns {JSX.Element} Visible leaf/branch-representing element.
      */
-
   }, {
     key: "generateAllPlaceholders",
     value: function generateAllPlaceholders() {
       var _this2 = this;
-
       var _this$props4 = this.props,
-          keyIdx = _this$props4.keyIdx,
-          keyLinkBookmarks = _this$props4.keyLinkBookmarks;
+        keyIdx = _this$props4.keyIdx,
+        keyLinkBookmarks = _this$props4.keyLinkBookmarks;
       var fieldsWithLinkTosToShow = keyLinkBookmarks[keyIdx].sort(this.placeholderSortFxn);
       return _.map(fieldsWithLinkTosToShow, function (field) {
         return /*#__PURE__*/React.createElement(SubmissionProperty, _extends({}, _this2.props, {
@@ -172,50 +154,45 @@ var SubmissionLeaf = /*#__PURE__*/function (_React$PureComponent2) {
         }));
       });
     }
-    /** Open a new tab on click or change the currKey of submissionView to that of props.keyIdx */
 
+    /** Open a new tab on click or change the currKey of submissionView to that of props.keyIdx */
   }, {
     key: "handleClick",
     value: function handleClick(e) {
       var _this$props5 = this.props,
-          setSubmissionState = _this$props5.setSubmissionState,
-          keyIdx = _this$props5.keyIdx,
-          keyValid = _this$props5.keyValid,
-          keyComplete = _this$props5.keyComplete;
-      e.preventDefault(); // if key is not a number (i.e. path), the object is not a custom one.
+        setSubmissionState = _this$props5.setSubmissionState,
+        keyIdx = _this$props5.keyIdx,
+        keyValid = _this$props5.keyValid,
+        keyComplete = _this$props5.keyComplete;
+      e.preventDefault();
+
+      // if key is not a number (i.e. path), the object is not a custom one.
       // format the leaf as the following if pre-existing obj or submitted
       // custom object.
-
       if (isNaN(keyIdx) || keyValid[keyIdx] === 4 && keyComplete[keyIdx]) {
         var win = window.open(isNaN(keyIdx) ? keyIdx : keyComplete[keyIdx], '_blank');
-
         if (win) {
           win.focus();
         } else {
           alert('Object page popup blocked!');
         }
-
         return;
       }
-
       setSubmissionState('currKey', keyIdx);
     }
   }, {
     key: "render",
     value: function render() {
       var _this$props6 = this.props,
-          keyValid = _this$props6.keyValid,
-          keyIdx = _this$props6.keyIdx,
-          keyDisplay = _this$props6.keyDisplay,
-          keyComplete = _this$props6.keyComplete,
-          hierarchy = _this$props6.hierarchy,
-          currKey = _this$props6.currKey,
-          depth = _this$props6.depth;
+        keyValid = _this$props6.keyValid,
+        keyIdx = _this$props6.keyIdx,
+        keyDisplay = _this$props6.keyDisplay,
+        keyComplete = _this$props6.keyComplete,
+        hierarchy = _this$props6.hierarchy,
+        currKey = _this$props6.currKey,
+        depth = _this$props6.depth;
       var placeholders;
-
-      if (!isNaN(keyIdx)
-      /* || typeof _.invert(keyComplete)[keyIdx] !== 'undefined' */
-      ) {
+      if (!isNaN(keyIdx) /* || typeof _.invert(keyComplete)[keyIdx] !== 'undefined' */) {
         placeholders = this.generateAllPlaceholders();
       } else if (typeof _.invert(keyComplete)[keyIdx] !== 'undefined') {
         placeholders = [];
@@ -223,16 +200,16 @@ var SubmissionLeaf = /*#__PURE__*/function (_React$PureComponent2) {
         // must be a submitted object - plot directly
         placeholders = _.keys(hierarchy[keyIdx]).map(this.generateChild);
       }
-
       var titleText = keyDisplay[keyIdx] || keyIdx;
       var iconClass;
       var extIcon;
       var statusClass = null;
       var isCurrentlySelected = false;
-      var tip = null; // if key is not a number (i.e. path), the object is not a custom one.
+      var tip = null;
+
+      // if key is not a number (i.e. path), the object is not a custom one.
       // format the leaf as the following if pre-existing obj or submitted
       // custom object.
-
       if (isNaN(keyIdx) || keyValid[keyIdx] === 4 && keyComplete[keyIdx]) {
         statusClass = 'existing-item';
         iconClass = "icon-hdd far";
@@ -247,35 +224,29 @@ var SubmissionLeaf = /*#__PURE__*/function (_React$PureComponent2) {
             iconClass = "icon-stop-circle far";
             tip = "Has incomplete children, cannot yet be validated.";
             break;
-
           case 1:
             statusClass = 'complete-not-validated';
             iconClass = "icon-circle far";
             tip = "All children are complete, can be validated.";
             break;
-
           case 2:
             statusClass = 'failed-validation';
             iconClass = "icon-times fas";
             tip = "Validation failed. Fix fields and try again.";
             break;
-
           case 3:
             statusClass = 'validated';
             iconClass = "icon-check fas";
             tip = "Validation passed, ready for submission.";
             break;
-
           default:
             statusClass = 'status-not-determined';
             break;
         }
       }
-
       var icon = /*#__PURE__*/React.createElement("i", {
         className: "icon indicator-icon " + iconClass
       });
-
       if (keyIdx === currKey) {
         // We're currently on this Item
         isCurrentlySelected = true;
@@ -284,7 +255,6 @@ var SubmissionLeaf = /*#__PURE__*/function (_React$PureComponent2) {
           "data-tip": "Item which you are currently editing."
         });
       }
-
       return /*#__PURE__*/React.createElement("div", {
         className: "submission-nav-leaf linked-item-title leaf-depth-" + depth + (isCurrentlySelected ? ' active' : '')
       }, /*#__PURE__*/React.createElement("div", {
@@ -299,24 +269,17 @@ var SubmissionLeaf = /*#__PURE__*/function (_React$PureComponent2) {
       }, placeholders) : null);
     }
   }]);
-
   return SubmissionLeaf;
 }(React.PureComponent);
-
 _defineProperty(SubmissionLeaf, "defaultProps", {
   'depth': 0
 });
-
 var SubmissionProperty = /*#__PURE__*/function (_React$Component) {
   _inherits(SubmissionProperty, _React$Component);
-
   var _super3 = _createSuper(SubmissionProperty);
-
   function SubmissionProperty(props) {
     var _this3;
-
     _classCallCheck(this, SubmissionProperty);
-
     _this3 = _super3.call(this, props);
     _this3.handleToggle = _.throttle(_this3.handleToggle.bind(_assertThisInitialized(_this3)), 500, {
       'trailing': false
@@ -327,7 +290,6 @@ var SubmissionProperty = /*#__PURE__*/function (_React$Component) {
     };
     return _this3;
   }
-
   _createClass(SubmissionProperty, [{
     key: "handleToggle",
     value: function handleToggle(e) {
@@ -344,11 +306,12 @@ var SubmissionProperty = /*#__PURE__*/function (_React$Component) {
     key: "generateChild",
     value: function generateChild(childKey) {
       var _this$props7 = this.props,
-          keyIdx = _this$props7.keyIdx,
-          depth = _this$props7.depth,
-          hierarchy = _this$props7.hierarchy;
-      if (!isNaN(childKey)) childKey = parseInt(childKey); // replace key and hierarchy in props
+        keyIdx = _this$props7.keyIdx,
+        depth = _this$props7.depth,
+        hierarchy = _this$props7.hierarchy;
+      if (!isNaN(childKey)) childKey = parseInt(childKey);
 
+      // replace key and hierarchy in props
       return /*#__PURE__*/React.createElement(SubmissionLeaf, _extends({}, this.props, {
         key: childKey,
         keyIdx: childKey,
@@ -361,31 +324,27 @@ var SubmissionProperty = /*#__PURE__*/function (_React$Component) {
     key: "render",
     value: function render() {
       var _this$props8 = this.props,
-          field = _this$props8.field,
-          schemas = _this$props8.schemas,
-          keyTypes = _this$props8.keyTypes,
-          keyIdx = _this$props8.keyIdx,
-          hierarchy = _this$props8.hierarchy,
-          keyLinks = _this$props8.keyLinks,
-          depth = _this$props8.depth;
-      var open = this.state.open; // Item currently being edited
+        field = _this$props8.field,
+        schemas = _this$props8.schemas,
+        keyTypes = _this$props8.keyTypes,
+        keyIdx = _this$props8.keyIdx,
+        hierarchy = _this$props8.hierarchy,
+        keyLinks = _this$props8.keyLinks,
+        depth = _this$props8.depth;
+      var open = this.state.open;
 
+      // Item currently being edited
       var itemSchema = schemas[keyTypes[keyIdx]];
       if (!itemSchema) return null;
-
       var isRequired = Array.isArray(itemSchema.required) && _.contains(itemSchema.required, field);
-
       var _field$split = field.split('.'),
-          _field$split2 = _slicedToArray(_field$split, 1),
-          fieldBase = _field$split2[0];
-
+        _field$split2 = _slicedToArray(_field$split, 1),
+        fieldBase = _field$split2[0];
       var fieldSchema = itemSchema.properties[fieldBase];
       var bookmark = fieldSchema && fieldSchema.title || fieldSchemaLinkToType(fieldSchema);
-
       var children = _.map(_.filter(_.keys(hierarchy[keyIdx]), function (childKey) {
         return keyLinks[childKey] === field;
       }), this.generateChild);
-
       var noChildren = children.length === 0;
       return /*#__PURE__*/React.createElement("div", {
         key: bookmark,
@@ -402,13 +361,11 @@ var SubmissionProperty = /*#__PURE__*/function (_React$Component) {
       }, children)) : null);
     }
   }]);
-
   return SubmissionProperty;
 }(React.Component);
-
 function InfoIcon(_ref2) {
   var children = _ref2.children,
-      className = _ref2.className;
+    className = _ref2.className;
   if (!children) return null;
   return /*#__PURE__*/React.createElement("i", {
     style: {
@@ -421,6 +378,7 @@ function InfoIcon(_ref2) {
     "data-tip": children
   });
 }
+
 /**
  * Function to recursively find whether a schema for a field contains a linkTo to
  * another Item within its nested structure.
@@ -429,49 +387,40 @@ function InfoIcon(_ref2) {
  * @param {boolean} [getProperty=false] - Unused? What is this supposed to do?
  * @returns {string|null} The `@type` of the linkTo Item referenced in the field schema, if any, else null.
  */
-
-
 export function fieldSchemaLinkToType(json) {
   arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
-
   var currKeys = _.keys(json),
-      key,
-      value;
-
+    key,
+    value;
   for (var i = 0; i < currKeys.length; i++) {
     key = currKeys[i];
     value = json[key];
-
     if (key === 'linkTo') {
       return value;
     } else if (value !== null && _typeof(value) === 'object') {
       var test = fieldSchemaLinkToType(value);
-
       if (test !== null) {
         return test;
       }
     }
   }
 }
+
 /**
  * Returns list of recursed/nested keys from fieldSchema which contains linkTo, or true if direct linkTo on fieldSchema itself.
  *
  * @param {{ 'title':string, 'type':string, 'linkTo':string }} json - Schema for a field.
  * @returns {string[]|boolean} True if current field is linkTo, else field keys which contain nested linkTos.
  */
-
 export function fieldSchemaLinkToPath(json) {
   var jsonKeys = _.keys(json),
-      key;
-
+    key;
   for (var i = 0; i < jsonKeys.length; i++) {
     key = jsonKeys[i];
-
     if (key === 'linkTo') {
       return true;
     } else if (json[key] !== null && _typeof(json[key]) === 'object') {
       var test = fieldSchemaLinkToPath(json[key]);
-
       if (test === true) {
         return [key];
       } else if (Array.isArray(test)) {

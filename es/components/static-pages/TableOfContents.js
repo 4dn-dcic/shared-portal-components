@@ -7,15 +7,10 @@ import _inherits from "@babel/runtime/helpers/inherits";
 import _possibleConstructorReturn from "@babel/runtime/helpers/possibleConstructorReturn";
 import _getPrototypeOf from "@babel/runtime/helpers/getPrototypeOf";
 import _defineProperty from "@babel/runtime/helpers/defineProperty";
-
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-
 function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
-
 function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
-
 import React from 'react';
 import * as d3 from 'd3';
 import _ from 'underscore';
@@ -25,17 +20,12 @@ import { getElementTop, animateScrollTo, getScrollingOuterElement, getPageVertic
 import { navigate } from './../util/navigate';
 import { isServerSide } from './../util/misc';
 import { CopyWrapper, itemUtil } from './../util/object';
-
 var TableEntry = /*#__PURE__*/function (_React$Component) {
   _inherits(TableEntry, _React$Component);
-
   var _super = _createSuper(TableEntry);
-
   function TableEntry(props) {
     var _this;
-
     _classCallCheck(this, TableEntry);
-
     _this = _super.call(this, props);
     _this.shouldComponentUpdate = _this.shouldComponentUpdate.bind(_assertThisInitialized(_this));
     _this.getTargetElement = _this.getTargetElement.bind(_assertThisInitialized(_this));
@@ -44,23 +34,19 @@ var TableEntry = /*#__PURE__*/function (_React$Component) {
     _this.determineIfActive = _this.determineIfActive.bind(_assertThisInitialized(_this));
     _this.toggleOpen = _this.toggleOpen.bind(_assertThisInitialized(_this));
     _this.targetElement = null; // Header element we scroll to is cached here. Not in state as does not change.
-
     if (props.collapsible) {
       _this.state = {
         'open': false
       };
     }
-
     return _this;
   }
-
   _createClass(TableEntry, [{
     key: "shouldComponentUpdate",
     value: function shouldComponentUpdate(nextProps, nextState) {
       if (nextProps.mounted !== this.props.mounted || nextProps.pageScrollTop !== this.props.pageScrollTop || this && this.state && nextState && nextState.open !== this.state.open) {
         return true;
       }
-
       return false;
     }
   }, {
@@ -68,12 +54,10 @@ var TableEntry = /*#__PURE__*/function (_React$Component) {
     value: function getTargetElement() {
       var link = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.props.link;
       if (typeof document === 'undefined' || !document || !window) return null; // Not clientside.
-
       if (!this.targetElement) {
         // Cache it for performance. Doesn't needa be in state as won't change.
         this.targetElement = d3.select('[id="' + link + '"]').node();
       }
-
       return this.targetElement;
     }
   }, {
@@ -81,9 +65,7 @@ var TableEntry = /*#__PURE__*/function (_React$Component) {
     value: function getNextHeaderElement() {
       var props = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.props;
       if (!props.nextHeader || typeof document === 'undefined' || !document || !window) return null; // Not clientside or no header.
-
       var id = null;
-
       if (props.nextHeader === 'bottom') {
         id = 'page-footer';
       } else if (typeof props.nextHeader === 'string') {
@@ -91,7 +73,6 @@ var TableEntry = /*#__PURE__*/function (_React$Component) {
       } else if (TableOfContents.isContentJSX(props.nextHeader)) {
         id = props.nextHeader.type.prototype.getID.call(props.nextHeader);
       }
-
       if (!id) return null;
       return d3.select('[id="' + id + '"]').node() || null;
     }
@@ -99,9 +80,9 @@ var TableEntry = /*#__PURE__*/function (_React$Component) {
     key: "handleClick",
     value: function handleClick() {
       var _this$props = this.props,
-          link = _this$props.link,
-          offsetBeforeTarget = _this$props.offsetBeforeTarget,
-          propNavigate = _this$props.navigate;
+        link = _this$props.link,
+        offsetBeforeTarget = _this$props.offsetBeforeTarget,
+        propNavigate = _this$props.navigate;
       TableOfContents.scrollToLink(link, offsetBeforeTarget, propNavigate, this.getTargetElement());
     }
   }, {
@@ -109,43 +90,36 @@ var TableEntry = /*#__PURE__*/function (_React$Component) {
     value: function determineIfActive() {
       var props = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.props;
       var mounted = props.mounted,
-          depth = props.depth,
-          link = props.link,
-          nextHeader = props.nextHeader,
-          pageScrollTop = props.pageScrollTop,
-          offsetBeforeTarget = props.offsetBeforeTarget;
+        depth = props.depth,
+        link = props.link,
+        nextHeader = props.nextHeader,
+        pageScrollTop = props.pageScrollTop,
+        offsetBeforeTarget = props.offsetBeforeTarget;
       if (!mounted) return false;
       var scrollingOuterElement = getScrollingOuterElement();
       var targetElem;
       var elemTop;
-
       if (depth === 0 && mounted) {
         elemTop = 0;
       } else {
         targetElem = this.getTargetElement(link);
         elemTop = getElementTop(targetElem);
-
         if (mounted && scrollingOuterElement && scrollingOuterElement.scrollHeight && window && window.innerHeight) {
           // Try to prevent from trying to scroll past max scrollable height.
           elemTop = Math.min(scrollingOuterElement.scrollHeight - window.innerHeight, elemTop);
         }
       }
-
       if (typeof elemTop !== 'number') return null;
-
       if (nextHeader) {
         var nextHeaderTop = null;
-
         if (typeof nextHeader === 'number') {
           nextHeaderTop = nextHeader;
         } else {
           var nextHeaderElement = this.getNextHeaderElement(props);
-
           if (nextHeaderElement) {
             nextHeaderTop = getElementTop(nextHeaderElement);
           }
         }
-
         if (nextHeaderTop && pageScrollTop >= Math.max(depth > 0 ? 40 : 0, elemTop - offsetBeforeTarget - 120) && pageScrollTop < nextHeaderTop - offsetBeforeTarget - 120) return true;else return false;
       } else if (targetElem && targetElem.className.split(' ').indexOf('static-section-entry') > -1) {
         var elemStyle = targetElem.computedStyle || window.getComputedStyle(targetElem);
@@ -153,7 +127,6 @@ var TableEntry = /*#__PURE__*/function (_React$Component) {
       } else if (depth === 0) {
         if (mounted && pageScrollTop >= 0 && pageScrollTop < 40) return true;
       }
-
       return false;
     }
   }, {
@@ -170,38 +143,33 @@ var TableEntry = /*#__PURE__*/function (_React$Component) {
     key: "render",
     value: function render() {
       var _this2 = this;
-
       var _this$props2 = this.props,
-          recurDepth = _this$props2.recurDepth,
-          link = _this$props2.link,
-          content = _this$props2.content,
-          maxHeaderDepth = _this$props2.maxHeaderDepth,
-          depth = _this$props2.depth,
-          collapsible = _this$props2.collapsible,
-          mounted = _this$props2.mounted,
-          listStyleTypes = _this$props2.listStyleTypes,
-          pageScrollTop = _this$props2.pageScrollTop,
-          nextHeader = _this$props2.nextHeader,
-          children = _this$props2.children,
-          skipDepth = _this$props2.skipDepth,
-          className = _this$props2.className,
-          propNavigate = _this$props2.navigate;
+        recurDepth = _this$props2.recurDepth,
+        link = _this$props2.link,
+        content = _this$props2.content,
+        maxHeaderDepth = _this$props2.maxHeaderDepth,
+        depth = _this$props2.depth,
+        collapsible = _this$props2.collapsible,
+        mounted = _this$props2.mounted,
+        listStyleTypes = _this$props2.listStyleTypes,
+        pageScrollTop = _this$props2.pageScrollTop,
+        nextHeader = _this$props2.nextHeader,
+        children = _this$props2.children,
+        skipDepth = _this$props2.skipDepth,
+        className = _this$props2.className,
+        propNavigate = _this$props2.navigate;
       var title = this.props.title;
-
       var _ref2 = this.state || {},
-          open = _ref2.open;
-
+        open = _ref2.open;
       var active = this.determineIfActive();
       var childHeaders = TableEntry.getChildHeaders(content, maxHeaderDepth, depth);
       var collapsibleButton;
-
       if (collapsible && childHeaders.length > 0) {
         collapsibleButton = /*#__PURE__*/React.createElement("i", {
           className: "d-inline-block icon icon-fw fas icon-" + (open ? 'minus' : 'plus'),
           onClick: this.toggleOpen
         });
       }
-
       if (typeof link === 'string' && link.length > 0) {
         title = /*#__PURE__*/React.createElement("div", {
           className: "title-link-wrapper"
@@ -210,12 +178,10 @@ var TableEntry = /*#__PURE__*/function (_React$Component) {
           href: (link.charAt(0) === '/' ? '' : '#') + link,
           onClick: function onClick(e) {
             e.preventDefault();
-
             _this2.handleClick();
           }
         }, title));
       }
-
       if (depth === 0) {
         title = /*#__PURE__*/React.createElement("span", {
           title: "Up to page listing",
@@ -224,7 +190,6 @@ var TableEntry = /*#__PURE__*/function (_React$Component) {
           className: "icon fas icon-angle-up"
         }), title);
       }
-
       return /*#__PURE__*/React.createElement("li", {
         className: "table-content-entry" + (className ? ' ' + className : '') + (depth === 0 ? ' top' : '') + (active ? ' active' : ''),
         "data-depth": depth,
@@ -250,17 +215,14 @@ var TableEntry = /*#__PURE__*/function (_React$Component) {
       }))));
     }
   }]);
-
   return TableEntry;
 }(React.Component);
-
 _defineProperty(TableEntry, "getChildHeaders", memoize(function (content, maxHeaderDepth, currentDepth) {
   if (!TableOfContents.isContentJSX(content) || !content.props || !content.props.children) return [];
   return content.props.children.filter(function (child) {
     return TableOfContents.isHeaderComponent(child, maxHeaderDepth || 6) && child.props.type === 'h' + (currentDepth + 1);
   });
 }));
-
 _defineProperty(TableEntry, "defaultProps", {
   'title': 'Table of Content Entry',
   'link': 'sample-link',
@@ -275,17 +237,12 @@ _defineProperty(TableEntry, "defaultProps", {
   'nextHeader': null,
   'recurDepth': 1
 });
-
 var TableEntryChildren = /*#__PURE__*/function (_React$Component2) {
   _inherits(TableEntryChildren, _React$Component2);
-
   var _super2 = _createSuper(TableEntryChildren);
-
   function TableEntryChildren(props) {
     var _this3;
-
     _classCallCheck(this, TableEntryChildren);
-
     _this3 = _super2.call(this, props);
     _this3.shouldComponentUpdate = _this3.shouldComponentUpdate.bind(_assertThisInitialized(_this3));
     _this3.getHeadersFromContent = _this3.getHeadersFromContent.bind(_assertThisInitialized(_this3));
@@ -293,7 +250,6 @@ var TableEntryChildren = /*#__PURE__*/function (_React$Component2) {
     _this3.render = _this3.render.bind(_assertThisInitialized(_this3));
     return _this3;
   }
-
   _createClass(TableEntryChildren, [{
     key: "shouldComponentUpdate",
     value: function shouldComponentUpdate(nextProps) {
@@ -313,17 +269,14 @@ var TableEntryChildren = /*#__PURE__*/function (_React$Component2) {
     key: "children",
     value: function children() {
       var _this$props3 = this.props,
-          content = _this$props3.content,
-          depth = _this$props3.depth,
-          propChildren = _this$props3.children;
-
+        content = _this$props3.content,
+        depth = _this$props3.depth,
+        propChildren = _this$props3.children;
       var _this$getHeadersFromC = this.getHeadersFromContent(),
-          childHeaders = _this$getHeadersFromC.childHeaders,
-          childDepth = _this$getHeadersFromC.childDepth;
-
+        childHeaders = _this$getHeadersFromC.childHeaders,
+        childDepth = _this$getHeadersFromC.childDepth;
       if (childHeaders && childHeaders.length) {
         var opts = _.pick(this.props, 'maxHeaderDepth', 'pageScrollTop', 'listStyleTypes', 'skipDepth', 'nextHeader', 'mounted', 'recurDepth');
-
         return TableEntryChildren.renderChildrenElements(childHeaders, childDepth, content, opts);
       } else {
         return propChildren;
@@ -333,11 +286,11 @@ var TableEntryChildren = /*#__PURE__*/function (_React$Component2) {
     key: "render",
     value: function render() {
       var _this$props4 = this.props,
-          listStyleTypes = _this$props4.listStyleTypes,
-          _this$props4$depth = _this$props4.depth,
-          depth = _this$props4$depth === void 0 ? 0 : _this$props4$depth; // Removed: 'collapse' children if not over them (re: negative feedback)
+        listStyleTypes = _this$props4.listStyleTypes,
+        _this$props4$depth = _this$props4.depth,
+        depth = _this$props4$depth === void 0 ? 0 : _this$props4$depth;
+      // Removed: 'collapse' children if not over them (re: negative feedback)
       //if (this.props.depth >= 3 && !this.props.active) return null;
-
       var renderedChildren = this.children();
       if (!renderedChildren) return null;
       return /*#__PURE__*/React.createElement("ol", {
@@ -355,35 +308,31 @@ var TableEntryChildren = /*#__PURE__*/function (_React$Component2) {
         'nextHeader': null
       };
       var skipDepth = opts.skipDepth,
-          maxHeaderDepth = opts.maxHeaderDepth,
-          listStyleTypes = opts.listStyleTypes,
-          pageScrollTop = opts.pageScrollTop,
-          mounted = opts.mounted,
-          nextHeader = opts.nextHeader,
-          recurDepth = opts.recurDepth;
-
+        maxHeaderDepth = opts.maxHeaderDepth,
+        listStyleTypes = opts.listStyleTypes,
+        pageScrollTop = opts.pageScrollTop,
+        mounted = opts.mounted,
+        nextHeader = opts.nextHeader,
+        recurDepth = opts.recurDepth;
       if (Array.isArray(childHeaders) && childHeaders.length > 0) {
         return childHeaders.map(function (h) {
           var childContent = TableEntryChildren.getSubsequentChildHeaders(h, jsxContent, maxHeaderDepth, currentDepth);
-
           if (skipDepth > currentDepth) {
             return TableEntryChildren.renderChildrenElements(childHeaders, currentDepth + 1, childContent.content, _.extend({}, opts, {
               'nextHeader': childContent.nextMajorHeader || nextHeader || null
             }));
           }
-
           var hAttributes = MarkdownHeading.getAttributes(h.props.children);
-          var linkTitle = TableOfContents.textFromReactChildren(h.props.children); // We must have this to be equal to the ID of the element we're navigating to.
+          var linkTitle = TableOfContents.textFromReactChildren(h.props.children);
+
+          // We must have this to be equal to the ID of the element we're navigating to.
           // A custom ID might be set in Markdown 'attributes' which we prefer over the one passed to explicitly via props.
-
           var link = hAttributes && hAttributes.id || h.props.id || null;
-
           if (hAttributes && hAttributes.matchedString) {
             linkTitle = linkTitle.replace(hAttributes.matchedString, '').trim();
           }
+
           /** @deprecated */
-
-
           if (!link) link = TableOfContents.slugify(linkTitle); // Fallback -- attempt to not use -- may fail.
 
           return /*#__PURE__*/React.createElement(TableEntry, {
@@ -404,14 +353,11 @@ var TableEntryChildren = /*#__PURE__*/function (_React$Component2) {
           });
         });
       }
-
       return null;
     }
   }]);
-
   return TableEntryChildren;
 }(React.Component);
-
 _defineProperty(TableEntryChildren, "getHeadersFromContent", memoize(function (jsxContent, maxHeaderDepth, currentDepth) {
   if (Array.isArray(jsxContent)) {
     // As of html-react-parser v1.2.8, we may get back array of content, including "\n" or similar.
@@ -425,27 +371,22 @@ _defineProperty(TableEntryChildren, "getHeadersFromContent", memoize(function (j
       childrenForDepth: []
     });
   }
-
   if (!TableOfContents.isContentJSX(jsxContent)) return [];
   var depthToFind = currentDepth;
   var childrenForDepth = [];
-
   while (depthToFind <= Math.min(maxHeaderDepth, 5) && childrenForDepth.length === 0) {
     childrenForDepth = _.filter(jsxContent.props.children, function (child) {
       return TableOfContents.isHeaderComponent(child, maxHeaderDepth || 6) && child.props.type === 'h' + (depthToFind + 1);
     });
-
     if (childrenForDepth.length === 0) {
       depthToFind++;
     }
   }
-
   return {
     'childDepth': depthToFind,
     'childHeaders': childrenForDepth
   };
 }));
-
 _defineProperty(TableEntryChildren, "getSubsequentChildHeaders", memoize(function (header, jsxContent, maxHeaderDepth, currentDepth) {
   if (!TableOfContents.isContentJSX(jsxContent)) return null;
   var getNext = null;
@@ -455,7 +396,6 @@ _defineProperty(TableEntryChildren, "getSubsequentChildHeaders", memoize(functio
       getNext = true;
       return m;
     }
-
     if (getNext && TableOfContents.isHeaderComponent(child, maxHeaderDepth || 6)) {
       if (child.props.type === 'h' + Math.max(currentDepth + 1, 1) || child.props.type === 'h' + Math.max(currentDepth, 1) || child.props.type === 'h' + Math.max(currentDepth - 1, 1) || child.props.type === 'h' + Math.max(currentDepth - 2, 1)) {
         nextMajorHeader = child;
@@ -464,27 +404,19 @@ _defineProperty(TableEntryChildren, "getSubsequentChildHeaders", memoize(functio
         m.push(child);
       }
     }
-
     return m;
-  },
-  /* m = */
-  []);
+  }, /* m = */[]);
   return {
     'content': /*#__PURE__*/React.cloneElement(jsxContent, {}, nextHeaderComponents),
     'nextMajorHeader': nextMajorHeader
   };
 }));
-
 export var TableOfContents = /*#__PURE__*/function (_React$Component3) {
   _inherits(TableOfContents, _React$Component3);
-
   var _super3 = _createSuper(TableOfContents);
-
   function TableOfContents(props) {
     var _this4;
-
     _classCallCheck(this, TableOfContents);
-
     _this4 = _super3.call(this, props);
     _this4.onPageScroll = _this4.onPageScroll.bind(_assertThisInitialized(_this4));
     _this4.onToggleWidthBound = _this4.onToggleWidthBound.bind(_assertThisInitialized(_this4));
@@ -495,7 +427,6 @@ export var TableOfContents = /*#__PURE__*/function (_React$Component3) {
     };
     return _this4;
   }
-
   _createClass(TableOfContents, [{
     key: "componentDidMount",
     value: function componentDidMount() {
@@ -514,7 +445,6 @@ export var TableOfContents = /*#__PURE__*/function (_React$Component3) {
         this.updateQueued = false;
         return true;
       }
-
       if (nextProps.windowWidth !== this.props.windowWidth) return true;
       if (nextState.mounted !== this.state.mounted) return true;
       if (nextState.scrollTop !== this.state.scrollTop) return true;
@@ -525,7 +455,6 @@ export var TableOfContents = /*#__PURE__*/function (_React$Component3) {
     key: "componentDidUpdate",
     value: function componentDidUpdate(pastProps) {
       var _this5 = this;
-
       if (pastProps.windowWidth !== this.props.windowWidth) {
         // Recalculate new position on page etc.
         this.updateQueued = true;
@@ -573,7 +502,6 @@ export var TableOfContents = /*#__PURE__*/function (_React$Component3) {
         className: "text-500",
         href: context.parent['@id']
       }, context.parent['display_title'])));
-
       if (windowInnerWidth && windowInnerWidth >= 1600) {
         cols.push( /*#__PURE__*/React.createElement("div", {
           key: "expand-btn",
@@ -588,7 +516,6 @@ export var TableOfContents = /*#__PURE__*/function (_React$Component3) {
           className: "icon icon-fw fas icon-angle-right"
         })))));
       }
-
       return /*#__PURE__*/React.createElement("li", {
         className: "table-content-entry parent-entry",
         "data-depth": "0",
@@ -604,65 +531,56 @@ export var TableOfContents = /*#__PURE__*/function (_React$Component3) {
     key: "render",
     value: function render() {
       var _this$props5 = this.props,
-          context = _this$props5.context,
-          maxHeaderDepth = _this$props5.maxHeaderDepth,
-          includeTop = _this$props5.includeTop,
-          fixedGridWidth = _this$props5.fixedGridWidth,
-          includeNextPreviousPages = _this$props5.includeNextPreviousPages,
-          listStyleTypes = _this$props5.listStyleTypes,
-          windowWidth = _this$props5.windowWidth,
-          windowHeight = _this$props5.windowHeight,
-          maxHeight = _this$props5.maxHeight,
-          propNavigate = _this$props5.navigate,
-          _this$props5$fixedPos = _this$props5.fixedPositionBreakpoint,
-          fixedPositionBreakpoint = _this$props5$fixedPos === void 0 ? 1200 : _this$props5$fixedPos;
+        context = _this$props5.context,
+        maxHeaderDepth = _this$props5.maxHeaderDepth,
+        includeTop = _this$props5.includeTop,
+        fixedGridWidth = _this$props5.fixedGridWidth,
+        includeNextPreviousPages = _this$props5.includeNextPreviousPages,
+        listStyleTypes = _this$props5.listStyleTypes,
+        windowWidth = _this$props5.windowWidth,
+        windowHeight = _this$props5.windowHeight,
+        maxHeight = _this$props5.maxHeight,
+        propNavigate = _this$props5.navigate,
+        _this$props5$fixedPos = _this$props5.fixedPositionBreakpoint,
+        fixedPositionBreakpoint = _this$props5$fixedPos === void 0 ? 1200 : _this$props5$fixedPos;
       var _this$state = this.state,
-          mounted = _this$state.mounted,
-          scrollTop = _this$state.scrollTop,
-          widthBound = _this$state.widthBound;
+        mounted = _this$state.mounted,
+        scrollTop = _this$state.scrollTop,
+        widthBound = _this$state.widthBound;
       var contents = [];
       var skipDepth = 0;
-      var previousEncounteredSection = null; // Don't make top-level section entries if not all sections have a section title.
-
+      var previousEncounteredSection = null;
+      // Don't make top-level section entries if not all sections have a section title.
       var excludeSectionsFromTOC = context.content.filter(function (section) {
         return section.title || section['toc-title'];
       }).length < 2;
-
       var renderedSections = _.sortBy(context.content, function (s) {
         return s.order || 99;
       }).map(function (section, i, all) {
         var name = section.name;
         var link = TableOfContents.elementIDFromSectionName(name);
-
         if (previousEncounteredSection) {
           previousEncounteredSection.nextHeader = link;
         }
-
         previousEncounteredSection = section;
-
         var sectionCopy = _objectSpread(_objectSpread({}, section), {}, {
           link: link
         });
-
         if (all.length - 1 === i) {
           sectionCopy.nextHeader = 'bottom';
         }
-
         return sectionCopy;
       }).map(function (section) {
         var content = section.content,
-            link = section.link,
-            nextHeader = section.nextHeader,
-            tocTitle = section['toc-title'],
-            title = section.title;
-
+          link = section.link,
+          nextHeader = section.nextHeader,
+          tocTitle = section['toc-title'],
+          title = section.title;
         if (excludeSectionsFromTOC) {
           skipDepth = 1;
-
           var _TableEntryChildren$g = TableEntryChildren.getHeadersFromContent(content, maxHeaderDepth, 1),
-              childHeaders = _TableEntryChildren$g.childHeaders,
-              childDepth = _TableEntryChildren$g.childDepth;
-
+            childHeaders = _TableEntryChildren$g.childHeaders,
+            childDepth = _TableEntryChildren$g.childDepth;
           var opts = _.extend({
             childHeaders: childHeaders,
             maxHeaderDepth: maxHeaderDepth,
@@ -673,10 +591,8 @@ export var TableOfContents = /*#__PURE__*/function (_React$Component3) {
             nextHeader: nextHeader,
             'pageScrollTop': scrollTop
           });
-
           return TableEntryChildren.renderChildrenElements(childHeaders, childDepth, content, opts);
         }
-
         return /*#__PURE__*/React.createElement(TableEntry, {
           link: link,
           content: content,
@@ -693,25 +609,22 @@ export var TableOfContents = /*#__PURE__*/function (_React$Component3) {
           pageScrollTop: scrollTop,
           navigate: propNavigate
         });
-      }); // Might have `null` or 2 in there from `renderChildrenElements`.
+      });
 
-
+      // Might have `null` or 2 in there from `renderChildrenElements`.
       var renderedSectionsFlattened = _.flatten(renderedSections).filter(function (rs) {
         return !!rs;
       });
-
       if (context && context.parent && context.parent['@id']) {
         contents.push(this.parentLink(windowWidth));
       }
-
       var _renderedSectionsFlat = _slicedToArray(renderedSectionsFlattened, 1),
-          _renderedSectionsFlat2 = _renderedSectionsFlat[0];
-
-      _renderedSectionsFlat2 = _renderedSectionsFlat2 === void 0 ? {} : _renderedSectionsFlat2;
-      var _renderedSectionsFlat3 = _renderedSectionsFlat2.props;
-      _renderedSectionsFlat3 = _renderedSectionsFlat3 === void 0 ? {} : _renderedSectionsFlat3;
-      var _renderedSectionsFlat4 = _renderedSectionsFlat3.link,
-          firstSectionLink = _renderedSectionsFlat4 === void 0 ? null : _renderedSectionsFlat4;
+        _renderedSectionsFlat2 = _renderedSectionsFlat[0],
+        _renderedSectionsFlat3 = _renderedSectionsFlat2 === void 0 ? {} : _renderedSectionsFlat2,
+        _renderedSectionsFlat4 = _renderedSectionsFlat3.props,
+        _renderedSectionsFlat5 = _renderedSectionsFlat4 === void 0 ? {} : _renderedSectionsFlat4,
+        _renderedSectionsFlat6 = _renderedSectionsFlat5.link,
+        firstSectionLink = _renderedSectionsFlat6 === void 0 ? null : _renderedSectionsFlat6;
       contents.push( /*#__PURE__*/React.createElement(TableEntry, {
         link: "top",
         title: context.display_title || 'Top of Page' || null,
@@ -726,7 +639,6 @@ export var TableOfContents = /*#__PURE__*/function (_React$Component3) {
         skipDepth: skipDepth || 0
       }, renderedSectionsFlattened));
       var marginTop = 0; // Account for test warning
-
       if (windowWidth) {
         if (typeof scrollTop === 'number' && scrollTop < 80 && windowWidth >= 1200) {
           var testWarningElem = document.getElementsByClassName('navbar-container test-warning-visible');
@@ -761,9 +673,7 @@ export var TableOfContents = /*#__PURE__*/function (_React$Component3) {
     }
   }], [{
     key: "slugify",
-    value:
-    /** Taken from https://gist.github.com/mathewbyrne/1280286 */
-
+    value: /** Taken from https://gist.github.com/mathewbyrne/1280286 */
     /** @deprecated */
     function slugify(text) {
       return text.toString().toLowerCase().replace(/\s+/g, '-') // Replace spaces with -
@@ -772,8 +682,8 @@ export var TableOfContents = /*#__PURE__*/function (_React$Component3) {
       .replace(/^-+/, '') // Trim - from start of text
       .replace(/-+$/, ''); // Trim - from end of text
     }
-    /** @deprecated */
 
+    /** @deprecated */
   }, {
     key: "slugifyReactChildren",
     value: function slugifyReactChildren(children) {
@@ -784,23 +694,19 @@ export var TableOfContents = /*#__PURE__*/function (_React$Component3) {
     value: function textFromReactChildren(children) {
       if (typeof children === 'string') return children;
       if (children && _typeof(children) === 'object' && children.props && children.props.children) return TableOfContents.textFromReactChildren(children.props.children);
-
       if (Array.isArray(children) && children.length > 0) {
         var childrenWithChildren = _.filter(children, function (c) {
           return typeof c === 'string' || c && c.props && c.props.children;
         });
-
         var childPrimaryElemIfAny = _.find(childrenWithChildren, function (c) {
           return c && _typeof(c) === 'object' && c.props && (c.type === 'code' || c.type === 'strong' || c.type === 'b');
         });
-
         if (childPrimaryElemIfAny) {
           return TableOfContents.textFromReactChildren(childPrimaryElemIfAny);
         } else {
           return _.map(children, TableOfContents.textFromReactChildren).join('');
         }
       }
-
       return '';
     }
   }, {
@@ -813,7 +719,8 @@ export var TableOfContents = /*#__PURE__*/function (_React$Component3) {
     key: "isContentJSX",
     value: function isContentJSX(content) {
       if (!content || _typeof(content) !== 'object') return false;
-      return /*#__PURE__*/React.isValidElement(content); // const proto = Object.getPrototypeOf(content);
+      return /*#__PURE__*/React.isValidElement(content);
+      // const proto = Object.getPrototypeOf(content);
       // return proto && proto.isPrototypeOf(React.Component.prototype);
     }
   }, {
@@ -821,7 +728,6 @@ export var TableOfContents = /*#__PURE__*/function (_React$Component3) {
     value: function elementIDFromSectionName(sectionName) {
       var sectionParts;
       var idToUse = sectionName;
-
       if (sectionName.indexOf('#') > -1) {
         sectionParts = sectionName.split('#');
         idToUse = sectionParts[sectionParts.length - 1];
@@ -829,7 +735,6 @@ export var TableOfContents = /*#__PURE__*/function (_React$Component3) {
         sectionParts = sectionName.split('.');
         idToUse = sectionParts[sectionParts.length - 1];
       }
-
       return idToUse;
     }
   }, {
@@ -839,7 +744,6 @@ export var TableOfContents = /*#__PURE__*/function (_React$Component3) {
       var navigateFunc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : navigate;
       var targetElement = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
       var elementTop;
-
       if (link === "top") {
         elementTop = 0;
       } else if (typeof link === 'string' && link) {
@@ -852,7 +756,6 @@ export var TableOfContents = /*#__PURE__*/function (_React$Component3) {
       } else {
         return null;
       }
-
       var pageScrollTop = getPageVerticalScrollPosition();
       animateScrollTo(elementTop, 750, offsetBeforeTarget, function () {
         if (typeof navigateFunc === 'function') {
@@ -867,10 +770,8 @@ export var TableOfContents = /*#__PURE__*/function (_React$Component3) {
       });
     }
   }]);
-
   return TableOfContents;
 }(React.Component);
-
 _defineProperty(TableOfContents, "defaultProps", {
   "context": {
     "title": "Page Title",
@@ -897,14 +798,13 @@ _defineProperty(TableOfContents, "defaultProps", {
   'listStyleTypes': ['none', 'decimal', 'lower-alpha', 'lower-roman'],
   'maxHeaderDepth': 3
 });
-
 export var NextPreviousPageSection = /*#__PURE__*/React.memo(function (props) {
   var context = props.context,
-      className = props.className,
-      previousTitle = props.previousTitle,
-      nextTitle = props.nextTitle;
+    className = props.className,
+    previousTitle = props.previousTitle,
+    nextTitle = props.nextTitle;
   var next = context.next,
-      previous = context.previous;
+    previous = context.previous;
   if (!next && !previous) return null;
   var colSize = previous && next ? 6 : 12;
   return /*#__PURE__*/React.createElement("div", {
@@ -937,23 +837,18 @@ NextPreviousPageSection.defaultProps = {
   'previousTitle': 'Previous',
   'nextTitle': 'Next'
 };
-/** @todo We can probably have this work with HTML-type content as well. */
 
+/** @todo We can probably have this work with HTML-type content as well. */
 export var MarkdownHeading = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(MarkdownHeading, _React$PureComponent);
-
   var _super4 = _createSuper(MarkdownHeading);
-
   function MarkdownHeading(props) {
     var _this6;
-
     _classCallCheck(this, MarkdownHeading);
-
     _this6 = _super4.call(this, props);
     _this6.getID = _this6.getID.bind(_assertThisInitialized(_this6));
     return _this6;
   }
-
   _createClass(MarkdownHeading, [{
     key: "getID",
     value: function getID() {
@@ -961,13 +856,10 @@ export var MarkdownHeading = /*#__PURE__*/function (_React$PureComponent) {
       var id = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
       if (typeof this.id === 'string') return this.id;
       /** slugifyReactChildren is deprecated and should never be called now as we always get props.id passed in (?) */
-
       var idToSet = id || this.props && this.props.id || TableOfContents.slugifyReactChildren(this.props.children);
-
       if (set) {
         this.id = idToSet;
       }
-
       return idToSet;
     }
   }, {
@@ -979,8 +871,8 @@ export var MarkdownHeading = /*#__PURE__*/function (_React$PureComponent) {
     key: "render",
     value: function render() {
       var _this$props6 = this.props,
-          type = _this$props6.type,
-          propChildren = _this$props6.children;
+        type = _this$props6.type,
+        propChildren = _this$props6.children;
       var children = Array.isArray(propChildren) ? propChildren : [propChildren];
       var propsToPass = {
         'children': children,
@@ -988,24 +880,21 @@ export var MarkdownHeading = /*#__PURE__*/function (_React$PureComponent) {
         'type': type
       };
       var attributes = MarkdownHeading.getAttributes(children);
-
       if (attributes && attributes.matchedString) {
         propsToPass.children = _.map(children, function (c) {
           if (typeof c === 'string') return c.replace(attributes.matchedString, '');
           return c;
         });
-
         if (attributes.id) {
           propsToPass.id = this.getID(true, attributes.id);
         }
-
         if (attributes.className) {
           propsToPass.className = attributes.className;
         }
       }
-
       if (!propsToPass.id) propsToPass.id = this.getID(true);
-      return /*#__PURE__*/React.createElement(HeaderWithLink, propsToPass); //return React.createElement(type, propsToPass);
+      return /*#__PURE__*/React.createElement(HeaderWithLink, propsToPass);
+      //return React.createElement(type, propsToPass);
     }
   }], [{
     key: "getAttributes",
@@ -1016,66 +905,51 @@ export var MarkdownHeading = /*#__PURE__*/function (_React$PureComponent) {
         'className': null,
         'matchedString': null
       };
-
       var childrenOuterText = _.filter(children, function (c) {
         return typeof c === 'string';
       }).join(' ');
-
       var attrMatch = childrenOuterText.match(/({:[.-\w#]+})/g);
-
       if (attrMatch && attrMatch.length) {
         attr.matchedString = attrMatch[0];
         attrMatch = attrMatch[0].replace('{:', '').replace('}', '');
         var idMatch = attrMatch.match(/(#[-\w]+)/g);
-
         if (idMatch && idMatch.length) {
           idMatch = idMatch[0].replace('#', '');
           attr.id = idMatch;
           attrMatch = attrMatch.replace('#' + idMatch, '');
         }
-
         attr.className = attrMatch.split('.').join(' ').trim();
       }
-
       return attr;
     }
   }]);
-
   return MarkdownHeading;
 }(React.PureComponent);
-
 _defineProperty(MarkdownHeading, "defaultProps", {
   'type': 'h1',
   'id': null
 });
-
 export var HeaderWithLink = /*#__PURE__*/function (_React$PureComponent2) {
   _inherits(HeaderWithLink, _React$PureComponent2);
-
   var _super5 = _createSuper(HeaderWithLink);
-
   function HeaderWithLink(props) {
     var _this7;
-
     _classCallCheck(this, HeaderWithLink);
-
     _this7 = _super5.call(this, props);
     _this7.handleLinkClick = _this7.handleLinkClick.bind(_assertThisInitialized(_this7));
     return _this7;
   }
-
   _createClass(HeaderWithLink, [{
     key: "handleLinkClick",
     value: function handleLinkClick() {
       var _this$props7 = this.props,
-          link = _this$props7.link,
-          propID = _this$props7.id,
-          context = _this$props7.context;
+        link = _this$props7.link,
+        propID = _this$props7.id,
+        context = _this$props7.context;
       if (!(!isServerSide() && typeof window !== 'undefined' && document)) return null;
       var id = link || propID;
       var itemAtID;
       if (context) itemAtID = itemUtil.atId(context);else itemAtID = window.location.pathname;
-
       if (itemAtID) {
         var linkToCopy = window.location.protocol + '//' + window.location.host + itemAtID + '#' + id;
         CopyWrapper.copyToClipboard(linkToCopy);
@@ -1086,15 +960,13 @@ export var HeaderWithLink = /*#__PURE__*/function (_React$PureComponent2) {
     key: "render",
     value: function render() {
       var _this$props8 = this.props,
-          link = _this$props8.link,
-          propID = _this$props8.id,
-          type = _this$props8.type,
-          children = _this$props8.children;
-
+        link = _this$props8.link,
+        propID = _this$props8.id,
+        type = _this$props8.type,
+        children = _this$props8.children;
       if (!propID && !link) {
         throw new Error('HeaderWithLink needs a link or ID attribute/prop.');
       }
-
       return /*#__PURE__*/React.createElement(type || 'h2', _.omit(this.props, 'type', 'children', 'link', 'context'), [children, /*#__PURE__*/React.createElement("i", {
         key: "icon-link",
         className: "icon icon-fw icon-link fas",
@@ -1103,6 +975,5 @@ export var HeaderWithLink = /*#__PURE__*/function (_React$PureComponent2) {
       })]);
     }
   }]);
-
   return HeaderWithLink;
 }(React.PureComponent);

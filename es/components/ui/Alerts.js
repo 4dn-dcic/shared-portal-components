@@ -7,11 +7,8 @@ import _possibleConstructorReturn from "@babel/runtime/helpers/possibleConstruct
 import _getPrototypeOf from "@babel/runtime/helpers/getPrototypeOf";
 import _defineProperty from "@babel/runtime/helpers/defineProperty";
 var _excluded = ["alerts", "children"];
-
 function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
-
 function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
-
 import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
@@ -20,26 +17,23 @@ import { AlertObj } from './../util/typedefs';
 var defaultNavigateDisappearThreshold = 1;
 var alertNavigatationCountMap = {};
 var store = null;
+
 /**
  * A Component and utility (via Component's 'statics' property & functions) to
  * queue and dequeue alerts from appearing at top of pages. Alerts, once queued, will persist until they are closed by
  * the end user, which is the same functionality as calling Alerts.deQueue(alert) from anywhere in application, supplying the same
  * title for alert that was queued.
  */
-
 export var Alerts = /*#__PURE__*/function (_React$Component) {
   _inherits(Alerts, _React$Component);
-
   var _super = _createSuper(Alerts);
-
   /** @ignore */
   function Alerts(props) {
     var _this;
-
     _classCallCheck(this, Alerts);
-
     _this = _super.call(this, props);
     _this.setDismissing = _this.setDismissing.bind(_assertThisInitialized(_this));
+
     /**
      * State object for component.
      *
@@ -47,18 +41,16 @@ export var Alerts = /*#__PURE__*/function (_React$Component) {
      * @private
      * @property {AlertObj[]} state.dismissing - List of alerts currently being faded out.
      */
-
     _this.state = {
       'dismissing': []
     };
     return _this;
   }
+
   /**
    * Called when 'fade out' of an alert is initialized.
    * @private
    */
-
-
   _createClass(Alerts, [{
     key: "setDismissing",
     value: function setDismissing(dismissing) {
@@ -66,23 +58,21 @@ export var Alerts = /*#__PURE__*/function (_React$Component) {
         dismissing: dismissing
       });
     }
+
     /**
      * Renders out Bootstrap Alerts for any queued alerts.
      *
      * @private
      * @returns {JSX.Element} A `<div>` element containing AlertItems as children.
      */
-
   }, {
     key: "render",
     value: function render() {
       var _this2 = this;
-
       var _this$props = this.props,
-          alerts = _this$props.alerts,
-          children = _this$props.children,
-          passProps = _objectWithoutProperties(_this$props, _excluded);
-
+        alerts = _this$props.alerts,
+        children = _this$props.children,
+        passProps = _objectWithoutProperties(_this$props, _excluded);
       var dismissing = this.state.dismissing;
       if (alerts.length === 0) return null;
       return /*#__PURE__*/React.createElement("div", passProps, _.map(alerts, function (alert, index, alerts) {
@@ -98,11 +88,11 @@ export var Alerts = /*#__PURE__*/function (_React$Component) {
     }
   }], [{
     key: "setStore",
-    value:
-    /** This must be called with the current Redux store for the app before Alerts can be used. */
+    value: /** This must be called with the current Redux store for the app before Alerts can be used. */
     function setStore(useStore) {
       store = useStore;
     }
+
     /**
      * Open an alert box.
      * More specifically, saves a new alert to Redux store 'alerts' field.
@@ -113,40 +103,34 @@ export var Alerts = /*#__PURE__*/function (_React$Component) {
      * @param {AlertObj[]} [currentAlerts]  Current alerts, if any. Pass in for performance, else will retrieve them from Redux.
      * @returns {void} Nothing
      */
-
   }, {
     key: "queue",
     value: function queue(alert) {
       var currentAlerts = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
-
       if (!store) {
         console.error("no store available. canceling.");
         return;
       }
-
       if (!Array.isArray(currentAlerts)) {
         currentAlerts = store.getState().alerts;
       }
-
       var duplicateTitleAlertIdx = _.findIndex(currentAlerts, {
         'title': alert.title
       });
-
       var newAlerts = currentAlerts.slice(0);
-
       if (typeof duplicateTitleAlertIdx === 'number' && duplicateTitleAlertIdx > -1) {
         // Same alert already set, lets update it instead of adding new one.
         newAlerts.splice(duplicateTitleAlertIdx, 1, alert);
       } else {
         newAlerts.push(alert);
       }
-
       store.dispatch({
         type: {
           'alerts': newAlerts
         }
       });
     }
+
     /**
      * Close an alert box.
      *
@@ -157,17 +141,14 @@ export var Alerts = /*#__PURE__*/function (_React$Component) {
      * @param {AlertObj[]} [currentAlerts] - Current alerts, if any. Pass in for performance, else will retrieve them from Redux.
      * @returns {void} Nothing
      */
-
   }, {
     key: "deQueue",
     value: function deQueue(alert) {
       var currentAlerts = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-
       if (!store) {
         console.error("no store available. canceling.");
         return;
       }
-
       if (!Array.isArray(currentAlerts)) currentAlerts = store.getState().alerts;
       var alertsToRemove = Array.isArray(alert) ? alert : [alert];
       var nextAlerts = currentAlerts.slice(0);
@@ -175,12 +156,10 @@ export var Alerts = /*#__PURE__*/function (_React$Component) {
         var idxToDelete = nextAlerts.findIndex(function (a) {
           return a === alertToRemove || a.title === alertToRemove.title;
         });
-
         if (idxToDelete > -1) {
           nextAlerts.splice(idxToDelete, 1);
         }
       });
-
       if (nextAlerts.length < currentAlerts.length) {
         store.dispatch({
           type: {
@@ -189,6 +168,7 @@ export var Alerts = /*#__PURE__*/function (_React$Component) {
         });
       }
     }
+
     /**
      * This is called after each navigation within the portal.
      * It increments counter per each alert title, and if counter exceeds
@@ -198,17 +178,13 @@ export var Alerts = /*#__PURE__*/function (_React$Component) {
      * @param {AlertObj[]} [currentAlerts=null] Current alerts, if any. Pass in for performance, else will retrieve them from Redux.
      * @returns {undefined} Nothing
      */
-
   }, {
     key: "updateCurrentAlertsTitleMap",
     value: function updateCurrentAlertsTitleMap() {
       var currentAlerts = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
       if (!Array.isArray(currentAlerts)) currentAlerts = store.getState().alerts;
-
       var titles = _.pluck(currentAlerts, 'title').sort();
-
       var removedTitles = _.difference(_.keys(alertNavigatationCountMap).sort(), titles);
-
       removedTitles.forEach(function (rt) {
         delete alertNavigatationCountMap[rt];
       });
@@ -218,21 +194,17 @@ export var Alerts = /*#__PURE__*/function (_React$Component) {
         } else {
           alertNavigatationCountMap[a.title][0]++;
         }
-
         if (alertNavigatationCountMap[a.title][0] >= alertNavigatationCountMap[a.title][1]) {
           Alerts.deQueue(a, currentAlerts);
         }
       });
     }
   }]);
-
   return Alerts;
 }(React.Component);
-
 _defineProperty(Alerts, "defaultProps", {
   "className": "alerts mt-2"
 });
-
 Alerts.propTypes = {
   /**
    * List of Alert objects currently being displayed. Should be passed down from Redux store from App.
@@ -246,6 +218,7 @@ Alerts.propTypes = {
     'navigationDissappearThreshold': PropTypes.number
   }))
 };
+
 /**
  * Reusable Alert Definitions
  */
@@ -274,6 +247,7 @@ export var LoginFailed = Alerts.LoginFailed = {
   "style": "danger",
   'navigateDisappearThreshold': 1
 };
+
 /**
  * Component which renders out an individual Alert.
  * Rendered by `Alerts` component.
@@ -281,48 +255,40 @@ export var LoginFailed = Alerts.LoginFailed = {
  * @ignore
  * @private
  */
-
 var AlertItem = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(AlertItem, _React$PureComponent);
-
   var _super2 = _createSuper(AlertItem);
-
   function AlertItem(props) {
     var _this3;
-
     _classCallCheck(this, AlertItem);
-
     _this3 = _super2.call(this, props);
     _this3.dismiss = _this3.dismiss.bind(_assertThisInitialized(_this3));
     _this3.finishDismiss = _this3.finishDismiss.bind(_assertThisInitialized(_this3));
     return _this3;
   }
-
   _createClass(AlertItem, [{
     key: "dismiss",
     value: function dismiss(e) {
       e.stopPropagation();
       e.preventDefault();
       var _this$props2 = this.props,
-          alert = _this$props2.alert,
-          dismissing = _this$props2.dismissing,
-          setDismissing = _this$props2.setDismissing;
+        alert = _this$props2.alert,
+        dismissing = _this$props2.dismissing,
+        setDismissing = _this$props2.setDismissing;
       var nextDismissing = dismissing.slice(0);
-
       if (_.findIndex(nextDismissing, alert) === -1) {
         nextDismissing.push(alert);
       }
-
       setDismissing(nextDismissing);
     }
   }, {
     key: "finishDismiss",
     value: function finishDismiss() {
       var _this$props3 = this.props,
-          alert = _this$props3.alert,
-          dismissing = _this$props3.dismissing,
-          setDismissing = _this$props3.setDismissing,
-          alerts = _this$props3.alerts;
+        alert = _this$props3.alert,
+        dismissing = _this$props3.dismissing,
+        setDismissing = _this$props3.setDismissing,
+        alerts = _this$props3.alerts;
       setDismissing(_.without(dismissing, alert));
       store.dispatch({
         type: {
@@ -334,12 +300,12 @@ var AlertItem = /*#__PURE__*/function (_React$PureComponent) {
     key: "render",
     value: function render() {
       var _this$props4 = this.props,
-          alert = _this$props4.alert,
-          dismissing = _this$props4.dismissing;
+        alert = _this$props4.alert,
+        dismissing = _this$props4.dismissing;
       var bsStyle = alert.style,
-          noCloseButton = alert.noCloseButton,
-          title = alert.title,
-          message = alert.message;
+        noCloseButton = alert.noCloseButton,
+        title = alert.title,
+        message = alert.message;
       var hasMessage = !!message;
       return /*#__PURE__*/React.createElement(Fade, {
         timeout: 500,
@@ -363,6 +329,5 @@ var AlertItem = /*#__PURE__*/function (_React$PureComponent) {
       }, message) : null));
     }
   }]);
-
   return AlertItem;
 }(React.PureComponent);

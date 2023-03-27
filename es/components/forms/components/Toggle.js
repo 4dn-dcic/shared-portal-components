@@ -5,6 +5,7 @@ import React from 'react';
 import _ from 'underscore';
 import { randomId } from './../../util/object';
 import { patchedConsoleInstance as console } from './../../util/patched-console';
+
 /**
  * Wraps a checkbox input to turn it into a toggle switch using CSS.
  * Use just like a checkbox input element.
@@ -13,13 +14,11 @@ import { patchedConsoleInstance as console } from './../../util/patched-console'
  * @prop {function} onChange - Change event handler.
  * @prop {boolean} checked - Whether is checked or not.
  */
-
 export var Toggle = /*#__PURE__*/React.memo(function (_ref) {
   var className = _ref.className,
-      id = _ref.id,
-      disabled = _ref.disabled,
-      remainingProps = _objectWithoutProperties(_ref, _excluded);
-
+    id = _ref.id,
+    disabled = _ref.disabled,
+    remainingProps = _objectWithoutProperties(_ref, _excluded);
   var useID = id || randomId();
   return /*#__PURE__*/React.createElement("div", {
     className: "onoffswitch " + className + (disabled ? ' disabled' : '')

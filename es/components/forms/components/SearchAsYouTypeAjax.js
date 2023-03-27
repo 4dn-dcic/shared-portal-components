@@ -9,15 +9,10 @@ import _inherits from "@babel/runtime/helpers/inherits";
 import _possibleConstructorReturn from "@babel/runtime/helpers/possibleConstructorReturn";
 import _getPrototypeOf from "@babel/runtime/helpers/getPrototypeOf";
 var _excluded = ["optionsHeader", "value", "keyComplete"];
-
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-
 function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
-
 function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
-
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
@@ -29,14 +24,10 @@ import { LinkToSelector } from './LinkToSelector';
 import { SearchSelectionMenu } from './SearchSelectionMenu';
 export var SearchAsYouTypeAjax = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(SearchAsYouTypeAjax, _React$PureComponent);
-
   var _super = _createSuper(SearchAsYouTypeAjax);
-
   function SearchAsYouTypeAjax(props) {
     var _this;
-
     _classCallCheck(this, SearchAsYouTypeAjax);
-
     _this = _super.call(this, props);
     _this.state = {
       results: [],
@@ -54,7 +45,6 @@ export var SearchAsYouTypeAjax = /*#__PURE__*/function (_React$PureComponent) {
     _this.onToggleOpen = _this.onToggleOpen.bind(_assertThisInitialized(_this));
     return _this;
   }
-
   _createClass(SearchAsYouTypeAjax, [{
     key: "componentDidUpdate",
     value: function componentDidUpdate(pastProps, pastState) {
@@ -62,11 +52,9 @@ export var SearchAsYouTypeAjax = /*#__PURE__*/function (_React$PureComponent) {
       var selectedID = this.props.value;
       var pastResults = pastState.results;
       var results = this.state.results;
-
       if (results !== pastResults) {
         ReactTooltip.rebuild();
       }
-
       if (pastSelectedID !== selectedID) {
         this.setState({
           currentTextValue: selectedID || ""
@@ -86,7 +74,7 @@ export var SearchAsYouTypeAjax = /*#__PURE__*/function (_React$PureComponent) {
     key: "onTextInputChange",
     value: function onTextInputChange(evt) {
       var _evt$target$value = evt.target.value,
-          value = _evt$target$value === void 0 ? null : _evt$target$value;
+        value = _evt$target$value === void 0 ? null : _evt$target$value;
       this.setState({
         currentTextValue: value
       });
@@ -96,10 +84,10 @@ export var SearchAsYouTypeAjax = /*#__PURE__*/function (_React$PureComponent) {
     key: "constructFetchURL",
     value: function constructFetchURL() {
       var _this$props = this.props,
-          _this$props$baseHref = _this$props.baseHref,
-          baseHref = _this$props$baseHref === void 0 ? SearchAsYouTypeAjax.defaultProps.baseHref : _this$props$baseHref,
-          _this$props$fieldsToR = _this$props.fieldsToRequest,
-          fieldsToRequest = _this$props$fieldsToR === void 0 ? [] : _this$props$fieldsToR;
+        _this$props$baseHref = _this$props.baseHref,
+        baseHref = _this$props$baseHref === void 0 ? SearchAsYouTypeAjax.defaultProps.baseHref : _this$props$baseHref,
+        _this$props$fieldsToR = _this$props.fieldsToRequest,
+        fieldsToRequest = _this$props$fieldsToR === void 0 ? [] : _this$props$fieldsToR;
       var currentTextValue = this.state.currentTextValue;
       var commonFields = SearchAsYouTypeAjax.defaultProps.fieldsToRequest;
       var requestHref = "".concat(baseHref).concat(currentTextValue ? "&q=" + encodeURIComponent(currentTextValue) : "", "&limit=100&") + commonFields.concat(fieldsToRequest).map(function (field) {
@@ -111,7 +99,6 @@ export var SearchAsYouTypeAjax = /*#__PURE__*/function (_React$PureComponent) {
     key: "onLoadData",
     value: function onLoadData() {
       var _this2 = this;
-
       this.setState({
         loading: true
       }, function () {
@@ -119,24 +106,20 @@ export var SearchAsYouTypeAjax = /*#__PURE__*/function (_React$PureComponent) {
           // if there's already a request running, abort it
           _this2.currentRequest.abort && _this2.currentRequest.abort();
         }
-
         var requestInThisScope = _this2.currentRequest = ajax.load(_this2.constructFetchURL(), function (response) {
           if (requestInThisScope !== _this2.currentRequest) {
             return false; // some other request has been fired; cancel this one
           }
 
           _this2.currentRequest = null;
-
           if (!response || Object.keys(response).length === 0) {
             _this2.setState({
               loading: false,
               results: [],
               error: "Could not get a response from server. Check network and try again."
             });
-
             return;
           }
-
           _this2.setState({
             loading: false,
             results: response['@graph'],
@@ -144,15 +127,14 @@ export var SearchAsYouTypeAjax = /*#__PURE__*/function (_React$PureComponent) {
           });
         }, "GET", function (response, xhr) {
           var _response$Graph = response['@graph'],
-              graph = _response$Graph === void 0 ? [] : _response$Graph,
-              _response$results = response.results,
-              results = _response$results === void 0 ? [] : _response$results,
-              _response$error = response.error,
-              error = _response$error === void 0 ? null : _response$error;
+            graph = _response$Graph === void 0 ? [] : _response$Graph,
+            _response$results = response.results,
+            results = _response$results === void 0 ? [] : _response$results,
+            _response$error = response.error,
+            error = _response$error === void 0 ? null : _response$error;
           var status = xhr.status,
-              statusText = xhr.statusText;
+            statusText = xhr.statusText;
           _this2.currentRequest = null;
-
           if (graph.length === 0) {
             // handle case in which no results found
             _this2.setState({
@@ -163,7 +145,6 @@ export var SearchAsYouTypeAjax = /*#__PURE__*/function (_React$PureComponent) {
           } else if (error) {
             // handle more general errors (should we display the actual error message to users?)
             logger.error("Status code " + status + " encountered. " + statusText);
-
             _this2.setState({
               loading: false,
               results: results,
@@ -177,14 +158,13 @@ export var SearchAsYouTypeAjax = /*#__PURE__*/function (_React$PureComponent) {
     key: "onDropdownSelect",
     value: function onDropdownSelect(result) {
       var _this$props2 = this.props,
-          onChange = _this$props2.onChange,
-          value = _this$props2.value,
-          titleRenderFunction = _this$props2.titleRenderFunction;
+        onChange = _this$props2.onChange,
+        value = _this$props2.value,
+        titleRenderFunction = _this$props2.titleRenderFunction;
       var currentTextValue = this.state.currentTextValue;
-
       if (!titleRenderFunction(currentTextValue)) {
-        console.log("title hasn't been registered"); // if title hasn't been registered, use the old value
-
+        console.log("title hasn't been registered");
+        // if title hasn't been registered, use the old value
         onChange(result, value);
       } else {
         console.log("calling onDropdownSelect", result);
@@ -201,25 +181,22 @@ export var SearchAsYouTypeAjax = /*#__PURE__*/function (_React$PureComponent) {
     key: "render",
     value: function render() {
       var _this$props3 = this.props,
-          propOptionsHeader = _this$props3.optionsHeader,
-          value = _this$props3.value,
-          _this$props3$keyCompl = _this$props3.keyComplete,
-          keyComplete = _this$props3$keyCompl === void 0 ? {} : _this$props3$keyCompl,
-          leftoverProps = _objectWithoutProperties(_this$props3, _excluded);
-
+        propOptionsHeader = _this$props3.optionsHeader,
+        value = _this$props3.value,
+        _this$props3$keyCompl = _this$props3.keyComplete,
+        keyComplete = _this$props3$keyCompl === void 0 ? {} : _this$props3$keyCompl,
+        leftoverProps = _objectWithoutProperties(_this$props3, _excluded);
       var _this$state = this.state,
-          currentTextValue = _this$state.currentTextValue,
-          _this$state$results = _this$state.results,
-          results = _this$state$results === void 0 ? [] : _this$state$results,
-          loading = _this$state.loading,
-          error = _this$state.error;
+        currentTextValue = _this$state.currentTextValue,
+        _this$state$results = _this$state.results,
+        results = _this$state$results === void 0 ? [] : _this$state$results,
+        loading = _this$state.loading,
+        error = _this$state.error;
       var optionsHeader = propOptionsHeader;
-
       var passProps = _objectSpread(_objectSpread({}, leftoverProps), {}, {
         keyComplete: keyComplete,
         value: value
       });
-
       if (loading && !error) {
         optionsHeader = /*#__PURE__*/React.createElement("div", {
           className: "text-center py-3"
@@ -240,9 +217,7 @@ export var SearchAsYouTypeAjax = /*#__PURE__*/function (_React$PureComponent) {
           }), " ", error), optionsHeader);
         }
       }
-
       var intKey = parseInt(value); // if in the middle of editing a custom linked object for this field
-
       var hideButton = value && !isNaN(value) && !keyComplete[intKey];
       return hideButton ? null : /*#__PURE__*/React.createElement(SearchSelectionMenu, _extends({}, passProps, {
         optionsHeader: optionsHeader,
@@ -255,7 +230,6 @@ export var SearchAsYouTypeAjax = /*#__PURE__*/function (_React$PureComponent) {
       }));
     }
   }]);
-
   return SearchAsYouTypeAjax;
 }(React.PureComponent);
 SearchAsYouTypeAjax.propTypes = {
@@ -272,8 +246,8 @@ SearchAsYouTypeAjax.propTypes = {
 SearchAsYouTypeAjax.defaultProps = {
   "optionRenderFunction": function optionRenderFunction(result) {
     var title = result.display_title,
-        atID = result["@id"],
-        description = result.description;
+      atID = result["@id"],
+      description = result.description;
     return /*#__PURE__*/React.createElement("div", {
       "data-tip": description,
       key: atID
@@ -288,40 +262,44 @@ SearchAsYouTypeAjax.defaultProps = {
   },
   "baseHref": "/search/?type=Item",
   "fieldsToRequest": ["@id", "display_title", "description"] // additional fields aside from @id, display_title, and description; all already included
-
 };
+
 /**
  * A HOC for wrapping SearchAsYouTypeAjax with SubmissionView specific bits, like
  * the LinkedObj component which renders the "Create New" & "Advanced Search" buttons.
  */
-
 export function SubmissionViewSearchAsYouTypeAjax(props) {
   var selectComplete = props.selectComplete,
-      nestedField = props.nestedField,
-      value = props.value,
-      arrayIdx = props.arrayIdx,
-      _props$schema$linkTo = props.schema.linkTo,
-      linkTo = _props$schema$linkTo === void 0 ? "Item" : _props$schema$linkTo,
-      _props$itemType = props.itemType,
-      itemType = _props$itemType === void 0 ? linkTo : _props$itemType,
-      _props$idToTitleMap = props.idToTitleMap,
-      idToTitleMap = _props$idToTitleMap === void 0 ? null : _props$idToTitleMap; // Add some logic based on schema.Linkto props if itemType not already available
+    nestedField = props.nestedField,
+    value = props.value,
+    arrayIdx = props.arrayIdx,
+    _props$schema$linkTo = props.schema.linkTo,
+    linkTo = _props$schema$linkTo === void 0 ? "Item" : _props$schema$linkTo,
+    _props$itemType = props.itemType,
+    itemType = _props$itemType === void 0 ? linkTo : _props$itemType,
+    _props$idToTitleMap = props.idToTitleMap,
+    idToTitleMap = _props$idToTitleMap === void 0 ? null : _props$idToTitleMap;
 
-  var baseHref = "/search/?type=" + linkTo; // console.log("idToTitleMap: ", idToTitleMap);
+  // Add some logic based on schema.Linkto props if itemType not already available
+  var baseHref = "/search/?type=" + linkTo;
+
+  // console.log("idToTitleMap: ", idToTitleMap);
+
   // Retrieves Item types from SubmissionView props and uses that to pass SAYTAJAX
   // item-specific options for rendering dropdown items with more/different info than default
+  var optionRenderFunction = (optionCustomizationsByType[itemType] && optionCustomizationsByType[itemType].render ? optionCustomizationsByType[itemType].render : null) || SearchAsYouTypeAjax.defaultProps.optionRenderFunction;
 
-  var optionRenderFunction = (optionCustomizationsByType[itemType] && optionCustomizationsByType[itemType].render ? optionCustomizationsByType[itemType].render : null) || SearchAsYouTypeAjax.defaultProps.optionRenderFunction; // Retrieves the appropriate fields based on item type
-
+  // Retrieves the appropriate fields based on item type
   var fieldsToRequest = (optionCustomizationsByType[itemType] && optionCustomizationsByType[itemType].fieldsToRequest ? optionCustomizationsByType[itemType].fieldsToRequest : null) || SearchAsYouTypeAjax.defaultProps.fieldsToRequest;
   var onChange = useMemo(function () {
     return function (resultItem, valueToReplace) {
       // console.log("calling SubmissionViewSearchAsYouType onchange", arrayIdx);
       return selectComplete(resultItem['@id'], nestedField, itemType, arrayIdx, resultItem.display_title, valueToReplace);
     };
-  }, [selectComplete, nestedField, itemType, arrayIdx]); // Uses idToTitleMap (similar to SubmissionView.keyDisplay) to keep track of & render display_titles
-  // for previously seen objects
+  }, [selectComplete, nestedField, itemType, arrayIdx]);
 
+  // Uses idToTitleMap (similar to SubmissionView.keyDisplay) to keep track of & render display_titles
+  // for previously seen objects
   var titleRenderFunction = useMemo(function () {
     return function (resultAtID) {
       return idToTitleMap[resultAtID] || resultAtID;
@@ -345,10 +323,8 @@ export function SubmissionViewSearchAsYouTypeAjax(props) {
     baseHref: baseHref
   })));
 }
-
 function sexToIcon(sex, showTip) {
   sex = sex.toLowerCase();
-
   if (sex && typeof sex === "string") {
     if (sex === "f") {
       sex = /*#__PURE__*/React.createElement("i", {
@@ -372,10 +348,8 @@ function sexToIcon(sex, showTip) {
       });
     }
   }
-
   return sex;
 }
-
 export var optionCustomizationsByType = {
   "Institution": {
     // "render" is same as default
@@ -384,14 +358,14 @@ export var optionCustomizationsByType = {
   "Individual": {
     "render": function render(result) {
       var title = result.display_title,
-          atID = result["@id"],
-          description = result.description,
-          _result$sex = result.sex,
-          sex = _result$sex === void 0 ? null : _result$sex,
-          _result$age = result.age,
-          age = _result$age === void 0 ? null : _result$age,
-          _result$aliases = result.aliases,
-          aliases = _result$aliases === void 0 ? [] : _result$aliases;
+        atID = result["@id"],
+        description = result.description,
+        _result$sex = result.sex,
+        sex = _result$sex === void 0 ? null : _result$sex,
+        _result$age = result.age,
+        age = _result$age === void 0 ? null : _result$age,
+        _result$aliases = result.aliases,
+        aliases = _result$aliases === void 0 ? [] : _result$aliases;
       return (
         /*#__PURE__*/
         // need to better align right col, and adjust relative widths
@@ -419,9 +393,9 @@ export var optionCustomizationsByType = {
   "Cohort": {
     "render": function render(result) {
       var title = result.display_title,
-          atID = result["@id"],
-          description = result.description,
-          accession = result.accession;
+        atID = result["@id"],
+        description = result.description,
+        accession = result.accession;
       return /*#__PURE__*/React.createElement("div", {
         "data-tip": description,
         key: atID
@@ -436,12 +410,12 @@ export var optionCustomizationsByType = {
   "User": {
     "render": function render(result) {
       var title = result.display_title,
-          atID = result["@id"],
-          description = result.description,
-          email = result.email,
-          role = result.role,
-          first_name = result.first_name,
-          last_name = result.last_name;
+        atID = result["@id"],
+        description = result.description,
+        email = result.email,
+        role = result.role,
+        first_name = result.first_name,
+        last_name = result.last_name;
       return /*#__PURE__*/React.createElement("div", {
         "data-tip": description,
         key: atID
@@ -456,11 +430,11 @@ export var optionCustomizationsByType = {
   "Document": {
     "render": function render(result) {
       var title = result.display_title,
-          atID = result["@id"],
-          description = result.description,
-          status = result.status,
-          date_created = result.date_created,
-          submitted_by = result.submitted_by;
+        atID = result["@id"],
+        description = result.description,
+        status = result.status,
+        date_created = result.date_created,
+        submitted_by = result.submitted_by;
       return /*#__PURE__*/React.createElement("div", {
         "data-tip": description,
         key: atID
@@ -475,11 +449,11 @@ export var optionCustomizationsByType = {
   "Project": {
     "render": function render(result) {
       var title = result.display_title,
-          atID = result["@id"],
-          description = result.description,
-          status = result.status,
-          date_created = result.date_created,
-          submitted_by = result.submitted_by;
+        atID = result["@id"],
+        description = result.description,
+        status = result.status,
+        date_created = result.date_created,
+        submitted_by = result.submitted_by;
       return /*#__PURE__*/React.createElement("div", {
         "data-tip": description,
         key: atID
@@ -494,9 +468,9 @@ export var optionCustomizationsByType = {
   "Phenotype": {
     "render": function render(result) {
       var title = result.display_title,
-          atID = result["@id"],
-          description = result.description,
-          hpo_id = result.hpo_id;
+        atID = result["@id"],
+        description = result.description,
+        hpo_id = result.hpo_id;
       return /*#__PURE__*/React.createElement("div", {
         "data-tip": description,
         key: atID
@@ -509,18 +483,14 @@ export var optionCustomizationsByType = {
     "fieldsToRequest": ["hpo_id"]
   }
 };
-/** Case for a linked object. */
 
+/** Case for a linked object. */
 export var LinkedObj = /*#__PURE__*/function (_React$PureComponent2) {
   _inherits(LinkedObj, _React$PureComponent2);
-
   var _super2 = _createSuper(LinkedObj);
-
   function LinkedObj(props) {
     var _this3;
-
     _classCallCheck(this, LinkedObj);
-
     _this3 = _super2.call(this, props);
     _this3.setSubmissionStateToLinkedToItem = _this3.setSubmissionStateToLinkedToItem.bind(_assertThisInitialized(_this3));
     _this3.handleStartSelectItem = _this3.handleStartSelectItem.bind(_assertThisInitialized(_this3));
@@ -534,7 +504,6 @@ export var LinkedObj = /*#__PURE__*/function (_React$PureComponent2) {
     };
     return _this3;
   }
-
   _createClass(LinkedObj, [{
     key: "componentDidUpdate",
     value: function componentDidUpdate() {
@@ -544,8 +513,8 @@ export var LinkedObj = /*#__PURE__*/function (_React$PureComponent2) {
     key: "setSubmissionStateToLinkedToItem",
     value: function setSubmissionStateToLinkedToItem(e) {
       var _this$props4 = this.props,
-          value = _this$props4.value,
-          setSubmissionState = _this$props4.setSubmissionState;
+        value = _this$props4.value,
+        setSubmissionState = _this$props4.setSubmissionState;
       e.preventDefault();
       e.stopPropagation();
       var intKey = parseInt(value);
@@ -558,53 +527,47 @@ export var LinkedObj = /*#__PURE__*/function (_React$PureComponent2) {
       e.preventDefault();
       if (!window) return;
       var _this$props5 = this.props,
-          schema = _this$props5.schema,
-          nestedField = _this$props5.nestedField,
-          arrayIdx = _this$props5.arrayIdx,
-          selectObj = _this$props5.selectObj;
+        schema = _this$props5.schema,
+        nestedField = _this$props5.nestedField,
+        arrayIdx = _this$props5.arrayIdx,
+        selectObj = _this$props5.selectObj;
       var itemType = schema.linkTo;
       selectObj(itemType, nestedField, arrayIdx);
     }
+
     /**
      * Handles drop event for the (temporarily-existing-while-dragging-over) window drop receiver element.
      * Grabs @ID of Item from evt.dataTransfer, attempting to grab from 'text/4dn-item-id', 'text/4dn-item-json', or 'text/plain'.
      * @see Notes and inline comments for handleChildFourFrontSelectionClick re isValidAtId.
      */
-
   }, {
     key: "handleFinishSelectItem",
     value: function handleFinishSelectItem(items) {
       // console.log("calling LinkedObj.handleFinishSelectItem with: ", items);
       var _this$props6 = this.props,
-          selectComplete = _this$props6.selectComplete,
-          isMultiSelect = _this$props6.isMultiSelect;
-
+        selectComplete = _this$props6.selectComplete,
+        isMultiSelect = _this$props6.isMultiSelect;
       if (!items || !Array.isArray(items) || items.length === 0 || !_.every(items, function (item) {
         return item.id && typeof item.id === 'string' && item.json;
       })) {
         return;
       }
-
       var atIds;
-
       if (!(isMultiSelect || false)) {
         if (items.length > 1) {
           console.warn('Multiple items selected but we only get a single item, since handler\'s not supporting multiple items!');
         }
-
         var _items = _slicedToArray(items, 1),
-            _items$ = _items[0],
-            atId = _items$.id,
-            itemContext = _items$.json;
-
+          _items$ = _items[0],
+          atId = _items$.id,
+          itemContext = _items$.json;
         atIds = [atId];
       } else {
         atIds = _.pluck(items, "id");
-      } // Check validity of item IDs, and handle items with invalid IDs/URLs
+      }
 
-
+      // Check validity of item IDs, and handle items with invalid IDs/URLs
       var invalidTitle = "Invalid Item Selected";
-
       if (_.every(atIds, function (atId) {
         var isValidAtId = object.isValidAtIDFormat(atId);
         return atId && isValidAtId;
@@ -628,13 +591,13 @@ export var LinkedObj = /*#__PURE__*/function (_React$PureComponent2) {
       // console.log("called LinkedObj.handleNewItemClick");
       e.preventDefault();
       var _this$props7 = this.props,
-          fieldBeingSelected = _this$props7.fieldBeingSelected,
-          selectCancel = _this$props7.selectCancel,
-          modifyNewContext = _this$props7.modifyNewContext,
-          nestedField = _this$props7.nestedField,
-          linkType = _this$props7.linkType,
-          arrayIdx = _this$props7.arrayIdx,
-          schema = _this$props7.schema;
+        fieldBeingSelected = _this$props7.fieldBeingSelected,
+        selectCancel = _this$props7.selectCancel,
+        modifyNewContext = _this$props7.modifyNewContext,
+        nestedField = _this$props7.nestedField,
+        linkType = _this$props7.linkType,
+        arrayIdx = _this$props7.arrayIdx,
+        schema = _this$props7.schema;
       if (fieldBeingSelected !== null) selectCancel();
       modifyNewContext(nestedField, null, 'new linked object', linkType, arrayIdx, schema.linkTo);
     }
@@ -644,11 +607,9 @@ export var LinkedObj = /*#__PURE__*/function (_React$PureComponent2) {
       // console.log(`calling LinkedObj.handleAcceptTypedID(evt=${evt})`);
       var selectComplete = this.props.selectComplete;
       var textInputValue = this.state.textInputValue;
-
       if (!this || !this.state || !textInputValue) {
         throw new Error('Invalid @id format.');
       }
-
       selectComplete([textInputValue]);
     }
   }, {
@@ -662,9 +623,9 @@ export var LinkedObj = /*#__PURE__*/function (_React$PureComponent2) {
     key: "childWindowAlert",
     value: function childWindowAlert() {
       var _this$props8 = this.props,
-          schema = _this$props8.schema,
-          nestedField = _this$props8.nestedField,
-          isMultiSelect = _this$props8.isMultiSelect;
+        schema = _this$props8.schema,
+        nestedField = _this$props8.nestedField,
+        isMultiSelect = _this$props8.isMultiSelect;
       var itemType = schema && schema.linkTo;
       var prettyTitle = schema && (schema.parentSchema && schema.parentSchema.title || schema.title);
       var message = /*#__PURE__*/React.createElement("div", null, !isMultiSelect ? /*#__PURE__*/React.createElement("p", {
@@ -684,24 +645,24 @@ export var LinkedObj = /*#__PURE__*/function (_React$PureComponent2) {
     key: "renderSelectInputField",
     value: function renderSelectInputField() {
       var _this$props9 = this.props,
-          selectCancel = _this$props9.selectCancel,
-          schema = _this$props9.schema,
-          currType = _this$props9.currType,
-          nestedField = _this$props9.nestedField,
-          isMultiSelect = _this$props9.isMultiSelect,
-          baseHref = _this$props9.baseHref,
-          value = _this$props9.value;
+        selectCancel = _this$props9.selectCancel,
+        schema = _this$props9.schema,
+        currType = _this$props9.currType,
+        nestedField = _this$props9.nestedField,
+        isMultiSelect = _this$props9.isMultiSelect,
+        baseHref = _this$props9.baseHref,
+        value = _this$props9.value;
       var itemType = schema.linkTo;
       var prettyTitle = schema && (schema.parentSchema && schema.parentSchema.title || schema.title);
-      var searchURL = baseHref + "&currentAction=" + (isMultiSelect ? 'multiselect' : 'selection') + '&type=' + itemType; // check if we have any schema flags that will affect the searchUrl
+      var searchURL = baseHref + "&currentAction=" + (isMultiSelect ? 'multiselect' : 'selection') + '&type=' + itemType;
 
+      // check if we have any schema flags that will affect the searchUrl
       if (schema.ff_flag && schema.ff_flag.startsWith('filter:')) {
         // the field to facet on could be set dynamically
         if (schema.ff_flag == "filter:valid_item_types") {
           searchURL += '&valid_item_types=' + currType;
         }
       }
-
       return /*#__PURE__*/React.createElement(LinkToSelector, {
         isSelecting: true,
         onSelect: this.handleFinishSelectItem,
@@ -737,32 +698,30 @@ export var LinkedObj = /*#__PURE__*/function (_React$PureComponent2) {
     key: "render",
     value: function render() {
       var _this$props10 = this.props,
-          value = _this$props10.value,
-          _this$props10$keyDisp = _this$props10.keyDisplay,
-          keyDisplay = _this$props10$keyDisp === void 0 ? {} : _this$props10$keyDisp,
-          keyComplete = _this$props10.keyComplete,
-          fieldBeingSelected = _this$props10.fieldBeingSelected,
-          nestedField = _this$props10.nestedField,
-          arrayIdx = _this$props10.arrayIdx,
-          fieldBeingSelectedArrayIdx = _this$props10.fieldBeingSelectedArrayIdx;
+        value = _this$props10.value,
+        _this$props10$keyDisp = _this$props10.keyDisplay,
+        keyDisplay = _this$props10$keyDisp === void 0 ? {} : _this$props10$keyDisp,
+        keyComplete = _this$props10.keyComplete,
+        fieldBeingSelected = _this$props10.fieldBeingSelected,
+        nestedField = _this$props10.nestedField,
+        arrayIdx = _this$props10.arrayIdx,
+        fieldBeingSelectedArrayIdx = _this$props10.fieldBeingSelectedArrayIdx;
       var isSelecting = LinkedObj.isInSelectionField(fieldBeingSelected, nestedField, arrayIdx, fieldBeingSelectedArrayIdx);
-
       if (isSelecting) {
         return this.renderSelectInputField();
-      } // object chosen or being created
+      }
 
-
+      // object chosen or being created
       if (value) {
         var thisDisplay = keyDisplay[value] ? /*#__PURE__*/React.createElement(React.Fragment, null, keyDisplay[value], /*#__PURE__*/React.createElement("code", null, value)) : /*#__PURE__*/React.createElement("code", null, value);
-
         if (isNaN(value)) {
           return this.renderButtons();
         } else {
           // it's a custom object. Either render a link to editing the object
           // or a pop-up link to the object if it's already submitted
-          var intKey = parseInt(value); // this is a fallback - shouldn't be int because value should be
+          var intKey = parseInt(value);
+          // this is a fallback - shouldn't be int because value should be
           // string once the obj is successfully submitted
-
           if (keyComplete[intKey]) {
             return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("a", {
               href: keyComplete[intKey],
@@ -802,40 +761,34 @@ export var LinkedObj = /*#__PURE__*/function (_React$PureComponent2) {
       if (!fieldBeingSelected || fieldBeingSelected !== nestedField) {
         return false;
       }
-
       if (arrayIdx === null && fieldBeingSelectedArrayIdx === null) {
         return true;
       }
-
       if (Array.isArray(arrayIdx) && Array.isArray(fieldBeingSelectedArrayIdx)) {
         return _.every(arrayIdx, function (arrIdx, arrIdxIdx) {
           return arrIdx === fieldBeingSelectedArrayIdx[arrIdxIdx];
         });
       }
-
       return false;
     }
   }]);
-
   return LinkedObj;
 }(React.PureComponent);
 export var SquareButton = /*#__PURE__*/React.memo(function (props) {
   var show = props.show,
-      disabled = props.disabled,
-      onClick = props.onClick,
-      tip = props.tip,
-      bsStyle = props.bsStyle,
-      className = props.className,
-      buttonContainerClassName = props.buttonContainerClassName,
-      icon = props.icon,
-      style = props.style;
+    disabled = props.disabled,
+    onClick = props.onClick,
+    tip = props.tip,
+    bsStyle = props.bsStyle,
+    className = props.className,
+    buttonContainerClassName = props.buttonContainerClassName,
+    icon = props.icon,
+    style = props.style;
   var outerCls = "remove-button-container" + (buttonContainerClassName ? ' ' + buttonContainerClassName : '');
   var btnCls = "btn" + (className ? " " + className : "");
-
   if (bsStyle) {
     btnCls += " btn-" + bsStyle;
   }
-
   return /*#__PURE__*/React.createElement("div", {
     className: "remove-button-column" + (!show ? ' hidden' : ''),
     style: style

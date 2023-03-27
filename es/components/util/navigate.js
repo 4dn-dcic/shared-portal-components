@@ -1,10 +1,12 @@
 import url from 'url';
 import queryString from 'query-string';
 import _ from 'underscore';
-import { NavigateOpts } from './typedefs'; // let cachedAppRootComponentInstance = null;
+import { NavigateOpts } from './typedefs';
 
+// let cachedAppRootComponentInstance = null;
 var cachedNavFunction = null;
 var callbackFunctions = [];
+
 /**
  * All of this is very much of a React anti-pattern...
  * Much of navigate probably could be more static/global and work w. Redux store maybe,
@@ -30,7 +32,6 @@ var callbackFunctions = [];
  * var { navigate } = require('./util');
  * navigate('/a/different/page', options);
  */
-
 var navigate = function (href) {
   var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
   var callback = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
@@ -41,10 +42,10 @@ var navigate = function (href) {
     if (callbackFunctions.length > 0) _.forEach(callbackFunctions, function (cb) {
       cb(jsonResponse);
     }); // Any registered callbacks.
-
     if (typeof callback === 'function') callback(jsonResponse); // Original callback
   }, fallbackCallback, includeReduxDispatch);
 };
+
 /******* PUBLIC STATIC FUNCTIONS *******/
 
 /**
@@ -52,13 +53,12 @@ var navigate = function (href) {
  *
  * @returns {void}
  */
-
-
 navigate.initializeFromApp = function (rootAppComponentInstance) {
-  if (typeof rootAppComponentInstance.navigate !== 'function') throw new Error("`rootAppComponentInstance.navigate` is not a function."); // cachedAppRootComponentInstance = rootAppComponentInstance; // <-- Super anti-pattern...
-
+  if (typeof rootAppComponentInstance.navigate !== 'function') throw new Error("`rootAppComponentInstance.navigate` is not a function.");
+  // cachedAppRootComponentInstance = rootAppComponentInstance; // <-- Super anti-pattern...
   cachedNavFunction = rootAppComponentInstance.navigate;
 };
+
 /**
  * This is called in app initialization to alias app.navigate into this global module/function.
  *
@@ -66,48 +66,40 @@ navigate.initializeFromApp = function (rootAppComponentInstance) {
  * @param {function} navFxn - The `navigate` function bound to `App` component to be aliased.
  * @returns {void}
  */
-
-
 navigate.setNavigateFunction = function (navFxn) {
   if (typeof navFxn !== 'function') throw new Error("Not a function.");
   cachedNavFunction = navFxn;
 };
-
 navigate.determineSeparatorChar = function (href) {
-  return ['?', '&'].indexOf(href.charAt(href.length - 1)) > -1 ? // Is last character a '&' or '?' ?
+  return ['?', '&'].indexOf(href.charAt(href.length - 1)) > -1 ?
+  // Is last character a '&' or '?' ?
   '' : href.match(/\?./) ? '&' : '?';
 };
+
 /** Utility function to check if we are on a search page. */
-
-
 navigate.isSearchHref = function (href) {
   if (typeof href === 'string') href = url.parse(href);
   if (href.pathname.slice(0, 8) === '/search/') return true;
   return false;
 };
+
 /** Register a function to be called on each navigate response. */
-
-
 navigate.registerCallbackFunction = function (fxn) {
   callbackFunctions.push(fxn);
 };
-
 navigate.deregisterCallbackFunction = function (fxn) {
   callbackFunctions = _.without(callbackFunctions, fxn);
 };
+
 /** Useful for param lists */
-
-
 navigate.mergeObjectsOfLists = function () {
   if (arguments.length < 2) throw Error('Expecting multiple objects as params');
   var targetObj = arguments[0];
   var sourceObjs = Array.prototype.slice.call(arguments, 1);
-
   _.forEach(sourceObjs, function (o) {
     _.forEach(_.keys(o), function (oKey) {
       if (typeof targetObj[oKey] === 'undefined') targetObj[oKey] = [];
       if (typeof targetObj[oKey] === 'string') targetObj[oKey] = [targetObj[oKey]];
-
       if (Array.isArray(o[oKey])) {
         if (!_.every(o[oKey], function (v) {
           return typeof v === 'string';
@@ -120,25 +112,20 @@ navigate.mergeObjectsOfLists = function () {
       }
     });
   });
-
   _.forEach(_.keys(targetObj), function (tKey) {
     if (typeof targetObj[tKey] === 'string') targetObj[tKey] = [targetObj[tKey]]; // Keys which perhaps don't exist on sourceObjs
-
     targetObj[tKey] = _.uniq(_.filter(targetObj[tKey]));
     if (targetObj[tKey].length === 0) delete targetObj[tKey];
   });
-
   return targetObj;
 };
+
 /** Test if same origin on 2 hrefs. Ported from ENCODE/libs/origin. */
-
-
 navigate.sameOrigin = function (from, to) {
   if (typeof to === 'undefined') {
     to = from;
     from = document.location.href;
   }
-
   if (typeof from === 'string') from = url.parse(from);
   if (typeof to === 'string') to = url.parse(url.resolve(from.href, to));
   if (to.protocol === 'data:' || to.protocol === 'javascript:') return true;
@@ -146,5 +133,4 @@ navigate.sameOrigin = function (from, to) {
   if (from.protocol === 'file:') return from.pathname === to.pathname;
   return from.host === to.host;
 };
-
 export { navigate };

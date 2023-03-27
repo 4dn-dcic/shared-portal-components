@@ -9,22 +9,14 @@ import _inherits from "@babel/runtime/helpers/inherits";
 import _possibleConstructorReturn from "@babel/runtime/helpers/possibleConstructorReturn";
 import _getPrototypeOf from "@babel/runtime/helpers/getPrototypeOf";
 var _excluded = ["children"],
-    _excluded2 = ["children"];
-
+  _excluded2 = ["children"];
 function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
-
 function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
-
-function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
-
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-
 function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
-
 function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
-
 import React, { useMemo, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
@@ -35,22 +27,22 @@ import * as logger from '../../util/logger';
 import { DisplayTitleColumnWrapper, DisplayTitleColumnDefault } from './../../browse/components/table-commons/basicColumnExtensionMap';
 import { getSchemaTypeFromSearchContext, getTitleForType } from './../../util/schema-transforms';
 import { patchedConsoleInstance as console } from './../../util/patched-console';
+
 /**
  * Utility function to post message to parent window
  * @param {Array} selectedItems: array of {id:ID of selected Item, if any, json:JSON of selected Item, if present (NOT GUARANTEED TO BE PROVIDED)} object
  * set selectedItems as empty array ([]) to close child window
  */
-
 export function sendDataToParentWindow(itemsListWrappedWithID) {
   if (!itemsListWrappedWithID || itemsListWrappedWithID.length === 0) {
     return;
   }
-
   var eventJSON = {
     'items': itemsListWrappedWithID,
     'eventType': 'fourfrontselectionclick'
-  }; // Standard - postMessage
+  };
 
+  // Standard - postMessage
   try {
     window.opener.postMessage(eventJSON, '*');
   } catch (err) {
@@ -63,23 +55,19 @@ export function sendDataToParentWindow(itemsListWrappedWithID) {
     } else {
       logger.error('Unexpecter error -- browser may not support postMessage', err);
     }
-  } // Nonstandard - in case browser doesn't support postMessage but does support other cross-window events (unlikely).
+  }
 
-
+  // Nonstandard - in case browser doesn't support postMessage but does support other cross-window events (unlikely).
   window.dispatchEvent(new CustomEvent('fourfrontselectionclick', {
     'detail': eventJSON
   }));
 }
 export var SelectedItemsController = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(SelectedItemsController, _React$PureComponent);
-
   var _super = _createSuper(SelectedItemsController);
-
   function SelectedItemsController(props) {
     var _this;
-
     _classCallCheck(this, SelectedItemsController);
-
     _this = _super.call(this, props);
     _this.handleSelectItem = _this.handleSelectItem.bind(_assertThisInitialized(_this));
     _this.handleResetSelectedItems = _this.handleResetSelectedItems.bind(_assertThisInitialized(_this));
@@ -88,7 +76,6 @@ export var SelectedItemsController = /*#__PURE__*/function (_React$PureComponent
     };
     return _this;
   }
-
   _createClass(SelectedItemsController, [{
     key: "componentDidMount",
     value: function componentDidMount() {
@@ -102,11 +89,11 @@ export var SelectedItemsController = /*#__PURE__*/function (_React$PureComponent
         }
       });
     }
+
     /**
      * This function add/or removes the selected item into an Map in state,
      * if `props.currentAction` is set to "multiselect" or "selection".
      */
-
   }, {
     key: "handleSelectItem",
     value: function handleSelectItem(result, isMultiSelect) {
@@ -115,11 +102,9 @@ export var SelectedItemsController = /*#__PURE__*/function (_React$PureComponent
         var prevItems = _ref.selectedItems;
         var nextItems = new Map(prevItems);
         var isList = Array.isArray(result);
-
         if (!isMultiSelect && isList) {
           throw new Error("Can only supply list if multiselect is also enabled");
         }
-
         if (isList) {
           // Add/overwrite only.
           result.forEach(function (resultItem) {
@@ -128,22 +113,18 @@ export var SelectedItemsController = /*#__PURE__*/function (_React$PureComponent
         } else {
           // Toggle on/off.
           var resultAtID = itemUtil.atId(result);
-
           if (nextItems.has(resultAtID)) {
             nextItems["delete"](resultAtID);
           } else {
             if (!isMultiSelect) {
               nextItems.clear();
             }
-
             nextItems.set(resultAtID, result);
           }
         }
-
         if (keepSelectionInStorage && storeExists()) {
           localStorage.setItem("selected_items", JSON.stringify(Array.from(nextItems.entries())));
         }
-
         return {
           selectedItems: nextItems
         };
@@ -154,56 +135,53 @@ export var SelectedItemsController = /*#__PURE__*/function (_React$PureComponent
     value: function handleResetSelectedItems() {
       var initialResults = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
       var selectedItems = new Map();
-
       if (Array.isArray(initialResults)) {
         initialResults.forEach(function (result) {
           var atId = itemUtil.atId(result);
           selectedItems.set(atId, result);
         });
       }
-
       this.setState({
         selectedItems: selectedItems
       });
     }
+
     /**
      * If in selection mode and a `props.columnExtensionMap` is present,
      * extends columnExtensionMap's display_title render function.
      * Adds in a checkbox element which controls selectedItems state entry.
      */
-
   }, {
     key: "columnExtensionMapWithSelectButton",
     value: function columnExtensionMapWithSelectButton() {
       var _this2 = this;
-
       var _this$props = this.props,
-          originalColumnExtensionMap = _this$props.columnExtensionMap,
-          _this$props$currentAc = _this$props.currentAction,
-          currentAction = _this$props$currentAc === void 0 ? null : _this$props$currentAc; // Check if `currentAction` is one of "selection" | "multiselect"
+        originalColumnExtensionMap = _this$props.columnExtensionMap,
+        _this$props$currentAc = _this$props.currentAction,
+        currentAction = _this$props$currentAc === void 0 ? null : _this$props$currentAc;
 
+      // Check if `currentAction` is one of "selection" | "multiselect"
       var inSelectionMode = isSelectAction(currentAction);
-
       if (!inSelectionMode || !originalColumnExtensionMap) {
         return originalColumnExtensionMap;
-      } // Kept for reference in case we want to re-introduce constrain that for 'select' button(s) to be visible in search result rows, there must be parent window.
+      }
+
+      // Kept for reference in case we want to re-introduce constrain that for 'select' button(s) to be visible in search result rows, there must be parent window.
       //var isThereParentWindow = inSelectionMode && typeof window !== 'undefined' && window.opener && window.opener.fourfront && window.opener !== window;
+
       // Render out button and add to title render output for "Select" if we have a 'selection' currentAction.
       // Also add the popLink/target=_blank functionality to links
       // Remove lab.display_title and type columns on selection
-
-
       var newColumnExtensionMap = _.clone(originalColumnExtensionMap);
-
       newColumnExtensionMap.display_title = _objectSpread(_objectSpread({}, newColumnExtensionMap.display_title), {}, {
         'minColumnWidth': (originalColumnExtensionMap.display_title.minColumnWidth || 100) + 20,
         'render': function render(result, parentProps) {
           var selectedItems = _this2.state.selectedItems;
           var rowNumber = parentProps.rowNumber,
-              detailOpen = parentProps.detailOpen,
-              toggleDetailOpen = parentProps.toggleDetailOpen,
-              href = parentProps.href,
-              context = parentProps.context;
+            detailOpen = parentProps.detailOpen,
+            toggleDetailOpen = parentProps.toggleDetailOpen,
+            href = parentProps.href,
+            context = parentProps.context;
           return /*#__PURE__*/React.createElement(DisplayTitleColumnWrapper, {
             result: result,
             href: href,
@@ -224,35 +202,30 @@ export var SelectedItemsController = /*#__PURE__*/function (_React$PureComponent
     key: "render",
     value: function render() {
       var _this$props2 = this.props,
-          children = _this$props2.children,
-          remainingProps = _objectWithoutProperties(_this$props2, _excluded);
-
+        children = _this$props2.children,
+        remainingProps = _objectWithoutProperties(_this$props2, _excluded);
       var selectedItems = this.state.selectedItems;
-
       var propsToPass = _objectSpread(_objectSpread({}, remainingProps), {}, {
         selectedItems: selectedItems,
         columnExtensionMap: this.columnExtensionMapWithSelectButton(),
         onSelectItem: this.handleSelectItem,
         onResetSelectedItems: this.handleResetSelectedItems
       });
-
       return React.Children.map(children, function (child) {
         if (! /*#__PURE__*/React.isValidElement(child)) {
           throw new Error('SelectedItemsSearchController expects props.children to be a valid React component instance(s).');
         }
-
         return /*#__PURE__*/React.cloneElement(child, propsToPass);
       });
     }
   }]);
-
   return SelectedItemsController;
 }(React.PureComponent);
 export var SelectionItemCheckbox = /*#__PURE__*/React.memo(function (props) {
   var selectedItems = props.selectedItems,
-      result = props.result,
-      isMultiSelect = props.isMultiSelect,
-      onSelectItem = props.onSelectItem;
+    result = props.result,
+    isMultiSelect = props.isMultiSelect,
+    onSelectItem = props.onSelectItem;
   var isChecked = selectedItems.has(itemUtil.atId(result));
   var onChange = useMemo(function () {
     return onSelectItem.bind(onSelectItem, result, isMultiSelect);
@@ -264,27 +237,24 @@ export var SelectionItemCheckbox = /*#__PURE__*/React.memo(function (props) {
     className: "mr-2"
   });
 });
-/** Move to own file later maybe. Especially if functionality expands. */
 
+/** Move to own file later maybe. Especially if functionality expands. */
 export var SelectStickyFooter = /*#__PURE__*/React.memo(function (props) {
   var context = props.context,
-      schemas = props.schemas,
-      selectedItems = props.selectedItems,
-      currentAction = props.currentAction;
-  /** This function sends selected items to parent window. */
+    schemas = props.schemas,
+    selectedItems = props.selectedItems,
+    currentAction = props.currentAction;
 
+  /** This function sends selected items to parent window. */
   var onComplete = useCallback(function () {
     var itemsWrappedWithID = [];
-
     var _iterator = _createForOfIteratorHelper(selectedItems),
-        _step;
-
+      _step;
     try {
       for (_iterator.s(); !(_step = _iterator.n()).done;) {
         var _step$value = _slicedToArray(_step.value, 2),
-            key = _step$value[0],
-            value = _step$value[1];
-
+          key = _step$value[0],
+          value = _step$value[1];
         itemsWrappedWithID.push({
           "id": key,
           "json": value
@@ -295,7 +265,6 @@ export var SelectStickyFooter = /*#__PURE__*/React.memo(function (props) {
     } finally {
       _iterator.f();
     }
-
     sendDataToParentWindow(itemsWrappedWithID);
   }, [selectedItems]);
   var onCancel = useCallback(function () {
@@ -304,9 +273,8 @@ export var SelectStickyFooter = /*#__PURE__*/React.memo(function (props) {
         return;
       }
     }
-
-    window.dispatchEvent(new Event('fourfrontcancelclick')); // CURRENT: If we have parent window, post a message to it as well.
-
+    window.dispatchEvent(new Event('fourfrontcancelclick'));
+    // CURRENT: If we have parent window, post a message to it as well.
     if (window.opener) {
       window.opener.postMessage({
         'eventType': 'fourfrontcancelclick'
@@ -354,13 +322,12 @@ export var SelectStickyFooter = /*#__PURE__*/React.memo(function (props) {
 });
 export var BackNavigationStickyFooter = /*#__PURE__*/React.memo(function (props) {
   var text = props.text,
-      tooltip = props.tooltip,
-      navigateToInitialPage = props.navigateToInitialPage;
+    tooltip = props.tooltip,
+    navigateToInitialPage = props.navigateToInitialPage;
   var onBackButtonClick = useCallback(function () {
     if (window.history.length === 0) {
       return;
     }
-
     history.go(navigateToInitialPage === true ? -(window.history.length - 1) : -1);
   });
   return /*#__PURE__*/React.createElement(StickyFooter, null, /*#__PURE__*/React.createElement("div", {
@@ -386,15 +353,14 @@ BackNavigationStickyFooter.defaultProps = {
   'tooltip': 'Go to selection page',
   'navigateToInitialPage': true
 };
+
 /**
  * General purpose sticky footer component
  * TODO: Component can be moved to a separate file.
  */
-
 export function StickyFooter(_ref2) {
   var children = _ref2.children,
-      passProps = _objectWithoutProperties(_ref2, _excluded2);
-
+    passProps = _objectWithoutProperties(_ref2, _excluded2);
   return /*#__PURE__*/React.createElement("div", _extends({
     className: "sticky-page-footer"
   }, passProps), /*#__PURE__*/React.createElement("div", {
