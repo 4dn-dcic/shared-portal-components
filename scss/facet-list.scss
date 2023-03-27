@@ -65,6 +65,10 @@ $facetlist-term-block-height: default !default;
                 >div:last-child button {
                     &.active {
                         background-color: $facetlist-omitted-term-color;
+                        border: $facetlist-omitted-term-color;
+                        &:not(:disabled):not(.disabled):focus {
+                            box-shadow: 0 0 0 0.2rem rgba(154, 75, 75, 0.5);
+                        }
                     }
                 }
             }
