@@ -1,4 +1,4 @@
-function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
+import _typeof from "@babel/runtime/helpers/typeof";
 import React from 'react';
 import _ from 'underscore';
 import { isServerSide } from './../util/misc';
@@ -210,11 +210,9 @@ var highlightTermFxn = _.debounce(function () {
   function setHighlightClass(el) {
     var off = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
     var isSVG, className;
-    //if (el.nodeName.toLowerCase() === 'path') console.log(el);
     if (el.className.baseVal) {
       isSVG = true;
       className = el.className.baseVal;
-      //if (el.nodeName.toLowerCase() === 'path')console.log('isSVG', off);
     } else {
       isSVG = false;
       className = el.className;
