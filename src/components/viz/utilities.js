@@ -203,11 +203,9 @@ const highlightTermFxn = _.debounce(function(
 
     function setHighlightClass(el, off = false){
         var isSVG, className;
-        //if (el.nodeName.toLowerCase() === 'path') console.log(el);
         if (el.className.baseVal) {
             isSVG = true;
             className = el.className.baseVal;
-            //if (el.nodeName.toLowerCase() === 'path')console.log('isSVG', off);
         } else {
             isSVG = false;
             className = el.className;
