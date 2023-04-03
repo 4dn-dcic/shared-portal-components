@@ -1,6 +1,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+// Use this resource to generate filter string from hexcode: https://codepen.io/sosuke/pen/Pjoqqp
+// I had included some of this code in the original version of this file, but decided it added too much
+// unnecessary complexity (especially since this component will be used sparingly). 
+var hexToFilterMap = {
+  "#ffffff": "invert(99%) sepia(1%) saturate(2%) hue-rotate(286deg) brightness(118%) contrast(100%)",
+  "#000000": "invert(0%) sepia(0%) saturate(0%) hue-rotate(324deg) brightness(96%) contrast(104%)"
+  // Add any additional ones here, if necessary
+};
+
 /**
  * Since v6 of Font Awesome will require a pretty big upgrade w/some breaking changes,
  * and we have urgent need for one or two of the icons from that subset, this file will temporarily
@@ -57,12 +66,3 @@ FontAwesomeV6Icons.propTypes = {
   "cls": PropTypes.string
 };
 export default FontAwesomeV6Icons;
-
-// Use this resource to generate filter string from hexcode: https://codepen.io/sosuke/pen/Pjoqqp
-// I had included some of this code in the original version of this file, but decided it added too much
-// unnecessary complexity (especially since this component will be used sparingly). 
-var hexToFilterMap = {
-  "#ffffff": "invert(99%) sepia(1%) saturate(2%) hue-rotate(286deg) brightness(118%) contrast(100%)",
-  "#000000": "invert(0%) sepia(0%) saturate(0%) hue-rotate(324deg) brightness(96%) contrast(104%)"
-  // Add any additional ones here, if necessary
-};
