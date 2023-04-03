@@ -28,7 +28,7 @@ export var LocalizedTime = /*#__PURE__*/function (_React$Component) {
     _this.memoized = {
       getDateFns: memoize(function (dateFnsDate, timestamp) {
         var parsedTime = zonedTimeToUtc(timestamp);
-        console.log("parsedTime", parsedTime);
+        // console.log("parsedTime", parsedTime);
         if (dateFnsDate) return dateFnsDate;
         if (timestamp) return parsedTime;
         return new Date();
