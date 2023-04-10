@@ -287,7 +287,7 @@ export class VirtualHrefController extends React.PureComponent {
         }
 
         if (filterObjs.length === 0) {
-            console.log("Attempted multi-filter, but no objects passed in!");
+            console.error("Attempted multi-filter, but no objects passed in!");
             return null;
         }
 

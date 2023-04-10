@@ -638,13 +638,17 @@ export class CopyWrapper extends React.PureComponent {
     }
 
     render(){
-        const { value, children, mounted, wrapperElement, iconProps, includeIcon, className } = this.props;
+        const { value, children, mounted, wrapperElement, iconProps, includeIcon, className, stopPropagation } = this.props;
         if (!value) return null;
 
         // eslint-disable-next-line react/destructuring-assignment
         const isMounted = (mounted || (this.state && this.state.mounted)) || false;
 
-        const copy = (e) =>
+        const copy = (e) => {
+            if (stopPropagation) {
+                e.stopPropagation();
+            }
+
             CopyWrapper.copyToClipboard(value, (v)=>{
                 this.onCopy();
                 analytics.event('CopyWrapper', 'Copy', {
@@ -657,6 +661,7 @@ export class CopyWrapper extends React.PureComponent {
                     'name' : v
                 });
             });
+        };
 
         const elemsToWrap = [];
         if (children)                   elemsToWrap.push(children);
