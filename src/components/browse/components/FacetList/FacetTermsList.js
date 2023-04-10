@@ -77,9 +77,12 @@ export function mergeTerms(facet, filters){
 
     // These are terms which might have been manually defined in URL but are not present in data at all.
     // Include them so we can unselect them.
-    const unseenTerms = _.keys(activeTermsForField).map(function(term){
-        return { key: term, doc_count: 0 };
-    });
+    let unseenTerms = [];
+    if (!facet.group_by) {
+        unseenTerms = _.keys(activeTermsForField).map(function (term) {
+            return { key: term, doc_count: 0 };
+        });
+    }
 
     return terms.concat(unseenTerms);
 }
@@ -117,15 +120,17 @@ export class Term extends React.PureComponent {
         'term'              : PropTypes.shape({
             'key'               : PropTypes.string.isRequired,
             'doc_count'         : PropTypes.number,
-            'is_group_header'   : PropTypes.bool,
-            'is_group_item'     : PropTypes.bool
+            'is_parent'         : PropTypes.bool,
+            'has_suggested_terms': PropTypes.bool,
+            'terms'             : PropTypes.array
         }).isRequired,
         'isFiltering'       : PropTypes.bool,
         'filteringFieldTerm': PropTypes.shape({ field: PropTypes.string, term: PropTypes.string }),
         'onClick'           : PropTypes.func.isRequired,
         'status'            : PropTypes.oneOf(["none", "selected", "omitted"]),
+        'getTermStatus'     : PropTypes.func.isRequired,
         'termTransformFxn'  : PropTypes.func,
-        'useRadioIcon'     : PropTypes.bool.isRequired
+        'useRadioIcon'      : PropTypes.bool.isRequired
     };
 
     static defaultProps = {
@@ -144,7 +149,7 @@ export class Term extends React.PureComponent {
     }
 
     render() {
-        const { term, facet, status, termTransformFxn, isFiltering, useRadioIcon = false } = this.props;
+        const { term, facet, status, getTermStatus, termTransformFxn, isFiltering, onClick, useRadioIcon = false, hasParent } = this.props;
 
         const selected = (status !== 'none');
         const count = (term && term.doc_count) || 0;
@@ -166,15 +171,23 @@ export class Term extends React.PureComponent {
         }
 
         const statusClassName = (status !== 'none' ? (status === 'selected' ? " selected" : " omitted") : '');
-        const { is_group_header: isGroupHeader, is_group_item: isGroupItem } = term;
+        const { is_parent : isParent = false, has_suggested_terms : hasSuggestedTerms = false } = term;
+        let subTerms = null;
+        if (isParent && !hasSuggestedTerms && term.terms && Array.isArray(term.terms) && term.terms.length > 0){
+            const childProps = { facet, getTermStatus, termTransformFxn, isFiltering, onClick, useRadioIcon, hasParent: true };
+            subTerms = term.terms.map(function (t) { return (<Term key={t.key} term={t} {...childProps} status={getTermStatus(t, facet)} />); });
+        }
         return (
-            <li className={"facet-list-element " + statusClassName + (isGroupItem ? " pl-3" : "")} key={term.key} data-key={term.key}>
-                <a className="term" data-selected={selected} href="#" onClick={this.handleClick} data-term={term.key}>
-                    <span className="facet-selector">{icon}</span>
-                    <span className={"facet-item" + (isGroupHeader ? " facet-item-group-header" : "")} data-tip={title.length > 30 ? title : null}>{title}</span>
-                    {isGroupHeader ? null : <span className="facet-count">{count}</span>}
-                </a>
-            </li>
+            <React.Fragment>
+                <li className={"facet-list-element " + statusClassName + (hasParent ? " pl-3" : "")} key={term.key} data-key={term.key}>
+                    <a className="term" data-selected={selected} href="#" onClick={this.handleClick} data-term={term.key}>
+                        <span className="facet-selector">{icon}</span>
+                        <span className={"facet-item" + (isParent ? " facet-item-group-header" : "")} data-tip={title.length > 30 ? title : null}>{title}</span>
+                        {((isParent && subTerms) || (hasParent && count === 0))/* && !hasSuggestedTerms*/ ? null : <span className="facet-count">{count}</span>}
+                    </a>
+                </li>
+                {subTerms}
+            </React.Fragment>
         );
     }
 
@@ -354,31 +367,11 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
     } = useMemo(function(){
         const { field } = facet;
 
-        let allTermComponents = null;
-        if (!facet.group_by) {
-            allTermComponents = terms.map(function (term) {
-                const { field: currFilteringField, term: currFilteringTerm } = filteringFieldTerm || {};
-                const isFiltering = field === currFilteringField && term.key === currFilteringTerm;
-                return <Term {...{ facet, term, termTransformFxn, isFiltering, useRadioIcon }} onClick={onTermClick} key={term.key} status={getTermStatus(term, facet)} />;
-            });
-        } else {
-            allTermComponents = [];
-            let currGroupingKey = null;
-            _.chain(terms).sortBy((term) => -term.doc_count).sortBy((term) => term.grouping_key).value().forEach(function(term){
-                if (term.grouping_key && term.grouping_key !== currGroupingKey) {
-                    const groupingTerm = { doc_count: 99, 'key': term.grouping_key, 'is_group_header': true };
-                    const isFiltering = field === currFilteringField && term.key === currFilteringTerm;
-                    const groupByFacet = { ...facet };
-                    groupByFacet.field = facet.group_by;
-                    delete groupByFacet.group_by;
-                    allTermComponents.push(<Term {...{ facet: groupByFacet, term: groupingTerm, termTransformFxn, isFiltering, useRadioIcon }} onClick={onTermClick} key={'g-' + groupingTerm.key} status={getTermStatus(groupingTerm, facet)} />);
-                    currGroupingKey = term.grouping_key;
-                }
-                const { field: currFilteringField, term: currFilteringTerm } = filteringFieldTerm || {};
-                const isFiltering = field === currFilteringField && term.key === currFilteringTerm;
-                allTermComponents.push(<Term {...{ facet, term, termTransformFxn, isFiltering, useRadioIcon }} onClick={onTermClick} key={term.key} status={getTermStatus(term, facet)} />);
-            });
-        }
+        const allTermComponents = terms.map(function (term){
+            const { field: currFilteringField, term: currFilteringTerm } = filteringFieldTerm || {};
+            const isFiltering = field === currFilteringField && term.key === currFilteringTerm;
+            return <Term {...{ facet, term, termTransformFxn, isFiltering, useRadioIcon, getTermStatus }} onClick={onTermClick} key={term.key} status={getTermStatus(term, facet)} />;
+        });
         const segments = segmentComponentsByStatus(allTermComponents);
 
         const { selected: selectedTermComponents = [], omitted : omittedTermComponents = [] } = segments;

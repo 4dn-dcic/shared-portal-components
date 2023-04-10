@@ -1,6 +1,6 @@
-import _extends from "@babel/runtime/helpers/extends";
 import _slicedToArray from "@babel/runtime/helpers/slicedToArray";
 import _objectWithoutProperties from "@babel/runtime/helpers/objectWithoutProperties";
+import _extends from "@babel/runtime/helpers/extends";
 import _classCallCheck from "@babel/runtime/helpers/classCallCheck";
 import _createClass from "@babel/runtime/helpers/createClass";
 import _assertThisInitialized from "@babel/runtime/helpers/assertThisInitialized";
@@ -9,8 +9,6 @@ import _possibleConstructorReturn from "@babel/runtime/helpers/possibleConstruct
 import _getPrototypeOf from "@babel/runtime/helpers/getPrototypeOf";
 import _defineProperty from "@babel/runtime/helpers/defineProperty";
 var _excluded = ["count", "countActive", "height", "width", "ltr", "className"];
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
 function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
 import React, { useMemo } from 'react';
@@ -94,12 +92,15 @@ export function mergeTerms(facet, filters) {
 
   // These are terms which might have been manually defined in URL but are not present in data at all.
   // Include them so we can unselect them.
-  var unseenTerms = _.keys(activeTermsForField).map(function (term) {
-    return {
-      key: term,
-      doc_count: 0
-    };
-  });
+  var unseenTerms = [];
+  if (!facet.group_by) {
+    unseenTerms = _.keys(activeTermsForField).map(function (term) {
+      return {
+        key: term,
+        doc_count: 0
+      };
+    });
+  }
   return terms.concat(unseenTerms);
 }
 
@@ -153,10 +154,13 @@ export var Term = /*#__PURE__*/function (_React$PureComponent) {
         term = _this$props2.term,
         facet = _this$props2.facet,
         status = _this$props2.status,
+        getTermStatus = _this$props2.getTermStatus,
         termTransformFxn = _this$props2.termTransformFxn,
         isFiltering = _this$props2.isFiltering,
+        onClick = _this$props2.onClick,
         _this$props2$useRadio = _this$props2.useRadioIcon,
-        useRadioIcon = _this$props2$useRadio === void 0 ? false : _this$props2$useRadio;
+        useRadioIcon = _this$props2$useRadio === void 0 ? false : _this$props2$useRadio,
+        hasParent = _this$props2.hasParent;
       var count = term && term.doc_count || 0;
       var title = termTransformFxn(facet.field, term.key) || term.key;
       var icon = null;
@@ -181,10 +185,32 @@ export var Term = /*#__PURE__*/function (_React$PureComponent) {
         title = 'None';
       }
       var statusClassName = status !== 'none' ? status === 'selected' ? " selected" : " omitted" : '';
-      var isGroupHeader = term.is_group_header,
-        isGroupItem = term.is_group_item;
-      return /*#__PURE__*/React.createElement("li", {
-        className: "facet-list-element " + statusClassName + (isGroupItem ? " pl-3" : ""),
+      var _term$is_parent = term.is_parent,
+        isParent = _term$is_parent === void 0 ? false : _term$is_parent,
+        _term$has_suggested_t = term.has_suggested_terms,
+        hasSuggestedTerms = _term$has_suggested_t === void 0 ? false : _term$has_suggested_t;
+      var subTerms = null;
+      if (isParent && !hasSuggestedTerms && term.terms && Array.isArray(term.terms) && term.terms.length > 0) {
+        var childProps = {
+          facet: facet,
+          getTermStatus: getTermStatus,
+          termTransformFxn: termTransformFxn,
+          isFiltering: isFiltering,
+          onClick: onClick,
+          useRadioIcon: useRadioIcon,
+          hasParent: true
+        };
+        subTerms = term.terms.map(function (t) {
+          return /*#__PURE__*/React.createElement(Term, _extends({
+            key: t.key,
+            term: t
+          }, childProps, {
+            status: getTermStatus(t, facet)
+          }));
+        });
+      }
+      return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("li", {
+        className: "facet-list-element " + statusClassName + (hasParent ? " pl-3" : ""),
         key: term.key,
         "data-key": term.key
       }, /*#__PURE__*/React.createElement("a", {
@@ -196,11 +222,11 @@ export var Term = /*#__PURE__*/function (_React$PureComponent) {
       }, /*#__PURE__*/React.createElement("span", {
         className: "facet-selector"
       }, icon), /*#__PURE__*/React.createElement("span", {
-        className: "facet-item" + (isGroupHeader ? " facet-item-group-header" : ""),
+        className: "facet-item" + (isParent ? " facet-item-group-header" : ""),
         "data-tip": title.length > 30 ? title : null
-      }, title), isGroupHeader ? null : /*#__PURE__*/React.createElement("span", {
+      }, title), isParent && subTerms || hasParent && count === 0 /* && !hasSuggestedTerms*/ ? null : /*#__PURE__*/React.createElement("span", {
         className: "facet-count"
-      }, count)));
+      }, count))), subTerms);
     }
   }]);
   return Term;
@@ -217,8 +243,9 @@ _defineProperty(Term, "propTypes", {
   'term': PropTypes.shape({
     'key': PropTypes.string.isRequired,
     'doc_count': PropTypes.number,
-    'is_group_header': PropTypes.bool,
-    'is_group_item': PropTypes.bool
+    'is_parent': PropTypes.bool,
+    'has_suggested_terms': PropTypes.bool,
+    'terms': PropTypes.array
   }).isRequired,
   'isFiltering': PropTypes.bool,
   'filteringFieldTerm': PropTypes.shape({
@@ -227,6 +254,7 @@ _defineProperty(Term, "propTypes", {
   }),
   'onClick': PropTypes.func.isRequired,
   'status': PropTypes.oneOf(["none", "selected", "omitted"]),
+  'getTermStatus': PropTypes.func.isRequired,
   'termTransformFxn': PropTypes.func,
   'useRadioIcon': PropTypes.bool.isRequired
 });
@@ -469,70 +497,23 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
   /** Create term components and sort by status (selected->omitted->unselected) */
   var _useMemo = useMemo(function () {
       var field = facet.field;
-      var allTermComponents = null;
-      if (!facet.group_by) {
-        allTermComponents = terms.map(function (term) {
-          var _ref6 = filteringFieldTerm || {},
-            currFilteringField = _ref6.field,
-            currFilteringTerm = _ref6.term;
-          var isFiltering = field === currFilteringField && term.key === currFilteringTerm;
-          return /*#__PURE__*/React.createElement(Term, {
-            facet: facet,
-            term: term,
-            termTransformFxn: termTransformFxn,
-            isFiltering: isFiltering,
-            useRadioIcon: useRadioIcon,
-            onClick: onTermClick,
-            key: term.key,
-            status: getTermStatus(term, facet)
-          });
+      var allTermComponents = terms.map(function (term) {
+        var _ref6 = filteringFieldTerm || {},
+          currFilteringField = _ref6.field,
+          currFilteringTerm = _ref6.term;
+        var isFiltering = field === currFilteringField && term.key === currFilteringTerm;
+        return /*#__PURE__*/React.createElement(Term, {
+          facet: facet,
+          term: term,
+          termTransformFxn: termTransformFxn,
+          isFiltering: isFiltering,
+          useRadioIcon: useRadioIcon,
+          getTermStatus: getTermStatus,
+          onClick: onTermClick,
+          key: term.key,
+          status: getTermStatus(term, facet)
         });
-      } else {
-        allTermComponents = [];
-        var currGroupingKey = null;
-        _.chain(terms).sortBy(function (term) {
-          return -term.doc_count;
-        }).sortBy(function (term) {
-          return term.grouping_key;
-        }).value().forEach(function (term) {
-          if (term.grouping_key && term.grouping_key !== currGroupingKey) {
-            var groupingTerm = {
-              doc_count: 99,
-              'key': term.grouping_key,
-              'is_group_header': true
-            };
-            var _isFiltering = field === currFilteringField && term.key === currFilteringTerm;
-            var groupByFacet = _objectSpread({}, facet);
-            groupByFacet.field = facet.group_by;
-            delete groupByFacet.group_by;
-            allTermComponents.push( /*#__PURE__*/React.createElement(Term, {
-              facet: groupByFacet,
-              term: groupingTerm,
-              termTransformFxn: termTransformFxn,
-              isFiltering: _isFiltering,
-              useRadioIcon: useRadioIcon,
-              onClick: onTermClick,
-              key: 'g-' + groupingTerm.key,
-              status: getTermStatus(groupingTerm, facet)
-            }));
-            currGroupingKey = term.grouping_key;
-          }
-          var _ref7 = filteringFieldTerm || {},
-            currFilteringField = _ref7.field,
-            currFilteringTerm = _ref7.term;
-          var isFiltering = field === currFilteringField && term.key === currFilteringTerm;
-          allTermComponents.push( /*#__PURE__*/React.createElement(Term, {
-            facet: facet,
-            term: term,
-            termTransformFxn: termTransformFxn,
-            isFiltering: isFiltering,
-            useRadioIcon: useRadioIcon,
-            onClick: onTermClick,
-            key: term.key,
-            status: getTermStatus(term, facet)
-          }));
-        });
-      }
+      });
       var segments = segmentComponentsByStatus(allTermComponents);
       var _segments$selected = segments.selected,
         selectedTermComponents = _segments$selected === void 0 ? [] : _segments$selected,
@@ -637,8 +618,8 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
         key: "facet-search-input"
       }));
     } else if (searchType === 'sayt' || searchType === 'sayt_without_terms') {
-      var _ref8$sayt_item_type = (facet || {}).sayt_item_type,
-        itemType = _ref8$sayt_item_type === void 0 ? '' : _ref8$sayt_item_type;
+      var _ref7$sayt_item_type = (facet || {}).sayt_item_type,
+        itemType = _ref7$sayt_item_type === void 0 ? '' : _ref7$sayt_item_type;
       itemType = typeof itemType === 'string' && itemType.length > 0 ? itemType : 'Item';
       var baseHref = "/search/?type=" + itemType;
       facetSearch = /*#__PURE__*/React.createElement("div", {
@@ -715,10 +696,10 @@ export var CountIndicator = /*#__PURE__*/React.memo(function (props) {
   var dotCountToShow = Math.min(count, 21);
   var dotCoords = stackDotsInContainer(dotCountToShow, height, 4, 2, false);
   var currColCounter = new Set();
-  var dots = dotCoords.map(function (_ref9, idx) {
-    var _ref10 = _slicedToArray(_ref9, 2),
-      x = _ref10[0],
-      y = _ref10[1];
+  var dots = dotCoords.map(function (_ref8, idx) {
+    var _ref9 = _slicedToArray(_ref8, 2),
+      x = _ref9[0],
+      y = _ref9[1];
     currColCounter.add(x);
     var colIdx = currColCounter.size - 1;
     // Flip both axes so going bottom right to top left.

@@ -158,18 +158,28 @@ export function getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters(t
         found = true;
         status = "omitted";
         break;
-      } else if (term.is_group_header && facet.group_by === filter.field && filter.term === term.key) {
+      } else if (term.is_parent === true && facet.group_by === filter.field && filter.term === term.key) {
         found = true;
         break;
       }
     }
   }
   if (found) {
-    parts = url.parse(filter.remove);
+    parts = url.parse(filter.remove, term.is_parent);
     if (includePathName) {
       retHref += parts.pathname;
     }
-    retHref += parts.search;
+    if (term.is_parent && term.terms && parts.query[facet.field]) {
+      var tmp = Array.isArray(parts.query[facet.field]) ? parts.query[facet.field] : [parts.query[facet.field]];
+      var query = _.filter(tmp, function (v) {
+        return !_.any(term.terms, function (t) {
+          return t.key === v;
+        });
+      });
+      retHref += '?' + queryString.stringify(query);
+    } else {
+      retHref += parts.search;
+    }
     return {
       status: status,
       'href': retHref
@@ -203,6 +213,30 @@ export function buildSearchHref(field, term, searchBase) {
   } else {
     query[field] = term;
   }
+  var queryStr = queryString.stringify(query);
+  parts.search = queryStr && queryStr.length > 0 ? '?' + queryStr : '';
+  return url.format(parts);
+}
+export function buildSearchHrefExtended(facet, term, searchBase) {
+  var parts = url.parse(searchBase, true);
+  var query = _.clone(parts.query);
+  if (facet.group_by in query) {
+    if (Array.isArray(query[facet.group_by])) {
+      query[facet.group_by] = query[facet.group_by].concat(term.key);
+    } else {
+      query[facet.group_by] = [query[facet.group_by]].concat(term.key);
+    }
+  } else {
+    query[facet.group_by] = term.key;
+  }
+  if (!(facet.field in query)) {
+    query[facet.field] = [];
+  }
+  term.terms.forEach(function (t) {
+    if (!(t.key in query[facet.field])) {
+      query[facet.field] = query[facet.field].concat(t.key);
+    }
+  });
   var queryStr = queryString.stringify(query);
   parts.search = queryStr && queryStr.length > 0 ? '?' + queryStr : '';
   return url.format(parts);

@@ -8,7 +8,7 @@ import ReactTooltip from 'react-tooltip';
 import Overlay from 'react-bootstrap/esm/Overlay';
 
 import { patchedConsoleInstance as console } from './../../../util/patched-console';
-import { getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters, buildSearchHref, contextFiltersToExpSetFilters, getTermFacetStatus } from './../../../util/search-filters';
+import { getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters, buildSearchHref, contextFiltersToExpSetFilters, getTermFacetStatus, buildSearchHrefExtended } from './../../../util/search-filters';
 import * as analytics from './../../../util/analytics';
 import { responsiveGridState } from './../../../util/layout';
 
@@ -72,7 +72,11 @@ export function generateNextHref(currentHref, contextFilters, facet, term){
                 targetSearchHref = buildSearchHref(field, term.key, correctedHref);
             }
         } else {
-            targetSearchHref = buildSearchHref(field, term.key, currentHref);
+            if (term.is_parent === true) {
+                targetSearchHref = buildSearchHrefExtended(facet, term, currentHref);
+            } else {
+                targetSearchHref = buildSearchHref(field, term.key, currentHref);
+            }
         }
     }
 
@@ -545,8 +549,6 @@ export class FacetList extends React.PureComponent {
      * as no 'terms' exist when aggregation_type === stats.
      */
     onFilterExtended(facet, term, callback){
-        // console.log('XXX term:', term);
-        // console.log('XXX facet:', facet);
         const { onFilter, context: { filters: contextFilters } } = this.props;
         FacetList.sendAnalyticsPreFilter(facet, term, contextFilters);
 
@@ -665,16 +667,12 @@ export class FacetList extends React.PureComponent {
             setOpenPopover: this.setOpenPopover,
         };
 
-        // TODO: memoize for performance improvement
-        const groupByFields = _.unique(_.filter(_.pluck(facets, 'group_by'), (f) => f));
-        const facetsWithoutGroupingItems = _.filter(facets, function (f) { return groupByFields.indexOf(f.field) < 0; });
-
         const { staticFacetElements, selectableFacetElements: rawerSelectableFacetElems } = this.memoized.segmentOutCommonProperties(
             this.memoized.createFacetComponents(
                 facetComponentProps,
-                this.memoized.sortedFinalFacetObjects(facetsWithoutGroupingItems, filters),
+                this.memoized.sortedFinalFacetObjects(facets, filters),
                 this.memoized.countActiveTermsByField(filters),
-                this.memoized.getRangeValuesFromFiltersByField(facetsWithoutGroupingItems, filters),
+                this.memoized.getRangeValuesFromFiltersByField(facets, filters),
             ),
             separateSingleTermFacets
         );

@@ -22,7 +22,7 @@ import _ from 'underscore';
 import ReactTooltip from 'react-tooltip';
 import Overlay from 'react-bootstrap/esm/Overlay';
 import { patchedConsoleInstance as console } from './../../../util/patched-console';
-import { getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters, buildSearchHref, contextFiltersToExpSetFilters, getTermFacetStatus } from './../../../util/search-filters';
+import { getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters, buildSearchHref, contextFiltersToExpSetFilters, getTermFacetStatus, buildSearchHrefExtended } from './../../../util/search-filters';
 import * as analytics from './../../../util/analytics';
 import { responsiveGridState } from './../../../util/layout';
 
@@ -87,7 +87,11 @@ export function generateNextHref(currentHref, contextFilters, facet, term) {
         targetSearchHref = buildSearchHref(field, term.key, correctedHref);
       }
     } else {
-      targetSearchHref = buildSearchHref(field, term.key, currentHref);
+      if (term.is_parent === true) {
+        targetSearchHref = buildSearchHrefExtended(facet, term, currentHref);
+      } else {
+        targetSearchHref = buildSearchHref(field, term.key, currentHref);
+      }
     }
   }
 
@@ -275,8 +279,6 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
   }, {
     key: "onFilterExtended",
     value: function onFilterExtended(facet, term, callback) {
-      // console.log('XXX term:', term);
-      // console.log('XXX facet:', facet);
       var _this$props3 = this.props,
         onFilter = _this$props3.onFilter,
         contextFilters = _this$props3.context.filters;
@@ -436,15 +438,7 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
         onToggleOpen: this.handleToggleFacetOpen,
         setOpenPopover: this.setOpenPopover
       };
-
-      // TODO: memoize for performance improvement
-      var groupByFields = _.unique(_.filter(_.pluck(facets, 'group_by'), function (f) {
-        return f;
-      }));
-      var facetsWithoutGroupingItems = _.filter(facets, function (f) {
-        return groupByFields.indexOf(f.field) < 0;
-      });
-      var _this$memoized$segmen = this.memoized.segmentOutCommonProperties(this.memoized.createFacetComponents(facetComponentProps, this.memoized.sortedFinalFacetObjects(facetsWithoutGroupingItems, filters), this.memoized.countActiveTermsByField(filters), this.memoized.getRangeValuesFromFiltersByField(facetsWithoutGroupingItems, filters)), separateSingleTermFacets),
+      var _this$memoized$segmen = this.memoized.segmentOutCommonProperties(this.memoized.createFacetComponents(facetComponentProps, this.memoized.sortedFinalFacetObjects(facets, filters), this.memoized.countActiveTermsByField(filters), this.memoized.getRangeValuesFromFiltersByField(facets, filters)), separateSingleTermFacets),
         staticFacetElements = _this$memoized$segmen.staticFacetElements,
         rawerSelectableFacetElems = _this$memoized$segmen.selectableFacetElements;
 
