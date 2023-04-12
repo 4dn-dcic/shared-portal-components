@@ -123,7 +123,7 @@ export function getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters(t
     //workaround: '!=' condition adds '!' to the end of facet.field in StaticSingleTerm, we remove it
     const field = facet.field.endsWith('!') ? facet.field.slice(0, -1) : facet.field;
 
-    let i, filter, parts, retHref = '', found = false, status = "selected";
+    let i, j, filter, parts, retHref = '', found = false, status = "selected";
 
     if (facet.aggregation_type === "stats"){
         for (i = 0; i < filters.length; i++) {
@@ -146,8 +146,16 @@ export function getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters(t
                 found = true;
                 status = "omitted";
                 break;
-            } else if (term.is_parent === true && facet.group_by === filter.field && filter.term === term.key) {
+            } else if (term.is_parent === true && field === filter.field && term.terms && _.any(term.terms, function (t) { return t.key === filter.term; }) /* && filter.term === term.key*/) {
                 found = true;
+                for (j = 0; j < term.terms.length; j++) {
+                    const t = term.terms[j];
+                    const selected = _.any(filters, function (f) { return f.field === field && f.term === t.key; });
+                    if (!selected) {
+                        found = false;
+                        break;
+                    }
+                }
                 break;
             }
         }
@@ -159,10 +167,9 @@ export function getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters(t
         }
         if (term.is_parent && term.terms && parts.query[facet.field]) {
             const tmp = Array.isArray(parts.query[facet.field]) ? parts.query[facet.field] : [parts.query[facet.field]];
-            const query = _.filter(tmp, function (v) {
-                return !_.any(term.terms, function (t) { return t.key === v; });
-            });
-            retHref += '?' + queryString.stringify(query);
+            const cloned = _.clone(parts.query);
+            cloned[facet.field] = _.filter(tmp, function (v) { return !_.any(term.terms, function (t) { return t.key === v; });});
+            retHref += '?' + queryString.stringify(cloned);
         } else {
             retHref += parts.search;
         }
@@ -203,16 +210,6 @@ export function buildSearchHref(field, term, searchBase){
 export function buildSearchHrefExtended(facet, term, searchBase){
     const parts = url.parse(searchBase, true);
     const query = _.clone(parts.query);
-
-    if (facet.group_by in query){
-        if (Array.isArray(query[facet.group_by])) {
-            query[facet.group_by] = query[facet.group_by].concat(term.key);
-        } else {
-            query[facet.group_by] = [query[facet.group_by]].concat(term.key);
-        }
-    } else {
-        query[facet.group_by] = term.key;
-    }
 
     if(!(facet.field in query)){
         query[facet.field] = [];

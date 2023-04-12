@@ -153,6 +153,11 @@ export class Term extends React.PureComponent {
 
         const selected = (status !== 'none');
         const count = (term && term.doc_count) || 0;
+
+        if (term.is_parent && count === 0) {
+            return null;
+        }
+
         let title = termTransformFxn(facet.field, term.key) || term.key;
         let icon = null;
 
@@ -173,9 +178,9 @@ export class Term extends React.PureComponent {
         const statusClassName = (status !== 'none' ? (status === 'selected' ? " selected" : " omitted") : '');
         const { is_parent : isParent = false, has_suggested_terms : hasSuggestedTerms = false } = term;
         let subTerms = null;
-        if (isParent && !hasSuggestedTerms && term.terms && Array.isArray(term.terms) && term.terms.length > 0){
+        if (isParent /*&& !hasSuggestedTerms*/ && term.terms && Array.isArray(term.terms) && term.terms.length > 0){
             const childProps = { facet, getTermStatus, termTransformFxn, isFiltering, onClick, useRadioIcon, hasParent: true };
-            subTerms = term.terms.map(function (t) { return (<Term key={t.key} term={t} {...childProps} status={getTermStatus(t, facet)} />); });
+            subTerms = term.terms.map(function (t) { return (<Term key={t.key} term={t} {...childProps} status={status === 'selected' ? 'selected' : getTermStatus(t, facet)} />); });
         }
         return (
             <React.Fragment>
@@ -183,7 +188,7 @@ export class Term extends React.PureComponent {
                     <a className="term" data-selected={selected} href="#" onClick={this.handleClick} data-term={term.key}>
                         <span className="facet-selector">{icon}</span>
                         <span className={"facet-item" + (isParent ? " facet-item-group-header" : "")} data-tip={title.length > 30 ? title : null}>{title}</span>
-                        {((isParent && subTerms) || (hasParent && count === 0))/* && !hasSuggestedTerms*/ ? null : <span className="facet-count">{count}</span>}
+                        {((isParent && subTerms && !hasSuggestedTerms) || (hasParent && count === 0))/* && !hasSuggestedTerms*/ ? null : <span className="facet-count">{count}</span>}
                     </a>
                 </li>
                 {subTerms}

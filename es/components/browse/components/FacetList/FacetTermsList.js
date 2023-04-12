@@ -162,6 +162,9 @@ export var Term = /*#__PURE__*/function (_React$PureComponent) {
         useRadioIcon = _this$props2$useRadio === void 0 ? false : _this$props2$useRadio,
         hasParent = _this$props2.hasParent;
       var count = term && term.doc_count || 0;
+      if (term.is_parent && count === 0) {
+        return null;
+      }
       var title = termTransformFxn(facet.field, term.key) || term.key;
       var icon = null;
       if (isFiltering) {
@@ -190,7 +193,7 @@ export var Term = /*#__PURE__*/function (_React$PureComponent) {
         _term$has_suggested_t = term.has_suggested_terms,
         hasSuggestedTerms = _term$has_suggested_t === void 0 ? false : _term$has_suggested_t;
       var subTerms = null;
-      if (isParent && !hasSuggestedTerms && term.terms && Array.isArray(term.terms) && term.terms.length > 0) {
+      if (isParent /*&& !hasSuggestedTerms*/ && term.terms && Array.isArray(term.terms) && term.terms.length > 0) {
         var childProps = {
           facet: facet,
           getTermStatus: getTermStatus,
@@ -205,7 +208,7 @@ export var Term = /*#__PURE__*/function (_React$PureComponent) {
             key: t.key,
             term: t
           }, childProps, {
-            status: getTermStatus(t, facet)
+            status: status === 'selected' ? 'selected' : getTermStatus(t, facet)
           }));
         });
       }
@@ -224,7 +227,7 @@ export var Term = /*#__PURE__*/function (_React$PureComponent) {
       }, icon), /*#__PURE__*/React.createElement("span", {
         className: "facet-item" + (isParent ? " facet-item-group-header" : ""),
         "data-tip": title.length > 30 ? title : null
-      }, title), isParent && subTerms || hasParent && count === 0 /* && !hasSuggestedTerms*/ ? null : /*#__PURE__*/React.createElement("span", {
+      }, title), isParent && subTerms && !hasSuggestedTerms || hasParent && count === 0 /* && !hasSuggestedTerms*/ ? null : /*#__PURE__*/React.createElement("span", {
         className: "facet-count"
       }, count))), subTerms);
     }
