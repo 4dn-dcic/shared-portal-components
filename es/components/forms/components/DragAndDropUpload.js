@@ -508,11 +508,6 @@ _defineProperty(DragAndDropUploadButton, "defaultProps", {
 var DragAndDropModal = /*#__PURE__*/function (_React$Component4) {
   _inherits(DragAndDropModal, _React$Component4);
   var _super4 = _createSuper(DragAndDropModal);
-  /*
-      Drag and Drop File Manager Component that accepts an onHide and onContainerKeyDown function
-      Functions for hiding, and handles files.
-  */
-
   function DragAndDropModal(props) {
     var _this5;
     _classCallCheck(this, DragAndDropModal);
@@ -626,6 +621,10 @@ var DragAndDropModal = /*#__PURE__*/function (_React$Component4) {
   }]);
   return DragAndDropModal;
 }(React.Component);
+/*
+    Drag and Drop File Manager Component that accepts an onHide and onContainerKeyDown function
+    Functions for hiding, and handles files.
+*/
 _defineProperty(DragAndDropModal, "propTypes", {
   handleAddFile: PropTypes.func.isRequired,
   // DragAndDropUploadFileUploadController method for adding multiple files

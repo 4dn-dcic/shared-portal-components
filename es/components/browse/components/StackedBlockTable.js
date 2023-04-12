@@ -320,8 +320,6 @@ _defineProperty(StackedBlockList, "propTypes", {
 export var StackedBlock = /*#__PURE__*/function (_React$PureComponent4) {
   _inherits(StackedBlock, _React$PureComponent4);
   var _super4 = _createSuper(StackedBlock);
-  /** TODO MAYBE USE HERE & ON LIST */
-
   function StackedBlock(props) {
     var _this3;
     _classCallCheck(this, StackedBlock);
@@ -402,6 +400,7 @@ export var StackedBlock = /*#__PURE__*/function (_React$PureComponent4) {
  */
 _defineProperty(StackedBlock, "Name", StackedBlockName);
 _defineProperty(StackedBlock, "List", StackedBlockList);
+/** TODO MAYBE USE HERE & ON LIST */
 _defineProperty(StackedBlock, "excludedPassedProps", new Set(['stripe', 'hideNameOnHover', 'keepLabelOnHover', 'className', 'children', 'showMoreExtTitle']));
 export var StackedBlockTable = /*#__PURE__*/function (_React$PureComponent5) {
   _inherits(StackedBlockTable, _React$PureComponent5);

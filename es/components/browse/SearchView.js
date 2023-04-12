@@ -37,15 +37,7 @@ export var SearchView = /*#__PURE__*/function (_React$PureComponent) {
   }
   _createClass(SearchView, [{
     key: "componentDidMount",
-    value:
-    /**
-     * @property {string} href - Current URI.
-     * @property {!string} [currentAction=null] - Current action, if any.
-     * @property {Object.<ColumnDefinition>} columnExtensionMap - Object keyed by field name with overrides for column definition.
-     * @property {boolean} separateSingleTermFacets - If true, will push facets w/ only 1 term available to bottom of FacetList.
-     */
-
-    function componentDidMount() {
+    value: function componentDidMount() {
       ReactTooltip.rebuild();
     }
 
@@ -145,6 +137,12 @@ _defineProperty(SearchView, "propTypes", {
   // Passed down to AboveSearchTablePanel StaticSection
   'keepSelectionInStorage': PropTypes.bool
 });
+/**
+ * @property {string} href - Current URI.
+ * @property {!string} [currentAction=null] - Current action, if any.
+ * @property {Object.<ColumnDefinition>} columnExtensionMap - Object keyed by field name with overrides for column definition.
+ * @property {boolean} separateSingleTermFacets - If true, will push facets w/ only 1 term available to bottom of FacetList.
+ */
 _defineProperty(SearchView, "defaultProps", {
   'href': null,
   // `props.context.columns` is used in place of `props.columns` if `props.columns` is falsy.

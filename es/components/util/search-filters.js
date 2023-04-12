@@ -240,6 +240,8 @@ export function buildSearchHrefExtended(facet, term, searchBase) {
   var query = _.clone(parts.query);
   if (!(facet.field in query)) {
     query[facet.field] = [];
+  } else if (typeof query[facet.field] === 'string') {
+    query[facet.field] = [query[facet.field]];
   }
   term.terms.forEach(function (t) {
     if (!(t.key in query[facet.field])) {

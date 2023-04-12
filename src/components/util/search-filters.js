@@ -211,8 +211,10 @@ export function buildSearchHrefExtended(facet, term, searchBase){
     const parts = url.parse(searchBase, true);
     const query = _.clone(parts.query);
 
-    if(!(facet.field in query)){
+    if (!(facet.field in query)) {
         query[facet.field] = [];
+    } else if (typeof query[facet.field] === 'string') {
+        query[facet.field] = [query[facet.field]];
     }
     term.terms.forEach((t) => {
         if(!(t.key in query[facet.field])) {

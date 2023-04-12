@@ -143,16 +143,7 @@ export var EmbeddedSearchView = /*#__PURE__*/function (_React$PureComponent) {
     }
   }], [{
     key: "listToObj",
-    value:
-    /**
-     * @property {string} searchHref - Base URI to search on.
-     * @property {Object.<ColumnDefinition>} columnExtensionMap - Object keyed by field name with overrides for column definition.
-     * @property {boolean} separateSingleTermFacets - If true, will push facets w/ only 1 term available to bottom of FacetList.
-     * @property {string[]} hideFacets - If `filterFacetFxn` is falsy, and `facets` are undefined, then will be used to filter facets shown.
-     * @property {string[]} hideColumns - If `filterColumnFxn` is falsy, and `columns` are undefined, then will be used to filter columns shown.
-     */
-
-    function listToObj(hideFacetStrs) {
+    value: function listToObj(hideFacetStrs) {
       return _listToObj(hideFacetStrs.concat(hideFacetStrs.map(function (facetStr) {
         return facetStr + "!";
       })));
@@ -160,6 +151,13 @@ export var EmbeddedSearchView = /*#__PURE__*/function (_React$PureComponent) {
   }]);
   return EmbeddedSearchView;
 }(React.PureComponent);
+/**
+ * @property {string} searchHref - Base URI to search on.
+ * @property {Object.<ColumnDefinition>} columnExtensionMap - Object keyed by field name with overrides for column definition.
+ * @property {boolean} separateSingleTermFacets - If true, will push facets w/ only 1 term available to bottom of FacetList.
+ * @property {string[]} hideFacets - If `filterFacetFxn` is falsy, and `facets` are undefined, then will be used to filter facets shown.
+ * @property {string[]} hideColumns - If `filterColumnFxn` is falsy, and `columns` are undefined, then will be used to filter columns shown.
+ */
 _defineProperty(EmbeddedSearchView, "propTypes", {
   // May not be present which prevents VirtualHrefController from navigating upon mount. Useful if want to init with filterSet search or in other place.
   'searchHref': PropTypes.string,
