@@ -78,7 +78,7 @@ export function mergeTerms(facet, filters){
     // These are terms which might have been manually defined in URL but are not present in data at all.
     // Include them so we can unselect them.
     let unseenTerms = [];
-    if (!facet.group_by) {
+    if (!facet.has_group_by) {
         unseenTerms = _.keys(activeTermsForField).map(function (term) {
             return { key: term, doc_count: 0 };
         });
@@ -95,7 +95,7 @@ export function segmentComponentsByStatus(termComponents){
         if (!Array.isArray(groups[status])) {
             groups[status] = [];
         }
-        if(t.props.facet.group_by) {
+        if(t.props.facet.has_group_by) {
             if (!Array.isArray(groups['none'])) {
                 groups['none'] = [];
             }
