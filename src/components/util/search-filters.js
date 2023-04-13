@@ -136,17 +136,19 @@ export function getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters(t
             }
         }
     } else {
+        const isGroupByParent = typeof term.is_parent === 'boolean' && term.is_parent;
+
         // Terms
         for (i = 0; i < filters.length; i++) {
             filter = filters[i];
-            if (filter.field === field && filter.term === term.key) {
+            if (filter.field === field && filter.term === term.key && !isGroupByParent) {
                 found = true;
                 break;
             } else if (filter.field.endsWith('!') && filter.field.slice(0, -1) === field && filter.term === term.key) {
                 found = true;
                 status = "omitted";
                 break;
-            } else if (term.is_parent === true && field === filter.field && term.terms && _.any(term.terms, function (t) { return t.key === filter.term; }) /* && filter.term === term.key*/) {
+            } else if (isGroupByParent && field === filter.field && term.terms && _.any(term.terms, function (t) { return t.key === filter.term; })) {
                 found = true;
                 for (j = 0; j < term.terms.length; j++) {
                     const t = term.terms[j];
@@ -209,18 +211,20 @@ export function buildSearchHref(field, term, searchBase){
 
 export function buildSearchHrefExtended(facet, term, searchBase){
     const parts = url.parse(searchBase, true);
-    const query = _.clone(parts.query);
+    const { query } = parts;
 
     if (!(facet.field in query)) {
         query[facet.field] = [];
     } else if (typeof query[facet.field] === 'string') {
         query[facet.field] = [query[facet.field]];
     }
+    const newValues = _.clone(query[facet.field]);
     term.terms.forEach((t) => {
-        if(!(t.key in query[facet.field])) {
-            query[facet.field] = query[facet.field].concat(t.key);
+        if(query[facet.field].indexOf(t.key) < 0) {
+            newValues.push(t.key);
         }
     });
+    query[facet.field] = newValues;
 
     const queryStr = queryString.stringify(query);
     parts.search = queryStr && queryStr.length > 0 ? ('?' + queryStr) : '';

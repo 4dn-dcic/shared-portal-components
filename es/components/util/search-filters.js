@@ -149,19 +149,21 @@ export function getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters(t
       }
     }
   } else {
+    var isGroupByParent = typeof term.is_parent === 'boolean' && term.is_parent;
+
     // Terms
     for (i = 0; i < filters.length; i++) {
       filter = filters[i];
-      if (filter.field === field && filter.term === term.key) {
+      if (filter.field === field && filter.term === term.key && !isGroupByParent) {
         found = true;
         break;
       } else if (filter.field.endsWith('!') && filter.field.slice(0, -1) === field && filter.term === term.key) {
         found = true;
         status = "omitted";
         break;
-      } else if (term.is_parent === true && field === filter.field && term.terms && _.any(term.terms, function (t) {
+      } else if (isGroupByParent && field === filter.field && term.terms && _.any(term.terms, function (t) {
         return t.key === filter.term;
-      }) /* && filter.term === term.key*/) {
+      })) {
         found = true;
         var _loop = function () {
           var t = term.terms[j];
@@ -237,17 +239,19 @@ export function buildSearchHref(field, term, searchBase) {
 }
 export function buildSearchHrefExtended(facet, term, searchBase) {
   var parts = url.parse(searchBase, true);
-  var query = _.clone(parts.query);
+  var query = parts.query;
   if (!(facet.field in query)) {
     query[facet.field] = [];
   } else if (typeof query[facet.field] === 'string') {
     query[facet.field] = [query[facet.field]];
   }
+  var newValues = _.clone(query[facet.field]);
   term.terms.forEach(function (t) {
-    if (!(t.key in query[facet.field])) {
-      query[facet.field] = query[facet.field].concat(t.key);
+    if (query[facet.field].indexOf(t.key) < 0) {
+      newValues.push(t.key);
     }
   });
+  query[facet.field] = newValues;
   var queryStr = queryString.stringify(query);
   parts.search = queryStr && queryStr.length > 0 ? '?' + queryStr : '';
   return url.format(parts);

@@ -162,9 +162,6 @@ export var Term = /*#__PURE__*/function (_React$PureComponent) {
         useRadioIcon = _this$props2$useRadio === void 0 ? false : _this$props2$useRadio,
         hasParent = _this$props2.hasParent;
       var count = term && term.doc_count || 0;
-      if (term.is_parent && count === 0) {
-        return null;
-      }
       var title = termTransformFxn(facet.field, term.key) || term.key;
       var icon = null;
       if (isFiltering) {
@@ -189,9 +186,7 @@ export var Term = /*#__PURE__*/function (_React$PureComponent) {
       }
       var statusClassName = status !== 'none' ? status === 'selected' ? " selected" : " omitted" : '';
       var _term$is_parent = term.is_parent,
-        isParent = _term$is_parent === void 0 ? false : _term$is_parent,
-        _term$has_suggested_t = term.has_suggested_terms,
-        hasSuggestedTerms = _term$has_suggested_t === void 0 ? false : _term$has_suggested_t;
+        isParent = _term$is_parent === void 0 ? false : _term$is_parent;
       var subTerms = null;
       if (isParent /*&& !hasSuggestedTerms*/ && term.terms && Array.isArray(term.terms) && term.terms.length > 0) {
         var childProps = {
@@ -227,7 +222,7 @@ export var Term = /*#__PURE__*/function (_React$PureComponent) {
       }, icon), /*#__PURE__*/React.createElement("span", {
         className: "facet-item" + (isParent ? " facet-item-group-header" : ""),
         "data-tip": title.length > 30 ? title : null
-      }, title), isParent && subTerms && !hasSuggestedTerms || hasParent && count === 0 /* && !hasSuggestedTerms*/ ? null : /*#__PURE__*/React.createElement("span", {
+      }, title), isParent && subTerms ? null : /*#__PURE__*/React.createElement("span", {
         className: "facet-count"
       }, count))), subTerms);
     }
@@ -247,7 +242,6 @@ _defineProperty(Term, "propTypes", {
     'key': PropTypes.string.isRequired,
     'doc_count': PropTypes.number,
     'is_parent': PropTypes.bool,
-    'has_suggested_terms': PropTypes.bool,
     'terms': PropTypes.array
   }).isRequired,
   'isFiltering': PropTypes.bool,
