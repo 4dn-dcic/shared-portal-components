@@ -160,7 +160,8 @@ export var Term = /*#__PURE__*/function (_React$PureComponent) {
         onClick = _this$props2.onClick,
         _this$props2$useRadio = _this$props2.useRadioIcon,
         useRadioIcon = _this$props2$useRadio === void 0 ? false : _this$props2$useRadio,
-        hasParent = _this$props2.hasParent;
+        hasParent = _this$props2.hasParent,
+        textFilteredSubTerms = _this$props2.textFilteredSubTerms;
       var count = term && term.doc_count || 0;
       var title = termTransformFxn(facet.field, term.key) || term.key;
       var icon = null;
@@ -188,7 +189,7 @@ export var Term = /*#__PURE__*/function (_React$PureComponent) {
       var _term$is_parent = term.is_parent,
         isParent = _term$is_parent === void 0 ? false : _term$is_parent;
       var subTerms = null;
-      if (isParent /*&& !hasSuggestedTerms*/ && term.terms && Array.isArray(term.terms) && term.terms.length > 0) {
+      if (isParent && term.terms && Array.isArray(term.terms) && term.terms.length > 0) {
         var childProps = {
           facet: facet,
           getTermStatus: getTermStatus,
@@ -198,7 +199,13 @@ export var Term = /*#__PURE__*/function (_React$PureComponent) {
           useRadioIcon: useRadioIcon,
           hasParent: true
         };
-        subTerms = term.terms.map(function (t) {
+        var filteredTerms = term.terms;
+        if (typeof textFilteredSubTerms !== 'undefined' && textFilteredSubTerms !== null) {
+          filteredTerms = _.filter(filteredTerms, function (t) {
+            return textFilteredSubTerms[t.key];
+          });
+        }
+        subTerms = filteredTerms.map(function (t) {
           return /*#__PURE__*/React.createElement(Term, _extends({
             key: t.key,
             term: t
@@ -253,15 +260,18 @@ _defineProperty(Term, "propTypes", {
   'status': PropTypes.oneOf(["none", "selected", "omitted"]),
   'getTermStatus': PropTypes.func.isRequired,
   'termTransformFxn': PropTypes.func,
-  'useRadioIcon': PropTypes.bool.isRequired
+  'useRadioIcon': PropTypes.bool.isRequired,
+  'hasParent': PropTypes.bool,
+  'textFilteredSubTerms': PropTypes.object
 });
 _defineProperty(Term, "defaultProps", {
   'useRadioIcon': false
 });
-export function getFilteredTerms(facetTerms, searchText) {
-  var retDict = {};
+export function getFilteredTerms(facetTerms, searchText, includeSubTerms) {
+  var filteredTerms = {};
+  var filteredSubTerms = {};
   if (!facetTerms || !Array.isArray(facetTerms)) {
-    return retDict;
+    return filteredTerms;
   }
   var lcSearchText = searchText && typeof searchText === 'string' && searchText.length > 0 ? searchText.toLocaleLowerCase() : '';
   _.forEach(facetTerms, function (term) {
@@ -269,12 +279,30 @@ export function getFilteredTerms(facetTerms, searchText) {
       key = _ref3$key === void 0 ? '' : _ref3$key;
     if (typeof key === 'string' && key.length > 0) {
       var isFiltered = lcSearchText.length > 0 ? key.toLocaleLowerCase().includes(lcSearchText) : true;
-      if (isFiltered) {
-        retDict[key] = true;
+      //search sub terms
+      var tmpFilteredSubTerms = {};
+      if (includeSubTerms) {
+        _.forEach(term.terms || [], function (sub) {
+          var _ref4$key = (sub || {}).key,
+            subKey = _ref4$key === void 0 ? '' : _ref4$key;
+          if (typeof subKey === 'string' && subKey.length > 0) {
+            var _isFiltered = lcSearchText.length > 0 ? subKey.toLocaleLowerCase().includes(lcSearchText) : true;
+            if (_isFiltered) {
+              tmpFilteredSubTerms[subKey] = true;
+            }
+          }
+        });
       }
+      if (isFiltered || includeSubTerms && _.keys(tmpFilteredSubTerms).length > 0) {
+        filteredTerms[key] = true;
+      }
+      _.extend(filteredSubTerms, tmpFilteredSubTerms);
     }
   });
-  return retDict;
+  return {
+    filteredTerms: filteredTerms,
+    filteredSubTerms: filteredSubTerms
+  };
 }
 export var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
   _inherits(FacetTermsList, _React$PureComponent2);
@@ -308,8 +336,8 @@ export var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
     key: "handleExpandListToggleClick",
     value: function handleExpandListToggleClick(e) {
       e.preventDefault();
-      this.setState(function (_ref4) {
-        var expanded = _ref4.expanded;
+      this.setState(function (_ref5) {
+        var expanded = _ref5.expanded;
         return {
           'expanded': !expanded
         };
@@ -371,9 +399,9 @@ export var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
         searchText = _this$state.searchText;
       var termsLen = terms.length;
       var allTermsSelected = termsSelectedCount === termsLen;
-      var _ref5 = fieldSchema || {},
-        fieldTitle = _ref5.title,
-        fieldSchemaDescription = _ref5.description; // fieldSchema not present if no schemas loaded yet or if fake/calculated 'field'/column.
+      var _ref6 = fieldSchema || {},
+        fieldTitle = _ref6.title,
+        fieldSchemaDescription = _ref6.description; // fieldSchema not present if no schemas loaded yet or if fake/calculated 'field'/column.
 
       var indicator;
       // @todo: much of this code (including mergeTerms and anyTermsSelected above) were moved to index; consider moving these too
@@ -487,17 +515,28 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
    * is greater than basicSearchAutoDisplayLimit (for persistSelectedTerms is true)
    */
   if (!persistSelectedTerms) {
-    searchType = 'none'; //override
-  } else if (searchType === 'none' && terms.length >= basicSearchAutoDisplayLimit) {
-    searchType = 'basic';
+    //searchType = 'none'; //override
+  } else if (searchType === 'none') {
+    var termsLength = !facet.has_group_by ? terms.length : _.reduce(terms, function (memo, term) {
+      return memo + 1 + (term.terms || []).length;
+    }, 0);
+    if (termsLength >= basicSearchAutoDisplayLimit) {
+      searchType = 'basic';
+    }
   }
   /** Create term components and sort by status (selected->omitted->unselected) */
   var _useMemo = useMemo(function () {
       var field = facet.field;
+      var hasSearchText = searchType === 'basic' && searchText && typeof searchText === 'string' && searchText.length > 0;
+      var _ref7 = hasSearchText ? getFilteredTerms(terms, searchText, facet.has_group_by || false) : {},
+        _ref7$filteredTerms = _ref7.filteredTerms,
+        textFilteredTerms = _ref7$filteredTerms === void 0 ? {} : _ref7$filteredTerms,
+        _ref7$filteredSubTerm = _ref7.filteredSubTerms,
+        textFilteredSubTerms = _ref7$filteredSubTerm === void 0 ? null : _ref7$filteredSubTerm;
       var allTermComponents = terms.map(function (term) {
-        var _ref6 = filteringFieldTerm || {},
-          currFilteringField = _ref6.field,
-          currFilteringTerm = _ref6.term;
+        var _ref8 = filteringFieldTerm || {},
+          currFilteringField = _ref8.field,
+          currFilteringTerm = _ref8.term;
         var isFiltering = field === currFilteringField && term.key === currFilteringTerm;
         return /*#__PURE__*/React.createElement(Term, {
           facet: facet,
@@ -506,6 +545,7 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
           isFiltering: isFiltering,
           useRadioIcon: useRadioIcon,
           getTermStatus: getTermStatus,
+          textFilteredSubTerms: textFilteredSubTerms,
           onClick: onTermClick,
           key: term.key,
           status: getTermStatus(term, facet)
@@ -520,10 +560,9 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
         unselectedTermComponents = _segments$none === void 0 ? [] : _segments$none;
 
       //filter unselected terms
-      if (searchType === 'basic' && searchText && typeof searchText === 'string' && searchText.length > 0) {
-        var dict = getFilteredTerms(terms, searchText);
+      if (hasSearchText) {
         unselectedTermComponents = _.filter(unselectedTermComponents, function (term) {
-          return dict[term.key];
+          return textFilteredTerms[term.key];
         });
       } else if (searchType === 'sayt_without_terms') {
         unselectedTermComponents = [];
@@ -615,8 +654,8 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
         key: "facet-search-input"
       }));
     } else if (searchType === 'sayt' || searchType === 'sayt_without_terms') {
-      var _ref7$sayt_item_type = (facet || {}).sayt_item_type,
-        itemType = _ref7$sayt_item_type === void 0 ? '' : _ref7$sayt_item_type;
+      var _ref9$sayt_item_type = (facet || {}).sayt_item_type,
+        itemType = _ref9$sayt_item_type === void 0 ? '' : _ref9$sayt_item_type;
       itemType = typeof itemType === 'string' && itemType.length > 0 ? itemType : 'Item';
       var baseHref = "/search/?type=" + itemType;
       facetSearch = /*#__PURE__*/React.createElement("div", {
@@ -693,10 +732,10 @@ export var CountIndicator = /*#__PURE__*/React.memo(function (props) {
   var dotCountToShow = Math.min(count, 21);
   var dotCoords = stackDotsInContainer(dotCountToShow, height, 4, 2, false);
   var currColCounter = new Set();
-  var dots = dotCoords.map(function (_ref8, idx) {
-    var _ref9 = _slicedToArray(_ref8, 2),
-      x = _ref9[0],
-      y = _ref9[1];
+  var dots = dotCoords.map(function (_ref10, idx) {
+    var _ref11 = _slicedToArray(_ref10, 2),
+      x = _ref11[0],
+      y = _ref11[1];
     currColCounter.add(x);
     var colIdx = currColCounter.size - 1;
     // Flip both axes so going bottom right to top left.
