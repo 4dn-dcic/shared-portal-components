@@ -285,9 +285,11 @@ export function getFilteredTerms(facetTerms, searchText, includeSubTerms) {
         _.forEach(term.terms || [], function (sub) {
           var _ref4$key = (sub || {}).key,
             subKey = _ref4$key === void 0 ? '' : _ref4$key;
-          if (typeof subKey === 'string' && subKey.length > 0) {
-            var _isFiltered = lcSearchText.length > 0 ? subKey.toLocaleLowerCase().includes(lcSearchText) : true;
-            if (_isFiltered) {
+          if (isFiltered) {
+            tmpFilteredSubTerms[subKey] = true;
+          } else if (typeof subKey === 'string' && subKey.length > 0) {
+            var isSubFiltered = lcSearchText.length > 0 ? subKey.toLocaleLowerCase().includes(lcSearchText) : true;
+            if (isSubFiltered) {
               tmpFilteredSubTerms[subKey] = true;
             }
           }
@@ -527,8 +529,8 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
   /** Create term components and sort by status (selected->omitted->unselected) */
   var _useMemo = useMemo(function () {
       var field = facet.field;
-      var hasSearchText = searchType === 'basic' && searchText && typeof searchText === 'string' && searchText.length > 0;
-      var _ref7 = hasSearchText ? getFilteredTerms(terms, searchText, facet.has_group_by || false) : {},
+      var facetSearchActive = searchType === 'basic' && searchText && typeof searchText === 'string' && searchText.length > 0;
+      var _ref7 = facetSearchActive ? getFilteredTerms(terms, searchText, facet.has_group_by || false) : {},
         _ref7$filteredTerms = _ref7.filteredTerms,
         textFilteredTerms = _ref7$filteredTerms === void 0 ? {} : _ref7$filteredTerms,
         _ref7$filteredSubTerm = _ref7.filteredSubTerms,
@@ -546,6 +548,7 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
           useRadioIcon: useRadioIcon,
           getTermStatus: getTermStatus,
           textFilteredSubTerms: textFilteredSubTerms,
+          facetSearchActive: facetSearchActive,
           onClick: onTermClick,
           key: term.key,
           status: getTermStatus(term, facet)
@@ -560,7 +563,7 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
         unselectedTermComponents = _segments$none === void 0 ? [] : _segments$none;
 
       //filter unselected terms
-      if (hasSearchText) {
+      if (facetSearchActive) {
         unselectedTermComponents = _.filter(unselectedTermComponents, function (term) {
           return textFilteredTerms[term.key];
         });

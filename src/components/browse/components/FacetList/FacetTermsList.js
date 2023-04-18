@@ -222,9 +222,11 @@ export function getFilteredTerms(facetTerms, searchText, includeSubTerms) {
             if (includeSubTerms) {
                 _.forEach(term.terms || [], function (sub) {
                     const { key: subKey = '' } = sub || {};
-                    if (typeof subKey === 'string' && subKey.length > 0) {
-                        const isFiltered = lcSearchText.length > 0 ? subKey.toLocaleLowerCase().includes(lcSearchText) : true;
-                        if (isFiltered) {
+                    if (isFiltered) {
+                        tmpFilteredSubTerms[subKey] = true;
+                    } else if (typeof subKey === 'string' && subKey.length > 0) {
+                        const isSubFiltered = lcSearchText.length > 0 ? subKey.toLocaleLowerCase().includes(lcSearchText) : true;
+                        if (isSubFiltered) {
                             tmpFilteredSubTerms[subKey] = true;
                         }
                     }
@@ -393,16 +395,16 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
     } = useMemo(function(){
         const { field } = facet;
 
-        const hasSearchText = searchType === 'basic' && searchText && typeof searchText === 'string' && searchText.length > 0;
+        const facetSearchActive = searchType === 'basic' && searchText && typeof searchText === 'string' && searchText.length > 0;
         const {
             filteredTerms: textFilteredTerms = {},
             filteredSubTerms : textFilteredSubTerms = null
-        } = hasSearchText ? getFilteredTerms(terms, searchText, facet.has_group_by || false) : {};
+        } = facetSearchActive ? getFilteredTerms(terms, searchText, facet.has_group_by || false) : {};
 
         const allTermComponents = terms.map(function (term){
             const { field: currFilteringField, term: currFilteringTerm } = filteringFieldTerm || {};
             const isFiltering = field === currFilteringField && term.key === currFilteringTerm;
-            return <Term {...{ facet, term, termTransformFxn, isFiltering, useRadioIcon, getTermStatus, textFilteredSubTerms }} onClick={onTermClick} key={term.key} status={getTermStatus(term, facet)} />;
+            return <Term {...{ facet, term, termTransformFxn, isFiltering, useRadioIcon, getTermStatus, textFilteredSubTerms, facetSearchActive }} onClick={onTermClick} key={term.key} status={getTermStatus(term, facet)} />;
         });
         const segments = segmentComponentsByStatus(allTermComponents);
 
@@ -410,7 +412,7 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
         let { none : unselectedTermComponents  = [] } = segments;
 
         //filter unselected terms
-        if (hasSearchText) {
+        if (facetSearchActive) {
             unselectedTermComponents = _.filter(unselectedTermComponents, function (term) { return textFilteredTerms[term.key]; });
         } else if (searchType === 'sayt_without_terms') {
             unselectedTermComponents = [];
