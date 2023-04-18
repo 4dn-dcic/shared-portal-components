@@ -143,7 +143,9 @@ export var Term = /*#__PURE__*/function (_React$PureComponent) {
     value: function componentDidUpdate(pastProps) {
       var tooltip = this.props.tooltip;
       if (tooltip !== pastProps.tooltip) {
-        ReactTooltip.rebuild();
+        setTimeout(function () {
+          ReactTooltip.rebuild();
+        }, 1000);
       }
     }
   }, {
@@ -562,9 +564,9 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
           });
           var status = getTermStatus(term, facet);
           var diff = term.terms.length - filteredTerms.length;
-          tooltip = "Will ".concat(status == 'none' ? 'select' : 'deselect', " ").concat(term.terms.length, " term").concat(term.terms.length > 1 ? 's' : '');
+          tooltip = "Warning: ".concat(term.terms.length, " term").concat(term.terms.length > 1 ? 's' : '', " will be ").concat(status == 'none' ? 'selected' : 'deselected', "  ");
           if (diff > 0) {
-            tooltip += diff !== term.terms.length ? " (".concat(diff, " of which ").concat(diff > 1 ? 'are' : 'is', " filtered)") : ' (all is filtered)';
+            tooltip += " (".concat(diff, " currently selected term").concat(diff > 1 ? 's are' : ' is', " hidden)");
           }
         }
         return /*#__PURE__*/React.createElement(Term, {

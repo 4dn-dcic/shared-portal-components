@@ -149,8 +149,8 @@ export class Term extends React.PureComponent {
 
     componentDidUpdate(pastProps, pastState) {
         const { tooltip } = this.props;
-        if(tooltip !== pastProps.tooltip) {
-            ReactTooltip.rebuild();
+        if (tooltip !== pastProps.tooltip) {
+            setTimeout(function(){ ReactTooltip.rebuild(); }, 1000);
         }
     }
 
@@ -425,9 +425,9 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
                 const filteredTerms = _.filter(term.terms, function (t) { return textFilteredSubTerms[t.key]; });
                 const status = getTermStatus(term, facet);
                 const diff = term.terms.length - filteredTerms.length;
-                tooltip = `Will ${status == 'none' ? 'select' : 'deselect'} ${term.terms.length} term${term.terms.length > 1 ? 's' : ''}`;
+                tooltip = `Warning: ${term.terms.length} term${term.terms.length > 1 ? 's' : ''} will be ${status == 'none' ? 'selected' : 'deselected'}  `;
                 if (diff > 0) {
-                    tooltip += diff !== term.terms.length ? ` (${diff} of which ${diff > 1 ? 'are' : 'is'} filtered)` : ' (all is filtered)';
+                    tooltip += ` (${diff} currently selected term${diff > 1 ? 's are' : ' is'} hidden)`;
                 }
             }
             return <Term {...{ facet, term, termTransformFxn, isFiltering, useRadioIcon, getTermStatus, textFilteredTerms, textFilteredSubTerms, facetSearchActive, tooltip }} onClick={onTermClick} key={term.key} status={getTermStatus(term, facet)} />;
