@@ -341,11 +341,9 @@ export var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
     _this2 = _super2.call(this, props);
     _this2.handleOpenToggleClick = _this2.handleOpenToggleClick.bind(_assertThisInitialized(_this2));
     _this2.handleExpandListToggleClick = _this2.handleExpandListToggleClick.bind(_assertThisInitialized(_this2));
-    _this2.handleBasicTermSearch = _this2.handleBasicTermSearch.bind(_assertThisInitialized(_this2));
     _this2.handleSaytTermSearch = _this2.handleSaytTermSearch.bind(_assertThisInitialized(_this2));
     _this2.state = {
-      'expanded': false,
-      'searchText': ''
+      'expanded': false
     };
     return _this2;
   }
@@ -369,15 +367,6 @@ export var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
         return {
           'expanded': !expanded
         };
-      });
-    }
-  }, {
-    key: "handleBasicTermSearch",
-    value: function handleBasicTermSearch(e) {
-      e.preventDefault();
-      var newValue = e.target.value;
-      this.setState({
-        'searchText': newValue
       });
     }
   }, {
@@ -412,7 +401,9 @@ export var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
         useRadioIcon = _this$props5.useRadioIcon,
         propPersistSelectedTerms = _this$props5.persistSelectedTerms,
         context = _this$props5.context,
-        schemas = _this$props5.schemas;
+        schemas = _this$props5.schemas,
+        searchText = _this$props5.searchText,
+        handleBasicTermSearch = _this$props5.handleBasicTermSearch;
       var _facet$description = facet.description,
         facetSchemaDescription = _facet$description === void 0 ? null : _facet$description,
         field = facet.field,
@@ -422,9 +413,7 @@ export var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
         facetPersistSelectedTerms = facet.persist_selected_terms;
       // if it's defined within facet, override global persis selected terms
       var persistSelectedTerms = typeof facetPersistSelectedTerms === 'boolean' ? facetPersistSelectedTerms : propPersistSelectedTerms;
-      var _this$state = this.state,
-        expanded = _this$state.expanded,
-        searchText = _this$state.searchText;
+      var expanded = this.state.expanded;
       var termsLen = terms.length;
       var allTermsSelected = termsSelectedCount === termsLen;
       var _ref6 = fieldSchema || {},
@@ -503,7 +492,7 @@ export var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
         persistSelectedTerms: persistSelectedTerms,
         filteringFieldTerm: filteringFieldTerm,
         onSaytTermSearch: this.handleSaytTermSearch,
-        onBasicTermSearch: this.handleBasicTermSearch,
+        onBasicTermSearch: handleBasicTermSearch,
         onToggleExpanded: this.handleExpandListToggleClick
       }));
     }
@@ -694,6 +683,7 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
         placeholder: "Search",
         name: "q",
         onChange: onBasicTermSearch,
+        value: searchText,
         key: "facet-search-input"
       }));
     } else if (searchType === 'sayt' || searchType === 'sayt_without_terms') {

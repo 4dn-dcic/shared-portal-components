@@ -269,9 +269,8 @@ export class FacetTermsList extends React.PureComponent {
         super(props);
         this.handleOpenToggleClick = this.handleOpenToggleClick.bind(this);
         this.handleExpandListToggleClick = this.handleExpandListToggleClick.bind(this);
-        this.handleBasicTermSearch = this.handleBasicTermSearch.bind(this);
         this.handleSaytTermSearch = this.handleSaytTermSearch.bind(this);
-        this.state = { 'expanded': false, 'searchText': '', };
+        this.state = { 'expanded': false };
     }
 
     handleOpenToggleClick(e) {
@@ -285,12 +284,6 @@ export class FacetTermsList extends React.PureComponent {
         this.setState(function({ expanded }){
             return { 'expanded' : !expanded };
         });
-    }
-
-    handleBasicTermSearch(e) {
-        e.preventDefault();
-        const newValue = e.target.value;
-        this.setState({ 'searchText': newValue });
     }
 
     handleSaytTermSearch(e) {
@@ -319,11 +312,13 @@ export class FacetTermsList extends React.PureComponent {
             persistSelectedTerms: propPersistSelectedTerms,
             context,
             schemas,
+            searchText,
+            handleBasicTermSearch
         } = this.props;
         const { description: facetSchemaDescription = null, field, title: facetTitle, terms = [], persist_selected_terms: facetPersistSelectedTerms } = facet;
         // if it's defined within facet, override global persis selected terms
         const persistSelectedTerms = (typeof facetPersistSelectedTerms === 'boolean') ? facetPersistSelectedTerms : propPersistSelectedTerms;
-        const { expanded, searchText } = this.state;
+        const { expanded } = this.state;
         const termsLen = terms.length;
         const allTermsSelected = termsSelectedCount === termsLen;
         const { title: fieldTitle, description: fieldSchemaDescription } = fieldSchema || {}; // fieldSchema not present if no schemas loaded yet or if fake/calculated 'field'/column.
@@ -368,7 +363,7 @@ export class FacetTermsList extends React.PureComponent {
                 </h5>
                 <ListOfTerms
                     {...{ facet, facetOpen, terms, onTermClick, expanded, getTermStatus, termTransformFxn, searchText, schemas, persistentCount, basicSearchAutoDisplayLimit, useRadioIcon, persistSelectedTerms, filteringFieldTerm }}
-                    onSaytTermSearch={this.handleSaytTermSearch} onBasicTermSearch={this.handleBasicTermSearch} onToggleExpanded={this.handleExpandListToggleClick} />
+                    onSaytTermSearch={this.handleSaytTermSearch} onBasicTermSearch={handleBasicTermSearch} onToggleExpanded={this.handleExpandListToggleClick} />
             </div>
         );
     }
@@ -512,7 +507,7 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
             facetSearch = (
                 <div className="text-small p-2">
                     <input className="form-control" autoComplete="off" type="search" placeholder="Search"
-                        name="q" onChange={onBasicTermSearch} key="facet-search-input" />
+                        name="q" onChange={onBasicTermSearch} value={searchText} key="facet-search-input" />
                 </div>);
         } else if ((searchType === 'sayt') || (searchType === 'sayt_without_terms')) {
             let { sayt_item_type: itemType = '' } = facet || {};

@@ -1,10 +1,12 @@
-import _extends from "@babel/runtime/helpers/extends";
+import _defineProperty from "@babel/runtime/helpers/defineProperty";
 import _classCallCheck from "@babel/runtime/helpers/classCallCheck";
 import _createClass from "@babel/runtime/helpers/createClass";
 import _assertThisInitialized from "@babel/runtime/helpers/assertThisInitialized";
 import _inherits from "@babel/runtime/helpers/inherits";
 import _possibleConstructorReturn from "@babel/runtime/helpers/possibleConstructorReturn";
 import _getPrototypeOf from "@babel/runtime/helpers/getPrototypeOf";
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
 function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
 import React from 'react';
@@ -37,8 +39,10 @@ export var TermsFacet = /*#__PURE__*/function (_React$PureComponent) {
     _this = _super.call(this, props);
     _this.handleStaticClick = _this.handleStaticClick.bind(_assertThisInitialized(_this));
     _this.handleTermClick = _this.handleTermClick.bind(_assertThisInitialized(_this));
+    _this.handleBasicTermSearch = _this.handleBasicTermSearch.bind(_assertThisInitialized(_this));
     _this.state = {
-      'filtering': false
+      'filtering': false,
+      'searchText': ''
     };
     _this.memoized = {
       fieldSchema: memoize(getSchemaProperty)
@@ -87,6 +91,15 @@ export var TermsFacet = /*#__PURE__*/function (_React$PureComponent) {
       onFilter(facet, term, callback);
     }
   }, {
+    key: "handleBasicTermSearch",
+    value: function handleBasicTermSearch(e) {
+      e.preventDefault();
+      var newValue = e.target.value;
+      this.setState({
+        'searchText': newValue
+      });
+    }
+  }, {
     key: "render",
     value: function render() {
       var _this$props2 = this.props,
@@ -100,7 +113,9 @@ export var TermsFacet = /*#__PURE__*/function (_React$PureComponent) {
         itemTypeForSchemas = _this$props2.itemTypeForSchemas;
       var field = facet.field,
         terms = facet.terms;
-      var filtering = this.state.filtering;
+      var _this$state = this.state,
+        filtering = _this$state.filtering,
+        searchText = _this$state.searchText;
       // `fieldSchema` may be null esp. if field is 'fake'.
       var fieldSchema = this.memoized.fieldSchema(field, schemas, itemTypeForSchemas);
       if (separateSingleTermFacets && isStatic) {
@@ -116,10 +131,13 @@ export var TermsFacet = /*#__PURE__*/function (_React$PureComponent) {
           onClick: this.handleStaticClick
         });
       } else {
-        return /*#__PURE__*/React.createElement(FacetTermsList, _extends({}, this.props, {
+        var passProps = _objectSpread(_objectSpread({}, this.props), {}, {
           fieldSchema: fieldSchema,
-          onTermClick: this.handleTermClick
-        }));
+          searchText: searchText,
+          onTermClick: this.handleTermClick,
+          handleBasicTermSearch: this.handleBasicTermSearch
+        });
+        return /*#__PURE__*/React.createElement(FacetTermsList, passProps);
       }
     }
   }]);
