@@ -15,6 +15,7 @@ import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
 import memoize from 'memoize-one';
+import ReactTooltip from 'react-tooltip';
 import Fade from 'react-bootstrap/esm/Fade';
 import { stackDotsInContainer } from './../../../viz/utilities';
 import { PartialList } from './../../../ui/PartialList';
@@ -138,6 +139,14 @@ export var Term = /*#__PURE__*/function (_React$PureComponent) {
     return _this;
   }
   _createClass(Term, [{
+    key: "componentDidUpdate",
+    value: function componentDidUpdate(pastProps) {
+      var tooltip = this.props.tooltip;
+      if (tooltip !== pastProps.tooltip) {
+        ReactTooltip.rebuild();
+      }
+    }
+  }, {
     key: "handleClick",
     value: function handleClick(e) {
       var _this$props = this.props,
@@ -161,7 +170,11 @@ export var Term = /*#__PURE__*/function (_React$PureComponent) {
         _this$props2$useRadio = _this$props2.useRadioIcon,
         useRadioIcon = _this$props2$useRadio === void 0 ? false : _this$props2$useRadio,
         hasParent = _this$props2.hasParent,
-        textFilteredSubTerms = _this$props2.textFilteredSubTerms;
+        _this$props2$facetSea = _this$props2.facetSearchActive,
+        facetSearchActive = _this$props2$facetSea === void 0 ? false : _this$props2$facetSea,
+        textFilteredTerms = _this$props2.textFilteredTerms,
+        textFilteredSubTerms = _this$props2.textFilteredSubTerms,
+        tooltip = _this$props2.tooltip;
       var count = term && term.doc_count || 0;
       var title = termTransformFxn(facet.field, term.key) || term.key;
       var icon = null;
@@ -197,7 +210,8 @@ export var Term = /*#__PURE__*/function (_React$PureComponent) {
           isFiltering: isFiltering,
           onClick: onClick,
           useRadioIcon: useRadioIcon,
-          hasParent: true
+          hasParent: true,
+          facetSearchActive: facetSearchActive
         };
         var filteredTerms = term.terms;
         if (typeof textFilteredSubTerms !== 'undefined' && textFilteredSubTerms !== null) {
@@ -214,8 +228,11 @@ export var Term = /*#__PURE__*/function (_React$PureComponent) {
           }));
         });
       }
+      if (isParent && textFilteredTerms && textFilteredTerms[term.key] === 'hidden') {
+        return subTerms;
+      }
       return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("li", {
-        className: "facet-list-element " + statusClassName + (hasParent ? " pl-3" : ""),
+        className: "facet-list-element " + statusClassName + (hasParent && !facetSearchActive ? " pl-3" : ""),
         key: term.key,
         "data-key": term.key
       }, /*#__PURE__*/React.createElement("a", {
@@ -225,7 +242,8 @@ export var Term = /*#__PURE__*/function (_React$PureComponent) {
         onClick: this.handleClick,
         "data-term": term.key
       }, /*#__PURE__*/React.createElement("span", {
-        className: "facet-selector"
+        className: "facet-selector",
+        "data-tip": tooltip
       }, icon), /*#__PURE__*/React.createElement("span", {
         className: "facet-item" + (isParent ? " facet-item-group-header" : ""),
         "data-tip": title.length > 30 ? title : null
@@ -238,8 +256,10 @@ export var Term = /*#__PURE__*/function (_React$PureComponent) {
 }(React.PureComponent);
 
 /**
- * @param {*} facetTerms : facet's terms array
- * @param {*} searchText : search text from basic search input
+ * @param {*} facetTerms        : facet's terms array
+ * @param {*} searchText        : search text from basic search input
+ * @param {*} includeSubTerms   : include sub terms
+ * @returns {Object}            : returns { filteredTerms, filteredSubTerms }
  */
 _defineProperty(Term, "propTypes", {
   'facet': PropTypes.shape({
@@ -262,7 +282,10 @@ _defineProperty(Term, "propTypes", {
   'termTransformFxn': PropTypes.func,
   'useRadioIcon': PropTypes.bool.isRequired,
   'hasParent': PropTypes.bool,
-  'textFilteredSubTerms': PropTypes.object
+  'facetSearchActive': PropTypes.bool,
+  'textFilteredTerms': PropTypes.object,
+  'textFilteredSubTerms': PropTypes.object,
+  'tooltip': PropTypes.string
 });
 _defineProperty(Term, "defaultProps", {
   'useRadioIcon': false
@@ -285,9 +308,10 @@ export function getFilteredTerms(facetTerms, searchText, includeSubTerms) {
         _.forEach(term.terms || [], function (sub) {
           var _ref4$key = (sub || {}).key,
             subKey = _ref4$key === void 0 ? '' : _ref4$key;
-          if (isFiltered) {
-            tmpFilteredSubTerms[subKey] = true;
-          } else if (typeof subKey === 'string' && subKey.length > 0) {
+          /*if (isFiltered) {
+              tmpFilteredSubTerms[subKey] = true;
+          } else */
+          if (typeof subKey === 'string' && subKey.length > 0) {
             var isSubFiltered = lcSearchText.length > 0 ? subKey.toLocaleLowerCase().includes(lcSearchText) : true;
             if (isSubFiltered) {
               tmpFilteredSubTerms[subKey] = true;
@@ -295,8 +319,10 @@ export function getFilteredTerms(facetTerms, searchText, includeSubTerms) {
           }
         });
       }
-      if (isFiltered || includeSubTerms && _.keys(tmpFilteredSubTerms).length > 0) {
+      if (isFiltered) {
         filteredTerms[key] = true;
+      } else if (includeSubTerms && _.keys(tmpFilteredSubTerms).length > 0) {
+        filteredTerms[key] = 'hidden';
       }
       _.extend(filteredSubTerms, tmpFilteredSubTerms);
     }
@@ -540,6 +566,18 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
           currFilteringField = _ref8.field,
           currFilteringTerm = _ref8.term;
         var isFiltering = field === currFilteringField && term.key === currFilteringTerm;
+        var tooltip = null;
+        if (facetSearchActive && textFilteredTerms[term.key] === true && term.terms && textFilteredSubTerms) {
+          var filteredTerms = _.filter(term.terms, function (t) {
+            return textFilteredSubTerms[t.key];
+          });
+          var status = getTermStatus(term, facet);
+          var diff = term.terms.length - filteredTerms.length;
+          tooltip = "Will ".concat(status == 'none' ? 'select' : 'deselect', " ").concat(term.terms.length, " term").concat(term.terms.length > 1 ? 's' : '');
+          if (diff > 0) {
+            tooltip += diff !== term.terms.length ? " (".concat(diff, " of which ").concat(diff > 1 ? 'are' : 'is', " filtered)") : ' (all is filtered)';
+          }
+        }
         return /*#__PURE__*/React.createElement(Term, {
           facet: facet,
           term: term,
@@ -547,8 +585,10 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
           isFiltering: isFiltering,
           useRadioIcon: useRadioIcon,
           getTermStatus: getTermStatus,
+          textFilteredTerms: textFilteredTerms,
           textFilteredSubTerms: textFilteredSubTerms,
           facetSearchActive: facetSearchActive,
+          tooltip: tooltip,
           onClick: onTermClick,
           key: term.key,
           status: getTermStatus(term, facet)
@@ -565,7 +605,7 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
       //filter unselected terms
       if (facetSearchActive) {
         unselectedTermComponents = _.filter(unselectedTermComponents, function (term) {
-          return textFilteredTerms[term.key];
+          return textFilteredTerms[term.key] === true || textFilteredTerms[term.key] === 'hidden';
         });
       } else if (searchType === 'sayt_without_terms') {
         unselectedTermComponents = [];
