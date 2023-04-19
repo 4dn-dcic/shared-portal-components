@@ -13,6 +13,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
 import memoize from 'memoize-one';
+import ReactTooltip from 'react-tooltip';
 import { getSchemaProperty } from './../../../util/schema-transforms';
 import { FacetTermsList } from './FacetTermsList';
 import { StaticSingleTerm } from './StaticSingleTerm';
@@ -97,6 +98,10 @@ export var TermsFacet = /*#__PURE__*/function (_React$PureComponent) {
       var newValue = e.target.value;
       this.setState({
         'searchText': newValue
+      }, function () {
+        setTimeout(function () {
+          ReactTooltip.rebuild();
+        }, 1000);
       });
     }
   }, {

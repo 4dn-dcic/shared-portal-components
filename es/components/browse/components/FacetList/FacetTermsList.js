@@ -15,7 +15,6 @@ import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
 import memoize from 'memoize-one';
-import ReactTooltip from 'react-tooltip';
 import Fade from 'react-bootstrap/esm/Fade';
 import { stackDotsInContainer } from './../../../viz/utilities';
 import { PartialList } from './../../../ui/PartialList';
@@ -139,16 +138,6 @@ export var Term = /*#__PURE__*/function (_React$PureComponent) {
     return _this;
   }
   _createClass(Term, [{
-    key: "componentDidUpdate",
-    value: function componentDidUpdate(pastProps) {
-      var tooltip = this.props.tooltip;
-      if (tooltip !== pastProps.tooltip) {
-        setTimeout(function () {
-          ReactTooltip.rebuild();
-        }, 1000);
-      }
-    }
-  }, {
     key: "handleClick",
     value: function handleClick(e) {
       var _this$props = this.props,
