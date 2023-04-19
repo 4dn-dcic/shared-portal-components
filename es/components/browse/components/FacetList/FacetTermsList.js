@@ -234,7 +234,8 @@ export var Term = /*#__PURE__*/function (_React$PureComponent) {
         "data-term": term.key
       }, /*#__PURE__*/React.createElement("span", {
         className: "facet-selector",
-        "data-tip": tooltip
+        "data-tip": tooltip,
+        "data-multiline": true
       }, icon), /*#__PURE__*/React.createElement("span", {
         className: "facet-item" + (isParent ? " facet-item-group-header" : ""),
         "data-tip": title.length > 30 ? title : null
@@ -546,16 +547,21 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
           currFilteringField = _ref8.field,
           currFilteringTerm = _ref8.term;
         var isFiltering = field === currFilteringField && term.key === currFilteringTerm;
+        // build tooltip sentence
         var tooltip = null;
         if (facetSearchActive && textFilteredTerms[term.key] === true && term.terms && textFilteredSubTerms) {
+          var termName = facet.tooltip_term_substitue || 'term';
           var filteredTerms = _.filter(term.terms, function (t) {
             return textFilteredSubTerms[t.key];
           });
           var status = getTermStatus(term, facet);
           var diff = term.terms.length - filteredTerms.length;
-          tooltip = "Warning: ".concat(term.terms.length, " term").concat(term.terms.length > 1 ? 's' : '', " will be ").concat(status == 'none' ? 'selected' : 'deselected', "  ");
+          tooltip = "Warning: ".concat(term.terms.length, " ").concat(termName).concat(term.terms.length > 1 ? 's' : '', " ").concat(status == 'none' ? 'will be' : 'are', " selected");
           if (diff > 0) {
-            tooltip += " (".concat(diff, " currently selected term").concat(diff > 1 ? 's are' : ' is', " hidden)");
+            if (status !== 'none') {
+              tooltip += " (".concat(diff, " currently selected ").concat(termName).concat(diff > 1 ? 's are' : ' is', " hidden)");
+            }
+            tooltip += "<br />To see all ".concat(facet.tooltip_term_substitue || 'term', "s in this group clear the search filter");
           }
         }
         return /*#__PURE__*/React.createElement(Term, {

@@ -196,7 +196,7 @@ export class Term extends React.PureComponent {
             <React.Fragment>
                 <li className={"facet-list-element " + statusClassName + (hasParent && !facetSearchActive ? " pl-3" : "")} key={term.key} data-key={term.key}>
                     <a className="term" data-selected={selected} href="#" onClick={this.handleClick} data-term={term.key}>
-                        <span className="facet-selector" data-tip={tooltip}>{icon}</span>
+                        <span className="facet-selector" data-tip={tooltip} data-multiline={true}>{icon}</span>
                         <span className={"facet-item" + (isParent ? " facet-item-group-header" : "")} data-tip={title.length > 30 ? title : null}>{title}</span>
                         {(isParent && subTerms) ? null : <span className="facet-count">{count}</span>}
                     </a>
@@ -412,14 +412,19 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
         const allTermComponents = terms.map(function (term){
             const { field: currFilteringField, term: currFilteringTerm } = filteringFieldTerm || {};
             const isFiltering = field === currFilteringField && term.key === currFilteringTerm;
+            // build tooltip sentence
             let tooltip = null;
             if (facetSearchActive && textFilteredTerms[term.key] === true && term.terms && textFilteredSubTerms) {
+                const termName = facet.tooltip_term_substitue || 'term';
                 const filteredTerms = _.filter(term.terms, function (t) { return textFilteredSubTerms[t.key]; });
                 const status = getTermStatus(term, facet);
                 const diff = term.terms.length - filteredTerms.length;
-                tooltip = `Warning: ${term.terms.length} term${term.terms.length > 1 ? 's' : ''} will be ${status == 'none' ? 'selected' : 'deselected'}  `;
+                tooltip = `Warning: ${term.terms.length} ${termName}${term.terms.length > 1 ? 's' : ''} ${status == 'none' ? 'will be' : 'are'} selected`;
                 if (diff > 0) {
-                    tooltip += ` (${diff} currently selected term${diff > 1 ? 's are' : ' is'} hidden)`;
+                    if (status !== 'none') {
+                        tooltip += ` (${diff} currently selected ${termName}${diff > 1 ? 's are' : ' is'} hidden)`;
+                    }
+                    tooltip += `<br />To see all ${facet.tooltip_term_substitue || 'term'}s in this group clear the search filter`;
                 }
             }
             return <Term {...{ facet, term, termTransformFxn, isFiltering, useRadioIcon, getTermStatus, textFilteredTerms, textFilteredSubTerms, facetSearchActive, tooltip }} onClick={onTermClick} key={term.key} status={getTermStatus(term, facet)} />;
