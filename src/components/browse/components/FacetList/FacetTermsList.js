@@ -376,7 +376,7 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
         basicSearchAutoDisplayLimit, useRadioIcon, persistSelectedTerms: propPersistSelectedTerms = true
     } = props;
     let { search_type: searchType = 'none' } = facet;
-    const { persist_selected_terms: facetPersistSelectedTerms } = facet;
+    const { persist_selected_terms: facetPersistSelectedTerms, has_group_by: facetHasGroupBy = false } = facet;
 
     // if it's defined within facet, override global persis selected terms
     const persistSelectedTerms = (typeof facetPersistSelectedTerms === 'boolean') ? facetPersistSelectedTerms : propPersistSelectedTerms;
@@ -385,9 +385,9 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
      * is greater than basicSearchAutoDisplayLimit (for persistSelectedTerms is true)
      */
     if (!persistSelectedTerms) {
-        //searchType = 'none'; //override
+        searchType = 'none'; //override
     } else if (searchType === 'none') {
-        const termsLength = !facet.has_group_by ? terms.length : _.reduce(terms, function (memo, term) { return memo + 1 + (term.terms || []).length; }, 0);
+        const termsLength = !facetHasGroupBy ? terms.length : _.reduce(terms, function (memo, term) { return memo + 1 + (term.terms || []).length; }, 0);
         if (termsLength >= basicSearchAutoDisplayLimit) {
             searchType = 'basic';
         }
@@ -407,7 +407,22 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
         const {
             filteredTerms: textFilteredTerms = {},
             filteredSubTerms : textFilteredSubTerms = null
-        } = facetSearchActive ? getFilteredTerms(terms, searchText, facet.has_group_by || false) : {};
+        } = facetSearchActive ? getFilteredTerms(terms, searchText, facetHasGroupBy || false) : {};
+
+        if (facetHasGroupBy && !facetOpen) {
+            let activeTermComponents = [];
+            terms.forEach(function(term) {
+                term.terms.forEach(function(t){
+                    const status = getTermStatus(t, facet);
+                    if(status !== 'none'){
+                        const termComponent = (<Term {...{ facet, term: t, termTransformFxn, isFiltering: false, useRadioIcon }} onClick={onTermClick} key={t.key} status={status} />);
+                        activeTermComponents.push(termComponent);
+                    }
+                });
+            });
+            activeTermComponents = _.sortBy(activeTermComponents, function (tc) { return -tc.props.term.doc_count; });
+            return { termComponents: [], activeTermComponents, selectedLen: activeTermComponents.length };
+        }
 
         const allTermComponents = terms.map(function (term){
             const { field: currFilteringField, term: currFilteringTerm } = filteringFieldTerm || {};
@@ -446,8 +461,11 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
         const unselectedLen = unselectedTermComponents.length;
         const totalLen = selectedLen + omittedLen + unselectedLen;
 
+        // shortcut for some specific cases
         if (!persistSelectedTerms) {
             return { termComponents: allTermComponents, selectedLen, omittedLen, unselectedLen, totalLen };
+        } else if (facetHasGroupBy) {
+            return { termComponents: [], activeTermComponents: [], unselectedTermComponents };
         }
 
         const termComponents = selectedTermComponents.concat(omittedTermComponents).concat(unselectedTermComponents);
@@ -475,7 +493,7 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
 
         return retObj;
 
-    }, [ facet, terms, persistentCount, searchText, filteringFieldTerm, persistSelectedTerms ]);
+    }, [ facet, facetOpen, terms, persistentCount, searchText, filteringFieldTerm, persistSelectedTerms ]);
 
     const commonProps = {
         "data-any-active" : !!(selectedLen || omittedLen),
@@ -494,6 +512,12 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
                         {termComponents}
                     </React.Fragment>
                 } />
+            </div>
+        );
+    } else if (facetHasGroupBy && !facetOpen) {
+        return (
+            <div {...commonProps}>
+                <PartialList className="mb-0 active-terms-pl" open={facetOpen} persistent={activeTermComponents} />
             </div>
         );
     } else {
@@ -548,15 +572,6 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
                 </div>
             );
         } else {
-            // TODO: Finish later maybe, or remove
-            // if (!facetSearch && termComponents.length === 0) {
-            //     // No options/terms available; usually only case where no results found.
-            //     return (
-            //         <div {...commonProps}>
-            //             <em className="text-secondary small">No options.</em>
-            //         </div>
-            //     );
-            // }
             return (
                 <div {...commonProps}>
                     <PartialList className="mb-0 active-terms-pl" open={facetOpen} persistent={activeTermComponents} collapsible={

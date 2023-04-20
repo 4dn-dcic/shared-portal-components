@@ -515,7 +515,9 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
     propPersistSelectedTerms = _props$persistSelecte === void 0 ? true : _props$persistSelecte;
   var _facet$search_type = facet.search_type,
     searchType = _facet$search_type === void 0 ? 'none' : _facet$search_type;
-  var facetPersistSelectedTerms = facet.persist_selected_terms;
+  var facetPersistSelectedTerms = facet.persist_selected_terms,
+    _facet$has_group_by = facet.has_group_by,
+    facetHasGroupBy = _facet$has_group_by === void 0 ? false : _facet$has_group_by;
 
   // if it's defined within facet, override global persis selected terms
   var persistSelectedTerms = typeof facetPersistSelectedTerms === 'boolean' ? facetPersistSelectedTerms : propPersistSelectedTerms;
@@ -524,9 +526,9 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
    * is greater than basicSearchAutoDisplayLimit (for persistSelectedTerms is true)
    */
   if (!persistSelectedTerms) {
-    //searchType = 'none'; //override
+    searchType = 'none'; //override
   } else if (searchType === 'none') {
-    var termsLength = !facet.has_group_by ? terms.length : _.reduce(terms, function (memo, term) {
+    var termsLength = !facetHasGroupBy ? terms.length : _.reduce(terms, function (memo, term) {
       return memo + 1 + (term.terms || []).length;
     }, 0);
     if (termsLength >= basicSearchAutoDisplayLimit) {
@@ -537,11 +539,40 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
   var _useMemo = useMemo(function () {
       var field = facet.field;
       var facetSearchActive = searchType === 'basic' && searchText && typeof searchText === 'string' && searchText.length > 0;
-      var _ref7 = facetSearchActive ? getFilteredTerms(terms, searchText, facet.has_group_by || false) : {},
+      var _ref7 = facetSearchActive ? getFilteredTerms(terms, searchText, facetHasGroupBy || false) : {},
         _ref7$filteredTerms = _ref7.filteredTerms,
         textFilteredTerms = _ref7$filteredTerms === void 0 ? {} : _ref7$filteredTerms,
         _ref7$filteredSubTerm = _ref7.filteredSubTerms,
         textFilteredSubTerms = _ref7$filteredSubTerm === void 0 ? null : _ref7$filteredSubTerm;
+      if (facetHasGroupBy && !facetOpen) {
+        var _activeTermComponents = [];
+        terms.forEach(function (term) {
+          term.terms.forEach(function (t) {
+            var status = getTermStatus(t, facet);
+            if (status !== 'none') {
+              var termComponent = /*#__PURE__*/React.createElement(Term, {
+                facet: facet,
+                term: t,
+                termTransformFxn: termTransformFxn,
+                isFiltering: false,
+                useRadioIcon: useRadioIcon,
+                onClick: onTermClick,
+                key: t.key,
+                status: status
+              });
+              _activeTermComponents.push(termComponent);
+            }
+          });
+        });
+        _activeTermComponents = _.sortBy(_activeTermComponents, function (tc) {
+          return -tc.props.term.doc_count;
+        });
+        return {
+          termComponents: [],
+          activeTermComponents: _activeTermComponents,
+          selectedLen: _activeTermComponents.length
+        };
+      }
       var allTermComponents = terms.map(function (term) {
         var _ref8 = filteringFieldTerm || {},
           currFilteringField = _ref8.field,
@@ -600,6 +631,8 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
       var omittedLen = omittedTermComponents.length;
       var unselectedLen = unselectedTermComponents.length;
       var totalLen = selectedLen + omittedLen + unselectedLen;
+
+      // shortcut for some specific cases
       if (!persistSelectedTerms) {
         return {
           termComponents: allTermComponents,
@@ -607,6 +640,12 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
           omittedLen: omittedLen,
           unselectedLen: unselectedLen,
           totalLen: totalLen
+        };
+      } else if (facetHasGroupBy) {
+        return {
+          termComponents: [],
+          activeTermComponents: [],
+          unselectedTermComponents: unselectedTermComponents
         };
       }
       var termComponents = selectedTermComponents.concat(omittedTermComponents).concat(unselectedTermComponents);
@@ -635,7 +674,7 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
         return m + (termComponent.props.term.doc_count || 0);
       }, 0);
       return retObj;
-    }, [facet, terms, persistentCount, searchText, filteringFieldTerm, persistSelectedTerms]),
+    }, [facet, facetOpen, terms, persistentCount, searchText, filteringFieldTerm, persistSelectedTerms]),
     termComponents = _useMemo.termComponents,
     activeTermComponents = _useMemo.activeTermComponents,
     unselectedTermComponents = _useMemo.unselectedTermComponents,
@@ -665,6 +704,12 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
       open: facetOpen,
       persistent: null,
       collapsible: /*#__PURE__*/React.createElement(React.Fragment, null, termComponents)
+    }));
+  } else if (facetHasGroupBy && !facetOpen) {
+    return /*#__PURE__*/React.createElement("div", commonProps, /*#__PURE__*/React.createElement(PartialList, {
+      className: "mb-0 active-terms-pl",
+      open: facetOpen,
+      persistent: activeTermComponents
     }));
   } else {
     // show simple text input for basic search (search within returned values)
@@ -727,15 +772,6 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
         }, expandButtonTitle)))
       }));
     } else {
-      // TODO: Finish later maybe, or remove
-      // if (!facetSearch && termComponents.length === 0) {
-      //     // No options/terms available; usually only case where no results found.
-      //     return (
-      //         <div {...commonProps}>
-      //             <em className="text-secondary small">No options.</em>
-      //         </div>
-      //     );
-      // }
       return /*#__PURE__*/React.createElement("div", commonProps, /*#__PURE__*/React.createElement(PartialList, {
         className: "mb-0 active-terms-pl",
         open: facetOpen,
