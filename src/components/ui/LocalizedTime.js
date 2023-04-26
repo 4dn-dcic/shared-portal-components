@@ -13,7 +13,7 @@ export class LocalizedTime extends React.Component {
         this.memoized = {
             getDateFns: memoize(function(dateFnsDate, timestamp) {
                 const parsedTime = zonedTimeToUtc(timestamp);
-                console.log("parsedTime", parsedTime);
+                // console.log("parsedTime", parsedTime);
                 if (dateFnsDate) return dateFnsDate;
                 if (timestamp) return parsedTime;
                 return new Date();

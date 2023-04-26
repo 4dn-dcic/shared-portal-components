@@ -25,6 +25,8 @@ import { TermsFacet } from './TermsFacet';
 import { RangeFacet, getRangeValuesFromFiltersByField } from './RangeFacet';
 import { mergeTerms, countActiveTermsByField } from './FacetTermsList';
 import { FacetOfFacets } from './FacetOfFacets';
+import FontAwesomeV6Icons from '../../../ui/FontAwesomeV6Icons';
+import { IconToggle } from '../../../forms/components/Toggle';
 
 /**
  * Component to render out the FacetList for the Browse and ExperimentSet views.
@@ -270,6 +272,7 @@ export class FacetList extends React.PureComponent {
      * @param {{ href: string, schemas: Object<string, Object>, itemTypeForSchemas: string, termTransformFxn: function, onFilter: function, getTermStatus: function }} props - Passed to all facet components.
      */
     static createFacetComponents(props, useFacets, activeTermCountByField, rangeValuesByField){
+        const { including } = props;
 
         // The logic within `Facet` `render`, `componentDidMount`, etc. isn't executed
         // until is rendered by some other component's render method.
@@ -287,14 +290,20 @@ export class FacetList extends React.PureComponent {
                 const isStatic = facet.min === facet.max;
                 // See https://reactjs.org/blog/2018/06/07/you-probably-dont-need-derived-state.html#recommendation-fully-uncontrolled-component-with-a-key
                 // This approach used for resetting state.fromVal and state.toVal within RangeFacet.
-                return <RangeFacet {...props} {...{ isStatic, grouping, fromVal, toVal, facet }} key={facetField} anyTermsSelected={anySelected}  />;
+                return <RangeFacet {...props} {...{ isStatic, grouping, fromVal, toVal, facet, including }} key={facetField} anyTermsSelected={anySelected}  />;
             }
 
             if (aggregation_type === "terms"){
-                const termsSelectedCount = activeTermCountByField[facetField] || 0;// countTermsSelected(facet.terms, facet, filters);
+                // Account for omitted fields; ensure a facet with the cleaned field is passed in
+                const cleanFacet = { ...facet };
+                const lastCharIdx = facetField.length - 1;
+                const cleanField = facetField.charAt(lastCharIdx) === "!" ? facetField.slice(0, lastCharIdx) : facetField;
+                cleanFacet.field = cleanField;
+
+                const termsSelectedCount = activeTermCountByField[cleanField] || 0; // countTermsSelected(facet.terms, facet, filters);
                 const anySelected = termsSelectedCount !== 0;
                 const isStatic = !anySelected && facet.terms.length === 1;
-                return <TermsFacet {...props} {...{ isStatic, grouping, termsSelectedCount, facet }} key={facetField} anyTermsSelected={anySelected} />;
+                return <TermsFacet {...props} facet={cleanFacet} {...{ isStatic, grouping, termsSelectedCount, including }} key={facetField} anyTermsSelected={anySelected} />;
             }
 
             throw new Error("Unknown aggregation_type");
@@ -427,6 +436,7 @@ export class FacetList extends React.PureComponent {
         this.handleCollapseAllFacets = this.handleCollapseAllFacets.bind(this);
         this.setOpenPopover = this.setOpenPopover.bind(this);
         this.renderFacetComponents = this.renderFacetComponents.bind(this);
+        this.onToggleIncluding = this.onToggleIncluding.bind(this);
         this.memoized = {
             countActiveTermsByField: memoize(countActiveTermsByField),
             getRangeValuesFromFiltersByField: memoize(getRangeValuesFromFiltersByField),
@@ -457,6 +467,7 @@ export class FacetList extends React.PureComponent {
         };
 
         this.state = {
+            including: true, // if false, show "not facets" or exclude facets
             openFacets : {},    // will be keyed by facet.field, value will be bool
             openPopover: null,  // will contain `{ ref: React Ref, popover: JSX element/component }`. We might want to move this functionality up into like App.js.
             filteringFieldTerm: null    // will contain `{ field: string, term: string|[from, to] }`. Used to show loading indicators on clicked-on terms.
@@ -543,13 +554,36 @@ export class FacetList extends React.PureComponent {
 
     }
 
+    onToggleIncluding(e, callback) {
+        const { including } = this.state;
+
+        if (callback) {
+            this.setState({ including: !including }, callback);
+        } else {
+            this.setState({ including: !including });
+        }
+    }
+
     /**
      * Calls props.onFilter after sending analytics.
      * N.B. When rangeFacet calls onFilter, it creates a `term` with `key` property
      * as no 'terms' exist when aggregation_type === stats.
      */
     onFilterExtended(facet, term, callback){
+        const { including } = this.state;
         const { onFilter, context: { filters: contextFilters } } = this.props;
+
+        const { aggregation_type } = facet;
+
+        if (
+            !including
+            // @TODO One day add support for range and stats (probably just stats) here and in onFilterMultipleExtended
+            && aggregation_type != "range"
+            && aggregation_type != "stats"
+        ) {
+            facet.field += "!";
+        }
+
         FacetList.sendAnalyticsPreFilter(facet, term, contextFilters);
 
         // Used to show loading indicators on clicked-on terms.
@@ -566,6 +600,7 @@ export class FacetList extends React.PureComponent {
     }
 
     onFilterMultipleExtended(filterObjArray, callback) {
+        const { including } = this.state;
         const { onFilterMultiple, context: { filters: contextFilters } } = this.props;
 
         // Detect if setting both values of range field and set state.filteringFieldTerm = { field: string, term:string|[from, to] }.
@@ -574,6 +609,16 @@ export class FacetList extends React.PureComponent {
 
         filterObjArray.forEach((filterObj) => {
             const { facet, term } = filterObj;
+            const { aggregation_type } = facet;
+
+            if (
+                !including
+                && aggregation_type != "range"
+                && aggregation_type != "stats"
+            ) {
+                facet.field += "!";
+            }
+
             facetFieldNames.add(facet.facetFieldName || null);
             uniqueVals.add(term.key);
             FacetList.sendAnalyticsPreFilter(facet, term, contextFilters);
@@ -654,10 +699,10 @@ export class FacetList extends React.PureComponent {
             useRadioIcon, persistSelectedTerms
         } = this.props;
         const { filters } = context;
-        const { openFacets, openPopover, filteringFieldTerm } = this.state;
+        const { openFacets, openPopover, filteringFieldTerm, including } = this.state;
         const facetComponentProps = {
             href, schemas, context, itemTypeForSchemas, termTransformFxn, persistentCount, separateSingleTermFacets,
-            openPopover,
+            openPopover, including,
             filteringFieldTerm,
             useRadioIcon, persistSelectedTerms,
             onFilter:       this.onFilterExtended,
@@ -692,7 +737,7 @@ export class FacetList extends React.PureComponent {
             maxBodyHeight: maxHeight = null,
             isContextLoading = false
         } = this.props;
-        const { openFacets, openPopover } = this.state;
+        const { openFacets, openPopover, including } = this.state;
         const { popover: popoverJSX, ref: popoverTargetRef } = openPopover || {};
 
         if (!facets || !Array.isArray(facets) || facets.length === 0) {
@@ -713,7 +758,8 @@ export class FacetList extends React.PureComponent {
         return (
             <React.Fragment>
                 <div className="facets-container facets with-header-bg" data-context-loading={isContextLoading}>
-                    <FacetListHeader {...{ openFacets, title, onClearFilters, showClearFiltersButton }} onCollapseFacets={this.handleCollapseAllFacets} />
+                    <FacetListHeader {...{ openFacets, title, onClearFilters, showClearFiltersButton, including }}
+                        onToggleIncluding={this.onToggleIncluding} onCollapseFacets={this.handleCollapseAllFacets} />
                     <div {...bodyProps}>
                         { selectableFacetElements }
                         { staticFacetElements.length > 0 ?
@@ -739,34 +785,60 @@ export class FacetList extends React.PureComponent {
 
 export const FacetListHeader = React.memo(function FacetListHeader(props){
     const {
-        title = "Properties",
+        including = true,
+        onToggleIncluding,
+        compound = false,
+        title = "Properties", // @TODO: Is this actually in use anywhere?
         openFacets = {},
-        showClearFiltersButton = false,
+        showClearFiltersButton = false, // @Deprecated
         onClearFilters = null,
         onCollapseFacets
     } = props;
     const anyFacetsOpen = Object.keys(openFacets).length !== 0;
     return (
-        <div className="row facets-header">
-            <div className="col facets-title-column text-truncate">
-                <i className="icon icon-fw icon-filter fas"></i>
-                &nbsp;
-                <h4 className="facets-title">{ title }</h4>
-            </div>
-            <div className="col-auto">
-                <div className="btn-group btn-group-sm properties-controls" role="group" aria-label="Properties Controls">
-                    { anyFacetsOpen ?
-                        <button type="button" className="btn btn-outline-light" onClick={onCollapseFacets} data-tip="Collapse all facets below">
-                            <i className="icon icon-fw icon-minus fas"/>
-                        </button>
-                        : null }
-                    { showClearFiltersButton && typeof onClearFilters === "function" ?
-                        <button type="button" className="btn btn-outline-light" onClick={onClearFilters} data-tip="Clear all filters">
-                            <i className="icon icon-fw icon-times fas"/>
-                        </button>
-                        : null }
+        <div>
+            <div className="row facets-header" data-excluding={!including}>
+                <div className="col facets-title-column text-truncate">
+                    {
+                        !compound &&
+                            <>
+                                <IconToggle activeIdx={including ? 0 : 1} options={[
+                                    {
+                                        title: <div><FontAwesomeV6Icons cls="mb-02 pb-02" filename="filter-solid.svg"/></div>,
+                                        onClick: onToggleIncluding
+                                    },
+                                    {
+                                        title: <div><FontAwesomeV6Icons cls="mb-02" filename="filter-circle-xmark-solid.svg"/></div>,
+                                        onClick: onToggleIncluding
+                                    }
+                                ]} />
+                                <h4 className="facets-title">{`${including ? "Included" : "Excluded"} ${title}`}</h4>
+                            </>
+                    }
+                    { compound &&
+                        <>
+                            <i className="icon icon-fw icon-filter fas"></i>
+                            &nbsp;
+                            <h4 className="facets-title">{ title }</h4>
+                        </>
+                    }
                 </div>
             </div>
+            { !compound &&
+            <div className="row facets-controls">
+                <div className="col">
+                    <div className="properties-controls d-flex py-1 w-100" role="group" aria-label="Properties Controls">
+                        <button type="button" disabled={!anyFacetsOpen} style={{ flex: "1" }} className="btn btn-xs btn-outline-secondary" onClick={onCollapseFacets} data-tip="Collapse all facets below">
+                            <i className="icon icon-fw icon-minus fas"/> Collapse All
+                        </button>
+                        {/* { showClearFiltersButton ? */}
+                        <button type="button" disabled={typeof onClearFilters !== "function"} style={{ flex: "1" }} className="btn btn-xs btn-outline-secondary" onClick={onClearFilters} data-tip="Clear all filters">
+                            <i className="icon icon-fw icon-times fas"/> Clear All
+                        </button>
+                        {/* : null } */}
+                    </div>
+                </div>
+            </div>}
             {/*
             <div className={"col-auto clear-filters-control" + (showClearFiltersButton ? '' : ' placeholder')}>
                 <a href="#" onClick={onClearFilters} className={"btn clear-filters-btn btn-xs " + clearButtonClassName}>
