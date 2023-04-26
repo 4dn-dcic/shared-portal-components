@@ -112,14 +112,7 @@ export function segmentComponentsByStatus(termComponents) {
     if (!Array.isArray(groups[status])) {
       groups[status] = [];
     }
-    if (t.props.facet.has_group_by) {
-      if (!Array.isArray(groups['none'])) {
-        groups['none'] = [];
-      }
-      groups['none'].push(t);
-    } else {
-      groups[status].push(t);
-    }
+    groups[status].push(t);
   });
   return groups;
 }
@@ -161,11 +154,23 @@ export var Term = /*#__PURE__*/function (_React$PureComponent) {
         _this$props2$useRadio = _this$props2.useRadioIcon,
         useRadioIcon = _this$props2$useRadio === void 0 ? false : _this$props2$useRadio,
         hasParent = _this$props2.hasParent,
-        _this$props2$facetSea = _this$props2.facetSearchActive,
-        facetSearchActive = _this$props2$facetSea === void 0 ? false : _this$props2$facetSea,
-        textFilteredTerms = _this$props2.textFilteredTerms,
-        textFilteredSubTerms = _this$props2.textFilteredSubTerms,
-        tooltip = _this$props2.tooltip;
+        tooltip = _this$props2.tooltip,
+        _this$props2$hideActi = _this$props2.hideActiveSubTerms,
+        hideActiveSubTerms = _this$props2$hideActi === void 0 ? false : _this$props2$hideActi,
+        _this$props2$hideUnse = _this$props2.hideUnselectedSubTerms,
+        hideUnselectedSubTerms = _this$props2$hideUnse === void 0 ? false : _this$props2$hideUnse;
+      var _this$props3 = this.props,
+        _this$props3$facetSea = _this$props3.facetSearchActive,
+        facetSearchActive = _this$props3$facetSea === void 0 ? false : _this$props3$facetSea,
+        textFilteredTerms = _this$props3.textFilteredTerms,
+        textFilteredSubTerms = _this$props3.textFilteredSubTerms;
+      var selected = status !== 'none' && status !== 'partial';
+      //override
+      if (selected) {
+        facetSearchActive = false;
+        textFilteredTerms = {};
+        textFilteredSubTerms = null;
+      }
       var count = term && term.doc_count || 0;
       var title = termTransformFxn(facet.field, term.key) || term.key;
       var icon = null;
@@ -189,10 +194,10 @@ export var Term = /*#__PURE__*/function (_React$PureComponent) {
       if (!title || title === 'null' || title === 'undefined') {
         title = 'None';
       }
-      var statusClassName = status !== 'none' ? status === 'selected' ? " selected" : " omitted" : '';
+      var statusClassName = status === 'selected' ? " selected" : status === 'omitted' ? " omitted" : '';
       var _term$is_parent = term.is_parent,
         isParent = _term$is_parent === void 0 ? false : _term$is_parent;
-      var subTerms = null;
+      var subTermComponents = null;
       if (isParent && term.terms && Array.isArray(term.terms) && term.terms.length > 0) {
         var childProps = {
           facet: facet,
@@ -210,7 +215,7 @@ export var Term = /*#__PURE__*/function (_React$PureComponent) {
             return textFilteredSubTerms[t.key];
           });
         }
-        subTerms = filteredTerms.map(function (t) {
+        subTermComponents = filteredTerms.map(function (t) {
           return /*#__PURE__*/React.createElement(Term, _extends({
             key: t.key,
             term: t
@@ -218,9 +223,19 @@ export var Term = /*#__PURE__*/function (_React$PureComponent) {
             status: status === 'selected' ? 'selected' : getTermStatus(t, facet)
           }));
         });
+        if (hideActiveSubTerms) {
+          subTermComponents = _.filter(subTermComponents, function (t) {
+            return t.props.status === 'none';
+          });
+        }
+        if (hideUnselectedSubTerms) {
+          subTermComponents = _.filter(subTermComponents, function (t) {
+            return t.props.status !== 'none';
+          });
+        }
       }
       if (isParent && textFilteredTerms && textFilteredTerms[term.key] === 'hidden') {
-        return subTerms;
+        return subTermComponents;
       }
       return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("li", {
         className: "facet-list-element " + statusClassName + (hasParent && !facetSearchActive ? " pl-3" : ""),
@@ -228,7 +243,7 @@ export var Term = /*#__PURE__*/function (_React$PureComponent) {
         "data-key": term.key
       }, /*#__PURE__*/React.createElement("a", {
         className: "term",
-        "data-selected": status !== 'none',
+        "data-selected": selected,
         href: "#",
         onClick: this.handleClick,
         "data-term": term.key
@@ -239,9 +254,9 @@ export var Term = /*#__PURE__*/function (_React$PureComponent) {
       }, icon), /*#__PURE__*/React.createElement("span", {
         className: "facet-item" + (isParent ? " facet-item-group-header" : ""),
         "data-tip": title.length > 30 ? title : null
-      }, title), isParent && subTerms ? null : /*#__PURE__*/React.createElement("span", {
+      }, title), isParent && subTermComponents ? null : /*#__PURE__*/React.createElement("span", {
         className: "facet-count"
-      }, count))), subTerms);
+      }, count))), subTermComponents);
     }
   }]);
   return Term;
@@ -277,7 +292,9 @@ _defineProperty(Term, "propTypes", {
   'facetSearchActive': PropTypes.bool,
   'textFilteredTerms': PropTypes.object,
   'textFilteredSubTerms': PropTypes.object,
-  'tooltip': PropTypes.string
+  'tooltip': PropTypes.string,
+  'hideActiveSubTerms': PropTypes.bool,
+  'hideUnselectedSubTerms': PropTypes.bool
 });
 _defineProperty(Term, "defaultProps", {
   'useRadioIcon': false
@@ -300,9 +317,6 @@ export function getFilteredTerms(facetTerms, searchText, includeSubTerms) {
         _.forEach(term.terms || [], function (sub) {
           var _ref4$key = (sub || {}).key,
             subKey = _ref4$key === void 0 ? '' : _ref4$key;
-          /*if (isFiltered) {
-              tmpFilteredSubTerms[subKey] = true;
-          } else */
           if (typeof subKey === 'string' && subKey.length > 0) {
             var isSubFiltered = lcSearchText.length > 0 ? subKey.toLocaleLowerCase().includes(lcSearchText) : true;
             if (isSubFiltered) {
@@ -343,11 +357,11 @@ export var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
     key: "handleOpenToggleClick",
     value: function handleOpenToggleClick(e) {
       e.preventDefault();
-      var _this$props3 = this.props,
-        onToggleOpen = _this$props3.onToggleOpen,
-        field = _this$props3.facet.field,
-        _this$props3$facetOpe = _this$props3.facetOpen,
-        facetOpen = _this$props3$facetOpe === void 0 ? false : _this$props3$facetOpe;
+      var _this$props4 = this.props,
+        onToggleOpen = _this$props4.onToggleOpen,
+        field = _this$props4.facet.field,
+        _this$props4$facetOpe = _this$props4.facetOpen,
+        facetOpen = _this$props4$facetOpe === void 0 ? false : _this$props4$facetOpe;
       onToggleOpen(field, !facetOpen);
     }
   }, {
@@ -364,9 +378,9 @@ export var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
   }, {
     key: "handleSaytTermSearch",
     value: function handleSaytTermSearch(e) {
-      var _this$props4 = this.props,
-        facet = _this$props4.facet,
-        onTermClick = _this$props4.onTermClick;
+      var _this$props5 = this.props,
+        facet = _this$props5.facet,
+        onTermClick = _this$props5.onTermClick;
       var key = {
         'key': e.display_title
       };
@@ -375,27 +389,27 @@ export var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props5 = this.props,
-        facet = _this$props5.facet,
-        fieldSchema = _this$props5.fieldSchema,
-        isStatic = _this$props5.isStatic,
-        anySelected = _this$props5.anyTermsSelected,
-        termsSelectedCount = _this$props5.termsSelectedCount,
-        persistentCount = _this$props5.persistentCount,
-        basicSearchAutoDisplayLimit = _this$props5.basicSearchAutoDisplayLimit,
-        onTermClick = _this$props5.onTermClick,
-        getTermStatus = _this$props5.getTermStatus,
-        termTransformFxn = _this$props5.termTransformFxn,
-        facetOpen = _this$props5.facetOpen,
-        openPopover = _this$props5.openPopover,
-        filteringFieldTerm = _this$props5.filteringFieldTerm,
-        setOpenPopover = _this$props5.setOpenPopover,
-        useRadioIcon = _this$props5.useRadioIcon,
-        propPersistSelectedTerms = _this$props5.persistSelectedTerms,
-        context = _this$props5.context,
-        schemas = _this$props5.schemas,
-        searchText = _this$props5.searchText,
-        handleBasicTermSearch = _this$props5.handleBasicTermSearch;
+      var _this$props6 = this.props,
+        facet = _this$props6.facet,
+        fieldSchema = _this$props6.fieldSchema,
+        isStatic = _this$props6.isStatic,
+        anySelected = _this$props6.anyTermsSelected,
+        termsSelectedCount = _this$props6.termsSelectedCount,
+        persistentCount = _this$props6.persistentCount,
+        basicSearchAutoDisplayLimit = _this$props6.basicSearchAutoDisplayLimit,
+        onTermClick = _this$props6.onTermClick,
+        getTermStatus = _this$props6.getTermStatus,
+        termTransformFxn = _this$props6.termTransformFxn,
+        facetOpen = _this$props6.facetOpen,
+        openPopover = _this$props6.openPopover,
+        filteringFieldTerm = _this$props6.filteringFieldTerm,
+        setOpenPopover = _this$props6.setOpenPopover,
+        useRadioIcon = _this$props6.useRadioIcon,
+        propPersistSelectedTerms = _this$props6.persistSelectedTerms,
+        context = _this$props6.context,
+        schemas = _this$props6.schemas,
+        searchText = _this$props6.searchText,
+        handleBasicTermSearch = _this$props6.handleBasicTermSearch;
       var _facet$description = facet.description,
         facetSchemaDescription = _facet$description === void 0 ? null : _facet$description,
         field = facet.field,
@@ -539,83 +553,89 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
   var _useMemo = useMemo(function () {
       var field = facet.field;
       var facetSearchActive = searchType === 'basic' && searchText && typeof searchText === 'string' && searchText.length > 0;
-      var _ref7 = facetSearchActive ? getFilteredTerms(terms, searchText, facetHasGroupBy || false) : {},
+      var _ref7 = facetSearchActive ? getFilteredTerms(terms, searchText, facetHasGroupBy) : {},
         _ref7$filteredTerms = _ref7.filteredTerms,
         textFilteredTerms = _ref7$filteredTerms === void 0 ? {} : _ref7$filteredTerms,
         _ref7$filteredSubTerm = _ref7.filteredSubTerms,
         textFilteredSubTerms = _ref7$filteredSubTerm === void 0 ? null : _ref7$filteredSubTerm;
-      if (facetHasGroupBy && !facetOpen) {
-        var _activeTermComponents = [];
-        terms.forEach(function (term) {
-          term.terms.forEach(function (t) {
-            var status = getTermStatus(t, facet);
-            if (status !== 'none') {
-              var termComponent = /*#__PURE__*/React.createElement(Term, {
-                facet: facet,
-                term: t,
-                termTransformFxn: termTransformFxn,
-                isFiltering: false,
-                useRadioIcon: useRadioIcon,
-                onClick: onTermClick,
-                key: t.key,
-                status: status
-              });
-              _activeTermComponents.push(termComponent);
-            }
-          });
-        });
-        _activeTermComponents = _.sortBy(_activeTermComponents, function (tc) {
-          return -tc.props.term.doc_count;
-        });
-        return {
-          termComponents: [],
-          activeTermComponents: _activeTermComponents,
-          selectedLen: _activeTermComponents.length
-        };
-      }
-      var allTermComponents = terms.map(function (term) {
+      var allTermComponents = _.flatten(terms.map(function (term) {
         var _ref8 = filteringFieldTerm || {},
           currFilteringField = _ref8.field,
           currFilteringTerm = _ref8.term;
         var isFiltering = field === currFilteringField && term.key === currFilteringTerm;
-        // build tooltip sentence
+        var status = getTermStatus(term, facet);
+        // build tooltip
         var tooltip = null;
         if (facetSearchActive && textFilteredTerms[term.key] === true && term.terms && textFilteredSubTerms) {
           var termName = facet.tooltip_term_substitue || 'term';
           var filteredTerms = _.filter(term.terms, function (t) {
             return textFilteredSubTerms[t.key];
           });
-          var status = getTermStatus(term, facet);
           var diff = term.terms.length - filteredTerms.length;
-          tooltip = "Warning: ".concat(term.terms.length, " ").concat(termName).concat(term.terms.length > 1 ? 's' : '', " ").concat(status == 'none' ? 'will be' : 'are', " selected");
+          var unchecked = status === 'none' || status === 'partial';
+          tooltip = "Warning: ".concat(term.terms.length, " ").concat(termName).concat(term.terms.length > 1 ? 's' : '', " ").concat(unchecked ? 'will be' : 'are', " selected");
           if (diff > 0) {
-            if (status !== 'none') {
+            if (!unchecked) {
               tooltip += " (".concat(diff, " currently selected ").concat(termName).concat(diff > 1 ? 's are' : ' is', " hidden)");
             }
             tooltip += "<br />To see all ".concat(facet.tooltip_term_substitue || 'term', "s in this group clear the search filter");
           }
         }
-        return /*#__PURE__*/React.createElement(Term, {
-          facet: facet,
-          term: term,
-          termTransformFxn: termTransformFxn,
-          isFiltering: isFiltering,
-          useRadioIcon: useRadioIcon,
-          getTermStatus: getTermStatus,
-          textFilteredTerms: textFilteredTerms,
-          textFilteredSubTerms: textFilteredSubTerms,
-          facetSearchActive: facetSearchActive,
-          tooltip: tooltip,
-          onClick: onTermClick,
-          key: term.key,
-          status: getTermStatus(term, facet)
-        });
-      });
+        if (status !== 'partial') {
+          return /*#__PURE__*/React.createElement(Term, {
+            facet: facet,
+            term: term,
+            termTransformFxn: termTransformFxn,
+            isFiltering: isFiltering,
+            useRadioIcon: useRadioIcon,
+            getTermStatus: getTermStatus,
+            textFilteredTerms: textFilteredTerms,
+            textFilteredSubTerms: textFilteredSubTerms,
+            facetSearchActive: facetSearchActive,
+            tooltip: tooltip,
+            status: status,
+            onClick: onTermClick,
+            key: term.key
+          });
+        } else {
+          //duplicate terms to show parent-children tree in active and unselected sections
+          return [/*#__PURE__*/React.createElement(Term, {
+            facet: facet,
+            term: term,
+            termTransformFxn: termTransformFxn,
+            isFiltering: isFiltering,
+            useRadioIcon: useRadioIcon,
+            getTermStatus: getTermStatus,
+            textFilteredTerms: {},
+            status: status,
+            onClick: onTermClick,
+            key: term.key,
+            hideUnselectedSubTerms: true
+          }), /*#__PURE__*/React.createElement(Term, {
+            facet: facet,
+            term: term,
+            termTransformFxn: termTransformFxn,
+            isFiltering: isFiltering,
+            useRadioIcon: useRadioIcon,
+            getTermStatus: getTermStatus,
+            textFilteredTerms: textFilteredTerms,
+            textFilteredSubTerms: textFilteredSubTerms,
+            facetSearchActive: facetSearchActive,
+            tooltip: tooltip,
+            status: 'none',
+            onClick: onTermClick,
+            key: term.key,
+            hideActiveSubTerms: true
+          })];
+        }
+      }));
       var segments = segmentComponentsByStatus(allTermComponents);
       var _segments$selected = segments.selected,
         selectedTermComponents = _segments$selected === void 0 ? [] : _segments$selected,
         _segments$omitted = segments.omitted,
-        omittedTermComponents = _segments$omitted === void 0 ? [] : _segments$omitted;
+        omittedTermComponents = _segments$omitted === void 0 ? [] : _segments$omitted,
+        _segments$partial = segments['partial'],
+        partialSelectedTermComponents = _segments$partial === void 0 ? [] : _segments$partial;
       var _segments$none = segments.none,
         unselectedTermComponents = _segments$none === void 0 ? [] : _segments$none;
 
@@ -641,15 +661,9 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
           unselectedLen: unselectedLen,
           totalLen: totalLen
         };
-      } else if (facetHasGroupBy) {
-        return {
-          termComponents: [],
-          activeTermComponents: [],
-          unselectedTermComponents: unselectedTermComponents
-        };
       }
       var termComponents = selectedTermComponents.concat(omittedTermComponents).concat(unselectedTermComponents);
-      var activeTermComponents = termComponents.slice(0, selectedLen + omittedLen);
+      var activeTermComponents = !facetHasGroupBy ? termComponents.slice(0, selectedLen + omittedLen) : selectedTermComponents.concat(omittedTermComponents).concat(partialSelectedTermComponents);
       var retObj = {
         termComponents: termComponents,
         activeTermComponents: activeTermComponents,
@@ -674,7 +688,7 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
         return m + (termComponent.props.term.doc_count || 0);
       }, 0);
       return retObj;
-    }, [facet, facetOpen, terms, persistentCount, searchText, filteringFieldTerm, persistSelectedTerms]),
+    }, [facet, terms, persistentCount, searchText, filteringFieldTerm, persistSelectedTerms]),
     termComponents = _useMemo.termComponents,
     activeTermComponents = _useMemo.activeTermComponents,
     unselectedTermComponents = _useMemo.unselectedTermComponents,
@@ -704,12 +718,6 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
       open: facetOpen,
       persistent: null,
       collapsible: /*#__PURE__*/React.createElement(React.Fragment, null, termComponents)
-    }));
-  } else if (facetHasGroupBy && !facetOpen) {
-    return /*#__PURE__*/React.createElement("div", commonProps, /*#__PURE__*/React.createElement(PartialList, {
-      className: "mb-0 active-terms-pl",
-      open: facetOpen,
-      persistent: activeTermComponents
     }));
   } else {
     // show simple text input for basic search (search within returned values)

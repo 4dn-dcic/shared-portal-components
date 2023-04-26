@@ -154,30 +154,49 @@ export function getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters(t
     // Terms
     for (i = 0; i < filters.length; i++) {
       filter = filters[i];
-      if (filter.field === field && filter.term === term.key && !isGroupByParent) {
+      if (!isGroupByParent && filter.field === field && filter.term === term.key) {
         found = true;
         break;
-      } else if (filter.field.endsWith('!') && filter.field.slice(0, -1) === field && filter.term === term.key) {
+      } else if (!isGroupByParent && filter.field.endsWith('!') && filter.field.slice(0, -1) === field && filter.term === term.key) {
         found = true;
         status = "omitted";
         break;
-      } else if (isGroupByParent && field === filter.field && term.terms && _.any(term.terms, function (t) {
+      } else if (isGroupByParent && (field === filter.field || filter.field.endsWith('!') && field === filter.field.slice(0, -1)) && term.terms && _.any(term.terms, function (t) {
         return t.key === filter.term;
       })) {
-        found = true;
+        var selectedTermsCount = 0,
+          omittedTermsCount = 0;
         var _loop = function () {
           var t = term.terms[j];
           var selected = _.any(filters, function (f) {
             return f.field === field && f.term === t.key;
           });
-          if (!selected) {
-            found = false;
-            return "break";
+          if (selected) {
+            selectedTermsCount++;
+          } else {
+            var omitted = _.any(filters, function (f) {
+              return f.field.endsWith('!') && f.field.slice(0, -1) === field && f.term === t.key;
+            });
+            if (omitted) {
+              omittedTermsCount++;
+            }
           }
         };
         for (j = 0; j < term.terms.length; j++) {
-          var _ret = _loop();
-          if (_ret === "break") break;
+          _loop();
+        }
+        if (selectedTermsCount + omittedTermsCount > 0) {
+          if (selectedTermsCount == term.terms.length) {
+            found = true;
+          } else if (omittedTermsCount == term.terms.length) {
+            found = true;
+            status = 'omitted';
+          } else {
+            return {
+              'status': 'partial',
+              'href': null
+            };
+          }
         }
         break;
       }
