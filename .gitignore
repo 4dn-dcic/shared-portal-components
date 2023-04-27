@@ -1,2 +1,14 @@
+# npm
 node_modules
-.DS_store
+
+# MacOS
+.DS_Store/
+
+# Emacs
+*~
+
+# PyCharm
+.idea/
+
+# Git
+.git/
