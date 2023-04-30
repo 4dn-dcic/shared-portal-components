@@ -216,6 +216,13 @@ export function buildSearchHref(field, term, searchBase){
     return url.format(parts);
 }
 
+/**
+ *s
+ * @param {*} facet
+ * @param {*} term
+ * @param {*} searchBase
+ * @returns
+ */
 export function buildSearchHrefExtended(facet, term, searchBase){
     const parts = url.parse(searchBase, true);
     const { query } = parts;
@@ -225,13 +232,34 @@ export function buildSearchHrefExtended(facet, term, searchBase){
     } else if (typeof query[facet.field] === 'string') {
         query[facet.field] = [query[facet.field]];
     }
-    const newValues = _.clone(query[facet.field]);
+    //clear include filters when exclude is in action, and clear exclude filters when include is in action
+    let fieldClear = null;
+    if (facet.field.endsWith('!')) {
+        const fieldInclude = facet.field.slice(0, -1);
+        if(fieldInclude in query) {
+            fieldClear = fieldInclude;
+        }
+    } else {
+        const fieldExclude = facet.field + '!';
+        if(fieldExclude in query) {
+            fieldClear = fieldExclude;
+        }
+    }
+    if(fieldClear && typeof query[fieldClear] === 'string'){
+        query[fieldClear] = [query[fieldClear]];
+    }
+
     term.terms.forEach((t) => {
-        if(query[facet.field].indexOf(t.key) < 0) {
-            newValues.push(t.key);
+        if (query[facet.field].indexOf(t.key) < 0) {
+            query[facet.field].push(t.key);
+        }
+        if (fieldClear) {
+            const clearIdx = query[fieldClear].indexOf(t.key);
+            if (clearIdx >= 0) {
+                query[fieldClear].splice(clearIdx, 1);
+            }
         }
     });
-    query[facet.field] = newValues;
 
     const queryStr = queryString.stringify(query);
     parts.search = queryStr && queryStr.length > 0 ? ('?' + queryStr) : '';

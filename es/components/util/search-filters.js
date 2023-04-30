@@ -256,6 +256,14 @@ export function buildSearchHref(field, term, searchBase) {
   parts.search = queryStr && queryStr.length > 0 ? '?' + queryStr : '';
   return url.format(parts);
 }
+
+/**
+ *s
+ * @param {*} facet
+ * @param {*} term
+ * @param {*} searchBase
+ * @returns
+ */
 export function buildSearchHrefExtended(facet, term, searchBase) {
   var parts = url.parse(searchBase, true);
   var query = parts.query;
@@ -264,13 +272,33 @@ export function buildSearchHrefExtended(facet, term, searchBase) {
   } else if (typeof query[facet.field] === 'string') {
     query[facet.field] = [query[facet.field]];
   }
-  var newValues = _.clone(query[facet.field]);
+  //clear include filters when exclude is in action, and clear exclude filters when include is in action
+  var fieldClear = null;
+  if (facet.field.endsWith('!')) {
+    var fieldInclude = facet.field.slice(0, -1);
+    if (fieldInclude in query) {
+      fieldClear = fieldInclude;
+    }
+  } else {
+    var fieldExclude = facet.field + '!';
+    if (fieldExclude in query) {
+      fieldClear = fieldExclude;
+    }
+  }
+  if (fieldClear && typeof query[fieldClear] === 'string') {
+    query[fieldClear] = [query[fieldClear]];
+  }
   term.terms.forEach(function (t) {
     if (query[facet.field].indexOf(t.key) < 0) {
-      newValues.push(t.key);
+      query[facet.field].push(t.key);
+    }
+    if (fieldClear) {
+      var clearIdx = query[fieldClear].indexOf(t.key);
+      if (clearIdx >= 0) {
+        query[fieldClear].splice(clearIdx, 1);
+      }
     }
   });
-  query[facet.field] = newValues;
   var queryStr = queryString.stringify(query);
   parts.search = queryStr && queryStr.length > 0 ? '?' + queryStr : '';
   return url.format(parts);

@@ -564,18 +564,18 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
           currFilteringTerm = _ref8.term;
         var isFiltering = field === currFilteringField && term.key === currFilteringTerm;
         var status = getTermStatus(term, facet);
+        var active = status === 'omitted' || status === 'selected';
         // build tooltip
         var tooltip = null;
-        if (facetSearchActive && textFilteredTerms[term.key] === true && term.terms && textFilteredSubTerms) {
+        if (facetSearchActive && !active && textFilteredTerms[term.key] === true && term.terms && textFilteredSubTerms) {
           var termName = facet.tooltip_term_substitue || 'term';
           var filteredTerms = _.filter(term.terms, function (t) {
             return textFilteredSubTerms[t.key];
           });
           var diff = term.terms.length - filteredTerms.length;
-          var unchecked = status === 'none' || status === 'partial';
-          tooltip = "Warning: ".concat(term.terms.length, " ").concat(termName).concat(term.terms.length > 1 ? 's' : '', " ").concat(unchecked ? 'will be' : 'are', " selected");
+          tooltip = "Warning: ".concat(term.terms.length, " ").concat(termName).concat(term.terms.length > 1 ? 's' : '', " ").concat(!active ? 'will be' : 'are', " selected");
           if (diff > 0) {
-            if (!unchecked) {
+            if (active) {
               tooltip += " (".concat(diff, " currently selected ").concat(termName).concat(diff > 1 ? 's are' : ' is', " hidden)");
             }
             tooltip += "<br />To see all ".concat(facet.tooltip_term_substitue || 'term', "s in this group clear the search filter");

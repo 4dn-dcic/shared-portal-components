@@ -419,16 +419,16 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
             const { field: currFilteringField, term: currFilteringTerm } = filteringFieldTerm || {};
             const isFiltering = field === currFilteringField && term.key === currFilteringTerm;
             const status = getTermStatus(term, facet);
+            const active = status === 'omitted' || status === 'selected';
             // build tooltip
             let tooltip = null;
-            if (facetSearchActive && textFilteredTerms[term.key] === true && term.terms && textFilteredSubTerms) {
+            if (facetSearchActive && !active && textFilteredTerms[term.key] === true && term.terms && textFilteredSubTerms) {
                 const termName = facet.tooltip_term_substitue || 'term';
                 const filteredTerms = _.filter(term.terms, function (t) { return textFilteredSubTerms[t.key]; });
                 const diff = term.terms.length - filteredTerms.length;
-                const unchecked = status === 'none' || status === 'partial';
-                tooltip = `Warning: ${term.terms.length} ${termName}${term.terms.length > 1 ? 's' : ''} ${unchecked ? 'will be' : 'are'} selected`;
+                tooltip = `Warning: ${term.terms.length} ${termName}${term.terms.length > 1 ? 's' : ''} ${!active ? 'will be' : 'are'} selected`;
                 if (diff > 0) {
-                    if (!unchecked) {
+                    if (active) {
                         tooltip += ` (${diff} currently selected ${termName}${diff > 1 ? 's are' : ' is'} hidden)`;
                     }
                     tooltip += `<br />To see all ${facet.tooltip_term_substitue || 'term'}s in this group clear the search filter`;
