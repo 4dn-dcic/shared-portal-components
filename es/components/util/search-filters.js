@@ -207,10 +207,18 @@ export function getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters(t
     if (includePathName) {
       retHref += parts.pathname;
     }
-    if (term.is_parent && term.terms && parts.query[facet.field]) {
-      var tmp = Array.isArray(parts.query[facet.field]) ? parts.query[facet.field] : [parts.query[facet.field]];
+    var facetField = facet.field;
+    if (term.is_parent) {
+      if (status === 'omitted' && !facet.field.endsWith("!")) {
+        facetField = facet.field + "!";
+      } else if (status === 'selected' && facet.field.endsWith("!")) {
+        facetField = facet.field.slice(0, -1);
+      }
+    }
+    if (term.is_parent && term.terms && parts.query[facetField]) {
+      var tmp = Array.isArray(parts.query[facetField]) ? parts.query[facetField] : [parts.query[facetField]];
       var cloned = _.clone(parts.query);
-      cloned[facet.field] = _.filter(tmp, function (v) {
+      cloned[facetField] = _.filter(tmp, function (v) {
         return !_.any(term.terms, function (t) {
           return t.key === v;
         });
