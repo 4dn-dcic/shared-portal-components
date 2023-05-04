@@ -113,8 +113,10 @@ export class Term extends React.PureComponent {
         'term'              : PropTypes.shape({
             'key'               : PropTypes.string.isRequired,
             'doc_count'         : PropTypes.number,
-            'is_parent'         : PropTypes.bool,
-            'terms'             : PropTypes.array
+            'terms'             : PropTypes.arrayOf(PropTypes.shape({
+                'key'               : PropTypes.string.isRequired,
+                'doc_count'         : PropTypes.number,
+            }))
         }).isRequired,
         'isFiltering'       : PropTypes.bool,
         'filteringFieldTerm': PropTypes.shape({ field: PropTypes.string, term: PropTypes.string }),
@@ -123,7 +125,7 @@ export class Term extends React.PureComponent {
         'getTermStatus'     : PropTypes.func.isRequired,
         'termTransformFxn'  : PropTypes.func,
         'useRadioIcon'      : PropTypes.bool.isRequired,
-        'hasParent'         : PropTypes.bool,
+        'hasGroupingTerm'   : PropTypes.bool,
         'facetSearchActive' : PropTypes.bool,
         'textFilteredTerms'     : PropTypes.object,
         'textFilteredSubTerms'  : PropTypes.object,
@@ -150,7 +152,7 @@ export class Term extends React.PureComponent {
     render() {
         const {
             term, facet, status, getTermStatus, termTransformFxn, isFiltering, onClick, useRadioIcon = false,
-            hasParent, tooltip, hideActiveSubTerms = false, hideUnselectedSubTerms = false
+            hasGroupingTerm, tooltip, hideActiveSubTerms = false, hideUnselectedSubTerms = false
         } = this.props;
         let { facetSearchActive = false, textFilteredTerms, textFilteredSubTerms } = this.props;
 
@@ -181,12 +183,12 @@ export class Term extends React.PureComponent {
         }
 
         const statusClassName = status === 'selected' ? " selected" : status === 'omitted' ? " omitted" : '';
-        const { is_parent : isParent = false } = term;
+        const isGroupingTerm = term.terms && Array.isArray(term.terms);
         let subTermComponents = null;
-        if (isParent && term.terms && Array.isArray(term.terms) && term.terms.length > 0){
-            const childProps = { facet, getTermStatus, termTransformFxn, isFiltering, onClick, useRadioIcon, hasParent: true, facetSearchActive };
+        if (isGroupingTerm && term.terms.length > 0){
+            const childProps = { facet, getTermStatus, termTransformFxn, isFiltering, onClick, useRadioIcon, hasGroupingTerm: true, facetSearchActive };
             let filteredTerms = term.terms;
-            if (typeof textFilteredSubTerms !== 'undefined' && textFilteredSubTerms !== null) {
+            if (textFilteredSubTerms) {
                 filteredTerms = _.filter(filteredTerms, function (t) { return textFilteredSubTerms[t.key]; });
             }
             subTermComponents = filteredTerms.map(function (t) { return (<Term key={t.key} term={t} {...childProps} status={status === 'selected' ? 'selected' : getTermStatus(t, facet)} />); });
@@ -197,16 +199,16 @@ export class Term extends React.PureComponent {
                 subTermComponents = _.filter(subTermComponents, function (t) { return t.props.status !== 'none'; });
             }
         }
-        if (isParent && textFilteredTerms && textFilteredTerms[term.key] === 'hidden') {
+        if (isGroupingTerm && textFilteredTerms && textFilteredTerms[term.key] === 'hidden') {
             return subTermComponents;
         }
         return (
             <React.Fragment>
-                <li className={"facet-list-element " + statusClassName + (hasParent && !facetSearchActive ? " pl-3" : "")} key={term.key} data-key={term.key}>
+                <li className={"facet-list-element " + statusClassName + (hasGroupingTerm && !facetSearchActive ? " pl-3" : "")} key={term.key} data-key={term.key} data-is-grouping={isGroupingTerm} data-has-grouping={hasGroupingTerm}>
                     <a className="term" data-selected={selected} href="#" onClick={this.handleClick} data-term={term.key}>
                         <span className="facet-selector" data-tip={tooltip} data-multiline={true}>{icon}</span>
-                        <span className={"facet-item" + (isParent ? " facet-item-group-header" : "")} data-tip={title.length > 30 ? title : null}>{title}</span>
-                        {(isParent && subTermComponents) ? null : <span className="facet-count">{count}</span>}
+                        <span className={"facet-item" + (isGroupingTerm ? " facet-item-group-header" : "")} data-tip={title.length > 30 ? title : null}>{title}</span>
+                        {(isGroupingTerm && subTermComponents) ? null : <span className="facet-count">{count}</span>}
                     </a>
                 </li>
                 {subTermComponents}

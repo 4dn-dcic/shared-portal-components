@@ -74,7 +74,7 @@ export function generateNextHref(currentHref, contextFilters, facet, term){
                 targetSearchHref = buildSearchHref(field, term.key, correctedHref);
             }
         } else {
-            if (term.is_parent === true) {
+            if (term.terms && Array.isArray(term.terms)) {
                 targetSearchHref = buildSearchHrefExtended(facet, term, currentHref);
             } else {
                 targetSearchHref = buildSearchHref(field, term.key, currentHref);

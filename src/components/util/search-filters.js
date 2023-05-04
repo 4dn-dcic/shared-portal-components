@@ -125,6 +125,8 @@ export function getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters(t
 
     let i, j, filter, parts, retHref = '', found = false, status = "selected";
 
+    const isGroupingTerm = term.terms && Array.isArray(term.terms);
+
     if (facet.aggregation_type === "stats"){
         for (i = 0; i < filters.length; i++) {
             filter = filters[i];
@@ -136,19 +138,17 @@ export function getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters(t
             }
         }
     } else {
-        const isGroupByParent = typeof term.is_parent === 'boolean' && term.is_parent;
-
         // Terms
         for (i = 0; i < filters.length; i++) {
             filter = filters[i];
-            if (!isGroupByParent && filter.field === field && filter.term === term.key) {
+            if (!isGroupingTerm && filter.field === field && filter.term === term.key) {
                 found = true;
                 break;
-            } else if (!isGroupByParent && filter.field.endsWith('!') && filter.field.slice(0, -1) === field && filter.term === term.key) {
+            } else if (!isGroupingTerm && filter.field.endsWith('!') && filter.field.slice(0, -1) === field && filter.term === term.key) {
                 found = true;
                 status = "omitted";
                 break;
-            } else if (isGroupByParent && (field === filter.field || (filter.field.endsWith('!') && field === filter.field.slice(0, -1))) && term.terms && _.any(term.terms, function (t) { return t.key === filter.term; })) {
+            } else if (isGroupingTerm && (field === filter.field || (filter.field.endsWith('!') && field === filter.field.slice(0, -1))) && term.terms && _.any(term.terms, function (t) { return t.key === filter.term; })) {
                 let selectedTermsCount = 0, omittedTermsCount = 0;
                 for (j = 0; j < term.terms.length; j++) {
                     const t = term.terms[j];
@@ -170,19 +170,19 @@ export function getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters(t
         }
     }
     if (found) {
-        parts = url.parse(filter.remove, term.is_parent);
+        parts = url.parse(filter.remove, isGroupingTerm);
         if (includePathName) {
             retHref += parts.pathname;
         }
         let facetField = facet.field;
-        if (term.is_parent) {
+        if (isGroupingTerm) {
             if (status === 'omitted' && !facet.field.endsWith("!")) {
                 facetField = facet.field + "!";
             } else if (status === 'selected' && facet.field.endsWith("!")) {
                 facetField = facet.field.slice(0, -1);
             }
         }
-        if (term.is_parent && term.terms && parts.query[facetField]) {
+        if (isGroupingTerm && parts.query[facetField]) {
             const tmp = Array.isArray(parts.query[facetField]) ? parts.query[facetField] : [parts.query[facetField]];
             const cloned = _.clone(parts.query);
             cloned[facetField] = _.filter(tmp, function (v) { return !_.any(term.terms, function (t) { return t.key === v; });});

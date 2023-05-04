@@ -153,7 +153,7 @@ export var Term = /*#__PURE__*/function (_React$PureComponent) {
         onClick = _this$props2.onClick,
         _this$props2$useRadio = _this$props2.useRadioIcon,
         useRadioIcon = _this$props2$useRadio === void 0 ? false : _this$props2$useRadio,
-        hasParent = _this$props2.hasParent,
+        hasGroupingTerm = _this$props2.hasGroupingTerm,
         tooltip = _this$props2.tooltip,
         _this$props2$hideActi = _this$props2.hideActiveSubTerms,
         hideActiveSubTerms = _this$props2$hideActi === void 0 ? false : _this$props2$hideActi,
@@ -195,10 +195,9 @@ export var Term = /*#__PURE__*/function (_React$PureComponent) {
         title = 'None';
       }
       var statusClassName = status === 'selected' ? " selected" : status === 'omitted' ? " omitted" : '';
-      var _term$is_parent = term.is_parent,
-        isParent = _term$is_parent === void 0 ? false : _term$is_parent;
+      var isGroupingTerm = term.terms && Array.isArray(term.terms);
       var subTermComponents = null;
-      if (isParent && term.terms && Array.isArray(term.terms) && term.terms.length > 0) {
+      if (isGroupingTerm && term.terms.length > 0) {
         var childProps = {
           facet: facet,
           getTermStatus: getTermStatus,
@@ -206,11 +205,11 @@ export var Term = /*#__PURE__*/function (_React$PureComponent) {
           isFiltering: isFiltering,
           onClick: onClick,
           useRadioIcon: useRadioIcon,
-          hasParent: true,
+          hasGroupingTerm: true,
           facetSearchActive: facetSearchActive
         };
         var filteredTerms = term.terms;
-        if (typeof textFilteredSubTerms !== 'undefined' && textFilteredSubTerms !== null) {
+        if (textFilteredSubTerms) {
           filteredTerms = _.filter(filteredTerms, function (t) {
             return textFilteredSubTerms[t.key];
           });
@@ -234,13 +233,15 @@ export var Term = /*#__PURE__*/function (_React$PureComponent) {
           });
         }
       }
-      if (isParent && textFilteredTerms && textFilteredTerms[term.key] === 'hidden') {
+      if (isGroupingTerm && textFilteredTerms && textFilteredTerms[term.key] === 'hidden') {
         return subTermComponents;
       }
       return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("li", {
-        className: "facet-list-element " + statusClassName + (hasParent && !facetSearchActive ? " pl-3" : ""),
+        className: "facet-list-element " + statusClassName + (hasGroupingTerm && !facetSearchActive ? " pl-3" : ""),
         key: term.key,
-        "data-key": term.key
+        "data-key": term.key,
+        "data-is-grouping": isGroupingTerm,
+        "data-has-grouping": hasGroupingTerm
       }, /*#__PURE__*/React.createElement("a", {
         className: "term",
         "data-selected": selected,
@@ -252,9 +253,9 @@ export var Term = /*#__PURE__*/function (_React$PureComponent) {
         "data-tip": tooltip,
         "data-multiline": true
       }, icon), /*#__PURE__*/React.createElement("span", {
-        className: "facet-item" + (isParent ? " facet-item-group-header" : ""),
+        className: "facet-item" + (isGroupingTerm ? " facet-item-group-header" : ""),
         "data-tip": title.length > 30 ? title : null
-      }, title), isParent && subTermComponents ? null : /*#__PURE__*/React.createElement("span", {
+      }, title), isGroupingTerm && subTermComponents ? null : /*#__PURE__*/React.createElement("span", {
         className: "facet-count"
       }, count))), subTermComponents);
     }
@@ -275,8 +276,10 @@ _defineProperty(Term, "propTypes", {
   'term': PropTypes.shape({
     'key': PropTypes.string.isRequired,
     'doc_count': PropTypes.number,
-    'is_parent': PropTypes.bool,
-    'terms': PropTypes.array
+    'terms': PropTypes.arrayOf(PropTypes.shape({
+      'key': PropTypes.string.isRequired,
+      'doc_count': PropTypes.number
+    }))
   }).isRequired,
   'isFiltering': PropTypes.bool,
   'filteringFieldTerm': PropTypes.shape({
@@ -288,7 +291,7 @@ _defineProperty(Term, "propTypes", {
   'getTermStatus': PropTypes.func.isRequired,
   'termTransformFxn': PropTypes.func,
   'useRadioIcon': PropTypes.bool.isRequired,
-  'hasParent': PropTypes.bool,
+  'hasGroupingTerm': PropTypes.bool,
   'facetSearchActive': PropTypes.bool,
   'textFilteredTerms': PropTypes.object,
   'textFilteredSubTerms': PropTypes.object,
