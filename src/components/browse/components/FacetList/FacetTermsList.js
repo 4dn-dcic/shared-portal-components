@@ -125,7 +125,7 @@ export class Term extends React.PureComponent {
         'getTermStatus'     : PropTypes.func.isRequired,
         'termTransformFxn'  : PropTypes.func,
         'useRadioIcon'      : PropTypes.bool.isRequired,
-        'hasGroupingTerm'   : PropTypes.bool,
+        'groupingTermKey'   : PropTypes.string,
         'facetSearchActive' : PropTypes.bool,
         'textFilteredTerms'     : PropTypes.object,
         'textFilteredSubTerms'  : PropTypes.object,
@@ -152,7 +152,7 @@ export class Term extends React.PureComponent {
     render() {
         const {
             term, facet, status, getTermStatus, termTransformFxn, isFiltering, onClick, useRadioIcon = false,
-            hasGroupingTerm, tooltip, hideActiveSubTerms = false, hideUnselectedSubTerms = false
+            groupingTermKey, tooltip, hideActiveSubTerms = false, hideUnselectedSubTerms = false
         } = this.props;
         let { facetSearchActive = false, textFilteredTerms, textFilteredSubTerms } = this.props;
 
@@ -186,7 +186,7 @@ export class Term extends React.PureComponent {
         const isGroupingTerm = term.terms && Array.isArray(term.terms);
         let subTermComponents = null;
         if (isGroupingTerm && term.terms.length > 0){
-            const childProps = { facet, getTermStatus, termTransformFxn, isFiltering, onClick, useRadioIcon, hasGroupingTerm: true, facetSearchActive };
+            const childProps = { facet, getTermStatus, termTransformFxn, isFiltering, onClick, useRadioIcon, groupingTermKey: term.key, facetSearchActive };
             let filteredTerms = term.terms;
             if (textFilteredSubTerms) {
                 filteredTerms = _.filter(filteredTerms, function (t) { return textFilteredSubTerms[t.key]; });
@@ -204,7 +204,9 @@ export class Term extends React.PureComponent {
         }
         return (
             <React.Fragment>
-                <li className={"facet-list-element " + statusClassName + (hasGroupingTerm && !facetSearchActive ? " pl-3" : "")} key={term.key} data-key={term.key} data-is-grouping={isGroupingTerm} data-has-grouping={hasGroupingTerm}>
+                <li className={"facet-list-element" + statusClassName + (groupingTermKey && !facetSearchActive ? " pl-3" : "")}
+                    key={term.key} data-key={term.key}
+                    data-is-grouping={isGroupingTerm} data-grouping-key={groupingTermKey}>
                     <a className="term" data-selected={selected} href="#" onClick={this.handleClick} data-term={term.key}>
                         <span className="facet-selector" data-tip={tooltip} data-multiline={true}>{icon}</span>
                         <span className={"facet-item" + (isGroupingTerm ? " facet-item-group-header" : "")} data-tip={title.length > 30 ? title : null}>{title}</span>

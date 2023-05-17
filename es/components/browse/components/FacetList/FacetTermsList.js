@@ -153,7 +153,7 @@ export var Term = /*#__PURE__*/function (_React$PureComponent) {
         onClick = _this$props2.onClick,
         _this$props2$useRadio = _this$props2.useRadioIcon,
         useRadioIcon = _this$props2$useRadio === void 0 ? false : _this$props2$useRadio,
-        hasGroupingTerm = _this$props2.hasGroupingTerm,
+        groupingTermKey = _this$props2.groupingTermKey,
         tooltip = _this$props2.tooltip,
         _this$props2$hideActi = _this$props2.hideActiveSubTerms,
         hideActiveSubTerms = _this$props2$hideActi === void 0 ? false : _this$props2$hideActi,
@@ -205,7 +205,7 @@ export var Term = /*#__PURE__*/function (_React$PureComponent) {
           isFiltering: isFiltering,
           onClick: onClick,
           useRadioIcon: useRadioIcon,
-          hasGroupingTerm: true,
+          groupingTermKey: term.key,
           facetSearchActive: facetSearchActive
         };
         var filteredTerms = term.terms;
@@ -237,11 +237,11 @@ export var Term = /*#__PURE__*/function (_React$PureComponent) {
         return subTermComponents;
       }
       return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("li", {
-        className: "facet-list-element " + statusClassName + (hasGroupingTerm && !facetSearchActive ? " pl-3" : ""),
+        className: "facet-list-element" + statusClassName + (groupingTermKey && !facetSearchActive ? " pl-3" : ""),
         key: term.key,
         "data-key": term.key,
         "data-is-grouping": isGroupingTerm,
-        "data-has-grouping": hasGroupingTerm
+        "data-grouping-key": groupingTermKey
       }, /*#__PURE__*/React.createElement("a", {
         className: "term",
         "data-selected": selected,
@@ -291,7 +291,7 @@ _defineProperty(Term, "propTypes", {
   'getTermStatus': PropTypes.func.isRequired,
   'termTransformFxn': PropTypes.func,
   'useRadioIcon': PropTypes.bool.isRequired,
-  'hasGroupingTerm': PropTypes.bool,
+  'groupingTermKey': PropTypes.string,
   'facetSearchActive': PropTypes.bool,
   'textFilteredTerms': PropTypes.object,
   'textFilteredSubTerms': PropTypes.object,
