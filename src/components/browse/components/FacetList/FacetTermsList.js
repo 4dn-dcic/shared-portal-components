@@ -184,17 +184,21 @@ export class Term extends React.PureComponent {
 
         const statusClassName = status === 'selected' ? " selected" : status === 'omitted' ? " omitted" : '';
         const isGroupingTerm = term.terms && Array.isArray(term.terms);
+        // if the term is a grouping term, then create sub term components
         let subTermComponents = null;
         if (isGroupingTerm && term.terms.length > 0){
             const childProps = { facet, getTermStatus, termTransformFxn, isFiltering, onClick, useRadioIcon, groupingTermKey: term.key, facetSearchActive };
             let filteredTerms = term.terms;
+            //filter out the terms not matching
             if (textFilteredSubTerms) {
                 filteredTerms = _.filter(filteredTerms, function (t) { return textFilteredSubTerms[t.key]; });
             }
             subTermComponents = filteredTerms.map(function (t) { return (<Term key={t.key} term={t} {...childProps} status={status === 'selected' ? 'selected' : getTermStatus(t, facet)} />); });
+            //filter out selected/omitted sub term components
             if (hideActiveSubTerms) {
                 subTermComponents = _.filter(subTermComponents, function (t) { return t.props.status === 'none'; });
             }
+            //filter out unselected sub term components
             if (hideUnselectedSubTerms) {
                 subTermComponents = _.filter(subTermComponents, function (t) { return t.props.status !== 'none'; });
             }

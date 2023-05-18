@@ -196,6 +196,7 @@ export var Term = /*#__PURE__*/function (_React$PureComponent) {
       }
       var statusClassName = status === 'selected' ? " selected" : status === 'omitted' ? " omitted" : '';
       var isGroupingTerm = term.terms && Array.isArray(term.terms);
+      // if the term is a grouping term, then create sub term components
       var subTermComponents = null;
       if (isGroupingTerm && term.terms.length > 0) {
         var childProps = {
@@ -209,6 +210,7 @@ export var Term = /*#__PURE__*/function (_React$PureComponent) {
           facetSearchActive: facetSearchActive
         };
         var filteredTerms = term.terms;
+        //filter out the terms not matching
         if (textFilteredSubTerms) {
           filteredTerms = _.filter(filteredTerms, function (t) {
             return textFilteredSubTerms[t.key];
@@ -222,11 +224,13 @@ export var Term = /*#__PURE__*/function (_React$PureComponent) {
             status: status === 'selected' ? 'selected' : getTermStatus(t, facet)
           }));
         });
+        //filter out selected/omitted sub term components
         if (hideActiveSubTerms) {
           subTermComponents = _.filter(subTermComponents, function (t) {
             return t.props.status === 'none';
           });
         }
+        //filter out unselected sub term components
         if (hideUnselectedSubTerms) {
           subTermComponents = _.filter(subTermComponents, function (t) {
             return t.props.status !== 'none';
