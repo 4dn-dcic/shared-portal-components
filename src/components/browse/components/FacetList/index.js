@@ -71,10 +71,10 @@ export function generateNextHref(currentHref, contextFilters, facet, term){
             if (term.key === null) {
                 targetSearchHref = correctedHref; // Keep current, stripped down v.
             } else {
-                targetSearchHref = buildSearchHref(field, term.key, correctedHref);
+                targetSearchHref = buildSearchHref(field, term, correctedHref);
             }
         } else {
-            targetSearchHref = buildSearchHref(field, term.key, currentHref);
+            targetSearchHref = buildSearchHref(field, term, currentHref);
         }
     }
 
@@ -250,7 +250,6 @@ export class FacetList extends React.PureComponent {
         const openFacets = {};
 
         for (var i = 0; i < facetIndexWherePastXTerms; i++) {
-            //console.log("XX", facetIndexWherePastXTerms, filteredFlattenedComponents[i], filteredFlattenedComponents, filteredFlattenedComponents[i].props.facet.grouping)
             openFacets[filteredFlattenedComponents[i].props.facet.field] = true;
             if (filteredFlattenedComponents[i].props.facet.grouping) {
                 // Set group to be open as well

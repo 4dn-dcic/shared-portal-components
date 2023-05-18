@@ -1,27 +1,16 @@
+import _slicedToArray from "@babel/runtime/helpers/slicedToArray";
+import _objectWithoutProperties from "@babel/runtime/helpers/objectWithoutProperties";
+import _extends from "@babel/runtime/helpers/extends";
+import _classCallCheck from "@babel/runtime/helpers/classCallCheck";
+import _createClass from "@babel/runtime/helpers/createClass";
+import _assertThisInitialized from "@babel/runtime/helpers/assertThisInitialized";
+import _inherits from "@babel/runtime/helpers/inherits";
+import _possibleConstructorReturn from "@babel/runtime/helpers/possibleConstructorReturn";
+import _getPrototypeOf from "@babel/runtime/helpers/getPrototypeOf";
+import _defineProperty from "@babel/runtime/helpers/defineProperty";
 var _excluded = ["count", "countActive", "height", "width", "ltr", "className"];
-function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
-function _extends() { _extends = Object.assign ? Object.assign.bind() : function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
-function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
-function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
-function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
-function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
-function _iterableToArrayLimit(arr, i) { var _i = null == arr ? null : "undefined" != typeof Symbol && arr[Symbol.iterator] || arr["@@iterator"]; if (null != _i) { var _s, _e, _x, _r, _arr = [], _n = !0, _d = !1; try { if (_x = (_i = _i.call(arr)).next, 0 === i) { if (Object(_i) !== _i) return; _n = !1; } else for (; !(_n = (_s = _x.call(_i)).done) && (_arr.push(_s.value), _arr.length !== i); _n = !0); } catch (err) { _d = !0, _e = err; } finally { try { if (!_n && null != _i["return"] && (_r = _i["return"](), Object(_r) !== _r)) return; } finally { if (_d) throw _e; } } return _arr; } }
-function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
-function _objectWithoutProperties(source, excluded) { if (source == null) return {}; var target = _objectWithoutPropertiesLoose(source, excluded); var key, i; if (Object.getOwnPropertySymbols) { var sourceSymbolKeys = Object.getOwnPropertySymbols(source); for (i = 0; i < sourceSymbolKeys.length; i++) { key = sourceSymbolKeys[i]; if (excluded.indexOf(key) >= 0) continue; if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue; target[key] = source[key]; } } return target; }
-function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; var sourceKeys = Object.keys(source); var key, i; for (i = 0; i < sourceKeys.length; i++) { key = sourceKeys[i]; if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } return target; }
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, _toPropertyKey(descriptor.key), descriptor); } }
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); Object.defineProperty(subClass, "prototype", { writable: false }); if (superClass) _setPrototypeOf(subClass, superClass); }
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } else if (call !== void 0) { throw new TypeError("Derived constructors may only return object or undefined"); } return _assertThisInitialized(self); }
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf.bind() : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return _typeof(key) === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (_typeof(input) !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (_typeof(res) !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
@@ -103,12 +92,15 @@ export function mergeTerms(facet, filters) {
 
   // These are terms which might have been manually defined in URL but are not present in data at all.
   // Include them so we can unselect them.
-  var unseenTerms = _.keys(activeTermsForField).map(function (term) {
-    return {
-      key: term,
-      doc_count: 0
-    };
-  });
+  var unseenTerms = [];
+  if (!facet.has_group_by) {
+    unseenTerms = _.keys(activeTermsForField).map(function (term) {
+      return {
+        key: term,
+        doc_count: 0
+      };
+    });
+  }
   return terms.concat(unseenTerms);
 }
 
@@ -155,10 +147,30 @@ export var Term = /*#__PURE__*/function (_React$PureComponent) {
         term = _this$props2.term,
         facet = _this$props2.facet,
         status = _this$props2.status,
+        getTermStatus = _this$props2.getTermStatus,
         termTransformFxn = _this$props2.termTransformFxn,
         isFiltering = _this$props2.isFiltering,
+        onClick = _this$props2.onClick,
         _this$props2$useRadio = _this$props2.useRadioIcon,
-        useRadioIcon = _this$props2$useRadio === void 0 ? false : _this$props2$useRadio;
+        useRadioIcon = _this$props2$useRadio === void 0 ? false : _this$props2$useRadio,
+        groupingTermKey = _this$props2.groupingTermKey,
+        tooltip = _this$props2.tooltip,
+        _this$props2$hideActi = _this$props2.hideActiveSubTerms,
+        hideActiveSubTerms = _this$props2$hideActi === void 0 ? false : _this$props2$hideActi,
+        _this$props2$hideUnse = _this$props2.hideUnselectedSubTerms,
+        hideUnselectedSubTerms = _this$props2$hideUnse === void 0 ? false : _this$props2$hideUnse;
+      var _this$props3 = this.props,
+        _this$props3$facetSea = _this$props3.facetSearchActive,
+        facetSearchActive = _this$props3$facetSea === void 0 ? false : _this$props3$facetSea,
+        textFilteredTerms = _this$props3.textFilteredTerms,
+        textFilteredSubTerms = _this$props3.textFilteredSubTerms;
+      var selected = status !== 'none' && status !== 'partial';
+      //override
+      if (selected) {
+        facetSearchActive = false;
+        textFilteredTerms = {};
+        textFilteredSubTerms = null;
+      }
       var count = term && term.doc_count || 0;
       var title = termTransformFxn(facet.field, term.key) || term.key;
       var icon = null;
@@ -182,33 +194,84 @@ export var Term = /*#__PURE__*/function (_React$PureComponent) {
       if (!title || title === 'null' || title === 'undefined') {
         title = 'None';
       }
-      var statusClassName = status !== 'none' ? status === 'selected' ? " selected" : " omitted" : '';
-      return /*#__PURE__*/React.createElement("li", {
-        className: "facet-list-element " + statusClassName,
+      var statusClassName = status === 'selected' ? " selected" : status === 'omitted' ? " omitted" : '';
+      var isGroupingTerm = term.terms && Array.isArray(term.terms);
+      // if the term is a grouping term, then create sub term components
+      var subTermComponents = null;
+      if (isGroupingTerm && term.terms.length > 0) {
+        var childProps = {
+          facet: facet,
+          getTermStatus: getTermStatus,
+          termTransformFxn: termTransformFxn,
+          isFiltering: isFiltering,
+          onClick: onClick,
+          useRadioIcon: useRadioIcon,
+          groupingTermKey: term.key,
+          facetSearchActive: facetSearchActive
+        };
+        var filteredTerms = term.terms;
+        //filter out the terms not matching
+        if (textFilteredSubTerms) {
+          filteredTerms = _.filter(filteredTerms, function (t) {
+            return textFilteredSubTerms[t.key];
+          });
+        }
+        subTermComponents = filteredTerms.map(function (t) {
+          return /*#__PURE__*/React.createElement(Term, _extends({
+            key: t.key,
+            term: t
+          }, childProps, {
+            status: status === 'selected' ? 'selected' : getTermStatus(t, facet)
+          }));
+        });
+        //filter out selected/omitted sub term components
+        if (hideActiveSubTerms) {
+          subTermComponents = _.filter(subTermComponents, function (t) {
+            return t.props.status === 'none';
+          });
+        }
+        //filter out unselected sub term components
+        if (hideUnselectedSubTerms) {
+          subTermComponents = _.filter(subTermComponents, function (t) {
+            return t.props.status !== 'none';
+          });
+        }
+      }
+      if (isGroupingTerm && textFilteredTerms && textFilteredTerms[term.key] === 'hidden') {
+        return subTermComponents;
+      }
+      return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("li", {
+        className: "facet-list-element" + statusClassName + (groupingTermKey && !facetSearchActive ? " pl-3" : ""),
         key: term.key,
-        "data-key": term.key
+        "data-key": term.key,
+        "data-is-grouping": isGroupingTerm,
+        "data-grouping-key": groupingTermKey
       }, /*#__PURE__*/React.createElement("a", {
         className: "term",
-        "data-selected": status !== 'none',
+        "data-selected": selected,
         href: "#",
         onClick: this.handleClick,
         "data-term": term.key
       }, /*#__PURE__*/React.createElement("span", {
-        className: "facet-selector"
+        className: "facet-selector",
+        "data-tip": tooltip,
+        "data-multiline": true
       }, icon), /*#__PURE__*/React.createElement("span", {
-        className: "facet-item",
+        className: "facet-item" + (isGroupingTerm ? " facet-item-group-header" : ""),
         "data-tip": title.length > 30 ? title : null
-      }, title), /*#__PURE__*/React.createElement("span", {
+      }, title), isGroupingTerm && subTermComponents ? null : /*#__PURE__*/React.createElement("span", {
         className: "facet-count"
-      }, count)));
+      }, count))), subTermComponents);
     }
   }]);
   return Term;
 }(React.PureComponent);
 
 /**
- * @param {*} facetTerms : facet's terms array
- * @param {*} searchText : search text from basic search input
+ * @param {*} facetTerms        : facet's terms array
+ * @param {*} searchText        : search text from basic search input
+ * @param {*} includeSubTerms   : include sub terms
+ * @returns {Object}            : returns { filteredTerms, filteredSubTerms }
  */
 _defineProperty(Term, "propTypes", {
   'facet': PropTypes.shape({
@@ -216,7 +279,11 @@ _defineProperty(Term, "propTypes", {
   }).isRequired,
   'term': PropTypes.shape({
     'key': PropTypes.string.isRequired,
-    'doc_count': PropTypes.number
+    'doc_count': PropTypes.number,
+    'terms': PropTypes.arrayOf(PropTypes.shape({
+      'key': PropTypes.string.isRequired,
+      'doc_count': PropTypes.number
+    }))
   }).isRequired,
   'isFiltering': PropTypes.bool,
   'filteringFieldTerm': PropTypes.shape({
@@ -225,16 +292,25 @@ _defineProperty(Term, "propTypes", {
   }),
   'onClick': PropTypes.func.isRequired,
   'status': PropTypes.oneOf(["none", "selected", "omitted"]),
+  'getTermStatus': PropTypes.func.isRequired,
   'termTransformFxn': PropTypes.func,
-  'useRadioIcon': PropTypes.bool.isRequired
+  'useRadioIcon': PropTypes.bool.isRequired,
+  'groupingTermKey': PropTypes.string,
+  'facetSearchActive': PropTypes.bool,
+  'textFilteredTerms': PropTypes.object,
+  'textFilteredSubTerms': PropTypes.object,
+  'tooltip': PropTypes.string,
+  'hideActiveSubTerms': PropTypes.bool,
+  'hideUnselectedSubTerms': PropTypes.bool
 });
 _defineProperty(Term, "defaultProps", {
   'useRadioIcon': false
 });
-export function getFilteredTerms(facetTerms, searchText) {
-  var retDict = {};
+export function getFilteredTerms(facetTerms, searchText, includeSubTerms) {
+  var filteredTerms = {};
+  var filteredSubTerms = {};
   if (!facetTerms || !Array.isArray(facetTerms)) {
-    return retDict;
+    return filteredTerms;
   }
   var lcSearchText = searchText && typeof searchText === 'string' && searchText.length > 0 ? searchText.toLocaleLowerCase() : '';
   _.forEach(facetTerms, function (term) {
@@ -242,12 +318,32 @@ export function getFilteredTerms(facetTerms, searchText) {
       key = _ref3$key === void 0 ? '' : _ref3$key;
     if (typeof key === 'string' && key.length > 0) {
       var isFiltered = lcSearchText.length > 0 ? key.toLocaleLowerCase().includes(lcSearchText) : true;
-      if (isFiltered) {
-        retDict[key] = true;
+      //search sub terms
+      var tmpFilteredSubTerms = {};
+      if (includeSubTerms) {
+        _.forEach(term.terms || [], function (sub) {
+          var _ref4$key = (sub || {}).key,
+            subKey = _ref4$key === void 0 ? '' : _ref4$key;
+          if (typeof subKey === 'string' && subKey.length > 0) {
+            var isSubFiltered = lcSearchText.length > 0 ? subKey.toLocaleLowerCase().includes(lcSearchText) : true;
+            if (isSubFiltered) {
+              tmpFilteredSubTerms[subKey] = true;
+            }
+          }
+        });
       }
+      if (isFiltered) {
+        filteredTerms[key] = true;
+      } else if (includeSubTerms && _.keys(tmpFilteredSubTerms).length > 0) {
+        filteredTerms[key] = 'hidden';
+      }
+      _.extend(filteredSubTerms, tmpFilteredSubTerms);
     }
   });
-  return retDict;
+  return {
+    filteredTerms: filteredTerms,
+    filteredSubTerms: filteredSubTerms
+  };
 }
 export var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
   _inherits(FacetTermsList, _React$PureComponent2);
@@ -258,11 +354,9 @@ export var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
     _this2 = _super2.call(this, props);
     _this2.handleOpenToggleClick = _this2.handleOpenToggleClick.bind(_assertThisInitialized(_this2));
     _this2.handleExpandListToggleClick = _this2.handleExpandListToggleClick.bind(_assertThisInitialized(_this2));
-    _this2.handleBasicTermSearch = _this2.handleBasicTermSearch.bind(_assertThisInitialized(_this2));
     _this2.handleSaytTermSearch = _this2.handleSaytTermSearch.bind(_assertThisInitialized(_this2));
     _this2.state = {
-      'expanded': false,
-      'searchText': ''
+      'expanded': false
     };
     return _this2;
   }
@@ -270,39 +364,30 @@ export var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
     key: "handleOpenToggleClick",
     value: function handleOpenToggleClick(e) {
       e.preventDefault();
-      var _this$props3 = this.props,
-        onToggleOpen = _this$props3.onToggleOpen,
-        field = _this$props3.facet.field,
-        _this$props3$facetOpe = _this$props3.facetOpen,
-        facetOpen = _this$props3$facetOpe === void 0 ? false : _this$props3$facetOpe;
+      var _this$props4 = this.props,
+        onToggleOpen = _this$props4.onToggleOpen,
+        field = _this$props4.facet.field,
+        _this$props4$facetOpe = _this$props4.facetOpen,
+        facetOpen = _this$props4$facetOpe === void 0 ? false : _this$props4$facetOpe;
       onToggleOpen(field, !facetOpen);
     }
   }, {
     key: "handleExpandListToggleClick",
     value: function handleExpandListToggleClick(e) {
       e.preventDefault();
-      this.setState(function (_ref4) {
-        var expanded = _ref4.expanded;
+      this.setState(function (_ref5) {
+        var expanded = _ref5.expanded;
         return {
           'expanded': !expanded
         };
       });
     }
   }, {
-    key: "handleBasicTermSearch",
-    value: function handleBasicTermSearch(e) {
-      e.preventDefault();
-      var newValue = e.target.value;
-      this.setState({
-        'searchText': newValue
-      });
-    }
-  }, {
     key: "handleSaytTermSearch",
     value: function handleSaytTermSearch(e) {
-      var _this$props4 = this.props,
-        facet = _this$props4.facet,
-        onTermClick = _this$props4.onTermClick;
+      var _this$props5 = this.props,
+        facet = _this$props5.facet,
+        onTermClick = _this$props5.onTermClick;
       var key = {
         'key': e.display_title
       };
@@ -311,39 +396,42 @@ export var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props5 = this.props,
-        facet = _this$props5.facet,
-        fieldSchema = _this$props5.fieldSchema,
-        isStatic = _this$props5.isStatic,
-        anySelected = _this$props5.anyTermsSelected,
-        termsSelectedCount = _this$props5.termsSelectedCount,
-        persistentCount = _this$props5.persistentCount,
-        basicSearchAutoDisplayLimit = _this$props5.basicSearchAutoDisplayLimit,
-        onTermClick = _this$props5.onTermClick,
-        getTermStatus = _this$props5.getTermStatus,
-        termTransformFxn = _this$props5.termTransformFxn,
-        facetOpen = _this$props5.facetOpen,
-        openPopover = _this$props5.openPopover,
-        filteringFieldTerm = _this$props5.filteringFieldTerm,
-        setOpenPopover = _this$props5.setOpenPopover,
-        useRadioIcon = _this$props5.useRadioIcon,
-        persistSelectedTerms = _this$props5.persistSelectedTerms,
-        context = _this$props5.context,
-        schemas = _this$props5.schemas;
+      var _this$props6 = this.props,
+        facet = _this$props6.facet,
+        fieldSchema = _this$props6.fieldSchema,
+        isStatic = _this$props6.isStatic,
+        anySelected = _this$props6.anyTermsSelected,
+        termsSelectedCount = _this$props6.termsSelectedCount,
+        persistentCount = _this$props6.persistentCount,
+        basicSearchAutoDisplayLimit = _this$props6.basicSearchAutoDisplayLimit,
+        onTermClick = _this$props6.onTermClick,
+        getTermStatus = _this$props6.getTermStatus,
+        termTransformFxn = _this$props6.termTransformFxn,
+        facetOpen = _this$props6.facetOpen,
+        openPopover = _this$props6.openPopover,
+        filteringFieldTerm = _this$props6.filteringFieldTerm,
+        setOpenPopover = _this$props6.setOpenPopover,
+        useRadioIcon = _this$props6.useRadioIcon,
+        propPersistSelectedTerms = _this$props6.persistSelectedTerms,
+        context = _this$props6.context,
+        schemas = _this$props6.schemas,
+        searchText = _this$props6.searchText,
+        handleBasicTermSearch = _this$props6.handleBasicTermSearch;
       var _facet$description = facet.description,
         facetSchemaDescription = _facet$description === void 0 ? null : _facet$description,
         field = facet.field,
         facetTitle = facet.title,
         _facet$terms = facet.terms,
-        terms = _facet$terms === void 0 ? [] : _facet$terms;
-      var _this$state = this.state,
-        expanded = _this$state.expanded,
-        searchText = _this$state.searchText;
+        terms = _facet$terms === void 0 ? [] : _facet$terms,
+        facetPersistSelectedTerms = facet.persist_selected_terms;
+      // if it's defined within facet, override global persis selected terms
+      var persistSelectedTerms = typeof facetPersistSelectedTerms === 'boolean' ? facetPersistSelectedTerms : propPersistSelectedTerms;
+      var expanded = this.state.expanded;
       var termsLen = terms.length;
       var allTermsSelected = termsSelectedCount === termsLen;
-      var _ref5 = fieldSchema || {},
-        fieldTitle = _ref5.title,
-        fieldSchemaDescription = _ref5.description; // fieldSchema not present if no schemas loaded yet or if fake/calculated 'field'/column.
+      var _ref6 = fieldSchema || {},
+        fieldTitle = _ref6.title,
+        fieldSchemaDescription = _ref6.description; // fieldSchema not present if no schemas loaded yet or if fake/calculated 'field'/column.
 
       var indicator;
       // @todo: much of this code (including mergeTerms and anyTermsSelected above) were moved to index; consider moving these too
@@ -417,7 +505,7 @@ export var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
         persistSelectedTerms: persistSelectedTerms,
         filteringFieldTerm: filteringFieldTerm,
         onSaytTermSearch: this.handleSaytTermSearch,
-        onBasicTermSearch: this.handleBasicTermSearch,
+        onBasicTermSearch: handleBasicTermSearch,
         onToggleExpanded: this.handleExpandListToggleClick
       }));
     }
@@ -445,51 +533,118 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
     basicSearchAutoDisplayLimit = props.basicSearchAutoDisplayLimit,
     useRadioIcon = props.useRadioIcon,
     _props$persistSelecte = props.persistSelectedTerms,
-    persistSelectedTerms = _props$persistSelecte === void 0 ? true : _props$persistSelecte;
+    propPersistSelectedTerms = _props$persistSelecte === void 0 ? true : _props$persistSelecte;
   var _facet$search_type = facet.search_type,
     searchType = _facet$search_type === void 0 ? 'none' : _facet$search_type;
+  var facetPersistSelectedTerms = facet.persist_selected_terms,
+    _facet$has_group_by = facet.has_group_by,
+    facetHasGroupBy = _facet$has_group_by === void 0 ? false : _facet$has_group_by;
 
+  // if it's defined within facet, override global persis selected terms
+  var persistSelectedTerms = typeof facetPersistSelectedTerms === 'boolean' ? facetPersistSelectedTerms : propPersistSelectedTerms;
   /**
    * even if search type is not defined, display basic search option when terms count
    * is greater than basicSearchAutoDisplayLimit (for persistSelectedTerms is true)
    */
   if (!persistSelectedTerms) {
     searchType = 'none'; //override
-  } else if (searchType === 'none' && terms.length >= basicSearchAutoDisplayLimit) {
-    searchType = 'basic';
+  } else if (searchType === 'none') {
+    var termsLength = !facetHasGroupBy ? terms.length : _.reduce(terms, function (memo, term) {
+      return memo + 1 + (term.terms || []).length;
+    }, 0);
+    if (termsLength >= basicSearchAutoDisplayLimit) {
+      searchType = 'basic';
+    }
   }
   /** Create term components and sort by status (selected->omitted->unselected) */
   var _useMemo = useMemo(function () {
       var field = facet.field;
-      var allTermComponents = terms.map(function (term) {
-        var _ref6 = filteringFieldTerm || {},
-          currFilteringField = _ref6.field,
-          currFilteringTerm = _ref6.term;
+      var facetSearchActive = searchType === 'basic' && searchText && typeof searchText === 'string' && searchText.length > 0;
+      var _ref7 = facetSearchActive ? getFilteredTerms(terms, searchText, facetHasGroupBy) : {},
+        _ref7$filteredTerms = _ref7.filteredTerms,
+        textFilteredTerms = _ref7$filteredTerms === void 0 ? {} : _ref7$filteredTerms,
+        _ref7$filteredSubTerm = _ref7.filteredSubTerms,
+        textFilteredSubTerms = _ref7$filteredSubTerm === void 0 ? null : _ref7$filteredSubTerm;
+      var allTermComponents = _.flatten(terms.map(function (term) {
+        var _ref8 = filteringFieldTerm || {},
+          currFilteringField = _ref8.field,
+          currFilteringTerm = _ref8.term;
         var isFiltering = field === currFilteringField && term.key === currFilteringTerm;
-        return /*#__PURE__*/React.createElement(Term, {
-          facet: facet,
-          term: term,
-          termTransformFxn: termTransformFxn,
-          isFiltering: isFiltering,
-          useRadioIcon: useRadioIcon,
-          onClick: onTermClick,
-          key: term.key,
-          status: getTermStatus(term, facet)
-        });
-      });
+        var status = getTermStatus(term, facet);
+        var active = status === 'omitted' || status === 'selected';
+        // build tooltip
+        var tooltip = null;
+        if (facetSearchActive && !active && textFilteredTerms[term.key] === true && term.terms && textFilteredSubTerms) {
+          var termName = facet.tooltip_term_substitue || 'term';
+          var filteredTerms = _.filter(term.terms, function (t) {
+            return textFilteredSubTerms[t.key];
+          });
+          var diff = term.terms.length - filteredTerms.length;
+          tooltip = "Warning: ".concat(term.terms.length, " ").concat(termName).concat(term.terms.length > 1 ? 's' : '', " ").concat(!active ? 'will be' : 'are', " selected");
+          if (diff > 0) {
+            if (active) {
+              tooltip += " (".concat(diff, " currently selected ").concat(termName).concat(diff > 1 ? 's are' : ' is', " hidden)");
+            }
+            tooltip += "<br />To see all ".concat(facet.tooltip_term_substitue || 'term', "s in this group clear the search filter");
+          }
+        }
+        if (status !== 'partial') {
+          return /*#__PURE__*/React.createElement(Term, {
+            facet: facet,
+            term: term,
+            termTransformFxn: termTransformFxn,
+            isFiltering: isFiltering,
+            useRadioIcon: useRadioIcon,
+            getTermStatus: getTermStatus,
+            textFilteredTerms: textFilteredTerms,
+            textFilteredSubTerms: textFilteredSubTerms,
+            facetSearchActive: facetSearchActive,
+            tooltip: tooltip,
+            status: status,
+            onClick: onTermClick,
+            key: term.key
+          });
+        } else {
+          var _commonProps = {
+            facet: facet,
+            term: term,
+            termTransformFxn: termTransformFxn,
+            isFiltering: isFiltering,
+            useRadioIcon: useRadioIcon,
+            getTermStatus: getTermStatus,
+            onClick: onTermClick
+          };
+          //duplicate terms to show parent-children tree in active and unselected sections
+          return [/*#__PURE__*/React.createElement(Term, _extends({}, _commonProps, {
+            textFilteredTerms: {},
+            status: status,
+            key: term.key,
+            hideUnselectedSubTerms: true
+          })), /*#__PURE__*/React.createElement(Term, _extends({}, _commonProps, {
+            textFilteredTerms: textFilteredTerms,
+            textFilteredSubTerms: textFilteredSubTerms,
+            facetSearchActive: facetSearchActive,
+            tooltip: tooltip,
+            status: 'none',
+            key: term.key,
+            hideActiveSubTerms: true
+          }))];
+        }
+      }));
       var segments = segmentComponentsByStatus(allTermComponents);
       var _segments$selected = segments.selected,
         selectedTermComponents = _segments$selected === void 0 ? [] : _segments$selected,
         _segments$omitted = segments.omitted,
-        omittedTermComponents = _segments$omitted === void 0 ? [] : _segments$omitted;
+        omittedTermComponents = _segments$omitted === void 0 ? [] : _segments$omitted,
+        _segments$partial = segments['partial'],
+        partialSelectedTermComponents = _segments$partial === void 0 ? [] : _segments$partial;
       var _segments$none = segments.none,
         unselectedTermComponents = _segments$none === void 0 ? [] : _segments$none;
 
       //filter unselected terms
-      if (searchType === 'basic' && searchText && typeof searchText === 'string' && searchText.length > 0) {
-        var dict = getFilteredTerms(terms, searchText);
+      if (facetSearchActive) {
         unselectedTermComponents = _.filter(unselectedTermComponents, function (term) {
-          return dict[term.key];
+          return textFilteredTerms[term.key] === true || textFilteredTerms[term.key] === 'hidden';
         });
       } else if (searchType === 'sayt_without_terms') {
         unselectedTermComponents = [];
@@ -498,6 +653,8 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
       var omittedLen = omittedTermComponents.length;
       var unselectedLen = unselectedTermComponents.length;
       var totalLen = selectedLen + omittedLen + unselectedLen;
+
+      // shortcut for some specific cases
       if (!persistSelectedTerms) {
         return {
           termComponents: allTermComponents,
@@ -508,7 +665,7 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
         };
       }
       var termComponents = selectedTermComponents.concat(omittedTermComponents).concat(unselectedTermComponents);
-      var activeTermComponents = termComponents.slice(0, selectedLen + omittedLen);
+      var activeTermComponents = !facetHasGroupBy ? termComponents.slice(0, selectedLen + omittedLen) : selectedTermComponents.concat(omittedTermComponents).concat(partialSelectedTermComponents);
       var retObj = {
         termComponents: termComponents,
         activeTermComponents: activeTermComponents,
@@ -578,11 +735,12 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
         placeholder: "Search",
         name: "q",
         onChange: onBasicTermSearch,
+        value: searchText,
         key: "facet-search-input"
       }));
     } else if (searchType === 'sayt' || searchType === 'sayt_without_terms') {
-      var _ref7$sayt_item_type = (facet || {}).sayt_item_type,
-        itemType = _ref7$sayt_item_type === void 0 ? '' : _ref7$sayt_item_type;
+      var _ref9$sayt_item_type = (facet || {}).sayt_item_type,
+        itemType = _ref9$sayt_item_type === void 0 ? '' : _ref9$sayt_item_type;
       itemType = typeof itemType === 'string' && itemType.length > 0 ? itemType : 'Item';
       var baseHref = "/search/?type=" + itemType;
       facetSearch = /*#__PURE__*/React.createElement("div", {
@@ -624,15 +782,6 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
         }, expandButtonTitle)))
       }));
     } else {
-      // TODO: Finish later maybe, or remove
-      // if (!facetSearch && termComponents.length === 0) {
-      //     // No options/terms available; usually only case where no results found.
-      //     return (
-      //         <div {...commonProps}>
-      //             <em className="text-secondary small">No options.</em>
-      //         </div>
-      //     );
-      // }
       return /*#__PURE__*/React.createElement("div", commonProps, /*#__PURE__*/React.createElement(PartialList, {
         className: "mb-0 active-terms-pl",
         open: facetOpen,
@@ -659,10 +808,10 @@ export var CountIndicator = /*#__PURE__*/React.memo(function (props) {
   var dotCountToShow = Math.min(count, 21);
   var dotCoords = stackDotsInContainer(dotCountToShow, height, 4, 2, false);
   var currColCounter = new Set();
-  var dots = dotCoords.map(function (_ref8, idx) {
-    var _ref9 = _slicedToArray(_ref8, 2),
-      x = _ref9[0],
-      y = _ref9[1];
+  var dots = dotCoords.map(function (_ref10, idx) {
+    var _ref11 = _slicedToArray(_ref10, 2),
+      x = _ref11[0],
+      y = _ref11[1];
     currColCounter.add(x);
     var colIdx = currColCounter.size - 1;
     // Flip both axes so going bottom right to top left.

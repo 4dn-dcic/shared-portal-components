@@ -550,6 +550,10 @@ $facetlist-term-block-height: default !default;
                         text-overflow: ellipsis;
                         flex-grow: 1;
                         padding-left: 5px;
+
+                        &.facet-item-group-header {
+                            color: #3B3A3A;
+                        }
                     }
 
                     .facet-count {
@@ -568,7 +572,8 @@ $facetlist-term-block-height: default !default;
                     display: block;
                 }
 
-                &.selected > a {
+                &.selected > a,
+                &.selected > a .facet-item-group-header {
                     text-decoration: none;
                     color: #f8f8f8;
                     background-color: $facetlist-selected-term-color;
@@ -589,6 +594,9 @@ $facetlist-term-block-height: default !default;
                         .facet-item, .facet-count {
                             text-shadow: 0px 0px 0px #fff;
                         }
+                    }
+                    .facet-item-group-header {
+                        color: #f8f8f8;
                     }
                 }
             }

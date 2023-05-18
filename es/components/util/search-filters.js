@@ -1,15 +1,9 @@
-function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
-function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e2) { throw _e2; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e3) { didErr = true; err = _e3; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
-function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
-function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
-function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter); }
-function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
-function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
-function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+import _typeof from "@babel/runtime/helpers/typeof";
+import _toConsumableArray from "@babel/runtime/helpers/toConsumableArray";
+import _slicedToArray from "@babel/runtime/helpers/slicedToArray";
+function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
 function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
 function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
-function _iterableToArrayLimit(arr, i) { var _i = null == arr ? null : "undefined" != typeof Symbol && arr[Symbol.iterator] || arr["@@iterator"]; if (null != _i) { var _s, _e, _x, _r, _arr = [], _n = !0, _d = !1; try { if (_x = (_i = _i.call(arr)).next, 0 === i) { if (Object(_i) !== _i) return; _n = !1; } else for (; !(_n = (_s = _x.call(_i)).done) && (_arr.push(_s.value), _arr.length !== i); _n = !0); } catch (err) { _d = !0, _e = err; } finally { try { if (!_n && null != _i["return"] && (_r = _i["return"](), Object(_r) !== _r)) return; } finally { if (_d) throw _e; } } return _arr; } }
-function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 var Alerts = null; //require('./../alerts');
 
 import _ from 'underscore';
@@ -138,11 +132,13 @@ export function getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters(t
   //workaround: '!=' condition adds '!' to the end of facet.field in StaticSingleTerm, we remove it
   var field = facet.field.endsWith('!') ? facet.field.slice(0, -1) : facet.field;
   var i,
+    j,
     filter,
     parts,
     retHref = '',
     found = false,
     status = "selected";
+  var isGroupingTerm = term.terms && Array.isArray(term.terms);
   if (facet.aggregation_type === "stats") {
     for (i = 0; i < filters.length; i++) {
       filter = filters[i];
@@ -157,22 +153,79 @@ export function getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters(t
     // Terms
     for (i = 0; i < filters.length; i++) {
       filter = filters[i];
-      if (filter.field === field && filter.term === term.key) {
+      if (!isGroupingTerm && filter.field === field && filter.term === term.key) {
         found = true;
         break;
-      } else if (filter.field.endsWith('!') && filter.field.slice(0, -1) === field && filter.term === term.key) {
+      } else if (!isGroupingTerm && filter.field.endsWith('!') && filter.field.slice(0, -1) === field && filter.term === term.key) {
         found = true;
         status = "omitted";
+        break;
+      } else if (isGroupingTerm && (field === filter.field || filter.field.endsWith('!') && field === filter.field.slice(0, -1)) && term.terms && _.any(term.terms, function (t) {
+        return t.key === filter.term;
+      })) {
+        var selectedTermsCount = 0,
+          omittedTermsCount = 0;
+        var _loop = function () {
+          var t = term.terms[j];
+          var selected = _.any(filters, function (f) {
+            return f.field === field && f.term === t.key;
+          });
+          if (selected) {
+            selectedTermsCount++;
+          } else {
+            var omitted = _.any(filters, function (f) {
+              return f.field.endsWith('!') && f.field.slice(0, -1) === field && f.term === t.key;
+            });
+            if (omitted) {
+              omittedTermsCount++;
+            }
+          }
+        };
+        for (j = 0; j < term.terms.length; j++) {
+          _loop();
+        }
+        if (selectedTermsCount + omittedTermsCount > 0) {
+          if (selectedTermsCount == term.terms.length) {
+            found = true;
+          } else if (omittedTermsCount == term.terms.length) {
+            found = true;
+            status = 'omitted';
+          } else {
+            return {
+              'status': 'partial',
+              'href': null
+            };
+          }
+        }
         break;
       }
     }
   }
   if (found) {
-    parts = url.parse(filter.remove);
+    parts = url.parse(filter.remove, isGroupingTerm);
     if (includePathName) {
       retHref += parts.pathname;
     }
-    retHref += parts.search;
+    var facetField = facet.field;
+    if (isGroupingTerm) {
+      if (status === 'omitted' && !facet.field.endsWith("!")) {
+        facetField = facet.field + "!";
+      } else if (status === 'selected' && facet.field.endsWith("!")) {
+        facetField = facet.field.slice(0, -1);
+      }
+    }
+    if (isGroupingTerm && parts.query[facetField]) {
+      var tmp = Array.isArray(parts.query[facetField]) ? parts.query[facetField] : [parts.query[facetField]];
+      var cloned = _.clone(parts.query);
+      cloned[facetField] = _.filter(tmp, function (v) {
+        return !_.any(term.terms, function (t) {
+          return t.key === v;
+        });
+      });
+      retHref += '?' + queryString.stringify(cloned);
+    } else {
+      retHref += parts.search;
+    }
     return {
       status: status,
       'href': retHref
@@ -196,15 +249,55 @@ export function buildSearchHref(field, term, searchBase) {
   var parts = url.parse(searchBase, true);
   var query = _.clone(parts.query);
 
-  // format multiple filters on the same field
-  if (field in query) {
-    if (Array.isArray(query[field])) {
-      query[field] = query[field].concat(term);
-    } else {
-      query[field] = [query[field]].concat(term);
+  //term is a grouping term, it has sub terms
+  if (term.terms && Array.isArray(term.terms)) {
+    if (!(field in query)) {
+      query[field] = [];
+    } else if (typeof query[field] === 'string') {
+      query[field] = [query[field]];
     }
+    var fieldClear = null;
+    if (field.endsWith('!')) {
+      //clear include filters (if exists) when exclude is in action
+      var fieldInclude = field.slice(0, -1);
+      if (fieldInclude in query) {
+        fieldClear = fieldInclude;
+      }
+    } else {
+      //clear exclude filters (if exists) when include is in action
+      var fieldExclude = field + '!';
+      if (fieldExclude in query) {
+        fieldClear = fieldExclude;
+      }
+    }
+    //convert query param to array
+    if (fieldClear && typeof query[fieldClear] === 'string') {
+      query[fieldClear] = [query[fieldClear]];
+    }
+    term.terms.forEach(function (t) {
+      //add all sub terms into query
+      if (query[field].indexOf(t.key) < 0) {
+        query[field].push(t.key);
+      }
+      //clear
+      if (fieldClear) {
+        var clearIdx = query[fieldClear].indexOf(t.key);
+        if (clearIdx >= 0) {
+          query[fieldClear].splice(clearIdx, 1);
+        }
+      }
+    });
   } else {
-    query[field] = term;
+    //term is a regular term, has no sub terms
+    if (field in query) {
+      if (Array.isArray(query[field])) {
+        query[field] = query[field].concat(term.key);
+      } else {
+        query[field] = [query[field]].concat(term.key);
+      }
+    } else {
+      query[field] = term.key;
+    }
   }
   var queryStr = queryString.stringify(query);
   parts.search = queryStr && queryStr.length > 0 ? '?' + queryStr : '';
