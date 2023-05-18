@@ -441,10 +441,11 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
             if (status !== 'partial') {
                 return <Term {...{ facet, term, termTransformFxn, isFiltering, useRadioIcon, getTermStatus, textFilteredTerms, textFilteredSubTerms, facetSearchActive, tooltip, status }} onClick={onTermClick} key={term.key} />;
             } else {
+                const commonProps = { facet, term, termTransformFxn, isFiltering, useRadioIcon, getTermStatus, onClick: onTermClick };
                 //duplicate terms to show parent-children tree in active and unselected sections
                 return [
-                    <Term {...{ facet, term, termTransformFxn, isFiltering, useRadioIcon, getTermStatus, textFilteredTerms: {}, status }} onClick={onTermClick} key={term.key} hideUnselectedSubTerms />,
-                    <Term {...{ facet, term, termTransformFxn, isFiltering, useRadioIcon, getTermStatus, textFilteredTerms, textFilteredSubTerms, facetSearchActive, tooltip, status: 'none' }} onClick={onTermClick} key={term.key} hideActiveSubTerms />
+                    <Term {...commonProps} {...{ textFilteredTerms: {}, status }} key={term.key} hideUnselectedSubTerms />,
+                    <Term {...commonProps} {...{ textFilteredTerms, textFilteredSubTerms, facetSearchActive, tooltip, status: 'none' }} key={term.key} hideActiveSubTerms />
                 ];
             }
         }));

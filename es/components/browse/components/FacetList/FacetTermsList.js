@@ -601,35 +601,30 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
             key: term.key
           });
         } else {
-          //duplicate terms to show parent-children tree in active and unselected sections
-          return [/*#__PURE__*/React.createElement(Term, {
+          var _commonProps = {
             facet: facet,
             term: term,
             termTransformFxn: termTransformFxn,
             isFiltering: isFiltering,
             useRadioIcon: useRadioIcon,
             getTermStatus: getTermStatus,
+            onClick: onTermClick
+          };
+          //duplicate terms to show parent-children tree in active and unselected sections
+          return [/*#__PURE__*/React.createElement(Term, _extends({}, _commonProps, {
             textFilteredTerms: {},
             status: status,
-            onClick: onTermClick,
             key: term.key,
             hideUnselectedSubTerms: true
-          }), /*#__PURE__*/React.createElement(Term, {
-            facet: facet,
-            term: term,
-            termTransformFxn: termTransformFxn,
-            isFiltering: isFiltering,
-            useRadioIcon: useRadioIcon,
-            getTermStatus: getTermStatus,
+          })), /*#__PURE__*/React.createElement(Term, _extends({}, _commonProps, {
             textFilteredTerms: textFilteredTerms,
             textFilteredSubTerms: textFilteredSubTerms,
             facetSearchActive: facetSearchActive,
             tooltip: tooltip,
             status: 'none',
-            onClick: onTermClick,
             key: term.key,
             hideActiveSubTerms: true
-          })];
+          }))];
         }
       }));
       var segments = segmentComponentsByStatus(allTermComponents);
