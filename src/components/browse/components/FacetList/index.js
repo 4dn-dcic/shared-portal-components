@@ -8,7 +8,7 @@ import ReactTooltip from 'react-tooltip';
 import Overlay from 'react-bootstrap/esm/Overlay';
 
 import { patchedConsoleInstance as console } from './../../../util/patched-console';
-import { getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters, buildSearchHref, contextFiltersToExpSetFilters, getTermFacetStatus, buildSearchHrefExtended } from './../../../util/search-filters';
+import { getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters, buildSearchHref, contextFiltersToExpSetFilters, getTermFacetStatus } from './../../../util/search-filters';
 import * as analytics from './../../../util/analytics';
 import { responsiveGridState } from './../../../util/layout';
 
@@ -71,14 +71,10 @@ export function generateNextHref(currentHref, contextFilters, facet, term){
             if (term.key === null) {
                 targetSearchHref = correctedHref; // Keep current, stripped down v.
             } else {
-                targetSearchHref = buildSearchHref(field, term.key, correctedHref);
+                targetSearchHref = buildSearchHref(field, term, correctedHref);
             }
         } else {
-            if (term.terms && Array.isArray(term.terms)) {
-                targetSearchHref = buildSearchHrefExtended(facet, term, currentHref);
-            } else {
-                targetSearchHref = buildSearchHref(field, term.key, currentHref);
-            }
+            targetSearchHref = buildSearchHref(field, term, currentHref);
         }
     }
 

@@ -572,7 +572,8 @@ $facetlist-term-block-height: default !default;
                     display: block;
                 }
 
-                &.selected > a, &.selected > a .facet-item-group-header {
+                &.selected > a,
+                &.selected > a .facet-item-group-header {
                     text-decoration: none;
                     color: #f8f8f8;
                     background-color: $facetlist-selected-term-color;

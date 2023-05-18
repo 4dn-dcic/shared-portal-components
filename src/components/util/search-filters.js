@@ -208,66 +208,58 @@ export function buildSearchHref(field, term, searchBase){
     const parts = url.parse(searchBase, true);
     const query = _.clone(parts.query);
 
-    // format multiple filters on the same field
-    if (field in query){
-        if (Array.isArray(query[field])) {
-            query[field] = query[field].concat(term);
+    //term is a grouping term, it has sub terms
+    if (term.terms && Array.isArray(term.terms)) {
+        if (!(field in query)) {
+            query[field] = [];
+        } else if (typeof query[field] === 'string') {
+            query[field] = [query[field]];
+        }
+
+        let fieldClear = null;
+        if (field.endsWith('!')) {
+            //clear include filters (if exists) when exclude is in action
+            const fieldInclude = field.slice(0, -1);
+            if (fieldInclude in query) {
+                fieldClear = fieldInclude;
+            }
         } else {
-            query[field] = [query[field]].concat(term);
-        }
-    } else {
-        query[field] = term;
-    }
-    const queryStr = queryString.stringify(query);
-    parts.search = queryStr && queryStr.length > 0 ? ('?' + queryStr) : '';
-
-    return url.format(parts);
-}
-
-/**
- *s
- * @param {*} facet
- * @param {*} term
- * @param {*} searchBase
- * @returns
- */
-export function buildSearchHrefExtended(facet, term, searchBase){
-    const parts = url.parse(searchBase, true);
-    const { query } = parts;
-
-    if (!(facet.field in query)) {
-        query[facet.field] = [];
-    } else if (typeof query[facet.field] === 'string') {
-        query[facet.field] = [query[facet.field]];
-    }
-    //clear include filters when exclude is in action, and clear exclude filters when include is in action
-    let fieldClear = null;
-    if (facet.field.endsWith('!')) {
-        const fieldInclude = facet.field.slice(0, -1);
-        if(fieldInclude in query) {
-            fieldClear = fieldInclude;
-        }
-    } else {
-        const fieldExclude = facet.field + '!';
-        if(fieldExclude in query) {
-            fieldClear = fieldExclude;
-        }
-    }
-    if(fieldClear && typeof query[fieldClear] === 'string'){
-        query[fieldClear] = [query[fieldClear]];
-    }
-
-    term.terms.forEach((t) => {
-        if (query[facet.field].indexOf(t.key) < 0) {
-            query[facet.field].push(t.key);
-        }
-        if (fieldClear) {
-            const clearIdx = query[fieldClear].indexOf(t.key);
-            if (clearIdx >= 0) {
-                query[fieldClear].splice(clearIdx, 1);
+            //clear exclude filters (if exists) when include is in action
+            const fieldExclude = field + '!';
+            if (fieldExclude in query) {
+                fieldClear = fieldExclude;
             }
         }
-    });
+        //convert query param to array
+        if (fieldClear && typeof query[fieldClear] === 'string') {
+            query[fieldClear] = [query[fieldClear]];
+        }
+
+        term.terms.forEach((t) => {
+            //add all sub terms into query
+            if (query[field].indexOf(t.key) < 0) {
+                query[field].push(t.key);
+            }
+            //clear
+            if (fieldClear) {
+                const clearIdx = query[fieldClear].indexOf(t.key);
+                if (clearIdx >= 0) {
+                    query[fieldClear].splice(clearIdx, 1);
+                }
+            }
+        });
+    } else {
+        //term is a regular term, has no sub terms
+        if (field in query) {
+            if (Array.isArray(query[field])) {
+                query[field] = query[field].concat(term.key);
+            } else {
+                query[field] = [query[field]].concat(term.key);
+            }
+        } else {
+            query[field] = term.key;
+        }
+    }
 
     const queryStr = queryString.stringify(query);
     parts.search = queryStr && queryStr.length > 0 ? ('?' + queryStr) : '';
