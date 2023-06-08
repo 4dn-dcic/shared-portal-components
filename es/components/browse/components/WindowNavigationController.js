@@ -1,5 +1,5 @@
 function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
-var _excluded = ["children", "showClearFiltersButton"];
+var _excluded = ["children", "filterFacetFxn", "facets", "showClearFiltersButton"];
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
@@ -49,6 +49,7 @@ export var WindowNavigationController = /*#__PURE__*/function (_React$PureCompon
     _this.onClearFilters = _this.onClearFilters.bind(_assertThisInitialized(_this));
     _this.getTermStatus = _this.getTermStatus.bind(_assertThisInitialized(_this));
     _this.memoized = {
+      transformedFacets: memoize(WindowNavigationController.transformedFacets),
       isClearFiltersBtnVisible: memoize(WindowNavigationController.isClearFiltersBtnVisible)
     };
     return _this;
@@ -133,12 +134,18 @@ export var WindowNavigationController = /*#__PURE__*/function (_React$PureCompon
     value: function render() {
       var _this$props4 = this.props,
         children = _this$props4.children,
+        filterFacetFxn = _this$props4.filterFacetFxn,
+        propFacets = _this$props4.facets,
         propShowClearFiltersBtn = _this$props4.showClearFiltersButton,
         passProps = _objectWithoutProperties(_this$props4, _excluded);
       var href = passProps.href,
         context = passProps.context;
       var showClearFiltersButton = typeof propShowClearFiltersBtn === "boolean" ? propShowClearFiltersBtn : this.memoized.isClearFiltersBtnVisible(href, context || {});
+
+      // Allow facets=null to mean no facets shown. facets=undefined means to default to context.facets.
+      var facets = propFacets === null ? null : WindowNavigationController.transformedFacets(propFacets || context && context.facets || null, filterFacetFxn);
       var propsToPass = _objectSpread(_objectSpread({}, passProps), {}, {
+        facets: facets,
         showClearFiltersButton: showClearFiltersButton,
         onFilter: this.onFilter,
         onFilterMultiple: this.onFilterMultiple,
@@ -150,6 +157,23 @@ export var WindowNavigationController = /*#__PURE__*/function (_React$PureCompon
       });
     }
   }], [{
+    key: "transformedFacets",
+    value:
+    /**
+     * @param {String[]} facets - facets array
+     * @param {function} filterFacetFxn - filtering function
+     */
+    function transformedFacets(facets, filterFacetFxn) {
+      if (typeof filterFacetFxn !== "function") {
+        return facets;
+      }
+      if (!Array.isArray(facets)) {
+        return []; // ? probably to-do if no facets: add placeholder saying no facets ?
+      }
+
+      return facets.filter(filterFacetFxn);
+    }
+  }, {
     key: "isClearFiltersBtnVisible",
     value: function isClearFiltersBtnVisible(href, context) {
       var urlPartsQuery = url.parse(href, true).query || {};

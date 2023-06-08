@@ -1,4 +1,4 @@
-var _excluded = ["href", "context", "showClearFiltersButton", "schemas", "currentAction", "facets", "navigate", "columns", "columnExtensionMap", "placeholderReplacementFxn", "keepSelectionInStorage", "searchViewHeader", "windowWidth"];
+var _excluded = ["href", "context", "showClearFiltersButton", "schemas", "currentAction", "facets", "navigate", "columns", "columnExtensionMap", "placeholderReplacementFxn", "keepSelectionInStorage", "searchViewHeader", "windowWidth", "hideFacets"];
 function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
@@ -20,6 +20,7 @@ function _toPrimitive(input, hint) { if (_typeof(input) !== "object" || input ==
 import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
+import memoize from 'memoize-one';
 import ReactTooltip from 'react-tooltip';
 import { navigate } from './../util/navigate';
 import { isSelectAction } from './../util/misc';
@@ -38,14 +39,32 @@ export { SortController, SelectedItemsController, ColumnCombiner, CustomColumnCo
 export var SearchView = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(SearchView, _React$PureComponent);
   var _super = _createSuper(SearchView);
-  function SearchView() {
+  function SearchView(props) {
+    var _this;
     _classCallCheck(this, SearchView);
-    return _super.apply(this, arguments);
+    _this = _super.call(this, props);
+    _this.filterFacetFxn = _this.filterFacetFxn.bind(_assertThisInitialized(_this));
+    _this.memoized = {
+      listToObj: memoize(SearchView.listToObj)
+    };
+    return _this;
   }
   _createClass(SearchView, [{
     key: "componentDidMount",
     value: function componentDidMount() {
       ReactTooltip.rebuild();
+    }
+  }, {
+    key: "filterFacetFxn",
+    value: function filterFacetFxn(facet) {
+      var _this$props$hideFacet = this.props.hideFacets,
+        hideFacets = _this$props$hideFacet === void 0 ? null : _this$props$hideFacet;
+      console.log("idMap hideFacets", hideFacets);
+      if (!hideFacets) return true;
+      var idMap = this.memoized.listToObj(hideFacets);
+      console.log("idMap", idMap);
+      if (idMap[facet.field]) return false;
+      return true;
     }
 
     /**
@@ -74,6 +93,7 @@ export var SearchView = /*#__PURE__*/function (_React$PureComponent) {
         keepSelectionInStorage = _this$props.keepSelectionInStorage,
         searchViewHeader = _this$props.searchViewHeader,
         windowWidth = _this$props.windowWidth,
+        hideFacets = _this$props.hideFacets,
         passProps = _objectWithoutProperties(_this$props, _excluded);
       var contextFacets = context.facets;
 
@@ -92,9 +112,11 @@ export var SearchView = /*#__PURE__*/function (_React$PureComponent) {
         facets: propFacets || contextFacets
       });
       var controllersAndView = /*#__PURE__*/React.createElement(WindowNavigationController, {
+        filterFacetFxn: this.filterFacetFxn,
         href: href,
         context: context,
         showClearFiltersButton: showClearFiltersButton,
+        hideFacets: hideFacets,
         navigate: propNavigate
       }, /*#__PURE__*/React.createElement(ColumnCombiner, {
         columns: columns,
@@ -121,6 +143,19 @@ export var SearchView = /*#__PURE__*/function (_React$PureComponent) {
         placeholderReplacementFxn: placeholderReplacementFxn
       }), controllersAndView);
     }
+  }], [{
+    key: "listToObj",
+    value: function listToObj(hideFacetStrs) {
+      var obj = {};
+      hideFacetStrs.forEach(function (str) {
+        return obj[str] = str + "!";
+      });
+      // console.log("idMap hideFacetStrs", hideFacetStrs);
+      // return  hideFacetStrs.concat(hideFacetStrs.map(function(facetStr){
+      //     return facetStr + "!";
+      // }));
+      return obj;
+    }
   }]);
   return SearchView;
 }(React.PureComponent);
@@ -144,7 +179,8 @@ _defineProperty(SearchView, "propTypes", {
   'placeholderReplacementFxn': PropTypes.func,
   // Passed down to AboveSearchTablePanel StaticSection
   'keepSelectionInStorage': PropTypes.bool,
-  'searchViewHeader': PropTypes.element
+  'searchViewHeader': PropTypes.element,
+  'hideFacets': PropTypes.arrayOf(PropTypes.string)
 });
 /**
  * @property {string} href - Current URI.
@@ -162,5 +198,6 @@ _defineProperty(SearchView, "defaultProps", {
   'columnExtensionMap': basicColumnExtensionMap,
   'separateSingleTermFacets': true,
   'isOwnPage': true,
-  'keepSelectionInStorage': false
+  'keepSelectionInStorage': false,
+  'hideFacets': []
 });
