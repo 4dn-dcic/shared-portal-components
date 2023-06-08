@@ -41,6 +41,7 @@ export class SearchView extends React.PureComponent {
         'schemas'       : PropTypes.object,
         'placeholderReplacementFxn' : PropTypes.func, // Passed down to AboveSearchTablePanel StaticSection
         'keepSelectionInStorage': PropTypes.bool,
+        'searchViewHeader': PropTypes.element,
     };
 
     /**
@@ -83,6 +84,7 @@ export class SearchView extends React.PureComponent {
             columnExtensionMap = basicColumnExtensionMap,
             placeholderReplacementFxn,
             keepSelectionInStorage,
+            searchViewHeader,
             //isOwnPage = true,
             windowWidth,
             ...passProps
@@ -110,6 +112,7 @@ export class SearchView extends React.PureComponent {
                 <ColumnCombiner {...{ columns, columnExtensionMap }}>
                     <CustomColumnController>
                         <SortController>
+                            { searchViewHeader }
                             <ControlsAndResults {...childViewProps} />
                         </SortController>
                     </CustomColumnController>
