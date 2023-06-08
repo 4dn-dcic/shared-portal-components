@@ -127,5 +127,6 @@ FacetOfFacets.propTypes = {
   'separateSingleTermFacets': PropTypes.bool,
   'termTransformFxn': PropTypes.func,
   'title': PropTypes.string,
-  'extraClassname': PropTypes.string
+  'extraClassname': PropTypes.string,
+  'tooltip': PropTypes.string
 };

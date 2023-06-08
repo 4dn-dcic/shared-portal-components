@@ -1,5 +1,7 @@
 function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
-function _extends() { _extends = Object.assign ? Object.assign.bind() : function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, _toPropertyKey(descriptor.key), descriptor); } }
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
@@ -16,6 +18,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
 import memoize from 'memoize-one';
+import ReactTooltip from 'react-tooltip';
 import { getSchemaProperty } from './../../../util/schema-transforms';
 import { FacetTermsList } from './FacetTermsList';
 import { StaticSingleTerm } from './StaticSingleTerm';
@@ -42,8 +45,10 @@ export var TermsFacet = /*#__PURE__*/function (_React$PureComponent) {
     _this = _super.call(this, props);
     _this.handleStaticClick = _this.handleStaticClick.bind(_assertThisInitialized(_this));
     _this.handleTermClick = _this.handleTermClick.bind(_assertThisInitialized(_this));
+    _this.handleBasicTermSearch = _this.handleBasicTermSearch.bind(_assertThisInitialized(_this));
     _this.state = {
-      'filtering': false
+      'filtering': false,
+      'searchText': ''
     };
     _this.memoized = {
       fieldSchema: memoize(getSchemaProperty)
@@ -92,6 +97,19 @@ export var TermsFacet = /*#__PURE__*/function (_React$PureComponent) {
       onFilter(facet, term, callback);
     }
   }, {
+    key: "handleBasicTermSearch",
+    value: function handleBasicTermSearch(e) {
+      e.preventDefault();
+      var newValue = e.target.value;
+      this.setState({
+        'searchText': newValue
+      }, function () {
+        setTimeout(function () {
+          ReactTooltip.rebuild();
+        }, 1000);
+      });
+    }
+  }, {
     key: "render",
     value: function render() {
       var _this$props2 = this.props,
@@ -105,7 +123,9 @@ export var TermsFacet = /*#__PURE__*/function (_React$PureComponent) {
         itemTypeForSchemas = _this$props2.itemTypeForSchemas;
       var field = facet.field,
         terms = facet.terms;
-      var filtering = this.state.filtering;
+      var _this$state = this.state,
+        filtering = _this$state.filtering,
+        searchText = _this$state.searchText;
       // `fieldSchema` may be null esp. if field is 'fake'.
       var fieldSchema = this.memoized.fieldSchema(field, schemas, itemTypeForSchemas);
       if (separateSingleTermFacets && isStatic) {
@@ -121,10 +141,13 @@ export var TermsFacet = /*#__PURE__*/function (_React$PureComponent) {
           onClick: this.handleStaticClick
         });
       } else {
-        return /*#__PURE__*/React.createElement(FacetTermsList, _extends({}, this.props, {
+        var passProps = _objectSpread(_objectSpread({}, this.props), {}, {
           fieldSchema: fieldSchema,
-          onTermClick: this.handleTermClick
-        }));
+          searchText: searchText,
+          onTermClick: this.handleTermClick,
+          handleBasicTermSearch: this.handleBasicTermSearch
+        });
+        return /*#__PURE__*/React.createElement(FacetTermsList, passProps);
       }
     }
   }]);

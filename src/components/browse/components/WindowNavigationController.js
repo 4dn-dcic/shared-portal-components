@@ -13,7 +13,6 @@ import { generateNextHref } from './FacetList';
 import { SearchResponse, Item, ColumnDefinition, URLParts } from './../../util/typedefs';
 
 
-
 /**
  * Accepts and parses the `href` from Redux / App.
  * Passes `href` downstream to descendant components,

@@ -138,11 +138,13 @@ export function getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters(t
   //workaround: '!=' condition adds '!' to the end of facet.field in StaticSingleTerm, we remove it
   var field = facet.field.endsWith('!') ? facet.field.slice(0, -1) : facet.field;
   var i,
+    j,
     filter,
     parts,
     retHref = '',
     found = false,
     status = "selected";
+  var isGroupingTerm = term.terms && Array.isArray(term.terms);
   if (facet.aggregation_type === "stats") {
     for (i = 0; i < filters.length; i++) {
       filter = filters[i];
@@ -157,22 +159,79 @@ export function getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters(t
     // Terms
     for (i = 0; i < filters.length; i++) {
       filter = filters[i];
-      if (filter.field === field && filter.term === term.key) {
+      if (!isGroupingTerm && filter.field === field && filter.term === term.key) {
         found = true;
         break;
-      } else if (filter.field.endsWith('!') && filter.field.slice(0, -1) === field && filter.term === term.key) {
+      } else if (!isGroupingTerm && filter.field.endsWith('!') && filter.field.slice(0, -1) === field && filter.term === term.key) {
         found = true;
         status = "omitted";
+        break;
+      } else if (isGroupingTerm && (field === filter.field || filter.field.endsWith('!') && field === filter.field.slice(0, -1)) && term.terms && _.any(term.terms, function (t) {
+        return t.key === filter.term;
+      })) {
+        var selectedTermsCount = 0,
+          omittedTermsCount = 0;
+        var _loop = function () {
+          var t = term.terms[j];
+          var selected = _.any(filters, function (f) {
+            return f.field === field && f.term === t.key;
+          });
+          if (selected) {
+            selectedTermsCount++;
+          } else {
+            var omitted = _.any(filters, function (f) {
+              return f.field.endsWith('!') && f.field.slice(0, -1) === field && f.term === t.key;
+            });
+            if (omitted) {
+              omittedTermsCount++;
+            }
+          }
+        };
+        for (j = 0; j < term.terms.length; j++) {
+          _loop();
+        }
+        if (selectedTermsCount + omittedTermsCount > 0) {
+          if (selectedTermsCount == term.terms.length) {
+            found = true;
+          } else if (omittedTermsCount == term.terms.length) {
+            found = true;
+            status = 'omitted';
+          } else {
+            return {
+              'status': 'partial',
+              'href': null
+            };
+          }
+        }
         break;
       }
     }
   }
   if (found) {
-    parts = url.parse(filter.remove);
+    parts = url.parse(filter.remove, isGroupingTerm);
     if (includePathName) {
       retHref += parts.pathname;
     }
-    retHref += parts.search;
+    var facetField = facet.field;
+    if (isGroupingTerm) {
+      if (status === 'omitted' && !facet.field.endsWith("!")) {
+        facetField = facet.field + "!";
+      } else if (status === 'selected' && facet.field.endsWith("!")) {
+        facetField = facet.field.slice(0, -1);
+      }
+    }
+    if (isGroupingTerm && parts.query[facetField]) {
+      var tmp = Array.isArray(parts.query[facetField]) ? parts.query[facetField] : [parts.query[facetField]];
+      var cloned = _.clone(parts.query);
+      cloned[facetField] = _.filter(tmp, function (v) {
+        return !_.any(term.terms, function (t) {
+          return t.key === v;
+        });
+      });
+      retHref += '?' + queryString.stringify(cloned);
+    } else {
+      retHref += parts.search;
+    }
     return {
       status: status,
       'href': retHref
@@ -196,15 +255,55 @@ export function buildSearchHref(field, term, searchBase) {
   var parts = url.parse(searchBase, true);
   var query = _.clone(parts.query);
 
-  // format multiple filters on the same field
-  if (field in query) {
-    if (Array.isArray(query[field])) {
-      query[field] = query[field].concat(term);
-    } else {
-      query[field] = [query[field]].concat(term);
+  //term is a grouping term, it has sub terms
+  if (term.terms && Array.isArray(term.terms)) {
+    if (!(field in query)) {
+      query[field] = [];
+    } else if (typeof query[field] === 'string') {
+      query[field] = [query[field]];
     }
+    var fieldClear = null;
+    if (field.endsWith('!')) {
+      //clear include filters (if exists) when exclude is in action
+      var fieldInclude = field.slice(0, -1);
+      if (fieldInclude in query) {
+        fieldClear = fieldInclude;
+      }
+    } else {
+      //clear exclude filters (if exists) when include is in action
+      var fieldExclude = field + '!';
+      if (fieldExclude in query) {
+        fieldClear = fieldExclude;
+      }
+    }
+    //convert query param to array
+    if (fieldClear && typeof query[fieldClear] === 'string') {
+      query[fieldClear] = [query[fieldClear]];
+    }
+    term.terms.forEach(function (t) {
+      //add all sub terms into query
+      if (query[field].indexOf(t.key) < 0) {
+        query[field].push(t.key);
+      }
+      //clear
+      if (fieldClear) {
+        var clearIdx = query[fieldClear].indexOf(t.key);
+        if (clearIdx >= 0) {
+          query[fieldClear].splice(clearIdx, 1);
+        }
+      }
+    });
   } else {
-    query[field] = term;
+    //term is a regular term, has no sub terms
+    if (field in query) {
+      if (Array.isArray(query[field])) {
+        query[field] = query[field].concat(term.key);
+      } else {
+        query[field] = [query[field]].concat(term.key);
+      }
+    } else {
+      query[field] = term.key;
+    }
   }
   var queryStr = queryString.stringify(query);
   parts.search = queryStr && queryStr.length > 0 ? '?' + queryStr : '';
