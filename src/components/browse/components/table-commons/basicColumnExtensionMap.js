@@ -214,7 +214,7 @@ export const DisplayTitleColumnWrapper = React.memo(function(props){
             const useHref = (window && window.location.href) || null;
             trackProductClick(
                 result,
-                { list : hrefToListName(useHref), position: rowNumber + 1 },
+                { list : hrefToListName(useHref), index: rowNumber + 1 },
                 function(){
                     // We explicitly use globalPageNavigate here and not props.navigate, as props.navigate might refer
                     // to VirtualHrefController.virtualNavigate and would not bring you to new page.

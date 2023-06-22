@@ -639,12 +639,12 @@ export var CopyWrapper = /*#__PURE__*/function (_React$PureComponent) {
           CopyWrapper.copyToClipboard(value, function (v) {
             _this2.onCopy();
             analytics.event('CopyWrapper', 'Copy', {
-              'eventLabel': 'Value',
+              'event_label': 'Value',
               'name': v
             });
           }, function (v) {
             analytics.event('CopyWrapper', 'ERROR', {
-              'eventLabel': 'Unable to copy value',
+              'event_label': 'Unable to copy value',
               'name': v
             });
           });

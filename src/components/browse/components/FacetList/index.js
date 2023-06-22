@@ -414,8 +414,8 @@ export class FacetList extends React.PureComponent {
         return analytics.event('FacetList', (isUnselecting ? 'Unset Filter' : 'Set Filter'), {
             field,
             'term'              : termKey,
-            'eventLabel'        : analytics.eventLabelFromChartNode({ field, 'term' : termKey }),
-            'currentFilters'    : analytics.getStringifiedCurrentFilters(
+            'event_label'        : analytics.eventLabelFromChartNode({ field, 'term' : termKey }),
+            'current_filters'    : analytics.getStringifiedCurrentFilters(
                 contextFiltersToExpSetFilters(contextFilters || null)
             ), // 'Existing' filters, or filters at time of action, go here.
         });

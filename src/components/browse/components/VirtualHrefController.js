@@ -203,15 +203,15 @@ export class VirtualHrefController extends React.PureComponent {
                 if (typeof existingContext === "undefined"){
                     // First time we've loaded response context. Register analytics event.
                     if (Array.isArray(initialResults)){
-                        analytics.impressionListOfItems(
+                        const impressionedItems = analytics.impressionListOfItems(
                             initialResults,
                             responseHref || "/compound_search",
                             "Embedded Search View"
                         );
                         const evtObj = analytics.eventObjectFromCtx(existingContext);
                         delete evtObj.name;
-                        evtObj.eventValue = initialResults.length;
-                        analytics.event("VirtualHrefController", "Initial Results Loaded", evtObj);
+                        evtObj.event_value = initialResults.length;
+                        analytics.event("view_item_list", "Initial Results Loaded", _.extend(evtObj, { items: impressionedItems, event_category: "VirtualHrefController" }));
                     }
                 }
 

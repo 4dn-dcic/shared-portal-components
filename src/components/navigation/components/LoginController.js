@@ -198,10 +198,10 @@ export class LoginController extends React.PureComponent {
                             setUserID(userId);
 
                             trackEvent('Authentication', 'UILogin', {
-                                eventLabel : "Authenticated ClientSide",
+                                event_label : "Authenticated ClientSide",
                                 name: userId,
                                 userId,
-                                userGroups: groups && (JSON.stringify(groups.sort()))
+                                user_groups: groups && (JSON.stringify(groups.sort()))
                             });
 
                             // Refresh the content/context of our page now that we have a JWT stored as a cookie!
@@ -379,7 +379,7 @@ export function performLogout(){
     }).then(function(auth0LogoutResponse){
         console.log("Logged out", auth0LogoutResponse);
         trackEvent('Authentication', 'UILogout', {
-            eventLabel : "Logged Out ClientSide",
+            event_label : "Logged Out ClientSide",
             userId: uuid
         });
     });

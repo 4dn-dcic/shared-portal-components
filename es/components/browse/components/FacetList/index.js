@@ -800,11 +800,11 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
       return analytics.event('FacetList', isUnselecting ? 'Unset Filter' : 'Set Filter', {
         field: field,
         'term': termKey,
-        'eventLabel': analytics.eventLabelFromChartNode({
+        'event_label': analytics.eventLabelFromChartNode({
           field: field,
           'term': termKey
         }),
-        'currentFilters': analytics.getStringifiedCurrentFilters(contextFiltersToExpSetFilters(contextFilters || null)) // 'Existing' filters, or filters at time of action, go here.
+        'current_filters': analytics.getStringifiedCurrentFilters(contextFiltersToExpSetFilters(contextFilters || null)) // 'Existing' filters, or filters at time of action, go here.
       });
     }
   }]);

@@ -131,7 +131,7 @@ class ResultDetail extends React.PureComponent{
                     "position": rowNumber,
                     "list": !isOwnPage ? "Embedded Search View": analytics.hrefToListName(href)
                 });
-                analytics.event("SearchResult DetailPane", "Opened", { eventLabel: display_title });
+                analytics.event("SearchResult DetailPane", "Opened", { event_label: display_title });
 
             } else if (!open && typeof setDetailHeight === 'function') {
                 setDetailHeight(null); // Unset back to default (rowHeight)
@@ -499,12 +499,12 @@ class LoadMoreAsYouScroll extends React.Component {
                     });
                 } else {
                     this.setState({ 'isLoading' : false }, ()=>{
-                        analytics.impressionListOfItems(
+                        const impressionedItems = analytics.impressionListOfItems(
                             nextResults,
                             nextHref || window.location.href,
                             isOwnPage ? analytics.hrefToListName(nextHref) : "Embedded Search View"
                         );
-                        analytics.event('SearchResultTable', "Loaded More Results", { eventValue: nextFromValue });
+                        analytics.event("view_item_list", "Loaded More Results", { items: impressionedItems, event_category: "SearchResultTable", event_value: nextFromValue });
                         setResults(existingResults.slice(0).concat(nextResults));
                     });
                 }

@@ -652,12 +652,12 @@ export class CopyWrapper extends React.PureComponent {
             CopyWrapper.copyToClipboard(value, (v)=>{
                 this.onCopy();
                 analytics.event('CopyWrapper', 'Copy', {
-                    'eventLabel' : 'Value',
+                    'event_label' : 'Value',
                     'name' : v
                 });
             }, (v)=>{
                 analytics.event('CopyWrapper', 'ERROR', {
-                    'eventLabel' : 'Unable to copy value',
+                    'event_label' : 'Unable to copy value',
                     'name' : v
                 });
             });
