@@ -576,9 +576,6 @@ class SubItemTable extends React.Component {
                                                     if (colVal.key === '@id' && val.slice(0,1) === '/') {
                                                         val = <a href={val}>{ val }</a>;
                                                     }
-                                                    if (typeof val === 'string' && val.length > 50){
-                                                        val = val.slice(0,50) + '...';
-                                                    }
                                                     if (val && typeof val === 'object' && !React.isValidElement(val) && !Array.isArray(val)) {
                                                         if (isAnItem(val)) {
                                                             val = <a href={itemUtil.atId(val)}>{val.display_title}</a>;
