@@ -448,47 +448,6 @@ export function productClick(item, extraData = {}, callback = null, context = nu
 }
 
 /**
- * Can be used needed. E.g. in 4DN is used for metadata.tsv download.
- * Does _NOT_ also send a GA event. This must be done outside of func.
- */
-// export function productsAddToCart(items, extraData = {}){
-//     if (!shouldTrack(items)) return false;
-//     const products = transformItemsToProducts(items, extraData);
-//     console.info(`Adding ${products.length} items to cart.`);
-//     ga4('event', 'add_to_cart', { items: products });
-// }
-
-// export function productsRemoveFromCart(items, extraData = {}){
-//     if (!shouldTrack(items)) return false;
-//     const products = transformItemsToProducts(items, extraData);
-//     ga4('event', 'remove_from_cart', { items: products });
-//     console.info(`Removing ${products.length} items from cart.`);
-// }
-
-/**
- * Can be used needed. E.g. in 4DN is used for metadata.tsv download.
- * Does _NOT_ also send a GA event. This must be done outside of func.
- */
-// export function productsCheckout(items, extraData = {}){
-//     if (!shouldTrack(items)) return false;
-//     const { checkout_step = 1, checkout_option = null, ...extData } = extraData || {};
-//     const products = transformItemsToProducts(items, extData);
-//     ga4('event', 'begin_checkout', { checkout_step, checkout_option, items: products });
-//     console.info(`Checked out ${products.length} items.`);
-// }
-
-// export function productAddDetailViewed(item, context = null, extraData = {}){
-//     if (!shouldTrack()) return false;
-//     const productObj = _.extend(itemToProductTransform(item), extraData);
-//     console.info("Item Details Viewed. Will track as product:", productObj);
-//     if (context && context.filters){
-//         productObj["filters"] = getStringifiedCurrentFilters(context.filters);
-//     }
-//     ga4('event', 'view_item', { items: [productObj] });
-// }
-
-
-/**
  * @see https://developers.google.com/analytics/devguides/collection/analyticsjs/exceptions
  */
 export function exception(message, fatal = false){
