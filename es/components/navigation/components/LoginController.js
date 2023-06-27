@@ -195,10 +195,8 @@ export var LoginController = /*#__PURE__*/function (_React$PureComponent) {
                 _profile$groups = profile.groups,
                 groups = _profile$groups === void 0 ? null : _profile$groups;
               setUserID(userId);
-              trackEvent('Authentication', 'UILogin', {
-                event_label: "Authenticated ClientSide",
-                name: userId,
-                userId: userId,
+              trackEvent('login', 'UILogin', 'Authenticated ClientSide', null, {
+                user_uuid: userId,
                 user_groups: groups && JSON.stringify(groups.sort())
               });
 
@@ -422,9 +420,8 @@ export function performLogout() {
     return response;
   }).then(function (auth0LogoutResponse) {
     console.log("Logged out", auth0LogoutResponse);
-    trackEvent('Authentication', 'UILogout', {
-      event_label: "Logged Out ClientSide",
-      userId: uuid
+    trackEvent('logout', 'UILogout', 'Logged Out ClientSide', null, {
+      user_uuid: uuid
     });
   });
 }

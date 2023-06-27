@@ -638,14 +638,12 @@ export var CopyWrapper = /*#__PURE__*/function (_React$PureComponent) {
           }
           CopyWrapper.copyToClipboard(value, function (v) {
             _this2.onCopy();
-            analytics.event('CopyWrapper', 'Copy', {
-              'event_label': 'Value',
-              'name': v
+            analytics.event('copy_wrapper', 'CopyWrapper', 'Copy', null, {
+              'value': v
             });
           }, function (v) {
-            analytics.event('CopyWrapper', 'ERROR', {
-              'event_label': 'Unable to copy value',
-              'name': v
+            analytics.event('copy_wrapper', 'CopyWrapper', 'ERROR', null, {
+              'value': v
             });
           });
         }

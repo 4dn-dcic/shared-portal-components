@@ -2,8 +2,7 @@ import _typeof from "@babel/runtime/helpers/typeof";
 import _defineProperty from "@babel/runtime/helpers/defineProperty";
 import _objectWithoutProperties from "@babel/runtime/helpers/objectWithoutProperties";
 import _slicedToArray from "@babel/runtime/helpers/slicedToArray";
-var _excluded = ["initialContext", "initialHref"],
-  _excluded2 = ["checkout_step", "checkout_option"];
+var _excluded = ["initialContext", "initialHref"];
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 import _ from 'underscore';
@@ -94,10 +93,10 @@ var defaultOptions = {
 };
 var state = null;
 
-/** Calls `ga`, ensuring it is present on window. */
-function ga2() {
+/** Calls `gtag`, ensuring it is present on window. */
+function ga4() {
   try {
-    return window.gtag.apply(window.gtag, Array.from(arguments));
+    return window.gtag.apply(window.gtag, arguments);
   } catch (e) {
     console.error('Could not track event. Fine if this is a test.', e, Array.from(arguments));
   }
@@ -176,11 +175,9 @@ export function initializeGoogleAnalytics() {
   });
   if (userUUID) {
     setUserID(userUUID);
-    event('Authentication', 'ExistingSessionLogin', {
-      userUUID: userUUID,
-      name: userUUID,
-      user_groups: userGroups && JSON.stringify(userGroups.slice().sort()),
-      event_label: 'Authenticated ServerSide'
+    event('login', 'InitializeGoogleAnalytics', 'ExistingSessionLogin', null, {
+      user_uuid: userUUID,
+      user_groups: userGroups && JSON.stringify(userGroups.slice().sort())
     });
   }
   console.info("GA: Initialized");
@@ -298,7 +295,7 @@ export function registerPageView() {
     return false;
   }
   lastRegisteredPageViewRealPathNameAndSearch = parts.pathname + parts.search;
-  ga2('set', 'page', adjustedPathName); // Set it as current page
+  // ga4('set', 'page', adjustedPathName); // Set it as current page
   // if (shouldAnonymize(itemType)){ // Override page title
   //     pageViewObject.title = ctxAccession || ctxUUID || "[Anonymized Title]";
   // }
@@ -314,24 +311,32 @@ export function registerPageView() {
 
       // If browse or search page, get current filters and add to pageview event for 'dimension1'.
       if (searchResponseFilters) {
-        pageViewObject["current_filters"] = getStringifiedCurrentFilters(searchResponseFilters);
+        pageViewObject["filters"] = getStringifiedCurrentFilters(searchResponseFilters);
       }
       if (searchResponseResults.length > 0) {
         // We have some results, lets impression them as product list views.
-        return impressionListOfItems(searchResponseResults, parts, null, context);
+        var impressionedItems = impressionListOfItems(searchResponseResults, parts, null, context);
+        event("view_item_list", "RegisterPageView", "Search/Browse View", null, {
+          items: impressionedItems,
+          filters: pageViewObject["filters"]
+        });
       }
-      return false;
     } else if (itemType.indexOf("Item") > -1) {
       // We got an Item view, lets track some details about it.
       var productObj = itemToProductTransform(context);
       console.info("Item Page View (probably). Will track as product:", productObj);
-      ga2('event', 'view_item', {
+
+      //ga2('event', 'view_item', { items: [productObj] });
+      event("view_item", "RegisterPageView", "Item View", null, {
         items: [productObj]
       });
-      return productObj;
     }
   })();
-  ga2('event', 'page_view', pageViewObject);
+  // if(items && Array.isArray(items) && items.length > 0){
+  //     pageViewObject['items'] = items;
+  // }
+
+  ga4('event', 'page_view', pageViewObject);
   if (code === 403) {
     // HTTPForbidden Access Denied - save original URL
     event("Navigation", "HTTPForbidden", {
@@ -362,7 +367,7 @@ export function eventObjectFromCtx(context) {
   }
   if (filters) {
     // If search response context, add these.
-    eventObj.current_filters = getStringifiedCurrentFilters(filters);
+    eventObj.filters = getStringifiedCurrentFilters(filters);
   }
   return eventObj;
 }
@@ -379,61 +384,49 @@ export function eventObjectFromCtx(context) {
  *
  * @see eventLabelFromChartNode()
  *
- * @param {string} category - Event Category
- * @param {string} action - Event Action
- * @param {Object} fields - Additional fields.
- * @param {string} fields.event_label - Event Label, e.g. 'play'.
- * @param {number} [fields.event_value] - Event Value, must be an integer.
- * @param {Object} [fields.current_filters] - Current filters set in portal, if on a search page.
- * @param {string} [fields.name] - Name of Item we're on, if any.
- * @param {string} [fields.field] - Name of field being acted on, if any.
- * @param {string} [fields.term] - Name of term being acted on or changed, if any.
+ * @param {string} name - event name
+ * @param {string} source - component/page where the event is triggerred
+ * @param {string} action - action that triggers the event
+ * @param {callback} callback - callback function
+ * @param {string} [parameters.filters] -
+ * @param {number} [parameters.experiment_type] -
+ * @param {Object} [parameters.user_groups] -
+ * @param {string} [parameters.term_key] -
+ * @param {string} [parameters.field_key] -.
+ * @param {string} [parameters.value] -
+ * @param {string} [parameters.name] -
+ * @param {string} [parameters.list_name] -
+ * @param {string} [parameters.user_uuid] -
  */
-export function event(category, action) {
-  var fields = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-  var useTimeout = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : true;
+export function event(name, source, action, callback) {
+  var parameters = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : {};
+  var useTimeout = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : true;
   if (!shouldTrack()) return false;
-  var defaultFields = {
-    'event_category': category,
-    'event_action': action,
-    'event_callback': function event_callback() {
-      console.info('Successfuly sent UI event.', eventObj);
-    }
+  var defaultCallback = function defaultCallback() {
+    console.info('Successfuly sent UI event. ', arguments);
   };
-  var eventObj = _.extend({}, defaultFields, fields);
-
-  // Convert internal dimension names to Google Analytics ones.
-  // _.pairs(eventObj).forEach(function([key, value]){
-  //     if (typeof state.dimensionNameMap[key] !== 'undefined'){
-  //         eventObj["dimension" + state.dimensionNameMap[key]] = value;
-  //         delete eventObj[key];
-  //     } else if (typeof state.metricNameMap[key] !== 'undefined'){
-  //         eventObj["metric" + state.metricNameMap[key]] = value;
-  //         delete eventObj[key];
-  //     }
-  // });
-
-  // if (!eventObj.event_callback) {
-  //     eventObj.event_callback = function () {
-  //         console.info('Successfuly sent UI event.', eventObj);
-  //     };
-  // }
-
+  var passParameters = _.pick(_.extend({
+    source: source,
+    action: action,
+    event_callback: callback || defaultCallback
+  }, parameters), function (value) {
+    return typeof value !== 'undefined' && value !== null;
+  });
   if (useTimeout) {
     setTimeout(function () {
-      ga2('event', category, eventObj);
+      ga4('event', name, passParameters);
     }, 0);
   } else {
-    ga2('event', category, eventObj);
+    ga4('event', name, passParameters);
   }
 }
 export function setUserID(userUUID) {
-  if (!shouldTrack()) {
-    return false;
-  }
-  ga2('set', 'userId', userUUID);
-  console.info("Set analytics user id to", userUUID);
-  return true;
+  // if (!shouldTrack()) {
+  //     return false;
+  // }
+  // ga4('set', 'userId', userUUID);
+  // console.info("Set analytics user id to", userUUID);
+  // return true;
 }
 export function productClick(item) {
   var extraData = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
@@ -446,44 +439,22 @@ export function productClick(item) {
   context = context || state.reduxStore && state.reduxStore.getState().context || null;
   var pObj = _.extend(itemToProductTransform(item), extraData);
   var href = extraData.href || window.location.href;
-  var evtFromCtx = eventObjectFromCtx(context);
-  var eventName = evtFromCtx.currentFilters ? 'Search Result Link' : 'Product List Link';
-  var eventObj = _objectSpread(_objectSpread({}, evtFromCtx), {}, {
-    'event_action': 'click',
-    'event_label': pObj.id || pObj.name,
-    'event_category': eventName,
-    'event_callback': function event_callback() {
-      console.info('Successfully sent product click event.', eventObj, pObj);
-      if (typeof callback === 'function') {
-        callback();
-      }
-    }
-  });
+  var eventObj = eventObjectFromCtx(context);
   if (!pObj.item_list_name) {
     pObj.item_list_name = hrefToListName(href);
   }
-
-  // ga2('ec:addProduct', pObj);
-  // ga2('ec:setAction', 'click',  _.pick(pObj, 'list'));
-
-  // // Convert internal dimension names to Google Analytics ones.
-  // _.forEach(_.pairs(eventObj), function([key, value]) {
-  //     if (typeof state.dimensionNameMap[key] !== 'undefined'){
-  //         eventObj["dimension" + state.dimensionNameMap[key]] = value;
-  //         delete eventObj[key];
-  //     } else if (typeof state.metricNameMap[key] !== 'undefined'){
-  //         eventObj["metric" + state.metricNameMap[key]] = value;
-  //         delete eventObj[key];
-  //     }
-  // });
-
-  // ga2('send', eventObj);
-
-  //new
-  ga2('event', 'view_item', {
+  var callbackFunc = function callbackFunc() {
+    console.info('Successfully sent product click event.', eventObj, pObj);
+    if (typeof callback === 'function') {
+      callback();
+    }
+  };
+  var source = eventObj.filters ? 'Search Result Link' : 'Product List Link';
+  event('view_item', source, 'Click', null, {
+    list_name: pObj.item_list_name,
     items: [pObj]
   });
-  ga2('event', eventName, eventObj);
+  event('item_click', source, 'Click', callbackFunc, eventObj);
   return true;
 }
 
@@ -491,59 +462,41 @@ export function productClick(item) {
  * Can be used needed. E.g. in 4DN is used for metadata.tsv download.
  * Does _NOT_ also send a GA event. This must be done outside of func.
  */
-export function productsAddToCart(items) {
-  var extraData = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-  if (!shouldTrack(items)) return false;
-  var products = addProductsEE(items, extraData);
-  console.info("Adding ".concat(products.length, " items to cart."));
-  ga2('event', 'add_to_cart', {
-    items: products
-  });
-}
-export function productsRemoveFromCart(items) {
-  var extraData = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-  if (!shouldTrack(items)) return false;
-  var products = addProductsEE(items, extraData);
-  ga2('event', 'remove_from_cart', {
-    items: products
-  });
-  console.info("Removing ".concat(products.length, " items from cart."));
-}
+// export function productsAddToCart(items, extraData = {}){
+//     if (!shouldTrack(items)) return false;
+//     const products = transformItemsToProducts(items, extraData);
+//     console.info(`Adding ${products.length} items to cart.`);
+//     ga4('event', 'add_to_cart', { items: products });
+// }
+
+// export function productsRemoveFromCart(items, extraData = {}){
+//     if (!shouldTrack(items)) return false;
+//     const products = transformItemsToProducts(items, extraData);
+//     ga4('event', 'remove_from_cart', { items: products });
+//     console.info(`Removing ${products.length} items from cart.`);
+// }
 
 /**
  * Can be used needed. E.g. in 4DN is used for metadata.tsv download.
  * Does _NOT_ also send a GA event. This must be done outside of func.
  */
-export function productsCheckout(items) {
-  var extraData = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-  if (!shouldTrack(items)) return false;
-  var _ref4 = extraData || {},
-    _ref4$checkout_step = _ref4.checkout_step,
-    checkout_step = _ref4$checkout_step === void 0 ? 1 : _ref4$checkout_step,
-    _ref4$checkout_option = _ref4.checkout_option,
-    checkout_option = _ref4$checkout_option === void 0 ? null : _ref4$checkout_option,
-    extData = _objectWithoutProperties(_ref4, _excluded2);
-  var products = addProductsEE(items, extData);
-  ga2('event', 'begin_checkout', {
-    checkout_step: checkout_step,
-    checkout_option: checkout_option,
-    items: products
-  });
-  console.info("Checked out ".concat(products.length, " items."));
-}
-export function productAddDetailViewed(item) {
-  var context = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-  var extraData = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-  if (!shouldTrack()) return false;
-  var productObj = _.extend(itemToProductTransform(item), extraData);
-  console.info("Item Details Viewed. Will track as product:", productObj);
-  if (context && context.filters) {
-    productObj["current_filters"] = getStringifiedCurrentFilters(context.filters);
-  }
-  ga2('event', 'view_item', {
-    items: [productObj]
-  });
-}
+// export function productsCheckout(items, extraData = {}){
+//     if (!shouldTrack(items)) return false;
+//     const { checkout_step = 1, checkout_option = null, ...extData } = extraData || {};
+//     const products = transformItemsToProducts(items, extData);
+//     ga4('event', 'begin_checkout', { checkout_step, checkout_option, items: products });
+//     console.info(`Checked out ${products.length} items.`);
+// }
+
+// export function productAddDetailViewed(item, context = null, extraData = {}){
+//     if (!shouldTrack()) return false;
+//     const productObj = _.extend(itemToProductTransform(item), extraData);
+//     console.info("Item Details Viewed. Will track as product:", productObj);
+//     if (context && context.filters){
+//         productObj["filters"] = getStringifiedCurrentFilters(context.filters);
+//     }
+//     ga4('event', 'view_item', { items: [productObj] });
+// }
 
 /**
  * @see https://developers.google.com/analytics/devguides/collection/analyticsjs/exceptions
@@ -558,7 +511,7 @@ export function exception(message) {
   excObj.event_callback = function () {
     console.info('Successfully sent exception', excObj);
   };
-  ga2('event', 'exception', excObj);
+  ga4('event', 'exception', excObj);
   return true;
 }
 
@@ -656,8 +609,8 @@ function shouldTrack(itemList) {
     console.error("Google Analytics 4 library is not loaded/available. Fine if disabled via AdBlocker, else check `gtag/js?id=` loading.");
     return false;
   }
-  if (itemList && Array.isArray(itemList) && itemList.length > 50) {
-    console.info("Google Analytics do not respond well when items count exceeds 50. Tracking is disabled since list has ".concat(itemList.length, " items."));
+  if (itemList && Array.isArray(itemList) && itemList.length > 200) {
+    console.info("Google Analytics do not respond well when items count exceeds 200. Tracking is disabled since list has ".concat(itemList.length, " items."));
     return false;
   }
 
@@ -706,8 +659,9 @@ function itemToProductTransform(item) {
   }
   return prodItem;
 }
-function addProductsEE(items) {
+export function transformItemsToProducts(items) {
   var extData = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+  if (!shouldTrack(items)) return false;
   if (items && !Array.isArray(items)) {
     items = [items];
   }
@@ -765,9 +719,11 @@ export function impressionListOfItems(itemList) {
   var commonProductObj = {
     "item_list_name": listName || href && hrefToListName(href)
   };
-  if (context && context.filters) {
-    commonProductObj["current_filters"] = getStringifiedCurrentFilters(context.filters);
-  }
+
+  // if (context && context.filters) {
+  //     commonProductObj["filters"] = getStringifiedCurrentFilters(context.filters);
+  // }
+
   var resultsImpressioned = itemList.filter(function (item) {
     // Ensure we have permissions, can get product SKU, etc.
     var display_title = item.display_title,

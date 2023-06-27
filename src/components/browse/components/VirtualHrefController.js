@@ -208,10 +208,11 @@ export class VirtualHrefController extends React.PureComponent {
                             responseHref || "/compound_search",
                             "Embedded Search View"
                         );
-                        const evtObj = analytics.eventObjectFromCtx(existingContext);
-                        delete evtObj.name;
-                        evtObj.event_value = initialResults.length;
-                        analytics.event("view_item_list", "Initial Results Loaded", _.extend(evtObj, { items: impressionedItems, event_category: "VirtualHrefController" }));
+                        analytics.event("view_item_list", "VirtualHrefController", "Initial Results Loaded", null, {
+                            items: impressionedItems,
+                            value: initialResults.length,
+                            filters: analytics.getStringifiedCurrentFilters((nextContext && nextContext.filters) || null)
+                        });
                     }
                 }
 

@@ -255,7 +255,7 @@ export var DisplayTitleColumnWrapper = /*#__PURE__*/React.memo(function (props) 
       evt.stopPropagation();
       var useHref = window && window.location.href || null;
       trackProductClick(result, {
-        list: hrefToListName(useHref),
+        list_name: hrefToListName(useHref),
         index: rowNumber + 1
       }, function () {
         // We explicitly use globalPageNavigate here and not props.navigate, as props.navigate might refer

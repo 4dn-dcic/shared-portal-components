@@ -81,10 +81,10 @@ const defaultOptions = {
 
 let state = null;
 
-/** Calls `ga`, ensuring it is present on window. */
-function ga2(){
+/** Calls `gtag`, ensuring it is present on window. */
+function ga4(){
     try {
-        return window.gtag.apply(window.gtag, Array.from(arguments));
+        return window.gtag.apply(window.gtag, arguments);
     } catch (e) {
         console.error('Could not track event. Fine if this is a test.', e, Array.from(arguments));
     }
@@ -161,11 +161,9 @@ export function initializeGoogleAnalytics(trackingID = null, appOptions = {}){
 
     if (userUUID) {
         setUserID(userUUID);
-        event('Authentication', 'ExistingSessionLogin', {
-            userUUID,
-            name: userUUID,
-            user_groups: userGroups && JSON.stringify(userGroups.slice().sort()),
-            event_label: 'Authenticated ServerSide'
+        event('login', 'InitializeGoogleAnalytics', 'ExistingSessionLogin', null, {
+            user_uuid: userUUID,
+            user_groups: userGroups && JSON.stringify(userGroups.slice().sort())
         });
     }
 
@@ -287,24 +285,25 @@ export function registerPageView(href = null, context = null){
 
             // If browse or search page, get current filters and add to pageview event for 'dimension1'.
             if (searchResponseFilters) {
-                pageViewObject["current_filters"] = getStringifiedCurrentFilters(searchResponseFilters);
+                pageViewObject["filters"] = getStringifiedCurrentFilters(searchResponseFilters);
             }
 
             if (searchResponseResults.length > 0){
                 // We have some results, lets impression them as product list views.
-                return impressionListOfItems(searchResponseResults, parts, null, context);
+                const impressionedItems = impressionListOfItems(searchResponseResults, parts, null, context);
+                event("view_item_list", "RegisterPageView", "Search/Browse View", null, {
+                    items: impressionedItems,
+                    filters: pageViewObject["filters"]
+                });
             }
-
-            return false;
         } else if (itemType.indexOf("Item") > -1){
 
             // We got an Item view, lets track some details about it.
             const productObj = itemToProductTransform(context);
             console.info("Item Page View (probably). Will track as product:", productObj);
 
-            ga2('event', 'view_item', { items: [productObj] });
-
-            return productObj;
+            //ga2('event', 'view_item', { items: [productObj] });
+            event("view_item", "RegisterPageView", "Item View", null, { items: [productObj] });
         }
     }
 
@@ -318,7 +317,7 @@ export function registerPageView(href = null, context = null){
     }
 
     lastRegisteredPageViewRealPathNameAndSearch = parts.pathname + parts.search;
-    ga2('set', 'page', adjustedPathName); // Set it as current page
+    // ga4('set', 'page', adjustedPathName); // Set it as current page
     // if (shouldAnonymize(itemType)){ // Override page title
     //     pageViewObject.title = ctxAccession || ctxUUID || "[Anonymized Title]";
     // }
@@ -328,8 +327,11 @@ export function registerPageView(href = null, context = null){
         console.info('Successfuly sent page_view event.', adjustedPathName, pageViewObject);
     };
     registerProductView();
+    // if(items && Array.isArray(items) && items.length > 0){
+    //     pageViewObject['items'] = items;
+    // }
 
-    ga2('event', 'page_view', pageViewObject);
+    ga4('event', 'page_view', pageViewObject);
 
     if (code === 403) {
         // HTTPForbidden Access Denied - save original URL
@@ -354,7 +356,7 @@ export function eventObjectFromCtx(context){
         eventObj.name = accession || uuid || "[Anonymized Title]";
     }
     if (filters) { // If search response context, add these.
-        eventObj.current_filters = getStringifiedCurrentFilters(filters);
+        eventObj.filters = getStringifiedCurrentFilters(filters);
     }
     return eventObj;
 }
@@ -371,61 +373,48 @@ export function eventObjectFromCtx(context){
  *
  * @see eventLabelFromChartNode()
  *
- * @param {string} category - Event Category
- * @param {string} action - Event Action
- * @param {Object} fields - Additional fields.
- * @param {string} fields.event_label - Event Label, e.g. 'play'.
- * @param {number} [fields.event_value] - Event Value, must be an integer.
- * @param {Object} [fields.current_filters] - Current filters set in portal, if on a search page.
- * @param {string} [fields.name] - Name of Item we're on, if any.
- * @param {string} [fields.field] - Name of field being acted on, if any.
- * @param {string} [fields.term] - Name of term being acted on or changed, if any.
+ * @param {string} name - event name
+ * @param {string} source - component/page where the event is triggerred
+ * @param {string} action - action that triggers the event
+ * @param {callback} callback - callback function
+ * @param {string} [parameters.filters] -
+ * @param {number} [parameters.experiment_type] -
+ * @param {Object} [parameters.user_groups] -
+ * @param {string} [parameters.term_key] -
+ * @param {string} [parameters.field_key] -.
+ * @param {string} [parameters.value] -
+ * @param {string} [parameters.name] -
+ * @param {string} [parameters.list_name] -
+ * @param {string} [parameters.user_uuid] -
  */
-export function event(category, action, fields = {}, useTimeout = true){
+export function event(name, source, action, callback, parameters = {}, useTimeout = true){
     if (!shouldTrack()) return false;
 
-    const defaultFields = {
-        'event_category': category,
-        'event_action': action,
-        'event_callback': function () {
-            console.info('Successfuly sent UI event.', eventObj);
-        }
+    const defaultCallback = function () {
+        console.info('Successfuly sent UI event. ', arguments);
     };
-    const eventObj = _.extend({}, defaultFields, fields);
-
-    // Convert internal dimension names to Google Analytics ones.
-    // _.pairs(eventObj).forEach(function([key, value]){
-    //     if (typeof state.dimensionNameMap[key] !== 'undefined'){
-    //         eventObj["dimension" + state.dimensionNameMap[key]] = value;
-    //         delete eventObj[key];
-    //     } else if (typeof state.metricNameMap[key] !== 'undefined'){
-    //         eventObj["metric" + state.metricNameMap[key]] = value;
-    //         delete eventObj[key];
-    //     }
-    // });
-
-    // if (!eventObj.event_callback) {
-    //     eventObj.event_callback = function () {
-    //         console.info('Successfuly sent UI event.', eventObj);
-    //     };
-    // }
+    const passParameters = _.pick(
+        _.extend({ source, action, event_callback: callback || defaultCallback }, parameters),
+        function (value) {
+            return typeof value !== 'undefined' && value !== null;
+        });
 
     if (useTimeout){
         setTimeout(function(){
-            ga2('event', category, eventObj);
+            ga4('event', name, passParameters);
         }, 0);
     } else {
-        ga2('event', category, eventObj);
+        ga4('event', name, passParameters);
     }
 }
 
 export function setUserID(userUUID){
-    if (!shouldTrack()) {
-        return false;
-    }
-    ga2('set', 'userId', userUUID);
-    console.info("Set analytics user id to", userUUID);
-    return true;
+    // if (!shouldTrack()) {
+    //     return false;
+    // }
+    // ga4('set', 'userId', userUUID);
+    // console.info("Set analytics user id to", userUUID);
+    // return true;
 }
 
 
@@ -437,45 +426,23 @@ export function productClick(item, extraData = {}, callback = null, context = nu
     context = context || (state.reduxStore && state.reduxStore.getState().context) || null;
     const pObj = _.extend(itemToProductTransform(item), extraData);
     const href = extraData.href || window.location.href;
-    const evtFromCtx = eventObjectFromCtx(context);
-
-    const eventName = evtFromCtx.currentFilters ? 'Search Result Link' : 'Product List Link';
-    const eventObj = {
-        ...evtFromCtx,
-        'event_action': 'click',
-        'event_label': pObj.id || pObj.name,
-        'event_category': eventName,
-        'event_callback': function () {
-            console.info('Successfully sent product click event.', eventObj, pObj);
-            if (typeof callback === 'function') {
-                callback();
-            }
-        }
-    };
+    const eventObj = eventObjectFromCtx(context);
 
     if (!pObj.item_list_name) {
         pObj.item_list_name = hrefToListName(href);
     }
 
-    // ga2('ec:addProduct', pObj);
-    // ga2('ec:setAction', 'click',  _.pick(pObj, 'list'));
+    const callbackFunc = function () {
+        console.info('Successfully sent product click event.', eventObj, pObj);
+        if (typeof callback === 'function') {
+            callback();
+        }
+    };
 
-    // // Convert internal dimension names to Google Analytics ones.
-    // _.forEach(_.pairs(eventObj), function([key, value]) {
-    //     if (typeof state.dimensionNameMap[key] !== 'undefined'){
-    //         eventObj["dimension" + state.dimensionNameMap[key]] = value;
-    //         delete eventObj[key];
-    //     } else if (typeof state.metricNameMap[key] !== 'undefined'){
-    //         eventObj["metric" + state.metricNameMap[key]] = value;
-    //         delete eventObj[key];
-    //     }
-    // });
+    const source = eventObj.filters ? 'Search Result Link' : 'Product List Link';
 
-    // ga2('send', eventObj);
-
-    //new
-    ga2('event', 'view_item', { items: [pObj] });
-    ga2('event', eventName, eventObj);
+    event('view_item', source, 'Click', null, { list_name: pObj.item_list_name, items: [pObj] });
+    event('item_click', source, 'Click', callbackFunc, eventObj);
 
     return true;
 }
@@ -484,41 +451,41 @@ export function productClick(item, extraData = {}, callback = null, context = nu
  * Can be used needed. E.g. in 4DN is used for metadata.tsv download.
  * Does _NOT_ also send a GA event. This must be done outside of func.
  */
-export function productsAddToCart(items, extraData = {}){
-    if (!shouldTrack(items)) return false;
-    const products = addProductsEE(items, extraData);
-    console.info(`Adding ${products.length} items to cart.`);
-    ga2('event', 'add_to_cart', { items: products });
-}
+// export function productsAddToCart(items, extraData = {}){
+//     if (!shouldTrack(items)) return false;
+//     const products = transformItemsToProducts(items, extraData);
+//     console.info(`Adding ${products.length} items to cart.`);
+//     ga4('event', 'add_to_cart', { items: products });
+// }
 
-export function productsRemoveFromCart(items, extraData = {}){
-    if (!shouldTrack(items)) return false;
-    const products = addProductsEE(items, extraData);
-    ga2('event', 'remove_from_cart', { items: products });
-    console.info(`Removing ${products.length} items from cart.`);
-}
+// export function productsRemoveFromCart(items, extraData = {}){
+//     if (!shouldTrack(items)) return false;
+//     const products = transformItemsToProducts(items, extraData);
+//     ga4('event', 'remove_from_cart', { items: products });
+//     console.info(`Removing ${products.length} items from cart.`);
+// }
 
 /**
  * Can be used needed. E.g. in 4DN is used for metadata.tsv download.
  * Does _NOT_ also send a GA event. This must be done outside of func.
  */
-export function productsCheckout(items, extraData = {}){
-    if (!shouldTrack(items)) return false;
-    const { checkout_step = 1, checkout_option = null, ...extData } = extraData || {};
-    const products = addProductsEE(items, extData);
-    ga2('event', 'begin_checkout', { checkout_step, checkout_option, items: products });
-    console.info(`Checked out ${products.length} items.`);
-}
+// export function productsCheckout(items, extraData = {}){
+//     if (!shouldTrack(items)) return false;
+//     const { checkout_step = 1, checkout_option = null, ...extData } = extraData || {};
+//     const products = transformItemsToProducts(items, extData);
+//     ga4('event', 'begin_checkout', { checkout_step, checkout_option, items: products });
+//     console.info(`Checked out ${products.length} items.`);
+// }
 
-export function productAddDetailViewed(item, context = null, extraData = {}){
-    if (!shouldTrack()) return false;
-    const productObj = _.extend(itemToProductTransform(item), extraData);
-    console.info("Item Details Viewed. Will track as product:", productObj);
-    if (context && context.filters){
-        productObj["current_filters"] = getStringifiedCurrentFilters(context.filters);
-    }
-    ga2('event', 'view_item', { items: [productObj] });
-}
+// export function productAddDetailViewed(item, context = null, extraData = {}){
+//     if (!shouldTrack()) return false;
+//     const productObj = _.extend(itemToProductTransform(item), extraData);
+//     console.info("Item Details Viewed. Will track as product:", productObj);
+//     if (context && context.filters){
+//         productObj["filters"] = getStringifiedCurrentFilters(context.filters);
+//     }
+//     ga4('event', 'view_item', { items: [productObj] });
+// }
 
 
 /**
@@ -533,7 +500,7 @@ export function exception(message, fatal = false){
     excObj.event_callback = function(){
         console.info('Successfully sent exception', excObj);
     };
-    ga2('event', 'exception', excObj);
+    ga4('event', 'exception', excObj);
     return true;
 }
 
@@ -644,8 +611,8 @@ function shouldTrack(itemList){
         return false;
     }
 
-    if (itemList && Array.isArray(itemList) && itemList.length > 50) {
-        console.info(`Google Analytics do not respond well when items count exceeds 50. Tracking is disabled since list has ${itemList.length} items.`);
+    if (itemList && Array.isArray(itemList) && itemList.length > 200) {
+        console.info(`Google Analytics do not respond well when items count exceeds 200. Tracking is disabled since list has ${itemList.length} items.`);
         return false;
     }
 
@@ -696,7 +663,9 @@ function itemToProductTransform(item){
     return prodItem;
 }
 
-function addProductsEE(items, extData = {}){
+export function transformItemsToProducts(items, extData = {}){
+    if (!shouldTrack(items)) return false;
+
     if (items && !Array.isArray(items)){
         items = [items];
     }
@@ -752,9 +721,9 @@ export function impressionListOfItems(itemList, href = null, listName = null, co
 
     const commonProductObj = { "item_list_name" : listName || (href && hrefToListName(href)) };
 
-    if (context && context.filters) {
-        commonProductObj["current_filters"] = getStringifiedCurrentFilters(context.filters);
-    }
+    // if (context && context.filters) {
+    //     commonProductObj["filters"] = getStringifiedCurrentFilters(context.filters);
+    // }
 
     const resultsImpressioned = itemList.filter(function(item){
         // Ensure we have permissions, can get product SKU, etc.

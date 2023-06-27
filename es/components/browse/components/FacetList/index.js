@@ -797,14 +797,15 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
       var termKey = term.key;
       var statusAndHref = getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters(term, facet, contextFilters);
       var isUnselecting = !!statusAndHref.href;
-      return analytics.event('FacetList', isUnselecting ? 'Unset Filter' : 'Set Filter', {
-        field: field,
-        'term': termKey,
-        'event_label': analytics.eventLabelFromChartNode({
+      console.log('xxx contextFilters:', contextFilters);
+      return analytics.event('search_filters', 'FacetList', isUnselecting ? 'Unset Filter' : 'Set Filter', null, {
+        'field_key': field,
+        'term_key': termKey,
+        'name': analytics.eventLabelFromChartNode({
           field: field,
           'term': termKey
         }),
-        'current_filters': analytics.getStringifiedCurrentFilters(contextFiltersToExpSetFilters(contextFilters || null)) // 'Existing' filters, or filters at time of action, go here.
+        'filters': analytics.getStringifiedCurrentFilters(contextFilters || null) // 'Existing' filters, or filters at time of action, go here.
       });
     }
   }]);

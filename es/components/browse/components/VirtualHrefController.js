@@ -197,13 +197,11 @@ export var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) 
             // First time we've loaded response context. Register analytics event.
             if (Array.isArray(initialResults)) {
               var impressionedItems = analytics.impressionListOfItems(initialResults, responseHref || "/compound_search", "Embedded Search View");
-              var evtObj = analytics.eventObjectFromCtx(existingContext);
-              delete evtObj.name;
-              evtObj.event_value = initialResults.length;
-              analytics.event("view_item_list", "Initial Results Loaded", _.extend(evtObj, {
+              analytics.event("view_item_list", "VirtualHrefController", "Initial Results Loaded", null, {
                 items: impressionedItems,
-                event_category: "VirtualHrefController"
-              }));
+                value: initialResults.length,
+                filters: analytics.getStringifiedCurrentFilters(nextContext && nextContext.filters || null)
+              });
             }
           }
           console.info("Loaded Next Context", nextContext);
