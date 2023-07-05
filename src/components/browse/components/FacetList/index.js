@@ -411,7 +411,6 @@ export class FacetList extends React.PureComponent {
         const statusAndHref = getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters(term, facet, contextFilters);
         const isUnselecting = !!(statusAndHref.href);
 
-        console.log('xxx contextFilters:', contextFilters);
         return analytics.event('search_filters', 'FacetList', (isUnselecting ? 'Unset Filter' : 'Set Filter'), null, {
             'field_key'     : field,
             'term_key'      : termKey,

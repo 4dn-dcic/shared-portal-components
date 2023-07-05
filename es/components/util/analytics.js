@@ -397,6 +397,9 @@ export function eventObjectFromCtx(context) {
  * @param {string} [parameters.name] -
  * @param {string} [parameters.list_name] -
  * @param {string} [parameters.user_uuid] -
+ * @param {string} [parameters.lab] -
+ * @param {string} [parameters.file_type] -
+ * @param {string} [parameters.file_classification] -
  */
 export function event(name, source, action, callback) {
   var parameters = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : {};

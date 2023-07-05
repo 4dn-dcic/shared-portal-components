@@ -797,7 +797,6 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
       var termKey = term.key;
       var statusAndHref = getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters(term, facet, contextFilters);
       var isUnselecting = !!statusAndHref.href;
-      console.log('xxx contextFilters:', contextFilters);
       return analytics.event('search_filters', 'FacetList', isUnselecting ? 'Unset Filter' : 'Set Filter', null, {
         'field_key': field,
         'term_key': termKey,
