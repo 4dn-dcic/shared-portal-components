@@ -60,20 +60,6 @@ const defaultOptions = {
         }
         return prodItem;
     },
-    // Google Analytics allows custom dimensions to be sent along w/ events, however they are named incrementally w/o customization.
-    // Here we track own keywords/keys and transform to Google-Analytics incremented keys.
-    "dimensionNameMap" : {
-        "currentFilters"    : 1,
-        "name"              : 2,
-        "field"             : 3,
-        "term"              : 4,
-        "experimentType"    : 5,
-        "userGroups"        : 6
-    },
-    "metricNameMap" : {
-        "filesize"          : 1,
-        "downloads"         : 2
-    },
     "anonymizeTypes"     : ["User"],
     "excludeAdminTrackingOnHostnames" : ["data.4dnucleome.org"],
     "reduxStore" : null
