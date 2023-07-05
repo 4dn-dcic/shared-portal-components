@@ -138,7 +138,7 @@ export function initializeGoogleAnalytics(trackingID = null, appOptions = {}){
     };
 
     gtag('js', new Date());
-    gtag('config', trackingID, { 'debug_mode': true, 'send_page_view': false });
+    gtag('config', trackingID);
 
     state = _.clone(options);
     // TODO check localStorage for device-scoped 'do not track' flag, set state.enabled=false
