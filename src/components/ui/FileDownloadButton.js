@@ -111,8 +111,8 @@ export const ViewFileButton = React.memo(function ViewFileButton(props){
     }
 
     function onClick(evt){
-        const evtObj = { event_label: filename };
-        trackEvent("ViewFileButton", "Clicked", evtObj);
+        const evtObj = { name: filename, file_size: size || 0 };
+        trackEvent("view_file", "ViewFileButton", "Clicked To " + action, null, evtObj);
         if (typeof propClick === "function"){
             propClick();
         }

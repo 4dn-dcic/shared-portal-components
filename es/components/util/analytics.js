@@ -278,12 +278,9 @@ export function registerPageView() {
     return false;
   }
   lastRegisteredPageViewRealPathNameAndSearch = parts.pathname + parts.search;
-  // ga4('set', 'page', adjustedPathName); // Set it as current page
-  // if (shouldAnonymize(itemType)){ // Override page title
-  //     pageViewObject.title = ctxAccession || ctxUUID || "[Anonymized Title]";
-  // }
   pageViewObject.page_title = adjustedPathName; // Don't need to do re: 'set' 'page', but redundant for safety.
   pageViewObject.page_location = url.resolve(href, adjustedPathName);
+  pageViewObject.value = code;
   pageViewObject.event_callback = function () {
     console.info('Successfuly sent page_view event.', adjustedPathName, pageViewObject);
   };
@@ -315,17 +312,7 @@ export function registerPageView() {
       });
     }
   })();
-  // if(items && Array.isArray(items) && items.length > 0){
-  //     pageViewObject['items'] = items;
-  // }
-
   ga4('event', 'page_view', pageViewObject);
-  if (code === 403) {
-    // HTTPForbidden Access Denied - save original URL
-    event("Navigation", "HTTPForbidden", {
-      event_label: parts.pathname
-    });
-  }
   return true;
 }
 export function eventObjectFromCtx(context) {
@@ -359,11 +346,11 @@ export function eventObjectFromCtx(context) {
  * Primarily for UI interaction events.
  *
  * Rough Guidelines:
- * - For category, try to use name of React Component by which are grouping events by.
+ * - For source, try to use name of React Component by which are grouping events by.
  * - For action, try to standardize name to existing ones (search through files for instances of `analytics.event(`).
  *   - For example, "Set Filter", "Unset Filter" for UI interactions which change one or more filters (even if multiple, use '.. Filter')
- * - For fields.event_label, try to standardize similarly to action.
- * - For fields.event_value - do whatever makes sense I guess. Perhaps time vector from previous interaction.
+ * - For parameters.name, try to standardize similarly to action.
+ * - For parameters.value - do whatever makes sense I guess. Perhaps time vector from previous interaction.
  *
  * @see eventLabelFromChartNode()
  *
@@ -423,11 +410,16 @@ export function productClick(item) {
     return true;
   }
   context = context || state.reduxStore && state.reduxStore.getState().context || null;
-  var pObj = _.extend(itemToProductTransform(item), extraData);
+  var pObj = itemToProductTransform(item);
   var href = extraData.href || window.location.href;
-  var eventObj = eventObjectFromCtx(context);
-  if (!pObj.item_list_name) {
-    pObj.item_list_name = hrefToListName(href);
+  var eventObj = _.extend(eventObjectFromCtx(context), extraData);
+  eventObj.name = pObj.item_name;
+  eventObj.list_name = eventObj.list_name || hrefToListName(href);
+  if (pObj.item_brand) {
+    eventObj.lab = pObj.item_brand;
+  }
+  if (pObj.experiment_type) {
+    eventObj.experiment_type = pObj.experiment_type;
   }
   var callbackFunc = function callbackFunc() {
     console.info('Successfully sent product click event.', eventObj, pObj);
@@ -436,10 +428,6 @@ export function productClick(item) {
     }
   };
   var source = eventObj.filters ? 'Search Result Link' : 'Product List Link';
-  event('view_item', source, 'Click', null, {
-    list_name: pObj.item_list_name,
-    items: [pObj]
-  });
   event('item_click', source, 'Click', callbackFunc, eventObj);
   return true;
 }
