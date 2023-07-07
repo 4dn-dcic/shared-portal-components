@@ -305,8 +305,6 @@ export function registerPageView() {
       // We got an Item view, lets track some details about it.
       var productObj = itemToProductTransform(context);
       console.info("Item Page View (probably). Will track as product:", productObj);
-
-      //ga2('event', 'view_item', { items: [productObj] });
       event("view_item", "RegisterPageView", "Item View", null, {
         items: [productObj]
       });
@@ -653,11 +651,6 @@ export function impressionListOfItems(itemList) {
   var commonProductObj = {
     "item_list_name": listName || href && hrefToListName(href)
   };
-
-  // if (context && context.filters) {
-  //     commonProductObj["filters"] = getStringifiedCurrentFilters(context.filters);
-  // }
-
   var resultsImpressioned = itemList.filter(function (item) {
     // Ensure we have permissions, can get product SKU, etc.
     var display_title = item.display_title,

@@ -288,7 +288,6 @@ export function registerPageView(href = null, context = null){
             const productObj = itemToProductTransform(context);
             console.info("Item Page View (probably). Will track as product:", productObj);
 
-            //ga2('event', 'view_item', { items: [productObj] });
             event("view_item", "RegisterPageView", "Item View", null, { items: [productObj] });
         }
     }
@@ -304,7 +303,6 @@ export function registerPageView(href = null, context = null){
 
     lastRegisteredPageViewRealPathNameAndSearch = parts.pathname + parts.search;
 
-
     pageViewObject.page_title = adjustedPathName; // Don't need to do re: 'set' 'page', but redundant for safety.
     pageViewObject.page_location = url.resolve(href, adjustedPathName);
     pageViewObject.value = code;
@@ -312,7 +310,6 @@ export function registerPageView(href = null, context = null){
         console.info('Successfuly sent page_view event.', adjustedPathName, pageViewObject);
     };
     registerProductView();
-
 
     ga4('event', 'page_view', pageViewObject);
 
@@ -659,10 +656,6 @@ export function impressionListOfItems(itemList, href = null, listName = null, co
     href = href || window.location.href;
 
     const commonProductObj = { "item_list_name" : listName || (href && hrefToListName(href)) };
-
-    // if (context && context.filters) {
-    //     commonProductObj["filters"] = getStringifiedCurrentFilters(context.filters);
-    // }
 
     const resultsImpressioned = itemList.filter(function(item){
         // Ensure we have permissions, can get product SKU, etc.
