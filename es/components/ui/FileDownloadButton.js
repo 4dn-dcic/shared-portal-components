@@ -137,10 +137,12 @@ export var ViewFileButton = /*#__PURE__*/React.memo(function (props) {
   }
   var cls = "btn" + (size ? " btn-" + size : "") + (className ? " " + className : "") + (" btn-" + (bsStyle || variant || "primary"));
   var btnProps = _objectSpread(_objectSpread({}, passProps), {}, {
-    onClick: function () {
-      event("ViewFileButton", "Clicked", {
-        eventLabel: filename
-      });
+    onClick: function onClick(evt) {
+      var evtObj = {
+        name: filename,
+        file_size: size || 0
+      };
+      trackEvent("view_file", "ViewFileButton", "Clicked To " + action, null, evtObj);
       if (typeof propClick === "function") {
         propClick();
       }
