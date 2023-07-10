@@ -56,7 +56,7 @@
         "react-transition-group": ">=4.4.1",
         "underscore": ">=1.9.1",
         "utf-8-validate": "^5.0.9"
-},
+    },
     "dependencies": {
         "@sentry/react": "^7.35.0",
         "@sentry/tracing": "^7.35.0",
