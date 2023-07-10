@@ -91,7 +91,8 @@ export var SearchView = /*#__PURE__*/function (_React$PureComponent) {
         columnExtensionMap = _this$props$columnExt === void 0 ? basicColumnExtensionMap : _this$props$columnExt,
         placeholderReplacementFxn = _this$props.placeholderReplacementFxn,
         keepSelectionInStorage = _this$props.keepSelectionInStorage,
-        searchViewHeader = _this$props.searchViewHeader,
+        _this$props$searchVie = _this$props.searchViewHeader,
+        searchViewHeader = _this$props$searchVie === void 0 ? null : _this$props$searchVie,
         windowWidth = _this$props.windowWidth,
         hideFacets = _this$props.hideFacets,
         passProps = _objectWithoutProperties(_this$props, _excluded);

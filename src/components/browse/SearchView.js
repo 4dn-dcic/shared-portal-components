@@ -116,7 +116,7 @@ export class SearchView extends React.PureComponent {
             columnExtensionMap = basicColumnExtensionMap,
             placeholderReplacementFxn,
             keepSelectionInStorage,
-            searchViewHeader,
+            searchViewHeader = null,
             //isOwnPage = true,
             windowWidth,
             hideFacets,
