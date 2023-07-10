@@ -13,7 +13,6 @@ import { generateNextHref } from './FacetList';
 import { SearchResponse, Item, ColumnDefinition, URLParts } from './../../util/typedefs';
 
 
-
 /**
  * Accepts and parses the `href` from Redux / App.
  * Passes `href` downstream to descendant components,
@@ -21,6 +20,20 @@ import { SearchResponse, Item, ColumnDefinition, URLParts } from './../../util/t
  * navigate to new href.
  */
 export class WindowNavigationController extends React.PureComponent {
+
+    /**
+     * @param {String[]} facets - facets array
+     * @param {function} filterFacetFxn - filtering function
+     */
+    static transformedFacets(facets, filterFacetFxn){
+        if (typeof filterFacetFxn !== "function"){
+            return facets;
+        }
+        if (!Array.isArray(facets)) {
+            return []; // ? probably to-do if no facets: add placeholder saying no facets ?
+        }
+        return facets.filter(filterFacetFxn);
+    }
 
     static isClearFiltersBtnVisible(href, context){
         const urlPartsQuery = url.parse(href, true).query || {};
@@ -37,6 +50,7 @@ export class WindowNavigationController extends React.PureComponent {
         this.onClearFilters = this.onClearFilters.bind(this);
         this.getTermStatus = this.getTermStatus.bind(this);
         this.memoized = {
+            transformedFacets: memoize(WindowNavigationController.transformedFacets),
             isClearFiltersBtnVisible: memoize(WindowNavigationController.isClearFiltersBtnVisible)
         };
     }
@@ -116,6 +130,8 @@ export class WindowNavigationController extends React.PureComponent {
     render(){
         const {
             children,
+            filterFacetFxn,
+            facets: propFacets, // `null` has special meaning for `facets` (hidden) so do not default to it here.
             showClearFiltersButton: propShowClearFiltersBtn,
             ...passProps
         } = this.props;
@@ -123,8 +139,12 @@ export class WindowNavigationController extends React.PureComponent {
         const showClearFiltersButton = typeof propShowClearFiltersBtn === "boolean" ?
             propShowClearFiltersBtn : this.memoized.isClearFiltersBtnVisible(href, context || {});
 
+        // Allow facets=null to mean no facets shown. facets=undefined means to default to context.facets.
+        const facets = (propFacets === null) ? null :
+            WindowNavigationController.transformedFacets(propFacets || (context && context.facets) || null, filterFacetFxn);
+
         const propsToPass = {
-            ...passProps,
+            ...passProps, facets,
             showClearFiltersButton,
             onFilter: this.onFilter,
             onFilterMultiple: this.onFilterMultiple,

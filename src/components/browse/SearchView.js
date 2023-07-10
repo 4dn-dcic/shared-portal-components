@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
+import memoize from 'memoize-one';
 import ReactTooltip from 'react-tooltip';
 import { navigate } from './../util/navigate';
 import { isSelectAction } from './../util/misc';
@@ -41,6 +42,8 @@ export class SearchView extends React.PureComponent {
         'schemas'       : PropTypes.object,
         'placeholderReplacementFxn' : PropTypes.func, // Passed down to AboveSearchTablePanel StaticSection
         'keepSelectionInStorage': PropTypes.bool,
+        'searchViewHeader': PropTypes.element,
+        'hideFacets' : PropTypes.arrayOf(PropTypes.string),
     };
 
     /**
@@ -60,10 +63,37 @@ export class SearchView extends React.PureComponent {
         'separateSingleTermFacets' : true,
         'isOwnPage'     : true,
         'keepSelectionInStorage': false,
+        'hideFacets': [],
     };
+
+
+    static listToObj(hideFacetStrs){
+        const obj = {};
+        hideFacetStrs.forEach((str) => obj[str] = str + "!");
+        // return  hideFacetStrs.concat(hideFacetStrs.map(function(facetStr){
+        //     return facetStr + "!";
+        // }));
+        return obj;
+    }
+
+    constructor(props) {
+        super(props);
+        this.filterFacetFxn = this.filterFacetFxn.bind(this);
+        this.memoized = {
+            listToObj: memoize(SearchView.listToObj)
+        };
+    }
 
     componentDidMount(){
         ReactTooltip.rebuild();
+    }
+
+    filterFacetFxn(facet){
+        const { hideFacets = null } = this.props;
+        if (!hideFacets) return true;
+        const idMap = this.memoized.listToObj(hideFacets);
+        if (idMap[facet.field]) return false;
+        return true;
     }
 
     /**
@@ -83,8 +113,10 @@ export class SearchView extends React.PureComponent {
             columnExtensionMap = basicColumnExtensionMap,
             placeholderReplacementFxn,
             keepSelectionInStorage,
+            searchViewHeader = null,
             //isOwnPage = true,
             windowWidth,
+            hideFacets,
             ...passProps
         } = this.props;
 
@@ -106,10 +138,11 @@ export class SearchView extends React.PureComponent {
         };
 
         let controllersAndView = (
-            <WindowNavigationController {...{ href, context, showClearFiltersButton }} navigate={propNavigate}>
+            <WindowNavigationController filterFacetFxn={this.filterFacetFxn} {...{ href, context, showClearFiltersButton, hideFacets }} navigate={propNavigate}>
                 <ColumnCombiner {...{ columns, columnExtensionMap }}>
                     <CustomColumnController>
                         <SortController>
+                            { searchViewHeader }
                             <ControlsAndResults {...childViewProps} />
                         </SortController>
                     </CustomColumnController>
