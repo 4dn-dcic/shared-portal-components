@@ -59,10 +59,8 @@ export var SearchView = /*#__PURE__*/function (_React$PureComponent) {
     value: function filterFacetFxn(facet) {
       var _this$props$hideFacet = this.props.hideFacets,
         hideFacets = _this$props$hideFacet === void 0 ? null : _this$props$hideFacet;
-      console.log("idMap hideFacets", hideFacets);
       if (!hideFacets) return true;
       var idMap = this.memoized.listToObj(hideFacets);
-      console.log("idMap", idMap);
       if (idMap[facet.field]) return false;
       return true;
     }
@@ -151,7 +149,6 @@ export var SearchView = /*#__PURE__*/function (_React$PureComponent) {
       hideFacetStrs.forEach(function (str) {
         return obj[str] = str + "!";
       });
-      // console.log("idMap hideFacetStrs", hideFacetStrs);
       // return  hideFacetStrs.concat(hideFacetStrs.map(function(facetStr){
       //     return facetStr + "!";
       // }));

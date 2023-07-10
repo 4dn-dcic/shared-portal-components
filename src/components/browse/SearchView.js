@@ -70,7 +70,6 @@ export class SearchView extends React.PureComponent {
     static listToObj(hideFacetStrs){
         const obj = {};
         hideFacetStrs.forEach((str) => obj[str] = str + "!");
-        // console.log("idMap hideFacetStrs", hideFacetStrs);
         // return  hideFacetStrs.concat(hideFacetStrs.map(function(facetStr){
         //     return facetStr + "!";
         // }));
@@ -91,10 +90,8 @@ export class SearchView extends React.PureComponent {
 
     filterFacetFxn(facet){
         const { hideFacets = null } = this.props;
-        console.log("idMap hideFacets", hideFacets);
         if (!hideFacets) return true;
         const idMap = this.memoized.listToObj(hideFacets);
-        console.log("idMap", idMap);
         if (idMap[facet.field]) return false;
         return true;
     }
