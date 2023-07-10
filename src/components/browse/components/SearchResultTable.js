@@ -127,11 +127,12 @@ class ResultDetail extends React.PureComponent{
             if (open && typeof setDetailHeight === 'function'){
                 this.setDetailHeightFromPane();
                 const { display_title } = result;
-                analytics.productAddDetailViewed(result, context, {
-                    "position": rowNumber,
-                    "list": !isOwnPage ? "Embedded Search View": analytics.hrefToListName(href)
+                analytics.event("view_item", "SearchResult DetailPane", "Opened", null, {
+                    items: analytics.transformItemsToProducts(result, { index: rowNumber }),
+                    filters: context && context.filters && analytics.getStringifiedCurrentFilters(context.filters),
+                    list_name: !isOwnPage ? "Embedded Search View": analytics.hrefToListName(href),
+                    name: display_title
                 });
-                analytics.event("SearchResult DetailPane", "Opened", { eventLabel: display_title });
 
             } else if (!open && typeof setDetailHeight === 'function') {
                 setDetailHeight(null); // Unset back to default (rowHeight)
@@ -499,12 +500,16 @@ class LoadMoreAsYouScroll extends React.Component {
                     });
                 } else {
                     this.setState({ 'isLoading' : false }, ()=>{
-                        analytics.impressionListOfItems(
+                        const impressionedItems = analytics.impressionListOfItems(
                             nextResults,
                             nextHref || window.location.href,
                             isOwnPage ? analytics.hrefToListName(nextHref) : "Embedded Search View"
                         );
-                        analytics.event('SearchResultTable', "Loaded More Results", { eventValue: nextFromValue });
+                        analytics.event("view_item_list", "SearchResultTable", "Loaded More Results", null, {
+                            items: impressionedItems,
+                            value: nextFromValue,
+                            filters: analytics.getStringifiedCurrentFilters((resp && resp.filters) || null)
+                        });
                         setResults(existingResults.slice(0).concat(nextResults));
                     });
                 }
