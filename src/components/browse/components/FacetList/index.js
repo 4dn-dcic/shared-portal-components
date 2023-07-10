@@ -411,13 +411,11 @@ export class FacetList extends React.PureComponent {
         const statusAndHref = getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters(term, facet, contextFilters);
         const isUnselecting = !!(statusAndHref.href);
 
-        return analytics.event('FacetList', (isUnselecting ? 'Unset Filter' : 'Set Filter'), {
-            field,
-            'term'              : termKey,
-            'eventLabel'        : analytics.eventLabelFromChartNode({ field, 'term' : termKey }),
-            'currentFilters'    : analytics.getStringifiedCurrentFilters(
-                contextFiltersToExpSetFilters(contextFilters || null)
-            ), // 'Existing' filters, or filters at time of action, go here.
+        return analytics.event('search_filters', 'FacetList', (isUnselecting ? 'Unset Filter' : 'Set Filter'), null, {
+            'field_key'     : field,
+            'term_key'      : termKey,
+            'name'          : analytics.eventLabelFromChartNode({ field, 'term' : termKey }),
+            'filters'       : analytics.getStringifiedCurrentFilters(contextFilters || null), // 'Existing' filters, or filters at time of action, go here.
         });
     }
 
