@@ -34,6 +34,7 @@
         "gulp": "^4.0.2",
         "jest-cli": "^27.1.0",
         "plugin-error": "^1.0.1",
+        "process": "^0.11.10",
         "sass": "^1.49.9",
         "sinon": "^13.0.1",
         "source-map-support": "^0.5.19",
