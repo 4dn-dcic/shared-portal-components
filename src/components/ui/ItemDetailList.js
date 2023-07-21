@@ -438,10 +438,21 @@ class SubItemTable extends React.Component {
                         };
                     }
                 }
-                if (Array.isArray(value)){
+                if (Array.isArray(value)) {
                     if (_.all(value, function(v){ return typeof v === 'string'; })){
                         return { 'value' : value.map(function(v){ return termTransformFxn(colKey, v); }).join(', '), 'key' : colKey };
                     }
+                    /**
+                     * Catch the case where the childKeys array is not provided in colKeyContainer. This means they are objects,
+                     * and the colKeyContainer contains one field called "key", which, in the case of the secondary file
+                     * formats, says "secondary_file_formats"
+                     */
+                    if (_.any(value, function(v){ return typeof v === 'object' && v; }) && colKeyContainer.childKeys == null) {
+                        const links = value.map((link, i) => (<span key={i}><a href={itemUtil.atId(link)}>{ link.display_title }</a></span>));
+                        return { 'value' : <div className="d-flex flex-column">{links}</div>, 'key' : colKey };
+                    }
+
+
                     if (_.any(value, function(v){ return typeof v === 'object' && v; }) && Array.isArray(colKeyContainer.childKeys)){ // Embedded list of objects.
                         const allKeys = colKeyContainer.childKeys; //_.keys(  _.reduce(value, function(m,v){ return _.extend(m,v); }, {})   );
                         return {
