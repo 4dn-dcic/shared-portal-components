@@ -13,7 +13,7 @@ import * as JWT from './json-web-token';
 const defaultOptions = {
     "enabled"                 : true,
     "isAnalyticsScriptOnPage" : true,
-    "enhancedEcommercePlugin" : true,
+    "trackCrossSessions"      : true,
     "itemToProductTransform"  : function(item){
         // 4DN-specific, override from own data model.
         const {
@@ -387,12 +387,22 @@ export function event(name, source, action, callback, parameters = {}, useTimeou
 }
 
 export function setUserID(userUUID){
-    // if (!shouldTrack()) {
-    //     return false;
-    // }
-    // ga4('set', 'userId', userUUID);
-    // console.info("Set analytics user id to", userUUID);
-    // return true;
+    if (!shouldTrack()) {
+        return false;
+    }
+
+    if (!state || state.trackCrossSessions !== true) {
+        return false;
+    }
+
+    if (userUUID) {
+        document.cookie = "crossSessionTrackingId=" + userUUID + "; path=/";
+    } else {
+        document.cookie = "crossSessionTrackingId=;max-age=0";
+    }
+
+    console.info("Set analytics cross-session id to", userUUID);
+    return true;
 }
 
 
