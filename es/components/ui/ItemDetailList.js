@@ -199,6 +199,28 @@ var SubItemTable = /*#__PURE__*/function (_React$Component) {
                 'key': colKey
               };
             }
+            /**
+             * Catch the case where the childKeys array is not provided in colKeyContainer. This means they are objects,
+             * and the colKeyContainer contains one field called "key", which, in the case of the secondary file
+             * formats, says "secondary_file_formats"
+             */
+            if (_.any(value, function (v) {
+              return _typeof(v) === 'object' && v;
+            }) && colKeyContainer.childKeys == null) {
+              var links = value.map(function (link, i) {
+                return /*#__PURE__*/React.createElement("span", {
+                  key: i
+                }, /*#__PURE__*/React.createElement("a", {
+                  href: itemUtil.atId(link)
+                }, link.display_title));
+              });
+              return {
+                'value': /*#__PURE__*/React.createElement("div", {
+                  className: "d-flex flex-column"
+                }, links),
+                'key': colKey
+              };
+            }
             if (_.any(value, function (v) {
               return _typeof(v) === 'object' && v;
             }) && Array.isArray(colKeyContainer.childKeys)) {
