@@ -39,10 +39,12 @@ const defaultOptions = {
             from_experiment_set && from_experiment_set.lab && from_experiment_set.lab.display_title
         ) || null;
 
+        const categories = Array.isArray(itemType) ? itemType.slice().reverse().slice(1) : [];
         const prodItem = {
             'item_id': itemID || itemUUID,
             'item_name': display_title || title || null,
-            'item_category': Array.isArray(itemType) ? itemType.slice().reverse().slice(1).join('/') : "Unknown",
+            'item_category': categories.length >= 1 ? categories[0] : "Unknown",
+            'item_category2': categories.length >= 2 ? categories[1] : "Unknown",
             'item_brand': labTitle
         };
         if (typeof file_type_detailed === "string"){ // We set file format as "variant"
@@ -413,15 +415,10 @@ export function productClick(item, extraData = {}, callback = null, context = nu
     }
     context = context || (state.reduxStore && state.reduxStore.getState().context) || null;
     const pObj = itemToProductTransform(item);
-    const href = extraData.href || window.location.href;
     const eventObj = _.extend(eventObjectFromCtx(context), extraData);
-    eventObj.name = pObj.item_name;
-    eventObj.list_name = eventObj.list_name || hrefToListName(href);
-    if (pObj.item_brand) { eventObj.lab = pObj.item_brand; }
-    if (pObj.experiment_type) { eventObj.experiment_type = pObj.experiment_type; }
 
     const callbackFunc = function () {
-        console.info('Successfully sent product click event.', eventObj, pObj);
+        console.info('Successfully sent product click event.', pObj);
         if (typeof callback === 'function') {
             callback();
         }
@@ -429,7 +426,7 @@ export function productClick(item, extraData = {}, callback = null, context = nu
 
     const source = eventObj.filters ? 'Search Result Link' : 'Product List Link';
 
-    event('item_click', source, 'Click', callbackFunc, eventObj);
+    event('select_item', source, 'Click', callbackFunc, { items: [pObj] });
 
     return true;
 }
