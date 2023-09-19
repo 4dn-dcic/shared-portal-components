@@ -331,6 +331,7 @@ export function deepClone(obj) {
   return JSON.parse(JSON.stringify(obj));
 }
 export function htmlToJSX(htmlString) {
+  var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
   var jsxOutput;
   var domPurifyInstance;
   if (isServerSide()) {
@@ -355,10 +356,11 @@ export function htmlToJSX(htmlString) {
     ADD_ATTR: ['target']
   });
   try {
-    jsxOutput = parseDOM(sanitizedHtmlString, {
+    var parseOptions = _.extend({}, options, {
       decodeEntities: true,
       lowerCaseAttributeNames: false
     });
+    jsxOutput = parseDOM(sanitizedHtmlString, parseOptions);
   } catch (e) {
     console.error('HTML parsing error', e);
     return /*#__PURE__*/React.createElement("div", {
@@ -370,6 +372,7 @@ export function htmlToJSX(htmlString) {
 
   return jsxOutput;
 }
+export { attributesToProps } from 'html-react-parser';
 
 /**
  * Calls _.isEqual, but sorts arrays so that order doesn't invalidate equality.

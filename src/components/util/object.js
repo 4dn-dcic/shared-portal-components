@@ -322,7 +322,7 @@ export function deepClone(obj){
 
 
 
-export function htmlToJSX(htmlString){
+export function htmlToJSX(htmlString, options = {}){
 
     let jsxOutput;
     let domPurifyInstance;
@@ -347,7 +347,8 @@ export function htmlToJSX(htmlString){
     const sanitizedHtmlString = domPurifyInstance.sanitize(htmlString, { FORBID_TAGS: ['script'], ADD_ATTR: ['target'] });
 
     try {
-        jsxOutput = parseDOM(sanitizedHtmlString, { decodeEntities: true, lowerCaseAttributeNames: false });
+        const parseOptions = _.extend({}, options, { decodeEntities: true, lowerCaseAttributeNames: false });
+        jsxOutput = parseDOM(sanitizedHtmlString, parseOptions);
     } catch (e) {
         console.error('HTML parsing error', e);
         return <div className="error">Parsing Error. Check your markup.</div>;
@@ -358,7 +359,7 @@ export function htmlToJSX(htmlString){
     return jsxOutput;
 }
 
-
+export { attributesToProps } from 'html-react-parser';
 
 
 /**
