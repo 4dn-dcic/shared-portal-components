@@ -203,15 +203,16 @@ export class VirtualHrefController extends React.PureComponent {
                 if (typeof existingContext === "undefined"){
                     // First time we've loaded response context. Register analytics event.
                     if (Array.isArray(initialResults)){
-                        analytics.impressionListOfItems(
+                        const impressionedItems = analytics.impressionListOfItems(
                             initialResults,
                             responseHref || "/compound_search",
                             "Embedded Search View"
                         );
-                        const evtObj = analytics.eventObjectFromCtx(existingContext);
-                        delete evtObj.name;
-                        evtObj.eventValue = initialResults.length;
-                        analytics.event("VirtualHrefController", "Initial Results Loaded", evtObj);
+                        analytics.event("view_item_list", "VirtualHrefController", "Initial Results Loaded", null, {
+                            items: impressionedItems,
+                            value: initialResults.length,
+                            filters: analytics.getStringifiedCurrentFilters((nextContext && nextContext.filters) || null)
+                        });
                     }
                 }
 
@@ -287,7 +288,7 @@ export class VirtualHrefController extends React.PureComponent {
         }
 
         if (filterObjs.length === 0) {
-            console.log("Attempted multi-filter, but no objects passed in!");
+            console.error("Attempted multi-filter, but no objects passed in!");
             return null;
         }
 

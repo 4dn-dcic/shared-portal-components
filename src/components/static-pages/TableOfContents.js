@@ -702,7 +702,9 @@ NextPreviousPageSection.defaultProps = {
 };
 
 
-/** @todo We can probably have this work with HTML-type content as well. */
+/**
+ * @todo need to rename it as StaticContentHeading (here and in 4DN-CGAP-SMaHT) since we started to use it for not only MD but all types of content
+ */
 export class MarkdownHeading extends React.PureComponent {
 
     static getAttributes(childrenParam){

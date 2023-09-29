@@ -322,7 +322,7 @@ export function deepClone(obj){
 
 
 
-export function htmlToJSX(htmlString){
+export function htmlToJSX(htmlString, options = {}){
 
     let jsxOutput;
     let domPurifyInstance;
@@ -334,10 +334,21 @@ export function htmlToJSX(htmlString){
         domPurifyInstance = createDOMPurify;
     }
 
-    const sanitizedHtmlString = domPurifyInstance.sanitize(htmlString, { FORBID_TAGS: ['script'] });
+    // https://github.com/cure53/DOMPurify/blob/main/demos/hooks-target-blank-demo.html
+    domPurifyInstance.addHook('afterSanitizeAttributes', function (node) {
+        // set all elements owning target to target=_blank
+        if (node && node.target && node.target !== "") {
+            node.setAttribute('target', '_blank');
+            // prevent https://www.owasp.org/index.php/Reverse_Tabnabbing
+            node.setAttribute('rel', 'noopener noreferrer');
+        }
+    });
+
+    const sanitizedHtmlString = domPurifyInstance.sanitize(htmlString, { FORBID_TAGS: ['script'], ADD_ATTR: ['target'] });
 
     try {
-        jsxOutput = parseDOM(sanitizedHtmlString, { decodeEntities: true, lowerCaseAttributeNames: false });
+        const parseOptions = _.extend({}, options, { decodeEntities: true, lowerCaseAttributeNames: false });
+        jsxOutput = parseDOM(sanitizedHtmlString, parseOptions);
     } catch (e) {
         console.error('HTML parsing error', e);
         return <div className="error">Parsing Error. Check your markup.</div>;
@@ -348,7 +359,7 @@ export function htmlToJSX(htmlString){
     return jsxOutput;
 }
 
-
+export { attributesToProps } from 'html-react-parser';
 
 
 /**
@@ -628,25 +639,24 @@ export class CopyWrapper extends React.PureComponent {
     }
 
     render(){
-        const { value, children, mounted, wrapperElement, iconProps, includeIcon, className } = this.props;
+        const { value, children, mounted, wrapperElement, iconProps, includeIcon, className, stopPropagation } = this.props;
         if (!value) return null;
 
         // eslint-disable-next-line react/destructuring-assignment
         const isMounted = (mounted || (this.state && this.state.mounted)) || false;
 
-        const copy = (e) =>
+        const copy = (e) => {
+            if (stopPropagation) {
+                e.stopPropagation();
+            }
+
             CopyWrapper.copyToClipboard(value, (v)=>{
                 this.onCopy();
-                analytics.event('CopyWrapper', 'Copy', {
-                    'eventLabel' : 'Value',
-                    'name' : v
-                });
+                analytics.event('copy_wrapper', 'CopyWrapper', 'Copy', null, { 'value' : v });
             }, (v)=>{
-                analytics.event('CopyWrapper', 'ERROR', {
-                    'eventLabel' : 'Unable to copy value',
-                    'name' : v
-                });
+                analytics.event('copy_wrapper', 'CopyWrapper', 'ERROR', null, { 'value' : v });
             });
+        };
 
         const elemsToWrap = [];
         if (children)                   elemsToWrap.push(children);

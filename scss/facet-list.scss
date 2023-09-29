@@ -23,6 +23,22 @@ $facetlist-term-block-height: default !default;
     }
     */
 
+    .facets-controls {
+        margin-left: -1px;
+        margin-right: -1px;
+        background-color: #f0f0f0;
+        border-bottom-color: #f0f0f0;
+
+        .properties-controls {
+            gap: 5px;
+
+            > button {
+                flex: 1;
+                border-radius: 3px;
+            }
+        }
+    }
+
     .facets-header {
         //padding-top: ($grid-gutter-width / 2);
         //padding-bottom: ($grid-gutter-width / 2);
@@ -41,48 +57,24 @@ $facetlist-term-block-height: default !default;
                 color: inherit;
                 display: inline;
             }
-        }
 
-        .btn-group.properties-controls {
-            > button {
-                padding-top: 0.2rem;
-                padding-bottom: 0.1rem;
-                padding-left: 0.35rem;
-                padding-right: 0.35rem;
-            }
-        }
-
-        /*
-        .clear-filters-control {
-            text-align: right;
-            font-size: 0.9rem;
-            opacity: 1;
-            transition: opacity .25s;
-            position: relative;
-            display: flex;
-            align-items: center;
-
-            > a.clear-filters-btn {
-                border-color: #fff;
-                color: #fff;
-                display: flex;
-                align-items: center;
-                &:hover {
-                    background-color: #fff;
-                    color: #333;
+            >.icon-toggle {
+                >div button {
+                    color: #fff;
                 }
-                > i.icon {
-                    transform: none;
+
+                >div:last-child button {
+                    &.active {
+                        background-color: $facetlist-omitted-term-color;
+                        border: $facetlist-omitted-term-color;
+                        &:not(:disabled):not(.disabled):focus {
+                            box-shadow: 0 0 0 0.2rem rgba(154, 75, 75, 0.5);
+                        }
+                    }
                 }
             }
-
-            &.placeholder {
-                opacity : 0;
-                visibility: visible !important;
-                z-index: -10;
-            }
         }
-        */
+
         
     }
 
@@ -92,6 +84,10 @@ $facetlist-term-block-height: default !default;
     }
 
     &.with-header-bg .facets-header {
+        &[data-excluding="true"] {
+            background-color: $facetlist-excluding;
+        }
+        
         background-color: $primary-dark;
         border-bottom: none;
         color: #fff;
@@ -554,6 +550,10 @@ $facetlist-term-block-height: default !default;
                         text-overflow: ellipsis;
                         flex-grow: 1;
                         padding-left: 5px;
+
+                        &.facet-item-group-header {
+                            color: #3B3A3A;
+                        }
                     }
 
                     .facet-count {
@@ -572,7 +572,8 @@ $facetlist-term-block-height: default !default;
                     display: block;
                 }
 
-                &.selected > a {
+                &.selected > a,
+                &.selected > a .facet-item-group-header {
                     text-decoration: none;
                     color: #f8f8f8;
                     background-color: $facetlist-selected-term-color;
@@ -593,6 +594,9 @@ $facetlist-term-block-height: default !default;
                         .facet-item, .facet-count {
                             text-shadow: 0px 0px 0px #fff;
                         }
+                    }
+                    .facet-item-group-header {
+                        color: #f8f8f8;
                     }
                 }
             }

@@ -1,6 +1,5 @@
+import _objectWithoutProperties from "@babel/runtime/helpers/objectWithoutProperties";
 var _excluded = ["content", "content_as_html", "children", "filetype", "element", "markdownCompilerOptions", "placeholderReplacementFxn"];
-function _objectWithoutProperties(source, excluded) { if (source == null) return {}; var target = _objectWithoutPropertiesLoose(source, excluded); var key, i; if (Object.getOwnPropertySymbols) { var sourceSymbolKeys = Object.getOwnPropertySymbols(source); for (i = 0; i < sourceSymbolKeys.length; i++) { key = sourceSymbolKeys[i]; if (excluded.indexOf(key) >= 0) continue; if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue; target[key] = source[key]; } } return target; }
-function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; var sourceKeys = Object.keys(source); var key, i; for (i = 0; i < sourceKeys.length; i++) { key = sourceKeys[i]; if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } return target; }
 import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
@@ -15,9 +14,10 @@ export var BasicStaticSectionBody = /*#__PURE__*/React.memo(function (props) {
     markdownCompilerOptions = props.markdownCompilerOptions,
     placeholderReplacementFxn = props.placeholderReplacementFxn,
     passProps = _objectWithoutProperties(props, _excluded);
-  if (filetype === 'md' && typeof content === 'string') {
+  //In some cases, markdown to html conversion is handled by backend by assigning the content_as_html. For the rest, use markdown-to-jsx compiler.
+  if (filetype === 'md' && typeof content === 'string' && !content_as_html) {
     return /*#__PURE__*/React.createElement(element, passProps, compiler(content, markdownCompilerOptions || undefined));
-  } else if ((filetype === 'html' || filetype === 'rst') && (typeof content_as_html === 'string' || typeof content === 'string')) {
+  } else if ((filetype === 'html' || filetype === 'rst' || filetype === 'md') && (typeof content_as_html === 'string' || typeof content === 'string')) {
     return /*#__PURE__*/React.createElement(element, passProps, htmlToJSX(content_as_html || content));
   } else if (filetype === 'jsx' && typeof content === 'string') {
     return placeholderReplacementFxn(content.trim(), passProps);

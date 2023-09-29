@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 var _excluded = ["children"],
   _excluded2 = ["children"];
 function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
@@ -18,6 +19,22 @@ function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.g
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return _typeof(key) === "symbol" ? key : String(key); }
 function _toPrimitive(input, hint) { if (_typeof(input) !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (_typeof(res) !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
+=======
+import _objectWithoutProperties from "@babel/runtime/helpers/objectWithoutProperties";
+import _classCallCheck from "@babel/runtime/helpers/classCallCheck";
+import _createClass from "@babel/runtime/helpers/createClass";
+import _assertThisInitialized from "@babel/runtime/helpers/assertThisInitialized";
+import _inherits from "@babel/runtime/helpers/inherits";
+import _possibleConstructorReturn from "@babel/runtime/helpers/possibleConstructorReturn";
+import _getPrototypeOf from "@babel/runtime/helpers/getPrototypeOf";
+import _defineProperty from "@babel/runtime/helpers/defineProperty";
+var _excluded = ["children"],
+  _excluded2 = ["children"];
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
+>>>>>>> master
 import React from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
@@ -201,11 +218,17 @@ export var LoginController = /*#__PURE__*/function (_React$PureComponent) {
                 _profile$groups = profile.groups,
                 groups = _profile$groups === void 0 ? null : _profile$groups;
               setUserID(userId);
+<<<<<<< HEAD
               trackEvent('Authentication', 'UILogin', {
                 eventLabel: "Authenticated ClientSide",
                 name: userId,
                 userId: userId,
                 userGroups: groups && JSON.stringify(groups.sort())
+=======
+              trackEvent('login', 'UILogin', 'Authenticated ClientSide', null, {
+                user_uuid: userId,
+                user_groups: groups && JSON.stringify(groups.sort())
+>>>>>>> master
               });
 
               // Refresh the content/context of our page now that we have a JWT stored as a cookie!
@@ -245,7 +268,11 @@ export var LoginController = /*#__PURE__*/function (_React$PureComponent) {
       // First stage: we just have gotten JWT from the Auth0 widget but have not auth'd it against it our own system
       // to see if this is a valid user account or some random person who just logged into their Google account.
       var idToken = authResult.idToken;
+<<<<<<< HEAD
       console.log('calling auth0LoginCallback');
+=======
+
+>>>>>>> master
       // Server will ensure that we have a validly signed JWT token/cookie and that the user account exists in system.
       this.validateCookieAndObtainAdditionalUserInfo(idToken, null, function (error) {
         console.error(error);
@@ -428,9 +455,8 @@ export function performLogout() {
     return response;
   }).then(function (auth0LogoutResponse) {
     console.log("Logged out", auth0LogoutResponse);
-    trackEvent('Authentication', 'UILogout', {
-      eventLabel: "Logged Out ClientSide",
-      userId: uuid
+    trackEvent('logout', 'UILogout', 'Logged Out ClientSide', null, {
+      user_uuid: uuid
     });
   });
 }
