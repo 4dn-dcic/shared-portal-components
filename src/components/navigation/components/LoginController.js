@@ -9,6 +9,7 @@ import * as JWT from './../../util/json-web-token';
 import { navigate } from './../../util/navigate';
 import { load, fetch, promise as ajaxPromise } from './../../util/ajax';
 import { event as trackEvent, setUserID } from './../../util/analytics';
+import { memoizedUrlParse } from './../../util/misc';
 import * as logger from '../../util/logger';
 
 
@@ -24,7 +25,8 @@ export class LoginController extends React.PureComponent {
         'updateAppSessionState' : PropTypes.func.isRequired,
         'id'                  : PropTypes.string,
         'auth0Options'        : PropTypes.object,
-        'children'            : PropTypes.node.isRequired
+        'children'            : PropTypes.node.isRequired,
+        'href'                : PropTypes.string
     };
 
     static defaultProps = {
@@ -79,7 +81,7 @@ export class LoginController extends React.PureComponent {
     }
 
     componentDidMount() {
-        const { auth0Options: auth0OptionsFallback } = this.props;
+        const { auth0Options: auth0OptionsFallback, href } = this.props;
         const { isAuth0LibraryLoaded } = this.state;
         ajaxPromise("/auth0_config").then(({ auth0Client, auth0Domain, auth0Options }) => {
 
@@ -94,33 +96,68 @@ export class LoginController extends React.PureComponent {
             // appearing on page load)
             const options = { ...auth0OptionsFallback, ...auth0Options };
 
-            const createLock = () => {
-                this.lock = new Auth0Lock(auth0Client, auth0Domain, options);
-                this.lock.on("authenticated", this.auth0LoginCallback);
-                setTimeout(()=>{
-                    this.setState({ "isAuth0LibraryLoaded": true });
-                }, 200);
-            };
-
-            if (!isAuth0LibraryLoaded) {
-                // prefetch & preload enabled here since is likely that user might want to click Login very quickly after loading webpage.
-                import(
-                    /* webpackChunkName: "auth0-lock-bundle" */
-                    /* webpackMode: "lazy" */
-                    /* webpackPrefetch: true */
-                    /* webpackPreload: true */
-                    "auth0-lock"
-                ).then(({ default: Auth0LockImport })=>{
-                    Auth0Lock = Auth0LockImport;
-                    // As of 9.11.0, auth0-js (dependency of Auth0Lock) cannot work outside of browser context.
-                    // We import it here in separate bundle instead to avoid issues during server-side render.
-                    createLock();
+            if(auth0Domain.indexOf('auth0') != -1){
+                const createLock = () => {
+                    this.lock = new Auth0Lock(auth0Client, auth0Domain, options);
+                    this.lock.on("authenticated", this.auth0LoginCallback);
                     setTimeout(()=>{
                         this.setState({ "isAuth0LibraryLoaded": true });
                     }, 200);
-                });
+                };
+
+                if (!isAuth0LibraryLoaded) {
+                    // prefetch & preload enabled here since is likely that user might want to click Login very quickly after loading webpage.
+                    import(
+                        /* webpackChunkName: "auth0-lock-bundle" */
+                        /* webpackMode: "lazy" */
+                        /* webpackPrefetch: true */
+                        /* webpackPreload: true */
+                        "auth0-lock"
+                    ).then(({ default: Auth0LockImport })=>{
+                        Auth0Lock = Auth0LockImport;
+                        // As of 9.11.0, auth0-js (dependency of Auth0Lock) cannot work outside of browser context.
+                        // We import it here in separate bundle instead to avoid issues during server-side render.
+                        createLock();
+                        setTimeout(()=>{
+                            this.setState({ "isAuth0LibraryLoaded": true });
+                        }, 200);
+                    });
+                } else {
+                    createLock();
+                }
+            } else if (auth0Domain.indexOf('nih.gov') != -1) {
+                // RAS authentication
+                this.lock = {
+                    show: () => {
+                        const hrefParts = (href && memoizedUrlParse(href)) || null;
+                        const host = hrefParts && (
+                            (hrefParts.protocol || '') +
+                            (hrefParts.hostname ? '//' +  hrefParts.hostname + (hrefParts.port ? ':' + hrefParts.port : '') : '')
+                        );
+
+                        const callbackUrl = host + '/callback';
+                        const authenticationUrl = `${auth0Domain}/auth/oauth/v2/authorize?client_id=${auth0Client}&prompt=login+consent&redirect_uri=${callbackUrl}&response_type=code&scope=openid+profile+email+ga4gh_passport_v1`;
+                        this.setState({ "isLoading": true },
+                            () => setTimeout(
+                                () => window.location.replace(authenticationUrl)
+                                , 1000));
+                    }
+                };
+                // However Auth0 libraries are never imported in RAS implementation,
+                // isAuth0LibraryLoaded is set for compatibility
+                setTimeout(() => {
+                    this.setState({ "isAuth0LibraryLoaded": true });
+                }, 200);
             } else {
-                createLock();
+                // fallback
+                this.lock = {
+                    show: () => {
+                        console.error('Non-supported authentication type: ' + auth0Domain);
+                    }
+                };
+                setTimeout(() => {
+                    this.setState({ "isAuth0LibraryLoaded": true });
+                }, 200);
             }
         });
     }

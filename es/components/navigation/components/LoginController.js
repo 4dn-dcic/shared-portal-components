@@ -22,6 +22,7 @@ import * as JWT from './../../util/json-web-token';
 import { navigate } from './../../util/navigate';
 import { load, fetch, promise as ajaxPromise } from './../../util/ajax';
 import { event as trackEvent, setUserID } from './../../util/analytics';
+import { memoizedUrlParse } from './../../util/misc';
 import * as logger from '../../util/logger';
 
 /** Imported in componentDidMount. */
@@ -60,7 +61,9 @@ export var LoginController = /*#__PURE__*/function (_React$PureComponent) {
     key: "componentDidMount",
     value: function componentDidMount() {
       var _this2 = this;
-      var auth0OptionsFallback = this.props.auth0Options;
+      var _this$props = this.props,
+        auth0OptionsFallback = _this$props.auth0Options,
+        href = _this$props.href;
       var isAuth0LibraryLoaded = this.state.isAuth0LibraryLoaded;
       ajaxPromise("/auth0_config").then(function (_ref) {
         var auth0Client = _ref.auth0Client,
@@ -76,35 +79,72 @@ export var LoginController = /*#__PURE__*/function (_React$PureComponent) {
         // but will remain necessary for container specification on CGAP to keep login modal from
         // appearing on page load)
         var options = _objectSpread(_objectSpread({}, auth0OptionsFallback), auth0Options);
-        var createLock = function () {
-          _this2.lock = new Auth0Lock(auth0Client, auth0Domain, options);
-          _this2.lock.on("authenticated", _this2.auth0LoginCallback);
-          setTimeout(function () {
-            _this2.setState({
-              "isAuth0LibraryLoaded": true
-            });
-          }, 200);
-        };
-        if (!isAuth0LibraryLoaded) {
-          // prefetch & preload enabled here since is likely that user might want to click Login very quickly after loading webpage.
-          import( /* webpackChunkName: "auth0-lock-bundle" */
-          /* webpackMode: "lazy" */
-          /* webpackPrefetch: true */
-          /* webpackPreload: true */
-          "auth0-lock").then(function (_ref2) {
-            var Auth0LockImport = _ref2["default"];
-            Auth0Lock = Auth0LockImport;
-            // As of 9.11.0, auth0-js (dependency of Auth0Lock) cannot work outside of browser context.
-            // We import it here in separate bundle instead to avoid issues during server-side render.
-            createLock();
+        if (auth0Domain.indexOf('auth0') != -1) {
+          var createLock = function () {
+            _this2.lock = new Auth0Lock(auth0Client, auth0Domain, options);
+            _this2.lock.on("authenticated", _this2.auth0LoginCallback);
             setTimeout(function () {
               _this2.setState({
                 "isAuth0LibraryLoaded": true
               });
             }, 200);
-          });
+          };
+          if (!isAuth0LibraryLoaded) {
+            // prefetch & preload enabled here since is likely that user might want to click Login very quickly after loading webpage.
+            import( /* webpackChunkName: "auth0-lock-bundle" */
+            /* webpackMode: "lazy" */
+            /* webpackPrefetch: true */
+            /* webpackPreload: true */
+            "auth0-lock").then(function (_ref2) {
+              var Auth0LockImport = _ref2["default"];
+              Auth0Lock = Auth0LockImport;
+              // As of 9.11.0, auth0-js (dependency of Auth0Lock) cannot work outside of browser context.
+              // We import it here in separate bundle instead to avoid issues during server-side render.
+              createLock();
+              setTimeout(function () {
+                _this2.setState({
+                  "isAuth0LibraryLoaded": true
+                });
+              }, 200);
+            });
+          } else {
+            createLock();
+          }
+        } else if (auth0Domain.indexOf('nih.gov') != -1) {
+          // RAS authentication
+          _this2.lock = {
+            show: function show() {
+              var hrefParts = href && memoizedUrlParse(href) || null;
+              var host = hrefParts && (hrefParts.protocol || '') + (hrefParts.hostname ? '//' + hrefParts.hostname + (hrefParts.port ? ':' + hrefParts.port : '') : '');
+              var authenticationUrl = "".concat(auth0Domain, "/auth/oauth/v2/authorize?client_id=").concat(auth0Client, "&prompt=login+consent&redirect_uri=").concat(host + '/callback', "&response_type=code&scope=openid+profile+email+ga4gh_passport_v1");
+              _this2.setState({
+                "isLoading": true
+              }, function () {
+                return setTimeout(function () {
+                  return window.location.replace(authenticationUrl);
+                }, 1000);
+              });
+            }
+          };
+          // However Auth0 libraries are never imported in RAS implementation,
+          // isAuth0LibraryLoaded is set for compatibility
+          setTimeout(function () {
+            _this2.setState({
+              "isAuth0LibraryLoaded": true
+            });
+          }, 200);
         } else {
-          createLock();
+          // fallback
+          _this2.lock = {
+            show: function show() {
+              console.error('Non-supported authentication type: ' + auth0Domain);
+            }
+          };
+          setTimeout(function () {
+            _this2.setState({
+              "isAuth0LibraryLoaded": true
+            });
+          }, 200);
         }
       });
     }
@@ -120,10 +160,10 @@ export var LoginController = /*#__PURE__*/function (_React$PureComponent) {
       var _this3 = this;
       var successCallback = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
       var errorCallback = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
-      var _this$props = this.props,
-        updateAppSessionState = _this$props.updateAppSessionState,
-        _this$props$onLogin = _this$props.onLogin,
-        onLogin = _this$props$onLogin === void 0 ? null : _this$props$onLogin;
+      var _this$props2 = this.props,
+        updateAppSessionState = _this$props2.updateAppSessionState,
+        _this$props2$onLogin = _this$props2.onLogin,
+        onLogin = _this$props2$onLogin === void 0 ? null : _this$props2$onLogin;
       this.setState({
         "isLoading": true
       }, function () {
@@ -328,9 +368,9 @@ export var LoginController = /*#__PURE__*/function (_React$PureComponent) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props2 = this.props,
-        children = _this$props2.children,
-        passProps = _objectWithoutProperties(_this$props2, _excluded);
+      var _this$props3 = this.props,
+        children = _this$props3.children,
+        passProps = _objectWithoutProperties(_this$props3, _excluded);
       var _this$state = this.state,
         isLoading = _this$state.isLoading,
         isAuth0LibraryLoaded = _this$state.isAuth0LibraryLoaded,
@@ -367,7 +407,8 @@ _defineProperty(LoginController, "propTypes", {
   'updateAppSessionState': PropTypes.func.isRequired,
   'id': PropTypes.string,
   'auth0Options': PropTypes.object,
-  'children': PropTypes.node.isRequired
+  'children': PropTypes.node.isRequired,
+  'href': PropTypes.string
 });
 _defineProperty(LoginController, "defaultProps", {
   // Login / logout actions must be deferred until Auth0 is ready.
@@ -482,9 +523,9 @@ export var LogoutController = /*#__PURE__*/function (_React$PureComponent2) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props3 = this.props,
-        children = _this$props3.children,
-        passProps = _objectWithoutProperties(_this$props3, _excluded2);
+      var _this$props4 = this.props,
+        children = _this$props4.children,
+        passProps = _objectWithoutProperties(_this$props4, _excluded2);
       var isLoading = this.state.isLoading;
       return /*#__PURE__*/React.cloneElement(children, _objectSpread(_objectSpread({}, passProps), {}, {
         isLoading: isLoading,
