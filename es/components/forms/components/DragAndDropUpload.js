@@ -68,40 +68,41 @@ export var DragAndDropFileUploadController = /*#__PURE__*/function (_React$Compo
         var fileLimit = multiselect ? files.length : 1;
         // Populate an array with all of the new files
         var _loop = function _loop() {
-            var attachment = {};
-            var file = files[i];
+          var attachment = {};
+          var file = files[i];
 
-            // Check that file type is in schema (TODO: Is this too strict? MIME-types can get complicated...)
-            var acceptableFileTypes = fileSchema.properties.attachment.properties.type["enum"];
-            if (_.indexOf(acceptableFileTypes, file.type) === -1) {
-              var listOfTypes = acceptableFileTypes.toString();
-              alert("FILE NOT ADDED: File \"".concat(file.name, "\" is not of the correct file type for this field.\n\nMust be of type: ").concat(listOfTypes, "."));
-              return 1; // continue
-            }
-            attachment.type = file.type;
+          // Check that file type is in schema (TODO: Is this too strict? MIME-types can get complicated...)
+          var acceptableFileTypes = fileSchema.properties.attachment.properties.type["enum"];
+          if (_.indexOf(acceptableFileTypes, file.type) === -1) {
+            var listOfTypes = acceptableFileTypes.toString();
+            alert("FILE NOT ADDED: File \"".concat(file.name, "\" is not of the correct file type for this field.\n\nMust be of type: ").concat(listOfTypes, "."));
+            return "continue";
+          }
+          attachment.type = file.type;
 
-            // TODO: Figure out how best to check/limit file size pre-attachment...
-            if (file.size) {
-              attachment.size = file.size;
+          // TODO: Figure out how best to check/limit file size pre-attachment...
+          if (file.size) {
+            attachment.size = file.size;
+          }
+          if (file.name) {
+            attachment.download = file.name;
+          }
+          fileReader = new window.FileReader();
+          fileReader.readAsDataURL(file);
+          fileReader.onloadend = function (e) {
+            if (e.target.result) {
+              attachment.href = e.target.result;
+            } else {
+              alert('ERROR: There was a problem reading the given file. Please try again.');
+              return;
             }
-            if (file.name) {
-              attachment.download = file.name;
-            }
-            fileReader = new window.FileReader();
-            fileReader.readAsDataURL(file);
-            fileReader.onloadend = function (e) {
-              if (e.target.result) {
-                attachment.href = e.target.result;
-              } else {
-                alert('ERROR: There was a problem reading the given file. Please try again.');
-                return;
-              }
-            }.bind(_this2);
-            fileArr.push(attachment);
-          },
-          fileReader;
+          }.bind(_this2);
+          fileArr.push(attachment);
+        };
         for (var i = 0; i < fileLimit; i++) {
-          if (_loop()) continue;
+          var fileReader;
+          var _ret = _loop();
+          if (_ret === "continue") continue;
         }
 
         // Concat with previous files
