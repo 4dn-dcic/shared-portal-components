@@ -13,7 +13,7 @@ import { layout, console } from './../util';
  * Converts links to other files into links to sections from a React element and its children (recursively).
  *
  * @param {*} elem                                      A high-level React element representation of some content which might have relative links.
- * @param {{ content: { name: string }}} context        Backend-provided data.
+ * @param {{ content: { name: string }}} context        Backend-provided data. (Note: "name" has been renamed to "identifier" on SMaHT; seems OK now, but may need double check for future edits)
  * @param {number} [depth=0]                            Current depth.
  * @returns {JSX.Element} Copy of original 'elem' param with corrected links.
  */
@@ -202,7 +202,7 @@ export class StaticPageBase extends React.PureComponent {
         return _.map(
             parsedContent.content,
             function(section){
-                return renderMethod(section.id || section.name, section, props);
+                return renderMethod(section.id || section.name || section.identifier, section, props);
             }
         );
     }
