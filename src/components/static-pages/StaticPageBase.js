@@ -248,11 +248,12 @@ export class StaticPageBase extends React.PureComponent {
         }).isRequired,
         'entryRenderFxn' : PropTypes.func.isRequired,
         'contentParseFxn' : PropTypes.func.isRequired,
-        'href' : PropTypes.string
+        'href' : PropTypes.string,
+        'CustomWrapper': PropTypes.element
     };
 
     render(){
-        const { context, entryRenderFxn, contentParseFxn } = this.props;
+        const { context, entryRenderFxn, contentParseFxn, CustomWrapper } = this.props;
         let parsedContent = null;
         try {
             parsedContent = contentParseFxn(context);
@@ -270,13 +271,24 @@ export class StaticPageBase extends React.PureComponent {
             }] };
         }
         const tableOfContents = (parsedContent && parsedContent['table-of-contents'] && parsedContent['table-of-contents'].enabled) ? parsedContent['table-of-contents'] : false;
+
+        if (!CustomWrapper) {
+            return (
+                <Wrapper
+                    {..._.pick(this.props, 'navigate', 'windowWidth', 'windowHeight', 'registerWindowOnScrollHandler', 'href', 'fixedPositionBreakpoint')}
+                    key="page-wrapper" title={parsedContent.title}
+                    tableOfContents={tableOfContents} context={parsedContent}>
+                    { StaticPageBase.renderSections(entryRenderFxn, parsedContent, this.props) }
+                </Wrapper>
+            );
+        }
         return (
-            <Wrapper
+            <CustomWrapper
                 {..._.pick(this.props, 'navigate', 'windowWidth', 'windowHeight', 'registerWindowOnScrollHandler', 'href', 'fixedPositionBreakpoint')}
                 key="page-wrapper" title={parsedContent.title}
                 tableOfContents={tableOfContents} context={parsedContent}>
                 { StaticPageBase.renderSections(entryRenderFxn, parsedContent, this.props) }
-            </Wrapper>
+            </CustomWrapper>
         );
     }
 }
