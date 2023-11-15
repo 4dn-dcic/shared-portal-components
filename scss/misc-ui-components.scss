@@ -136,3 +136,8 @@
 	@include no-user-select;
 }
 
+// login
+.auth0-custom-info {
+    p { font-size: 100% !important; margin-top: 5px; text-align: left !important; }
+}
+

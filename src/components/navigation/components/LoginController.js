@@ -3,13 +3,14 @@ import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
 import jwt from 'jsonwebtoken';
+import createDOMPurify from 'dompurify';
 
 import { Alerts } from './../../ui/Alerts';
 import * as JWT from './../../util/json-web-token';
 import { navigate } from './../../util/navigate';
 import { load, fetch, promise as ajaxPromise } from './../../util/ajax';
 import { event as trackEvent, setUserID } from './../../util/analytics';
-import { memoizedUrlParse } from './../../util/misc';
+import { memoizedUrlParse, isServerSide } from './../../util/misc';
 import * as logger from '../../util/logger';
 
 
@@ -26,7 +27,8 @@ export class LoginController extends React.PureComponent {
         'id'                  : PropTypes.string,
         'auth0Options'        : PropTypes.object,
         'children'            : PropTypes.node.isRequired,
-        'href'                : PropTypes.string
+        'href'                : PropTypes.string,
+        'auth0CustomInfo'     : PropTypes.string
     };
 
     static defaultProps = {
@@ -64,6 +66,7 @@ export class LoginController extends React.PureComponent {
         this.showLock = _.throttle(this.showLock.bind(this), 1000, { trailing: false });
         this.validateCookieAndObtainAdditionalUserInfo = this.validateCookieAndObtainAdditionalUserInfo.bind(this);
         this.auth0LoginCallback = this.auth0LoginCallback.bind(this);
+        this.onAuth0LoginShow = this.onAuth0LoginShow.bind(this);
         this.onRegistrationComplete = this.onRegistrationComplete.bind(this);
         this.onRegistrationCancel = this.onRegistrationCancel.bind(this);
         this.state = {
@@ -100,6 +103,7 @@ export class LoginController extends React.PureComponent {
                 const createLock = () => {
                     this.lock = new Auth0Lock(auth0Client, auth0Domain, options);
                     this.lock.on("authenticated", this.auth0LoginCallback);
+                    this.lock.on("show", this.onAuth0LoginShow);
                     setTimeout(()=>{
                         this.setState({ "isAuth0LibraryLoaded": true });
                     }, 200);
@@ -299,6 +303,53 @@ export class LoginController extends React.PureComponent {
                 }
             }
         );
+    }
+
+    /**
+     * This function injects pure html to Auth0 login popup
+     *
+     * Current version (v11.33.1, and v12.1) of Auth Lock has limited customization options, and we cannot show any information on popup unless we use
+     * the full customization. (Even Auth0LockPasswordless has customizable terms section that matches our needs, it doesn't allow email login which is 
+     * required in CGAP)
+     * On the other hand, built-in popup is more reliable and robust since it handles the conflicts even if we not
+     * pass the correct props. Additionaly, we are using createDOMPurify to eliminate any malicious code injection.
+     */
+    onAuth0LoginShow() {
+        const { auth0CustomInfo } = this.props;
+
+        let domPurifyInstance;
+        if (isServerSide() || !(auth0CustomInfo && typeof auth0CustomInfo === 'string')) {
+            return;
+        } else {
+            domPurifyInstance = createDOMPurify;
+        }
+
+        console.log('Auth0 lock is visible');
+
+        // https://github.com/cure53/DOMPurify/blob/main/demos/hooks-target-blank-demo.html
+        domPurifyInstance.addHook('afterSanitizeAttributes', function (node) {
+            // set all elements owning target to target=_blank
+            if (node && node.target && node.target !== "") {
+                node.setAttribute('target', '_blank');
+                // prevent https://www.owasp.org/index.php/Reverse_Tabnabbing
+                node.setAttribute('rel', 'noopener noreferrer');
+            }
+        });
+
+        const sanitizedHtmlString = domPurifyInstance.sanitize(auth0CustomInfo, { FORBID_TAGS: ['script'], ADD_ATTR: ['target'] });
+
+        const socialButtonsPane = document.querySelector(".auth-lock-social-buttons-pane");
+        if (!socialButtonsPane) {
+            throw new Error("Can't find .auth-lock-social-buttons-pane");
+        }
+        const infoContent =
+            socialButtonsPane.querySelector(".auth0-custom-info") ||
+            document.createElement("div");
+        if (!infoContent.parentElement) {
+            infoContent.classList.add("auth0-custom-info");
+            infoContent.innerHTML = sanitizedHtmlString;
+            socialButtonsPane.insertBefore(infoContent, socialButtonsPane.children[0]);
+        }
     }
 
     /** This function must be bound to an idToken before it can be used. */
