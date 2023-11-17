@@ -163,7 +163,7 @@ export class Term extends React.PureComponent {
             textFilteredTerms = {};
             textFilteredSubTerms = null;
         }
-        const count = (term && term.doc_count) || 0;
+        const count = (term && term.doc_count) || (facet.field === 'type' && status === 'omitted' ? null : 0);
 
         let title = termTransformFxn(facet.field, term.key) || term.key;
         let icon = null;
