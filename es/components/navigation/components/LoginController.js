@@ -119,7 +119,7 @@ export var LoginController = /*#__PURE__*/function (_React$PureComponent) {
             show: function show() {
               var hrefParts = href && memoizedUrlParse(href) || null;
               var host = hrefParts && (hrefParts.protocol || '') + (hrefParts.hostname ? '//' + hrefParts.hostname + (hrefParts.port ? ':' + hrefParts.port : '') : '');
-              var authenticationUrl = "$https://{auth0Domain}/auth/oauth/v2/authorize?client_id=".concat(auth0Client, "&prompt=login+consent&redirect_uri=").concat(host + '/callback', "&response_type=code&scope=openid+profile+email+ga4gh_passport_v1");
+              var authenticationUrl = "https://".concat(auth0Domain, "/auth/oauth/v2/authorize?client_id=").concat(auth0Client, "&prompt=login+consent&redirect_uri=").concat(host + '/callback', "&response_type=code&scope=openid+profile+email+ga4gh_passport_v1");
               _this2.setState({
                 "isLoading": true
               }, function () {
