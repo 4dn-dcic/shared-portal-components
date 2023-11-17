@@ -125,7 +125,7 @@ export var LoginController = /*#__PURE__*/function (_React$PureComponent) {
               }, function () {
                 return setTimeout(function () {
                   return window.location.replace(authenticationUrl);
-                }, 1000);
+                }, 200);
               });
             }
           };

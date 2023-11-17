@@ -144,7 +144,7 @@ export class LoginController extends React.PureComponent {
                         this.setState({ "isLoading": true },
                             () => setTimeout(
                                 () => window.location.replace(authenticationUrl)
-                                , 1000));
+                                , 200));
                     }
                 };
                 // However Auth0 libraries are never imported in RAS implementation,
