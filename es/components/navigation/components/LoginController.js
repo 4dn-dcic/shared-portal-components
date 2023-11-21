@@ -117,9 +117,19 @@ export var LoginController = /*#__PURE__*/function (_React$PureComponent) {
           // RAS authentication
           _this2.lock = {
             show: function show() {
+              var _ref3$auth = (auth0Options || {}).auth,
+                _ref3$auth2 = _ref3$auth === void 0 ? {} : _ref3$auth,
+                _ref3$auth2$responseT = _ref3$auth2.responseType,
+                responseType = _ref3$auth2$responseT === void 0 ? '' : _ref3$auth2$responseT,
+                _ref3$auth2$params = _ref3$auth2.params,
+                _ref3$auth2$params2 = _ref3$auth2$params === void 0 ? {} : _ref3$auth2$params,
+                _ref3$auth2$params2$s = _ref3$auth2$params2.scope,
+                scope = _ref3$auth2$params2$s === void 0 ? '' : _ref3$auth2$params2$s,
+                _ref3$auth2$params2$p = _ref3$auth2$params2.prompt,
+                prompt = _ref3$auth2$params2$p === void 0 ? '' : _ref3$auth2$params2$p;
               var hrefParts = href && memoizedUrlParse(href) || null;
               var host = hrefParts && (hrefParts.protocol || '') + (hrefParts.hostname ? '//' + hrefParts.hostname + (hrefParts.port ? ':' + hrefParts.port : '') : '');
-              var authenticationUrl = "https://".concat(auth0Domain, "/auth/oauth/v2/authorize?client_id=").concat(auth0Client, "&prompt=login+consent&redirect_uri=").concat(host + '/callback', "&response_type=code&scope=openid+profile+email+ga4gh_passport_v1");
+              var authenticationUrl = "https://".concat(auth0Domain, "/auth/oauth/v2/authorize?client_id=").concat(auth0Client, "&prompt=").concat(encodeURIComponent(prompt), "&redirect_uri=").concat(host + '/callback', "&response_type=").concat(encodeURIComponent(responseType), "&scope=").concat(encodeURIComponent(scope));
               _this2.setState({
                 "isLoading": true
               }, function () {
@@ -188,9 +198,9 @@ export var LoginController = /*#__PURE__*/function (_React$PureComponent) {
               'type': 'timed-out'
             });
           }, 90000); /* 90 seconds */
-        })]).then(function (_ref3) {
-          var _ref3$saved_cookie = _ref3.saved_cookie,
-            saved_cookie = _ref3$saved_cookie === void 0 ? false : _ref3$saved_cookie;
+        })]).then(function (_ref4) {
+          var _ref4$saved_cookie = _ref4.saved_cookie,
+            saved_cookie = _ref4$saved_cookie === void 0 ? false : _ref4$saved_cookie;
           if (!saved_cookie) {
             throw new Error("Couldn't set session in /login");
           }
@@ -491,8 +501,8 @@ _defineProperty(LoginController, "defaultProps", {
 });
 export function performLogout() {
   // Grab here, gets deleted at end of response.
-  var _ref5 = JWT.getUserDetails() || {},
-    uuid = _ref5.uuid;
+  var _ref6 = JWT.getUserDetails() || {},
+    uuid = _ref6.uuid;
   return fetch("/logout").then(function (response) {
     var _response$deleted_coo = response.deleted_cookie,
       deleted_cookie = _response$deleted_coo === void 0 ? false : _response$deleted_coo;

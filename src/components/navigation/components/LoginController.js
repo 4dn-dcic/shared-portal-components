@@ -133,14 +133,15 @@ export class LoginController extends React.PureComponent {
                 // RAS authentication
                 this.lock = {
                     show: () => {
+                        const { auth: { responseType = '', params: { scope = '', prompt = '' } = {} } = {} } = auth0Options || {};
                         const hrefParts = (href && memoizedUrlParse(href)) || null;
                         const host = hrefParts && (
                             (hrefParts.protocol || '') +
                             (hrefParts.hostname ? '//' +  hrefParts.hostname + (hrefParts.port ? ':' + hrefParts.port : '') : '')
                         );
-
                         const callbackUrl = host + '/callback';
-                        const authenticationUrl = `https://${auth0Domain}/auth/oauth/v2/authorize?client_id=${auth0Client}&prompt=login+consent&redirect_uri=${callbackUrl}&response_type=code&scope=openid+profile+email+ga4gh_passport_v1`;
+
+                        const authenticationUrl = `https://${auth0Domain}/auth/oauth/v2/authorize?client_id=${auth0Client}&prompt=${encodeURIComponent(prompt)}&redirect_uri=${callbackUrl}&response_type=${encodeURIComponent(responseType)}&scope=${encodeURIComponent(scope)}`;
                         this.setState({ "isLoading": true },
                             () => setTimeout(
                                 () => window.location.replace(authenticationUrl)
