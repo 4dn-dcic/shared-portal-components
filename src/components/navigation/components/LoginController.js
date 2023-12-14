@@ -84,7 +84,7 @@ export class LoginController extends React.PureComponent {
     }
 
     componentDidMount() {
-        const { auth0Options: auth0OptionsFallback, href } = this.props;
+        const { auth0Options: auth0OptionsFallback } = this.props;
         const { isAuth0LibraryLoaded } = this.state;
         ajaxPromise("/auth0_config").then(({ auth0Client, auth0Domain, auth0Options }) => {
 
@@ -133,6 +133,7 @@ export class LoginController extends React.PureComponent {
                 // RAS authentication
                 this.lock = {
                     show: () => {
+                        const { href } = this.props;
                         const { auth: { responseType = '', params: { scope = '', prompt = '' } = {} } = {} } = auth0Options || {};
                         const hrefParts = (href && memoizedUrlParse(href)) || null;
                         const host = hrefParts && (
@@ -140,6 +141,9 @@ export class LoginController extends React.PureComponent {
                             (hrefParts.hostname ? '//' +  hrefParts.hostname + (hrefParts.port ? ':' + hrefParts.port : '') : '')
                         );
                         const callbackUrl = host + '/callback';
+                        const returnUrl = href.indexOf('/callback') === -1 ? href : (host + '/');
+                        // keep return url for 10 mins
+                        document.cookie = `returnUrl=${encodeURIComponent(returnUrl)}; max-age=${10*60}; path=/; SameSite=Lax;`;
 
                         const authenticationUrl = `https://${auth0Domain}/auth/oauth/v2/authorize?client_id=${auth0Client}&prompt=${encodeURIComponent(prompt)}&redirect_uri=${callbackUrl}&response_type=${encodeURIComponent(responseType)}&scope=${encodeURIComponent(scope)}`;
                         this.setState({ "isLoading": true },

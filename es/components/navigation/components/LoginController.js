@@ -63,9 +63,7 @@ export var LoginController = /*#__PURE__*/function (_React$PureComponent) {
     key: "componentDidMount",
     value: function componentDidMount() {
       var _this2 = this;
-      var _this$props = this.props,
-        auth0OptionsFallback = _this$props.auth0Options,
-        href = _this$props.href;
+      var auth0OptionsFallback = this.props.auth0Options;
       var isAuth0LibraryLoaded = this.state.isAuth0LibraryLoaded;
       ajaxPromise("/auth0_config").then(function (_ref) {
         var auth0Client = _ref.auth0Client,
@@ -117,6 +115,7 @@ export var LoginController = /*#__PURE__*/function (_React$PureComponent) {
           // RAS authentication
           _this2.lock = {
             show: function show() {
+              var href = _this2.props.href;
               var _ref3$auth = (auth0Options || {}).auth,
                 _ref3$auth2 = _ref3$auth === void 0 ? {} : _ref3$auth,
                 _ref3$auth2$responseT = _ref3$auth2.responseType,
@@ -129,6 +128,9 @@ export var LoginController = /*#__PURE__*/function (_React$PureComponent) {
                 prompt = _ref3$auth2$params2$p === void 0 ? '' : _ref3$auth2$params2$p;
               var hrefParts = href && memoizedUrlParse(href) || null;
               var host = hrefParts && (hrefParts.protocol || '') + (hrefParts.hostname ? '//' + hrefParts.hostname + (hrefParts.port ? ':' + hrefParts.port : '') : '');
+              var returnUrl = href.indexOf('/callback') === -1 ? href : host + '/';
+              // keep return url for 10 mins
+              document.cookie = "returnUrl=".concat(encodeURIComponent(returnUrl), "; max-age=").concat(10 * 60, "; path=/; SameSite=Lax;");
               var authenticationUrl = "https://".concat(auth0Domain, "/auth/oauth/v2/authorize?client_id=").concat(auth0Client, "&prompt=").concat(encodeURIComponent(prompt), "&redirect_uri=").concat(host + '/callback', "&response_type=").concat(encodeURIComponent(responseType), "&scope=").concat(encodeURIComponent(scope));
               _this2.setState({
                 "isLoading": true
@@ -173,10 +175,10 @@ export var LoginController = /*#__PURE__*/function (_React$PureComponent) {
       var _this3 = this;
       var successCallback = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
       var errorCallback = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
-      var _this$props2 = this.props,
-        updateAppSessionState = _this$props2.updateAppSessionState,
-        _this$props2$onLogin = _this$props2.onLogin,
-        onLogin = _this$props2$onLogin === void 0 ? null : _this$props2$onLogin;
+      var _this$props = this.props,
+        updateAppSessionState = _this$props.updateAppSessionState,
+        _this$props$onLogin = _this$props.onLogin,
+        onLogin = _this$props$onLogin === void 0 ? null : _this$props$onLogin;
       this.setState({
         "isLoading": true
       }, function () {
@@ -427,9 +429,9 @@ export var LoginController = /*#__PURE__*/function (_React$PureComponent) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props3 = this.props,
-        children = _this$props3.children,
-        passProps = _objectWithoutProperties(_this$props3, _excluded);
+      var _this$props2 = this.props,
+        children = _this$props2.children,
+        passProps = _objectWithoutProperties(_this$props2, _excluded);
       var _this$state = this.state,
         isLoading = _this$state.isLoading,
         isAuth0LibraryLoaded = _this$state.isAuth0LibraryLoaded,
@@ -583,9 +585,9 @@ export var LogoutController = /*#__PURE__*/function (_React$PureComponent2) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props4 = this.props,
-        children = _this$props4.children,
-        passProps = _objectWithoutProperties(_this$props4, _excluded2);
+      var _this$props3 = this.props,
+        children = _this$props3.children,
+        passProps = _objectWithoutProperties(_this$props3, _excluded2);
       var isLoading = this.state.isLoading;
       return /*#__PURE__*/React.cloneElement(children, _objectSpread(_objectSpread({}, passProps), {}, {
         isLoading: isLoading,
