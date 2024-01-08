@@ -58,9 +58,11 @@ $facetlist-term-block-height: default !default;
                 display: inline;
             }
 
-            >.icon-toggle {
-                >div button {
-                    color: #fff;
+            > .icon-toggle {
+                .fa-icon {
+                    width: 16px;
+                    height: 16px;
+                    fill: white;
                 }
 
                 >div:last-child button {
