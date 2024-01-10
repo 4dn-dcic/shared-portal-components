@@ -123,7 +123,6 @@ class SubItemTable extends React.Component {
             }
         })) return false;
         
-
         /**
          * The reduce function below creates an object containing the keys and
          * values of each item by extending the returned accumulator object [m]
@@ -695,8 +694,8 @@ class DetailRow extends React.PureComponent {
             );
         }
 
-        // For MetaWorkflow Items that can't display as tables, show the name 
-        // of input arguments, [item.argument_name] instead of [labelNumber]
+        // For Input Arguments in MetaWorkflows that do not display as tables, 
+        // replace number with argument name
         if (this.props.itemType === "MetaWorkflow" && this.props['data-key'] === "input" && value.type !== SubItemTable) {
             labelToShow = (
                 <span>

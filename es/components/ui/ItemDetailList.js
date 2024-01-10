@@ -766,8 +766,8 @@ var DetailRow = /*#__PURE__*/function (_React$PureComponent) {
         }, "#"), " ", labelNumber), label);
       }
 
-      // For MetaWorkflow Items that can't display as tables, show the name 
-      // of input arguments, [item.argument_name] instead of [labelNumber]
+      // For Input Arguments in MetaWorkflows that do not display as tables, 
+      // replace number with argument name
       if (this.props.itemType === "MetaWorkflow" && this.props['data-key'] === "input" && value.type !== SubItemTable) {
         labelToShow = /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("span", {
           className: "label-number right d-inline-block" + (isOpen ? ' active' : '')
