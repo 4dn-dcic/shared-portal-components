@@ -578,8 +578,8 @@ export class TableOfContents extends React.Component {
         const excludeSectionsFromTOC = context.content.filter(function(section){ return section.title || section['toc-title']; }).length < 2;
         const renderedSections = _.sortBy(context.content, function(s){ return s.order || 99; })
             .map(function(section, i, all){
-                const { name } = section;
-                const link = TableOfContents.elementIDFromSectionName(name);
+                const { name, identifier } = section;
+                const link = TableOfContents.elementIDFromSectionName(name || identifier);
                 if (previousEncounteredSection){
                     previousEncounteredSection.nextHeader = link;
                 }
@@ -683,13 +683,13 @@ export const NextPreviousPageSection = React.memo(function NextPreviousPageSecti
                 { previous ?
                     <div className={"previous-section text-right col-" + colSize}>
                         <h6 className="text-400 mb-02 mt-12"><i className="icon icon-fw fas icon-angle-left"/> { previousTitle }</h6>
-                        <h6 className="text-500 mt-0"><a href={previous['@id'] || '/' + previous.name}>{ previous.display_title }</a></h6>
+                        <h6 className="text-500 mt-0"><a href={previous['@id'] || '/' + (previous.name || previous.identifier)}>{ previous.display_title }</a></h6>
                     </div>
                     : null }
                 { next ?
                     <div className={"next-section col-" + colSize}>
                         <h6 className="text-400 mb-02 mt-12">{ nextTitle } <i className="icon fas icon-fw icon-angle-right"/></h6>
-                        <h6 className="text-500 mt-0"><a href={next['@id'] || '/' + next.name}>{ next.display_title }</a></h6>
+                        <h6 className="text-500 mt-0"><a href={next['@id'] || '/' + (next.name || previous.identifier)}>{ next.display_title }</a></h6>
                     </div>
                     : null }
             </div>

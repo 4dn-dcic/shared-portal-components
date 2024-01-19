@@ -36,7 +36,7 @@ export function atIdFromObject(o){
 
 export function linkFromItem(item, addDescriptionTip = true, propertyForTitle = 'display_title', elementProps = {}, suppressErrors = true){
     var href = atIdFromObject(item),
-        title =  item && typeof item === 'object' && ((propertyForTitle && item[propertyForTitle]) || item.display_title || item.title || item.name || href);
+        title =  item && typeof item === 'object' && ((propertyForTitle && item[propertyForTitle]) || item.display_title || item.title || item.name || item.identifier || href);
 
     if (!href || !title){
         if (item && typeof item === 'object' && typeof item.error === 'string'){
@@ -742,6 +742,7 @@ export const itemUtil = {
             context.display_title   ||
             context.title           ||
             context.name            ||
+            context.identifier      ||
             context.download        ||
             context.accession       ||
             context.uuid            ||
