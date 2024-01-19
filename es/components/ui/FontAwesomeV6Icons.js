@@ -1,68 +1,52 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-// Use this resource to generate filter string from hexcode: https://codepen.io/sosuke/pen/Pjoqqp
-// I had included some of this code in the original version of this file, but decided it added too much
-// unnecessary complexity (especially since this component will be used sparingly). 
-var hexToFilterMap = {
-  "#ffffff": "invert(99%) sepia(1%) saturate(2%) hue-rotate(286deg) brightness(118%) contrast(100%)",
-  "#000000": "invert(0%) sepia(0%) saturate(0%) hue-rotate(324deg) brightness(96%) contrast(104%)"
-  // Add any additional ones here, if necessary
-};
-
 /**
- * Since v6 of Font Awesome will require a pretty big upgrade w/some breaking changes,
- * and we have urgent need for one or two of the icons from that subset, this file will temporarily
- * house an icon component that can be used to load these icons as SVGs across CGAP & 4DN. This is a
- * SHORT TERM FIX for cases where there are no alternative options than to use an icon from v6.
- *
- * (Please don't start using this everywhere; it's for iconography-related emergencies ONLY.)
- *
- * This also will become deprecated when v6 upgrade is complete; delete after that point, and
- * update references.
- *
- * VERY IMPORTANT NOTE: The SVG file must be accessible on the PARENT REPO (CGAP/4DN) at
- * /static/img/fontawesomev6/<icon> in order to be used here. It must have the same name across both repos,
- * so best to just keep the name of the SVG file as downloaded from Fontawesome's site.
+ * Renders a FontAwesomeV6 SVG icon given an identifier string [iconName] 
+ * and applies additional classes [cls]
+ * 
+ * Disclaimer for all SVG icons:
+ * Font Awesome Pro 6.3.0 by @fontawesome - https://fontawesome.com License - 
+ * https://fontawesome.com/license (Commercial License) Copyright 2023 
+ * Fonticons, Inc.
+ * 
+ * Notes:
+ *  - Returns null if no icon name is provided
+ *  - These are inline SVG elements styled in facet-list.scss facet-list.scss
+ *    and can be overwritten in parent repositories
+ *  - Switch statement is used over conditional render assuming there will be
+ *    additional icons, should revert if fewer than 3
  */
-
 var FontAwesomeV6Icons = /*#__PURE__*/React.memo(function (_ref) {
-  var _ref$filename = _ref.filename,
-    filename = _ref$filename === void 0 ? "filter-circle-xmark-solid.svg" : _ref$filename,
-    _ref$hexColor = _ref.hexColor,
-    hexColor = _ref$hexColor === void 0 ? "#ffffff" : _ref$hexColor,
-    _ref$width = _ref.width,
-    width = _ref$width === void 0 ? "16px" : _ref$width,
-    _ref$height = _ref.height,
-    height = _ref$height === void 0 ? "16px" : _ref$height,
-    _ref$alt = _ref.alt,
-    alt = _ref$alt === void 0 ? "An icon" : _ref$alt,
+  var _ref$iconName = _ref.iconName,
+    iconName = _ref$iconName === void 0 ? "" : _ref$iconName,
     _ref$cls = _ref.cls,
     cls = _ref$cls === void 0 ? "" : _ref$cls;
-  // Since fill/bg-color/color attributes don't work on SVGs imported via image tags, need to
-  // convert to "filter" string
-  var filter = hexToFilterMap[hexColor];
-  return /*#__PURE__*/React.createElement("img", {
-    className: cls,
-    style: {
-      width: width,
-      height: height,
-      filter: filter
-    },
-    alt: alt,
-    src: "/static/img/fontawesomev6/" + filename
-  });
+  switch (iconName) {
+    case "filter-solid":
+      return /*#__PURE__*/React.createElement("svg", {
+        className: "fa-icon ".concat(iconName, " ").concat(cls),
+        alt: "".concat(iconName, " icon"),
+        xmlns: "http://www.w3.org/2000/svg",
+        viewBox: "0 0 512 512"
+      }, /*#__PURE__*/React.createElement("path", {
+        d: "M3.9 54.9C10.5 40.9 24.5 32 40 32H472c15.5 0 29.5 8.9 36.1 22.9s4.6 30.5-5.2 42.5L320 320.9V448c0 12.1-6.8 23.2-17.7 28.6s-23.8 4.3-33.5-3l-64-48c-8.1-6-12.8-15.5-12.8-25.6V320.9L9 97.3C-.7 85.4-2.8 68.8 3.9 54.9z"
+      }));
+    case "filter-circle-xmark-solid":
+      return /*#__PURE__*/React.createElement("svg", {
+        className: "fa-icon ".concat(iconName, " ").concat(cls),
+        alt: "".concat(iconName, " icon"),
+        xmlns: "http://www.w3.org/2000/svg",
+        viewBox: "0 0 576 512"
+      }, /*#__PURE__*/React.createElement("path", {
+        d: "M3.9 22.9C10.5 8.9 24.5 0 40 0H472c15.5 0 29.5 8.9 36.1 22.9s4.6 30.5-5.2 42.5L396.4 195.6C316.2 212.1 256 283 256 368c0 27.4 6.3 53.4 17.5 76.5c-1.6-.8-3.2-1.8-4.7-2.9l-64-48c-8.1-6-12.8-15.5-12.8-25.6V288.9L9 65.3C-.7 53.4-2.8 36.8 3.9 22.9zM432 512c-79.5 0-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144s-64.5 144-144 144zm59.3-180.7c6.2-6.2 6.2-16.4 0-22.6s-16.4-6.2-22.6 0L432 345.4l-36.7-36.7c-6.2-6.2-16.4-6.2-22.6 0s-6.2 16.4 0 22.6L409.4 368l-36.7 36.7c-6.2 6.2-6.2 16.4 0 22.6s16.4 6.2 22.6 0L432 390.6l36.7 36.7c6.2 6.2 16.4 6.2 22.6 0s6.2-16.4 0-22.6L454.6 368l36.7-36.7z"
+      }));
+    default:
+      return null;
+  }
 });
 FontAwesomeV6Icons.propTypes = {
-  "filename": function filename(props, propName, componentName) {
-    if (!props[propName].endsWith(".svg")) {
-      return new Error("Invalid prop '".concat(propName, "' supplied to <").concat(componentName, ">. Validation failed."));
-    }
-  },
-  "hexColor": PropTypes.oneOf(Object.keys(hexToFilterMap)),
-  "width": PropTypes.string,
-  "height": PropTypes.string,
-  "alt": PropTypes.string,
+  "iconName": PropTypes.string,
   "cls": PropTypes.string
 };
 export default FontAwesomeV6Icons;

@@ -55,7 +55,7 @@ export const IconToggle = function IconToggle(props){
         );
     });
     return (
-        <div className={"d-flex mr-1 border border-light flex-nowrap rounded icon-toggle align-items-center " + divCls}>
+        <div className={"icon-toggle " + divCls}>
             { renderedOptions }
         </div>
     );

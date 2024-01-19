@@ -1,4 +1,4 @@
-/************ TOGGLE SWITCH *************/
+/************ TOGGLE SWITCH and ICON TOGGLE *************/
 // Generated via https://proto.io/freebies/onoff/
 
 $onoff-toggle-switch-border-color: #e3e3e3 !default;
@@ -56,4 +56,16 @@ $onoff-toggle-switch-border-color: #e3e3e3 !default;
 }
 .onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-switch {
     right: 0px;
+}
+
+
+
+// Styles for IconToggle component
+.icon-toggle {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    border: 1px solid #f8f8f8;
+    border-radius: 0.25rem;
+    margin-right: 0.625rem;
 }

@@ -75,6 +75,6 @@ export var IconToggle = function (props) {
     }, title));
   });
   return /*#__PURE__*/React.createElement("div", {
-    className: "d-flex mr-1 border border-light flex-nowrap rounded icon-toggle align-items-center " + divCls
+    className: "icon-toggle " + divCls
   }, renderedOptions);
 };

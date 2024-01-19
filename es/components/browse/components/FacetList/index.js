@@ -929,14 +929,14 @@ export var FacetListHeader = /*#__PURE__*/React.memo(function (props) {
     activeIdx: including ? 0 : 1,
     options: [{
       title: /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(FontAwesomeV6Icons, {
-        cls: "mb-02 pb-02",
-        filename: "filter-solid.svg"
+        iconName: "filter-solid",
+        cls: "mb-02 pb-02"
       })),
       onClick: onToggleIncluding
     }, {
       title: /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(FontAwesomeV6Icons, {
-        cls: "mb-02",
-        filename: "filter-circle-xmark-solid.svg"
+        iconName: "filter-circle-xmark-solid",
+        cls: "mb-02"
       })),
       onClick: onToggleIncluding
     }]

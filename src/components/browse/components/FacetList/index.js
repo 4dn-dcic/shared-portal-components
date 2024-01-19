@@ -798,11 +798,11 @@ export const FacetListHeader = React.memo(function FacetListHeader(props){
                             <>
                                 <IconToggle activeIdx={including ? 0 : 1} options={[
                                     {
-                                        title: <div><FontAwesomeV6Icons cls="mb-02 pb-02" filename="filter-solid.svg"/></div>,
+                                        title: <div><FontAwesomeV6Icons iconName="filter-solid" cls="mb-02 pb-02" /></div>,
                                         onClick: onToggleIncluding
                                     },
                                     {
-                                        title: <div><FontAwesomeV6Icons cls="mb-02" filename="filter-circle-xmark-solid.svg"/></div>,
+                                        title: <div><FontAwesomeV6Icons iconName="filter-circle-xmark-solid" cls="mb-02" /></div>,
                                         onClick: onToggleIncluding
                                     }
                                 ]} />
