@@ -77,7 +77,7 @@ export var ResultRowColumnBlockValue = /*#__PURE__*/function (_React$Component) 
         }, value);
       } else if (value === null) {
         value = /*#__PURE__*/React.createElement("small", {
-          className: "value " + defaultAlignment
+          className: "value text-center"
         }, "-");
       } else if ( /*#__PURE__*/React.isValidElement(value) && value.type === "a" || Array.isArray(value) && /*#__PURE__*/React.isValidElement(value[0]) && (value[0].type === "a" || value[0].props.className === "link-wrapper")) {
         // We let other columnRender funcs define their `value` container (if any)

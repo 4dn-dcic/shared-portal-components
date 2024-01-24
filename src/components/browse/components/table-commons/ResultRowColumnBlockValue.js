@@ -128,7 +128,7 @@ export class ResultRowColumnBlockValue extends React.Component {
             if (showTooltip && value.length > 25) tooltip = value;
             value = <span className={"value " + defaultAlignment}>{ value }</span>;
         } else if (value === null){
-            value = <small className={"value " + defaultAlignment}>-</small>;
+            value = <small className="value text-center">-</small>;
         } else if (
             (React.isValidElement(value) && value.type === "a") ||
             (Array.isArray(value) && React.isValidElement(value[0]) && (value[0].type === "a" || value[0].props.className === "link-wrapper"))
