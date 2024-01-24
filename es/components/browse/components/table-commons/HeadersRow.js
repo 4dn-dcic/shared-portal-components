@@ -224,7 +224,8 @@ export var HeadersRow = /*#__PURE__*/function (_React$PureComponent) {
         tableContainerScrollLeft = _this$props3.tableContainerScrollLeft,
         windowWidth = _this$props3.windowWidth,
         _this$props3$stickyFi = _this$props3.stickyFirstColumn,
-        stickyFirstColumn = _this$props3$stickyFi === void 0 ? false : _this$props3$stickyFi;
+        stickyFirstColumn = _this$props3$stickyFi === void 0 ? false : _this$props3$stickyFi,
+        context = _this$props3.context;
       var _this$state2 = this.state,
         showingSortFieldsForColumn = _this$state2.showingSortFieldsForColumn,
         widths = _this$state2.widths,
@@ -277,6 +278,7 @@ export var HeadersRow = /*#__PURE__*/function (_React$PureComponent) {
         /*#__PURE__*/
         // `props.active` may be undefined, object with more fields, or array where first item is `descending` flag (bool).
         React.createElement(HeadersRowColumn, _extends({}, commonProps, {
+          context: context,
           columnDefinition: columnDefinition,
           index: index,
           showingSortOptionsMenu: showingSortFieldsForColumn && showingSortFieldsForColumn === field,
@@ -432,6 +434,8 @@ _defineProperty(HeadersRow, "propTypes", {
   'tableContainerScrollLeft': PropTypes.number,
   'windowWidth': PropTypes.number,
   'stickyFirstColumn': PropTypes.bool,
+  'context': PropTypes.object,
+  // Can be page context or virtual
   // Passed down from CustomColumnController (if used)
   'columnWidths': PropTypes.objectOf(PropTypes.number),
   'setColumnWidths': PropTypes.func,
@@ -494,14 +498,34 @@ var HeadersRowColumn = /*#__PURE__*/function (_React$PureComponent2) {
         sortMap = _this$props5.sortMap,
         _this$props5$isLoadin = _this$props5.isLoading,
         isLoading = _this$props5$isLoadin === void 0 ? false : _this$props5$isLoadin,
-        index = _this$props5.index;
+        index = _this$props5.index,
+        context = _this$props5.context;
       var noSort = columnDefinition.noSort,
         colTitle = columnDefinition.colTitle,
         title = columnDefinition.title,
         field = columnDefinition.field,
         _columnDefinition$des = columnDefinition.description,
-        description = _columnDefinition$des === void 0 ? null : _columnDefinition$des;
-      var titleTooltip = this.memoized.showTooltip(width, typeof colTitle === "string" ? colTitle : title) ? title : null;
+        description = _columnDefinition$des === void 0 ? null : _columnDefinition$des,
+        hideTooltip = columnDefinition.hideTooltip;
+
+      // Wanted more flexibility here, so am injecting some props into the title if it is a React component
+      // TODO: May make sense to eventually have a proper titleRender function like for column rendering in future if
+      // more parentProps are needed...
+      var showTitle;
+
+      // Check if colTitle is a React component (function or class)
+      var isComponent = typeof (colTitle === null || colTitle === void 0 ? void 0 : colTitle.type) === 'function';
+      // Double check we're not overwriting context passed in elsewhere
+      if (isComponent && !('context' in colTitle.props)) {
+        // Clone and pass along values from parent that might be useful if not present
+        showTitle = /*#__PURE__*/React.cloneElement(colTitle, {
+          context: context
+        });
+      } else {
+        // Could be a DOM element or a string, return as-is
+        showTitle = colTitle || title;
+      }
+      var titleTooltip = this.memoized.showTooltip(width, typeof colTitle === "string" ? colTitle : title) && !hideTooltip ? title : null;
       var tooltip = description ? titleTooltip ? "<h5 class=\"mb-03\">".concat(titleTooltip, "</h5>") + description : description : titleTooltip ? titleTooltip : null;
       var sorterIcon;
       if (!noSort && typeof sortByField === 'function' && width >= 50) {
@@ -531,7 +555,7 @@ var HeadersRowColumn = /*#__PURE__*/function (_React$PureComponent2) {
       }, /*#__PURE__*/React.createElement("span", {
         "data-tip": tooltip,
         "data-html": true
-      }, colTitle || title)), sorterIcon), typeof onAdjusterDrag === "function" ? /*#__PURE__*/React.createElement(Draggable, {
+      }, showTitle)), sorterIcon), typeof onAdjusterDrag === "function" ? /*#__PURE__*/React.createElement(Draggable, {
         position: {
           x: width,
           y: 0

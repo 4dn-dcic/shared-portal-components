@@ -993,7 +993,7 @@ class DimensioningContainer extends React.PureComponent {
         if (anyResults) {
             const headerRowCommonProps = {
                 ..._.pick(this.props, 'columnDefinitions', 'sortBy', 'sortColumns', 'sortColumn', 'sortReverse',
-                    'defaultMinColumnWidth', 'renderDetailPane', 'detailPane', 'windowWidth'),
+                    'defaultMinColumnWidth', 'renderDetailPane', 'detailPane', 'windowWidth', 'context'),
                 mounted, results, rowHeight, setColumnWidths, columnWidths,
                 tableContainerScrollLeft, stickyFirstColumn
             };

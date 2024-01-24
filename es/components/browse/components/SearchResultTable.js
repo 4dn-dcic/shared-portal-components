@@ -1119,7 +1119,7 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
       var shadowBorderLayer = null;
       var childrenToShow = null;
       if (anyResults) {
-        var headerRowCommonProps = _objectSpread(_objectSpread({}, _.pick(this.props, 'columnDefinitions', 'sortBy', 'sortColumns', 'sortColumn', 'sortReverse', 'defaultMinColumnWidth', 'renderDetailPane', 'detailPane', 'windowWidth')), {}, {
+        var headerRowCommonProps = _objectSpread(_objectSpread({}, _.pick(this.props, 'columnDefinitions', 'sortBy', 'sortColumns', 'sortColumn', 'sortReverse', 'defaultMinColumnWidth', 'renderDetailPane', 'detailPane', 'windowWidth', 'context')), {}, {
           mounted: mounted,
           results: results,
           rowHeight: rowHeight,
