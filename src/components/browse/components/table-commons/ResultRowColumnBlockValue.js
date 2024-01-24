@@ -103,7 +103,8 @@ export class ResultRowColumnBlockValue extends React.Component {
             columnDefinition,
             tooltip : propTooltip,
             className,
-            termTransformFxn
+            termTransformFxn,
+            defaultAlignment = "text-center"
         } = this.props;
         const {
             field,
@@ -125,18 +126,18 @@ export class ResultRowColumnBlockValue extends React.Component {
             value = <span className="value">{ value }</span>;
         } else if (typeof value === 'string') {
             if (showTooltip && value.length > 25) tooltip = value;
-            value = <span className="value text-center">{ value }</span>;
+            value = <span className={"value " + defaultAlignment}>{ value }</span>;
         } else if (value === null){
-            value = <small className="value text-center">-</small>;
+            value = <small className={"value " + defaultAlignment}>-</small>;
         } else if (
             (React.isValidElement(value) && value.type === "a") ||
             (Array.isArray(value) && React.isValidElement(value[0]) && (value[0].type === "a" || value[0].props.className === "link-wrapper"))
         ) {
             // We let other columnRender funcs define their `value` container (if any)
             // But if is link, e.g. from termTransformFxn, then wrap it to center it.
-            value = <span className="value text-center">{ value }</span>;
+            value = <span className={"value " + defaultAlignment}>{ value }</span>;
         } else if (typeof value === "boolean") {
-            value = <span className="value text-center">{ value }</span>;
+            value = <span className={"value " + defaultAlignment}>{ value }</span>;
         } else if (!renderFxn){
             value = <span className="value">{ value }</span>; // JSX from termTransformFxn - assume doesn't take table cell layouting into account.
         } // else is likely JSX from custom render function -- leave as-is

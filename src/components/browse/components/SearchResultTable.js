@@ -29,13 +29,13 @@ import { basicColumnExtensionMap } from './table-commons/basicColumnExtensionMap
 
 
 const ResultRowColumnBlock = React.memo(function ResultRowColumnBlock(props){
-    const { columnDefinition, columnNumber, width } = props;
+    const { columnDefinition, columnNumber, width, defaultColAlignment } = props;
     const { field } = columnDefinition;
     return ( // props includes result
         <div className="search-result-column-block" style={{ width }}
             data-field={field} data-first-visible-column={columnNumber === 0 ? true : undefined}
             data-column-even={columnNumber % 2 === 0}>
-            <ResultRowColumnBlockValue {...props} />
+            <ResultRowColumnBlockValue {...props} defaultAlignment={defaultColAlignment} />
         </div>
     );
 });
@@ -44,7 +44,8 @@ ResultRowColumnBlock.propTypes = {
     "width": PropTypes.number.isRequired,
     "schemas": PropTypes.object,
     "columnDefinition": PropTypes.object.isRequired,
-    "columnNumber": PropTypes.number.isRequired
+    "columnNumber": PropTypes.number.isRequired,
+    "defaultColAlignment": PropTypes.string
 };
 
 
@@ -212,6 +213,7 @@ class ResultRow extends React.PureComponent {
         'renderDetailPane'  : PropTypes.func.isRequired,
         'detailPane' : PropTypes.element,
         'detailOpen' : PropTypes.bool.isRequired,
+        'defaultColAlignment': PropTypes.string,
         'setDetailHeight' : PropTypes.func.isRequired,
         'id' : PropTypes.string.isRequired,
         'context' : PropTypes.object.isRequired
@@ -287,7 +289,7 @@ class ResultRow extends React.PureComponent {
 
     renderColumns(){
         // TODO (?) prop func to do this to control which columns get which props.
-        const { columnDefinitions, mounted, columnWidths, windowWidth, ...remainingProps } = this.props;
+        const { columnDefinitions, mounted, columnWidths, windowWidth, defaultColAlignment, ...remainingProps } = this.props;
         // Contains required 'result', 'rowNumber', 'href', 'schemas', 'currentAction', 'detailOpen'
         const commonProps = _.omit(remainingProps, 'tableContainerWidth', 'renderDetailPane', 'detailPane', 'id', 'toggleDetailPaneOpen');
         return columnDefinitions.map((columnDefinition, columnNumber) => { // todo: rename columnNumber to columnIndex
@@ -296,6 +298,7 @@ class ResultRow extends React.PureComponent {
                 ...commonProps,
                 columnDefinition,
                 columnNumber,
+                defaultColAlignment,
                 // Only needed on first column (contains title, checkbox)
                 'toggleDetailOpen' : columnNumber === 0 ? this.toggleDetailOpen : null
             };
@@ -998,7 +1001,7 @@ class DimensioningContainer extends React.PureComponent {
                 tableContainerScrollLeft, stickyFirstColumn
             };
             const resultRowCommonProps = {
-                ..._.pick(this.props, 'renderDetailPane', 'detailPane', 'href', 'currentAction', 'schemas', 'termTransformFxn', 'targetTabKey'),
+                ..._.pick(this.props, 'renderDetailPane', 'detailPane', 'href', 'currentAction', 'schemas', 'termTransformFxn', 'targetTabKey', 'defaultColAlignment'),
                 context, rowHeight, navigate, isOwnPage, columnWidths,
                 columnDefinitions, tableContainerWidth, windowWidth,
                 'mounted' : mounted || false,
@@ -1097,6 +1100,7 @@ export class SearchResultTable extends React.Component {
         'href'              : PropTypes.string,
         'requestedCompoundFilterSet' : PropTypes.object,
         'columnDefinitions' : PropTypes.arrayOf(PropTypes.object),
+        'defaultColAlignment': PropTypes.string,
         'defaultWidthMap'   : PropTypes.shape({ 'lg' : PropTypes.number.isRequired, 'md' : PropTypes.number.isRequired, 'sm' : PropTypes.number.isRequired }),
         'hiddenColumns'     : PropTypes.objectOf(PropTypes.bool),
         // One of the following 2 is recommended for custom detail panes:
