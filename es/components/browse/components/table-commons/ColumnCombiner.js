@@ -177,16 +177,19 @@ export function columnsToColumnDefinitions(columns, columnExtensionMap) {
       columnProperties = _ref6[1];
     var _ref7$field = (columnExtensionMap || {})[field],
       columnExtension = _ref7$field === void 0 ? {} : _ref7$field;
-    var ceWidthMap = columnExtension.widthMap,
+    var ceColTitle = columnExtension.colTitle,
+      ceWidthMap = columnExtension.widthMap,
       ceRender = columnExtension.render,
       ceOrder = columnExtension.order,
       ceDisabled = columnExtension.disabled;
-    var cpWidthMap = columnProperties.widthMap,
+    var cpColTitle = columnProperties.colTitle,
+      cpWidthMap = columnProperties.widthMap,
       cpOrder = columnProperties.order,
       cpDisabled = columnProperties.disabled;
     var colDef = _objectSpread(_objectSpread(_objectSpread({}, columnExtension), columnProperties), {}, {
       field: field,
       // Precedence to specific columnExtensionMap values over columnProperties ones; fallbacks
+      colTitle: ceColTitle || cpColTitle,
       widthMap: ceWidthMap || cpWidthMap || defaultWidthMap,
       render: ceRender || null,
       disabled: typeof ceDisabled === "boolean" ? ceDisabled : typeof cpDisabled === "boolean" ? cpDisabled : false,

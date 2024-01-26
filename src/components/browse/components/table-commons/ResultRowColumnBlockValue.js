@@ -103,7 +103,8 @@ export class ResultRowColumnBlockValue extends React.Component {
             columnDefinition,
             tooltip : propTooltip,
             className,
-            termTransformFxn
+            termTransformFxn,
+            defaultAlignment = "text-center"
         } = this.props;
         const {
             field,
@@ -125,7 +126,7 @@ export class ResultRowColumnBlockValue extends React.Component {
             value = <span className="value">{ value }</span>;
         } else if (typeof value === 'string') {
             if (showTooltip && value.length > 25) tooltip = value;
-            value = <span className="value text-center">{ value }</span>;
+            value = <span className={"value " + defaultAlignment}>{ value }</span>;
         } else if (value === null){
             value = <small className="value text-center">-</small>;
         } else if (
@@ -134,9 +135,9 @@ export class ResultRowColumnBlockValue extends React.Component {
         ) {
             // We let other columnRender funcs define their `value` container (if any)
             // But if is link, e.g. from termTransformFxn, then wrap it to center it.
-            value = <span className="value text-center">{ value }</span>;
+            value = <span className={"value " + defaultAlignment}>{ value }</span>;
         } else if (typeof value === "boolean") {
-            value = <span className="value text-center">{ value }</span>;
+            value = <span className={"value " + defaultAlignment}>{ value }</span>;
         } else if (!renderFxn){
             value = <span className="value">{ value }</span>; // JSX from termTransformFxn - assume doesn't take table cell layouting into account.
         } // else is likely JSX from custom render function -- leave as-is

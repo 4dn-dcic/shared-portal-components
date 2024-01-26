@@ -1,4 +1,3 @@
-import _extends from "@babel/runtime/helpers/extends";
 import _objectWithoutProperties from "@babel/runtime/helpers/objectWithoutProperties";
 import _classCallCheck from "@babel/runtime/helpers/classCallCheck";
 import _createClass from "@babel/runtime/helpers/createClass";
@@ -7,7 +6,8 @@ import _inherits from "@babel/runtime/helpers/inherits";
 import _possibleConstructorReturn from "@babel/runtime/helpers/possibleConstructorReturn";
 import _getPrototypeOf from "@babel/runtime/helpers/getPrototypeOf";
 import _defineProperty from "@babel/runtime/helpers/defineProperty";
-var _excluded = ["columnDefinitions", "mounted", "columnWidths", "windowWidth"];
+import _extends from "@babel/runtime/helpers/extends";
+var _excluded = ["columnDefinitions", "mounted", "columnWidths", "windowWidth", "defaultColAlignment"];
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
@@ -39,7 +39,8 @@ import { basicColumnExtensionMap } from './table-commons/basicColumnExtensionMap
 var ResultRowColumnBlock = /*#__PURE__*/React.memo(function (props) {
   var columnDefinition = props.columnDefinition,
     columnNumber = props.columnNumber,
-    width = props.width;
+    width = props.width,
+    defaultColAlignment = props.defaultColAlignment;
   var field = columnDefinition.field;
   return (
     /*#__PURE__*/
@@ -52,7 +53,9 @@ var ResultRowColumnBlock = /*#__PURE__*/React.memo(function (props) {
       "data-field": field,
       "data-first-visible-column": columnNumber === 0 ? true : undefined,
       "data-column-even": columnNumber % 2 === 0
-    }, /*#__PURE__*/React.createElement(ResultRowColumnBlockValue, props))
+    }, /*#__PURE__*/React.createElement(ResultRowColumnBlockValue, _extends({}, props, {
+      defaultAlignment: defaultColAlignment
+    })))
   );
 });
 ResultRowColumnBlock.propTypes = {
@@ -60,7 +63,8 @@ ResultRowColumnBlock.propTypes = {
   "width": PropTypes.number.isRequired,
   "schemas": PropTypes.object,
   "columnDefinition": PropTypes.object.isRequired,
-  "columnNumber": PropTypes.number.isRequired
+  "columnNumber": PropTypes.number.isRequired,
+  "defaultColAlignment": PropTypes.string
 };
 
 /** Not used anywhere (?) */
@@ -313,6 +317,7 @@ var ResultRow = /*#__PURE__*/function (_React$PureComponent2) {
         mounted = _this$props6.mounted,
         columnWidths = _this$props6.columnWidths,
         windowWidth = _this$props6.windowWidth,
+        defaultColAlignment = _this$props6.defaultColAlignment,
         remainingProps = _objectWithoutProperties(_this$props6, _excluded);
       // Contains required 'result', 'rowNumber', 'href', 'schemas', 'currentAction', 'detailOpen'
       var commonProps = _.omit(remainingProps, 'tableContainerWidth', 'renderDetailPane', 'detailPane', 'id', 'toggleDetailPaneOpen');
@@ -322,6 +327,7 @@ var ResultRow = /*#__PURE__*/function (_React$PureComponent2) {
         var passedProps = _objectSpread(_objectSpread({}, commonProps), {}, {
           columnDefinition: columnDefinition,
           columnNumber: columnNumber,
+          defaultColAlignment: defaultColAlignment,
           // Only needed on first column (contains title, checkbox)
           'toggleDetailOpen': columnNumber === 0 ? _this3.toggleDetailOpen : null
         });
@@ -419,6 +425,7 @@ _defineProperty(ResultRow, "propTypes", {
   'renderDetailPane': PropTypes.func.isRequired,
   'detailPane': PropTypes.element,
   'detailOpen': PropTypes.bool.isRequired,
+  'defaultColAlignment': PropTypes.string,
   'setDetailHeight': PropTypes.func.isRequired,
   'id': PropTypes.string.isRequired,
   'context': PropTypes.object.isRequired
@@ -1119,7 +1126,7 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
       var shadowBorderLayer = null;
       var childrenToShow = null;
       if (anyResults) {
-        var headerRowCommonProps = _objectSpread(_objectSpread({}, _.pick(this.props, 'columnDefinitions', 'sortBy', 'sortColumns', 'sortColumn', 'sortReverse', 'defaultMinColumnWidth', 'renderDetailPane', 'detailPane', 'windowWidth')), {}, {
+        var headerRowCommonProps = _objectSpread(_objectSpread({}, _.pick(this.props, 'columnDefinitions', 'sortBy', 'sortColumns', 'sortColumn', 'sortReverse', 'defaultMinColumnWidth', 'renderDetailPane', 'detailPane', 'windowWidth', 'context')), {}, {
           mounted: mounted,
           results: results,
           rowHeight: rowHeight,
@@ -1128,7 +1135,7 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
           tableContainerScrollLeft: tableContainerScrollLeft,
           stickyFirstColumn: stickyFirstColumn
         });
-        var resultRowCommonProps = _objectSpread(_objectSpread({}, _.pick(this.props, 'renderDetailPane', 'detailPane', 'href', 'currentAction', 'schemas', 'termTransformFxn', 'targetTabKey')), {}, {
+        var resultRowCommonProps = _objectSpread(_objectSpread({}, _.pick(this.props, 'renderDetailPane', 'detailPane', 'href', 'currentAction', 'schemas', 'termTransformFxn', 'targetTabKey', 'defaultColAlignment')), {}, {
           context: context,
           rowHeight: rowHeight,
           navigate: navigate,
@@ -1355,6 +1362,7 @@ _defineProperty(SearchResultTable, "propTypes", {
   'href': PropTypes.string,
   'requestedCompoundFilterSet': PropTypes.object,
   'columnDefinitions': PropTypes.arrayOf(PropTypes.object),
+  'defaultColAlignment': PropTypes.string,
   'defaultWidthMap': PropTypes.shape({
     'lg': PropTypes.number.isRequired,
     'md': PropTypes.number.isRequired,
