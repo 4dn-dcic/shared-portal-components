@@ -23,7 +23,7 @@ import { layout, console } from './../util';
  * Converts links to other files into links to sections from a React element and its children (recursively).
  *
  * @param {*} elem                                      A high-level React element representation of some content which might have relative links.
- * @param {{ content: { name: string }}} context        Backend-provided data.
+ * @param {{ content: { name: string }}} context        Backend-provided data. (Note: "name" has been renamed to "identifier" on SMaHT; seems OK now, but may need double check for future edits)
  * @param {number} [depth=0]                            Current depth.
  * @returns {JSX.Element} Copy of original 'elem' param with corrected links.
  */
@@ -219,7 +219,8 @@ export var StaticPageBase = /*#__PURE__*/function (_React$PureComponent2) {
       var _this$props2 = this.props,
         context = _this$props2.context,
         entryRenderFxn = _this$props2.entryRenderFxn,
-        contentParseFxn = _this$props2.contentParseFxn;
+        contentParseFxn = _this$props2.contentParseFxn,
+        CustomWrapper = _this$props2.CustomWrapper;
       var parsedContent = null;
       try {
         parsedContent = contentParseFxn(context);
@@ -237,7 +238,15 @@ export var StaticPageBase = /*#__PURE__*/function (_React$PureComponent2) {
         });
       }
       var tableOfContents = parsedContent && parsedContent['table-of-contents'] && parsedContent['table-of-contents'].enabled ? parsedContent['table-of-contents'] : false;
-      return /*#__PURE__*/React.createElement(Wrapper, _extends({}, _.pick(this.props, 'navigate', 'windowWidth', 'windowHeight', 'registerWindowOnScrollHandler', 'href', 'fixedPositionBreakpoint'), {
+      if (!CustomWrapper) {
+        return /*#__PURE__*/React.createElement(Wrapper, _extends({}, _.pick(this.props, 'navigate', 'windowWidth', 'windowHeight', 'registerWindowOnScrollHandler', 'href', 'fixedPositionBreakpoint'), {
+          key: "page-wrapper",
+          title: parsedContent.title,
+          tableOfContents: tableOfContents,
+          context: parsedContent
+        }), StaticPageBase.renderSections(entryRenderFxn, parsedContent, this.props));
+      }
+      return /*#__PURE__*/React.createElement(CustomWrapper, _extends({}, _.pick(this.props, 'navigate', 'windowWidth', 'windowHeight', 'registerWindowOnScrollHandler', 'href', 'fixedPositionBreakpoint'), {
         key: "page-wrapper",
         title: parsedContent.title,
         tableOfContents: tableOfContents,
@@ -252,7 +261,7 @@ export var StaticPageBase = /*#__PURE__*/function (_React$PureComponent2) {
         return null;
       }
       return _.map(parsedContent.content, function (section) {
-        return renderMethod(section.id || section.name, section, props);
+        return renderMethod(section.id || section.name || section.identifier, section, props);
       });
     }
   }]);
@@ -300,5 +309,6 @@ _defineProperty(StaticPageBase, "propTypes", {
   }).isRequired,
   'entryRenderFxn': PropTypes.func.isRequired,
   'contentParseFxn': PropTypes.func.isRequired,
-  'href': PropTypes.string
+  'href': PropTypes.string,
+  'CustomWrapper': PropTypes.element
 });

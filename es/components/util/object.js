@@ -52,7 +52,7 @@ export function linkFromItem(item) {
   var elementProps = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
   var suppressErrors = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : true;
   var href = atIdFromObject(item),
-    title = item && _typeof(item) === 'object' && (propertyForTitle && item[propertyForTitle] || item.display_title || item.title || item.name || href);
+    title = item && _typeof(item) === 'object' && (propertyForTitle && item[propertyForTitle] || item.display_title || item.title || item.name || item.identifier || href);
   if (!href || !title) {
     if (item && _typeof(item) === 'object' && typeof item.error === 'string') {
       return /*#__PURE__*/React.createElement("em", null, item.error);
@@ -751,7 +751,7 @@ export var itemUtil = {
    * @returns {string} The title.
    */
   getTitleStringFromContext: function getTitleStringFromContext(context) {
-    return context.display_title || context.title || context.name || context.download || context.accession || context.uuid || (typeof context['@id'] === 'string' ? context['@id'] : null //: 'No title found'
+    return context.display_title || context.title || context.name || context.identifier || context.download || context.accession || context.uuid || (typeof context['@id'] === 'string' ? context['@id'] : null //: 'No title found'
     );
   },
 

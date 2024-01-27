@@ -145,13 +145,14 @@ export function columnsToColumnDefinitions(columns, columnExtensionMap, defaultW
 
     const columnDefinitions = _.pairs(columns).map(function([ field, columnProperties ], colPairIndex){
         const { [field]: columnExtension = {} } = columnExtensionMap || {};
-        const { widthMap: ceWidthMap, render: ceRender, order: ceOrder, disabled: ceDisabled } = columnExtension;
-        const { widthMap: cpWidthMap, order: cpOrder, disabled: cpDisabled } = columnProperties;
+        const { colTitle: ceColTitle, widthMap: ceWidthMap, render: ceRender, order: ceOrder, disabled: ceDisabled } = columnExtension;
+        const { colTitle: cpColTitle, widthMap: cpWidthMap, order: cpOrder, disabled: cpDisabled } = columnProperties;
         const colDef = {
             ...columnExtension,
             ...columnProperties,
             field,
             // Precedence to specific columnExtensionMap values over columnProperties ones; fallbacks
+            colTitle: ceColTitle || cpColTitle,
             widthMap: ceWidthMap || cpWidthMap || defaultWidthMap,
             render: ceRender || null,
             disabled: typeof ceDisabled === "boolean" ? ceDisabled

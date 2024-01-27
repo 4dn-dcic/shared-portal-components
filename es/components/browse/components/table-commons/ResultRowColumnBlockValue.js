@@ -53,7 +53,9 @@ export var ResultRowColumnBlockValue = /*#__PURE__*/function (_React$Component) 
         columnDefinition = _this$props2.columnDefinition,
         propTooltip = _this$props2.tooltip,
         className = _this$props2.className,
-        termTransformFxn = _this$props2.termTransformFxn;
+        termTransformFxn = _this$props2.termTransformFxn,
+        _this$props2$defaultA = _this$props2.defaultAlignment,
+        defaultAlignment = _this$props2$defaultA === void 0 ? "text-center" : _this$props2$defaultA;
       var field = columnDefinition.field,
         _columnDefinition$ren = columnDefinition.render,
         renderFxn = _columnDefinition$ren === void 0 ? null : _columnDefinition$ren,
@@ -71,7 +73,7 @@ export var ResultRowColumnBlockValue = /*#__PURE__*/function (_React$Component) 
       } else if (typeof value === 'string') {
         if ((propTooltip === true || colDefTooltip === true) && value.length > 25) tooltip = value;
         value = /*#__PURE__*/React.createElement("span", {
-          className: "value text-center"
+          className: "value " + defaultAlignment
         }, value);
       } else if (value === null) {
         value = /*#__PURE__*/React.createElement("small", {
@@ -81,11 +83,11 @@ export var ResultRowColumnBlockValue = /*#__PURE__*/function (_React$Component) 
         // We let other columnRender funcs define their `value` container (if any)
         // But if is link, e.g. from termTransformFxn, then wrap it to center it.
         value = /*#__PURE__*/React.createElement("span", {
-          className: "value text-center"
+          className: "value " + defaultAlignment
         }, value);
       } else if (typeof value === "boolean") {
         value = /*#__PURE__*/React.createElement("span", {
-          className: "value text-center"
+          className: "value " + defaultAlignment
         }, value);
       } else if (!renderFxn) {
         value = /*#__PURE__*/React.createElement("span", {

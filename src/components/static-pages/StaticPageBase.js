@@ -13,7 +13,7 @@ import { layout, console } from './../util';
  * Converts links to other files into links to sections from a React element and its children (recursively).
  *
  * @param {*} elem                                      A high-level React element representation of some content which might have relative links.
- * @param {{ content: { name: string }}} context        Backend-provided data.
+ * @param {{ content: { name: string }}} context        Backend-provided data. (Note: "name" has been renamed to "identifier" on SMaHT; seems OK now, but may need double check for future edits)
  * @param {number} [depth=0]                            Current depth.
  * @returns {JSX.Element} Copy of original 'elem' param with corrected links.
  */
@@ -202,7 +202,7 @@ export class StaticPageBase extends React.PureComponent {
         return _.map(
             parsedContent.content,
             function(section){
-                return renderMethod(section.id || section.name, section, props);
+                return renderMethod(section.id || section.name || section.identifier, section, props);
             }
         );
     }
@@ -248,11 +248,12 @@ export class StaticPageBase extends React.PureComponent {
         }).isRequired,
         'entryRenderFxn' : PropTypes.func.isRequired,
         'contentParseFxn' : PropTypes.func.isRequired,
-        'href' : PropTypes.string
+        'href' : PropTypes.string,
+        'CustomWrapper': PropTypes.element
     };
 
     render(){
-        const { context, entryRenderFxn, contentParseFxn } = this.props;
+        const { context, entryRenderFxn, contentParseFxn, CustomWrapper } = this.props;
         let parsedContent = null;
         try {
             parsedContent = contentParseFxn(context);
@@ -270,13 +271,24 @@ export class StaticPageBase extends React.PureComponent {
             }] };
         }
         const tableOfContents = (parsedContent && parsedContent['table-of-contents'] && parsedContent['table-of-contents'].enabled) ? parsedContent['table-of-contents'] : false;
+
+        if (!CustomWrapper) {
+            return (
+                <Wrapper
+                    {..._.pick(this.props, 'navigate', 'windowWidth', 'windowHeight', 'registerWindowOnScrollHandler', 'href', 'fixedPositionBreakpoint')}
+                    key="page-wrapper" title={parsedContent.title}
+                    tableOfContents={tableOfContents} context={parsedContent}>
+                    { StaticPageBase.renderSections(entryRenderFxn, parsedContent, this.props) }
+                </Wrapper>
+            );
+        }
         return (
-            <Wrapper
+            <CustomWrapper
                 {..._.pick(this.props, 'navigate', 'windowWidth', 'windowHeight', 'registerWindowOnScrollHandler', 'href', 'fixedPositionBreakpoint')}
                 key="page-wrapper" title={parsedContent.title}
                 tableOfContents={tableOfContents} context={parsedContent}>
                 { StaticPageBase.renderSections(entryRenderFxn, parsedContent, this.props) }
-            </Wrapper>
+            </CustomWrapper>
         );
     }
 }

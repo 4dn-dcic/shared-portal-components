@@ -176,10 +176,12 @@ var SubItemTable = /*#__PURE__*/function (_React$Component) {
         return _.map(columnKeys, function (colKeyContainer, colKeyIndex) {
           var colKey = colKeyContainer.key;
           var value = getNestedProperty(item, colKey);
-          if (!value) return {
-            'value': '-',
-            'key': colKey
-          };
+          if (!value && value !== 0) {
+            return {
+              'value': '-',
+              'key': colKey
+            };
+          }
           if (typeof columnDefinitions[parentKey + '.' + colKey] !== 'undefined') {
             if (typeof columnDefinitions[parentKey + '.' + colKey].render === 'function') {
               return {
@@ -366,9 +368,6 @@ var SubItemTable = /*#__PURE__*/function (_React$Component) {
               href: val
             }, val);
           }
-          if (typeof val === 'string' && val.length > 50) {
-            val = val.slice(0, 50) + '...';
-          }
           if (val && _typeof(val) === 'object' && ! /*#__PURE__*/React.isValidElement(val) && !Array.isArray(val)) {
             if (isAnItem(val)) {
               val = /*#__PURE__*/React.createElement("a", {
@@ -452,17 +451,31 @@ var SubItemTable = /*#__PURE__*/function (_React$Component) {
           if (!schemaForType || !schemaForType.columns) return true; // No columns on this Item type's schema. Skip.
         }
       })) return false;
+
+      /**
+       * The reduce function below creates an object containing the keys and
+       * values of each item by extending the returned accumulator object [m]
+       */
       var objectWithAllItemKeys = _.reduce(list, function (m, v) {
+        // clone the new item [v] in [list] and its keys
         var v2 = _.clone(v);
         var valKeys = _.keys(v2);
-        // Exclude empty arrays from copied-from object, add them into memo property instead of overwrite.
-        for (var i = 0; i < valKeys.length; i++) {
-          if (Array.isArray(v2[valKeys[i]])) {
-            m[valKeys[i]] = (m[valKeys[i]] || []).concat(v2[valKeys[i]]);
-            delete v2[valKeys[i]];
-          } else if (v2[valKeys[i]] && _typeof(v2[valKeys[i]]) === 'object') {
-            m[valKeys[i]] = _.extend(m[valKeys[i]] || {}, v2[valKeys[i]]);
-            delete v2[valKeys[i]];
+
+        // Add keys and values from v2 into accumulator variable [m]
+        for (var _i = 0; _i < valKeys.length; _i++) {
+          var valKey = valKeys[_i];
+          if (Array.isArray(v2[valKey])) {
+            // Concatenate value in [v2] into value in [m]
+            m[valKey] = (m[valKey] || []).concat(v2[valKey]);
+            delete v2[valKey];
+          } else if (v2[valKey] && _typeof(v2[valKey]) === 'object') {
+            // Extend value in [m] with value in [v2]
+            if (_typeof(m[valKey]) === 'object') {
+              m[valKey] = _.extend(m[valKey] || {}, v2[valKey]);
+            } else {
+              m[valKey] = [m[valKey], v2[valKey]];
+            }
+            delete v2[valKey];
           }
         }
         return _.extend(m, v2);
@@ -608,7 +621,7 @@ var SubItemTable = /*#__PURE__*/function (_React$Component) {
       } else {
         // Gather, flatten up from Object.
         for (var i = 0; i < rootKeys.length; i++) {
-          if (typeof objectWithAllItemKeys[rootKeys[i]] === 'string' || typeof objectWithAllItemKeys[rootKeys[i]] === 'number' || Array.isArray(objectWithAllItemKeys[rootKeys[i]])) {
+          if (typeof objectWithAllItemKeys[rootKeys[i]] === 'string' || typeof objectWithAllItemKeys[rootKeys[i]] === 'number' || typeof objectWithAllItemKeys[rootKeys[i]] === 'boolean' || Array.isArray(objectWithAllItemKeys[rootKeys[i]])) {
             if (Array.isArray(objectWithAllItemKeys[rootKeys[i]]) && objectWithAllItemKeys[rootKeys[i]][0] && _typeof(objectWithAllItemKeys[rootKeys[i]][0]) === 'object' && typeof objectWithAllItemKeys[rootKeys[i]][0].display_title !== 'string') {
               columnKeys.push({
                 'key': rootKeys[i],
@@ -751,6 +764,16 @@ var DetailRow = /*#__PURE__*/function (_React$PureComponent) {
         }, /*#__PURE__*/React.createElement("span", {
           className: "number-icon text-200"
         }, "#"), " ", labelNumber), label);
+      }
+
+      // For Input Arguments in MetaWorkflows that do not display as tables, 
+      // replace number with argument name
+      if (this.props.itemType === "MetaWorkflow" && this.props['data-key'] === "input" && value.type !== SubItemTable) {
+        labelToShow = /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("span", {
+          className: "label-number right d-inline-block" + (isOpen ? ' active' : '')
+        }, /*#__PURE__*/React.createElement("span", {
+          className: "number-icon text-200"
+        }), " ", item.argument_name), label);
       }
       if (value.type === SubItemTitle) {
         // What we have here is an embedded object of some sort. Lets override its 'isOpen' & 'onToggle' functions.
@@ -935,7 +958,9 @@ export var Detail = /*#__PURE__*/function (_React$PureComponent2) {
             }, JSON.stringify(it, null, 1));
           }));
         }
-        return /*#__PURE__*/React.createElement("ol", null, item.length === 0 ? /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("em", null, "None")) : item.map(function (it, i) {
+        return /*#__PURE__*/React.createElement("ol", null, item.length === 0 ? /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("em", null, "None")) :
+        // Recursively render sub-items by calling [formValue]
+        item.map(function (it, i) {
           return /*#__PURE__*/React.createElement("li", {
             key: i
           }, Detail.formValue(it, popLink, keyPrefix, atType, columnDefinitions, depth + 1, schemas));

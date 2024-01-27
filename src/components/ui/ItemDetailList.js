@@ -122,20 +122,37 @@ class SubItemTable extends React.Component {
                 if (!schemaForType || !schemaForType.columns) return true; // No columns on this Item type's schema. Skip.
             }
         })) return false;
+        
+        /**
+         * The reduce function below creates an object containing the keys and
+         * values of each item by extending the returned accumulator object [m]
+         */
+        const objectWithAllItemKeys = _.reduce(list, function(m, v){
+            // clone the new item [v] in [list] and its keys
+            let v2 = _.clone(v);
+            let valKeys = _.keys(v2);
+            
+            // Add keys and values from v2 into accumulator variable [m]
+            for (let i = 0; i < valKeys.length; i++) {
 
-        var objectWithAllItemKeys = _.reduce(list, function(m, v){
-            var v2 = _.clone(v);
-            var valKeys = _.keys(v2);
-            // Exclude empty arrays from copied-from object, add them into memo property instead of overwrite.
-            for (var i = 0; i < valKeys.length; i++){
-                if (Array.isArray(v2[valKeys[i]])){
-                    m[valKeys[i]] = (m[valKeys[i]] || []).concat(v2[valKeys[i]]);
-                    delete v2[valKeys[i]];
-                } else if (v2[valKeys[i]] && typeof v2[valKeys[i]] === 'object'){
-                    m[valKeys[i]] = _.extend(m[valKeys[i]] || {}, v2[valKeys[i]]);
-                    delete v2[valKeys[i]];
+                const valKey = valKeys[i];
+
+                if (Array.isArray(v2[valKey])){
+                   // Concatenate value in [v2] into value in [m]
+                   m[valKey] = (m[valKey] || []).concat(v2[valKey]);
+                   delete v2[valKey];
+                } else if (v2[valKey] && typeof v2[valKey] === 'object') {
+                     // Extend value in [m] with value in [v2]
+                    if (typeof m[valKey] === 'object') {
+                        m[valKey] = _.extend(m[valKey] || {}, v2[valKey]);
+                    }
+                    else {
+                        m[valKey] = [ m[valKey], v2[valKey] ];
+                    }
+                    delete v2[valKey];
                 }
             }
+
             return _.extend(m, v2);
         }, {});
 
@@ -292,7 +309,7 @@ class SubItemTable extends React.Component {
         } else {
             // Gather, flatten up from Object.
             for (var i = 0; i < rootKeys.length; i++){
-                if (typeof objectWithAllItemKeys[rootKeys[i]] === 'string' || typeof objectWithAllItemKeys[rootKeys[i]] === 'number' || Array.isArray(objectWithAllItemKeys[rootKeys[i]])) {
+                if (typeof objectWithAllItemKeys[rootKeys[i]] === 'string' || typeof objectWithAllItemKeys[rootKeys[i]] === 'number' || typeof objectWithAllItemKeys[rootKeys[i]] === 'boolean' || Array.isArray(objectWithAllItemKeys[rootKeys[i]])) {
                     if (  Array.isArray(objectWithAllItemKeys[rootKeys[i]]) && objectWithAllItemKeys[rootKeys[i]][0] && typeof objectWithAllItemKeys[rootKeys[i]][0] === 'object' && typeof objectWithAllItemKeys[rootKeys[i]][0].display_title !== 'string' ) {
                         columnKeys.push({
                             'key' : rootKeys[i],
@@ -429,7 +446,10 @@ class SubItemTable extends React.Component {
             return _.map(columnKeys, (colKeyContainer, colKeyIndex)=>{
                 const colKey = colKeyContainer.key;
                 const value = getNestedProperty(item, colKey);
-                if (!value) return { 'value' : '-', 'key' : colKey };
+
+                if (!value && value !== 0) {
+                    return { 'value' : '-', 'key' : colKey };
+                }
                 if (typeof columnDefinitions[parentKey + '.' + colKey] !== 'undefined'){
                     if (typeof columnDefinitions[parentKey + '.' + colKey].render === 'function'){
                         return {
@@ -587,9 +607,6 @@ class SubItemTable extends React.Component {
                                                     if (colVal.key === '@id' && val.slice(0,1) === '/') {
                                                         val = <a href={val}>{ val }</a>;
                                                     }
-                                                    if (typeof val === 'string' && val.length > 50){
-                                                        val = val.slice(0,50) + '...';
-                                                    }
                                                     if (val && typeof val === 'object' && !React.isValidElement(val) && !Array.isArray(val)) {
                                                         if (isAnItem(val)) {
                                                             val = <a href={itemUtil.atId(val)}>{val.display_title}</a>;
@@ -667,10 +684,22 @@ class DetailRow extends React.PureComponent {
         const { isOpen } = this.state;
         let value = Detail.formValue(item, popLink, key, itemType, columnDefinitions, 0, schemas, termTransformFxn);
         let labelToShow = label;
+
         if (labelNumber) {
             labelToShow = (
                 <span>
                     <span className={"label-number right d-inline-block" + (isOpen ? ' active' : '')}><span className="number-icon text-200">#</span> { labelNumber }</span>
+                    { label }
+                </span>
+            );
+        }
+
+        // For Input Arguments in MetaWorkflows that do not display as tables, 
+        // replace number with argument name
+        if (this.props.itemType === "MetaWorkflow" && this.props['data-key'] === "input" && value.type !== SubItemTable) {
+            labelToShow = (
+                <span>
+                    <span className={"label-number right d-inline-block" + (isOpen ? ' active' : '')}><span className="number-icon text-200"></span> { item.argument_name }</span>
                     { label }
                 </span>
             );
@@ -781,6 +810,7 @@ export class Detail extends React.PureComponent {
                 <ol>
                     {   item.length === 0 ? <li><em>None</em></li>
                         :
+                        // Recursively render sub-items by calling [formValue]
                         item.map(function(it, i){
                             return <li key={i}>{ Detail.formValue(it, popLink, keyPrefix, atType, columnDefinitions, depth + 1, schemas) }</li>;
                         })

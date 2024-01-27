@@ -39,6 +39,7 @@ export class HeadersRow extends React.PureComponent {
         'tableContainerScrollLeft' : PropTypes.number,
         'windowWidth' : PropTypes.number,
         'stickyFirstColumn': PropTypes.bool,
+        'context': PropTypes.object, // Can be page context or virtual
         // Passed down from CustomColumnController (if used)
         'columnWidths' : PropTypes.objectOf(PropTypes.number),
         'setColumnWidths' : PropTypes.func,
@@ -269,7 +270,8 @@ export class HeadersRow extends React.PureComponent {
             width,
             tableContainerScrollLeft,
             windowWidth,
-            stickyFirstColumn = false
+            stickyFirstColumn = false,
+            context
         } = this.props;
         const { showingSortFieldsForColumn, widths, loadingField } = this.state;
         const sortColumnMap = this.memoized.getSortColumnMap(columnDefinitions, sortColumns);
@@ -317,7 +319,7 @@ export class HeadersRow extends React.PureComponent {
                             const width = alignedWidths[index];
                             const headerColumn = (
                                 // `props.active` may be undefined, object with more fields, or array where first item is `descending` flag (bool).
-                                <HeadersRowColumn {...commonProps} {...{ columnDefinition, index, showingSortOptionsMenu, isLoading, width }}
+                                <HeadersRowColumn {...commonProps} {...{ context, columnDefinition, index, showingSortOptionsMenu, isLoading, width }}
                                     key={field} sortMap={sortColumnMap[field]} />
                             );
                             if (index === 0 && stickyFirstColumn) {
@@ -378,11 +380,28 @@ class HeadersRowColumn extends React.PureComponent {
             setShowingSortFieldsFor,
             sortMap,
             isLoading = false,
-            index
+            index,
+            context
         } = this.props;
-        const { noSort, colTitle, title, field, description = null } = columnDefinition;
-        const showTitle = colTitle || title;
-        const titleTooltip = this.memoized.showTooltip(width, typeof colTitle === "string" ? colTitle : title) ? title : null;
+        const { noSort, colTitle, title, field, description = null, hideTooltip } = columnDefinition;
+
+        // Wanted more flexibility here, so am injecting some props into the title if it is a React component
+        // TODO: May make sense to eventually have a proper titleRender function like for column rendering in future if
+        // more parentProps are needed...
+        let showTitle;
+
+        // Check if colTitle is a React component (function or class)
+        const isComponent = typeof colTitle?.type === 'function';
+        // Double check we're not overwriting context passed in elsewhere
+        if (isComponent && !('context' in colTitle.props)) {
+            // Clone and pass along values from parent that might be useful if not present
+            showTitle = React.cloneElement(colTitle, { context });
+        } else {
+            // Could be a DOM element or a string, return as-is
+            showTitle = colTitle || title;
+        }
+
+        const titleTooltip = this.memoized.showTooltip(width, typeof colTitle === "string" ? colTitle : title) && !hideTooltip ? title : null;
         const tooltip = description ? (titleTooltip ? `<h5 class="mb-03">${titleTooltip}</h5>` + description : description) : (titleTooltip? titleTooltip : null);
         let sorterIcon;
         if (!noSort && typeof sortByField === 'function' && width >= 50){
