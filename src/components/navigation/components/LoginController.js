@@ -28,7 +28,7 @@ export class LoginController extends React.PureComponent {
         'auth0Options'        : PropTypes.object,
         'children'            : PropTypes.node.isRequired,
         'href'                : PropTypes.string,
-        'auth0CustomInfo'     : PropTypes.string
+        'auth0PopupText'      : PropTypes.string
     };
 
     static defaultProps = {
@@ -320,10 +320,10 @@ export class LoginController extends React.PureComponent {
      * pass the correct props. Additionaly, we are using createDOMPurify to eliminate any malicious code injection.
      */
     onAuth0LoginShow() {
-        const { auth0CustomInfo } = this.props;
+        const { auth0PopupText } = this.props;
 
         let domPurifyInstance;
-        if (isServerSide() || !(auth0CustomInfo && typeof auth0CustomInfo === 'string')) {
+        if (isServerSide() || !(auth0PopupText && typeof auth0PopupText === 'string')) {
             return;
         } else {
             domPurifyInstance = createDOMPurify;
@@ -341,17 +341,17 @@ export class LoginController extends React.PureComponent {
             }
         });
 
-        const sanitizedHtmlString = domPurifyInstance.sanitize(auth0CustomInfo, { FORBID_TAGS: ['script'], ADD_ATTR: ['target'] });
+        const sanitizedHtmlString = domPurifyInstance.sanitize(auth0PopupText, { FORBID_TAGS: ['script'], ADD_ATTR: ['target'] });
 
         const socialButtonsPane = document.querySelector(".auth-lock-social-buttons-pane");
         if (!socialButtonsPane) {
             throw new Error("Can't find .auth-lock-social-buttons-pane");
         }
         const infoContent =
-            socialButtonsPane.querySelector(".auth0-custom-info") ||
+            socialButtonsPane.querySelector(".auth0-popup-text") ||
             document.createElement("div");
         if (!infoContent.parentElement) {
-            infoContent.classList.add("auth0-custom-info");
+            infoContent.classList.add("auth0-popup-text");
             infoContent.innerHTML = sanitizedHtmlString;
             socialButtonsPane.insertBefore(infoContent, socialButtonsPane.children[0]);
         }

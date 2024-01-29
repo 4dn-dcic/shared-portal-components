@@ -331,9 +331,9 @@ export var LoginController = /*#__PURE__*/function (_React$PureComponent) {
   }, {
     key: "onAuth0LoginShow",
     value: function onAuth0LoginShow() {
-      var auth0CustomInfo = this.props.auth0CustomInfo;
+      var auth0PopupText = this.props.auth0PopupText;
       var domPurifyInstance;
-      if (isServerSide() || !(auth0CustomInfo && typeof auth0CustomInfo === 'string')) {
+      if (isServerSide() || !(auth0PopupText && typeof auth0PopupText === 'string')) {
         return;
       } else {
         domPurifyInstance = createDOMPurify;
@@ -349,7 +349,7 @@ export var LoginController = /*#__PURE__*/function (_React$PureComponent) {
           node.setAttribute('rel', 'noopener noreferrer');
         }
       });
-      var sanitizedHtmlString = domPurifyInstance.sanitize(auth0CustomInfo, {
+      var sanitizedHtmlString = domPurifyInstance.sanitize(auth0PopupText, {
         FORBID_TAGS: ['script'],
         ADD_ATTR: ['target']
       });
@@ -357,9 +357,9 @@ export var LoginController = /*#__PURE__*/function (_React$PureComponent) {
       if (!socialButtonsPane) {
         throw new Error("Can't find .auth-lock-social-buttons-pane");
       }
-      var infoContent = socialButtonsPane.querySelector(".auth0-custom-info") || document.createElement("div");
+      var infoContent = socialButtonsPane.querySelector(".auth0-popup-text") || document.createElement("div");
       if (!infoContent.parentElement) {
-        infoContent.classList.add("auth0-custom-info");
+        infoContent.classList.add("auth0-popup-text");
         infoContent.innerHTML = sanitizedHtmlString;
         socialButtonsPane.insertBefore(infoContent, socialButtonsPane.children[0]);
       }
@@ -470,7 +470,7 @@ _defineProperty(LoginController, "propTypes", {
   'auth0Options': PropTypes.object,
   'children': PropTypes.node.isRequired,
   'href': PropTypes.string,
-  'auth0CustomInfo': PropTypes.string
+  'auth0PopupText': PropTypes.string
 });
 _defineProperty(LoginController, "defaultProps", {
   // Login / logout actions must be deferred until Auth0 is ready.
