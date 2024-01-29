@@ -17,11 +17,13 @@ import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
 import jwt from 'jsonwebtoken';
+import createDOMPurify from 'dompurify';
 import { Alerts } from './../../ui/Alerts';
 import * as JWT from './../../util/json-web-token';
 import { navigate } from './../../util/navigate';
 import { load, fetch, promise as ajaxPromise } from './../../util/ajax';
 import { event as trackEvent, setUserID } from './../../util/analytics';
+import { memoizedUrlParse, isServerSide } from './../../util/misc';
 import * as logger from '../../util/logger';
 
 /** Imported in componentDidMount. */
@@ -40,6 +42,7 @@ export var LoginController = /*#__PURE__*/function (_React$PureComponent) {
     });
     _this.validateCookieAndObtainAdditionalUserInfo = _this.validateCookieAndObtainAdditionalUserInfo.bind(_assertThisInitialized(_this));
     _this.auth0LoginCallback = _this.auth0LoginCallback.bind(_assertThisInitialized(_this));
+    _this.onAuth0LoginShow = _this.onAuth0LoginShow.bind(_assertThisInitialized(_this));
     _this.onRegistrationComplete = _this.onRegistrationComplete.bind(_assertThisInitialized(_this));
     _this.onRegistrationCancel = _this.onRegistrationCancel.bind(_assertThisInitialized(_this));
     _this.state = {
@@ -76,35 +79,87 @@ export var LoginController = /*#__PURE__*/function (_React$PureComponent) {
         // but will remain necessary for container specification on CGAP to keep login modal from
         // appearing on page load)
         var options = _objectSpread(_objectSpread({}, auth0OptionsFallback), auth0Options);
-        var createLock = function () {
-          _this2.lock = new Auth0Lock(auth0Client, auth0Domain, options);
-          _this2.lock.on("authenticated", _this2.auth0LoginCallback);
-          setTimeout(function () {
-            _this2.setState({
-              "isAuth0LibraryLoaded": true
-            });
-          }, 200);
-        };
-        if (!isAuth0LibraryLoaded) {
-          // prefetch & preload enabled here since is likely that user might want to click Login very quickly after loading webpage.
-          import( /* webpackChunkName: "auth0-lock-bundle" */
-          /* webpackMode: "lazy" */
-          /* webpackPrefetch: true */
-          /* webpackPreload: true */
-          "auth0-lock").then(function (_ref2) {
-            var Auth0LockImport = _ref2["default"];
-            Auth0Lock = Auth0LockImport;
-            // As of 9.11.0, auth0-js (dependency of Auth0Lock) cannot work outside of browser context.
-            // We import it here in separate bundle instead to avoid issues during server-side render.
-            createLock();
+        if (auth0Domain.indexOf('auth0') != -1) {
+          var createLock = function () {
+            _this2.lock = new Auth0Lock(auth0Client, auth0Domain, options);
+            _this2.lock.on("authenticated", _this2.auth0LoginCallback);
+            _this2.lock.on("show", _this2.onAuth0LoginShow);
             setTimeout(function () {
               _this2.setState({
                 "isAuth0LibraryLoaded": true
               });
             }, 200);
-          });
+          };
+          if (!isAuth0LibraryLoaded) {
+            // prefetch & preload enabled here since is likely that user might want to click Login very quickly after loading webpage.
+            import( /* webpackChunkName: "auth0-lock-bundle" */
+            /* webpackMode: "lazy" */
+            /* webpackPrefetch: true */
+            /* webpackPreload: true */
+            "auth0-lock").then(function (_ref2) {
+              var Auth0LockImport = _ref2["default"];
+              Auth0Lock = Auth0LockImport;
+              // As of 9.11.0, auth0-js (dependency of Auth0Lock) cannot work outside of browser context.
+              // We import it here in separate bundle instead to avoid issues during server-side render.
+              createLock();
+              setTimeout(function () {
+                _this2.setState({
+                  "isAuth0LibraryLoaded": true
+                });
+              }, 200);
+            });
+          } else {
+            createLock();
+          }
+        } else if (auth0Domain.indexOf('nih.gov') != -1) {
+          // RAS authentication
+          _this2.lock = {
+            show: function show() {
+              var href = _this2.props.href;
+              var _ref3$auth = (auth0Options || {}).auth,
+                _ref3$auth2 = _ref3$auth === void 0 ? {} : _ref3$auth,
+                _ref3$auth2$responseT = _ref3$auth2.responseType,
+                responseType = _ref3$auth2$responseT === void 0 ? '' : _ref3$auth2$responseT,
+                _ref3$auth2$params = _ref3$auth2.params,
+                _ref3$auth2$params2 = _ref3$auth2$params === void 0 ? {} : _ref3$auth2$params,
+                _ref3$auth2$params2$s = _ref3$auth2$params2.scope,
+                scope = _ref3$auth2$params2$s === void 0 ? '' : _ref3$auth2$params2$s,
+                _ref3$auth2$params2$p = _ref3$auth2$params2.prompt,
+                prompt = _ref3$auth2$params2$p === void 0 ? '' : _ref3$auth2$params2$p;
+              var hrefParts = href && memoizedUrlParse(href) || null;
+              var host = hrefParts && (hrefParts.protocol || '') + (hrefParts.hostname ? '//' + hrefParts.hostname + (hrefParts.port ? ':' + hrefParts.port : '') : '');
+              var returnUrl = href.indexOf('/callback') === -1 ? href : host + '/';
+              // keep return url for 10 mins
+              document.cookie = "returnUrl=".concat(encodeURIComponent(returnUrl), "; max-age=").concat(10 * 60, "; path=/; SameSite=Lax;");
+              var authenticationUrl = "https://".concat(auth0Domain, "/auth/oauth/v2/authorize?client_id=").concat(auth0Client, "&prompt=").concat(encodeURIComponent(prompt), "&redirect_uri=").concat(host + '/callback', "&response_type=").concat(encodeURIComponent(responseType), "&scope=").concat(encodeURIComponent(scope));
+              _this2.setState({
+                "isLoading": true
+              }, function () {
+                return setTimeout(function () {
+                  return window.location.replace(authenticationUrl);
+                }, 200);
+              });
+            }
+          };
+          // However Auth0 libraries are never imported in RAS implementation,
+          // isAuth0LibraryLoaded is set for compatibility
+          setTimeout(function () {
+            _this2.setState({
+              "isAuth0LibraryLoaded": true
+            });
+          }, 200);
         } else {
-          createLock();
+          // fallback
+          _this2.lock = {
+            show: function show() {
+              console.error('Non-supported authentication type: ' + auth0Domain);
+            }
+          };
+          setTimeout(function () {
+            _this2.setState({
+              "isAuth0LibraryLoaded": true
+            });
+          }, 200);
         }
       });
     }
@@ -145,9 +200,9 @@ export var LoginController = /*#__PURE__*/function (_React$PureComponent) {
               'type': 'timed-out'
             });
           }, 90000); /* 90 seconds */
-        })]).then(function (_ref3) {
-          var _ref3$saved_cookie = _ref3.saved_cookie,
-            saved_cookie = _ref3$saved_cookie === void 0 ? false : _ref3$saved_cookie;
+        })]).then(function (_ref4) {
+          var _ref4$saved_cookie = _ref4.saved_cookie,
+            saved_cookie = _ref4$saved_cookie === void 0 ? false : _ref4$saved_cookie;
           if (!saved_cookie) {
             throw new Error("Couldn't set session in /login");
           }
@@ -264,6 +319,52 @@ export var LoginController = /*#__PURE__*/function (_React$PureComponent) {
       });
     }
 
+    /**
+     * This function injects pure html to Auth0 login popup
+     *
+     * Current version (v11.33.1, and v12.1) of Auth Lock has limited customization options, and we cannot show any information on popup unless we use
+     * the full customization. (Even Auth0LockPasswordless has customizable terms section that matches our needs, it doesn't allow email login which is 
+     * required in CGAP)
+     * On the other hand, built-in popup is more reliable and robust since it handles the conflicts even if we not
+     * pass the correct props. Additionaly, we are using createDOMPurify to eliminate any malicious code injection.
+     */
+  }, {
+    key: "onAuth0LoginShow",
+    value: function onAuth0LoginShow() {
+      var auth0PopupText = this.props.auth0PopupText;
+      var domPurifyInstance;
+      if (isServerSide() || !(auth0PopupText && typeof auth0PopupText === 'string')) {
+        return;
+      } else {
+        domPurifyInstance = createDOMPurify;
+      }
+      console.log('Auth0 lock is visible');
+
+      // https://github.com/cure53/DOMPurify/blob/main/demos/hooks-target-blank-demo.html
+      domPurifyInstance.addHook('afterSanitizeAttributes', function (node) {
+        // set all elements owning target to target=_blank
+        if (node && node.target && node.target !== "") {
+          node.setAttribute('target', '_blank');
+          // prevent https://www.owasp.org/index.php/Reverse_Tabnabbing
+          node.setAttribute('rel', 'noopener noreferrer');
+        }
+      });
+      var sanitizedHtmlString = domPurifyInstance.sanitize(auth0PopupText, {
+        FORBID_TAGS: ['script'],
+        ADD_ATTR: ['target']
+      });
+      var socialButtonsPane = document.querySelector(".auth-lock-social-buttons-pane");
+      if (!socialButtonsPane) {
+        throw new Error("Can't find .auth-lock-social-buttons-pane");
+      }
+      var infoContent = socialButtonsPane.querySelector(".auth0-popup-text") || document.createElement("div");
+      if (!infoContent.parentElement) {
+        infoContent.classList.add("auth0-popup-text");
+        infoContent.innerHTML = sanitizedHtmlString;
+        socialButtonsPane.insertBefore(infoContent, socialButtonsPane.children[0]);
+      }
+    }
+
     /** This function must be bound to an idToken before it can be used. */
   }, {
     key: "onRegistrationComplete",
@@ -367,7 +468,9 @@ _defineProperty(LoginController, "propTypes", {
   'updateAppSessionState': PropTypes.func.isRequired,
   'id': PropTypes.string,
   'auth0Options': PropTypes.object,
-  'children': PropTypes.node.isRequired
+  'children': PropTypes.node.isRequired,
+  'href': PropTypes.string,
+  'auth0PopupText': PropTypes.string
 });
 _defineProperty(LoginController, "defaultProps", {
   // Login / logout actions must be deferred until Auth0 is ready.
@@ -400,8 +503,8 @@ _defineProperty(LoginController, "defaultProps", {
 });
 export function performLogout() {
   // Grab here, gets deleted at end of response.
-  var _ref5 = JWT.getUserDetails() || {},
-    uuid = _ref5.uuid;
+  var _ref6 = JWT.getUserDetails() || {},
+    uuid = _ref6.uuid;
   return fetch("/logout").then(function (response) {
     var _response$deleted_coo = response.deleted_cookie,
       deleted_cookie = _response$deleted_coo === void 0 ? false : _response$deleted_coo;

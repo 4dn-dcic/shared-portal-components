@@ -7,6 +7,7 @@ import _inherits from "@babel/runtime/helpers/inherits";
 import _possibleConstructorReturn from "@babel/runtime/helpers/possibleConstructorReturn";
 import _getPrototypeOf from "@babel/runtime/helpers/getPrototypeOf";
 import _defineProperty from "@babel/runtime/helpers/defineProperty";
+var _class2;
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
@@ -358,11 +359,12 @@ var TableEntryChildren = /*#__PURE__*/function (_React$Component2) {
   }]);
   return TableEntryChildren;
 }(React.Component);
+_class2 = TableEntryChildren;
 _defineProperty(TableEntryChildren, "getHeadersFromContent", memoize(function (jsxContent, maxHeaderDepth, currentDepth) {
   if (Array.isArray(jsxContent)) {
     // As of html-react-parser v1.2.8, we may get back array of content, including "\n" or similar.
     return jsxContent.reduce(function (m, c) {
-      var res = TableEntryChildren.getHeadersFromContent(c, maxHeaderDepth, currentDepth);
+      var res = _class2.getHeadersFromContent(c, maxHeaderDepth, currentDepth);
       m.childDepth = Math.max(res.childDepth, m.childDepth);
       m.childrenForDepth = m.childrenForDepth.concat(res.childrenForDepth);
       return m;
