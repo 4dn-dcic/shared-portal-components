@@ -401,7 +401,7 @@ class HeadersRowColumn extends React.PureComponent {
             showTitle = colTitle || title;
         }
 
-        const titleTooltip = this.memoized.showTooltip(width, typeof colTitle === "string" ? colTitle : title) && !hideTooltip ? title : null;
+        const titleTooltip = this.memoized.showTooltip(width, typeof colTitle === "string" ? colTitle : title) ? title : null;
         const tooltip = description ? (titleTooltip ? `<h5 class="mb-03">${titleTooltip}</h5>` + description : description) : (titleTooltip? titleTooltip : null);
         let sorterIcon;
         if (!noSort && typeof sortByField === 'function' && width >= 50){
@@ -416,7 +416,7 @@ class HeadersRowColumn extends React.PureComponent {
             <div data-field={field} data-column-key={field} key={field} className={cls} style={{ width }} data-first-visible-column={index === 0 ? true : undefined}>
                 <div className="inner">
                     <div className="column-title">
-                        <span data-tip={tooltip} data-html>{ showTitle }</span>
+                        <span data-tip={hideTooltip? null: tooltip} data-html>{ showTitle }</span>
                     </div>
                     { sorterIcon }
                 </div>

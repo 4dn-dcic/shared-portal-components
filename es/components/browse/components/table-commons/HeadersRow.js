@@ -525,7 +525,7 @@ var HeadersRowColumn = /*#__PURE__*/function (_React$PureComponent2) {
         // Could be a DOM element or a string, return as-is
         showTitle = colTitle || title;
       }
-      var titleTooltip = this.memoized.showTooltip(width, typeof colTitle === "string" ? colTitle : title) && !hideTooltip ? title : null;
+      var titleTooltip = this.memoized.showTooltip(width, typeof colTitle === "string" ? colTitle : title) ? title : null;
       var tooltip = description ? titleTooltip ? "<h5 class=\"mb-03\">".concat(titleTooltip, "</h5>") + description : description : titleTooltip ? titleTooltip : null;
       var sorterIcon;
       if (!noSort && typeof sortByField === 'function' && width >= 50) {
@@ -553,7 +553,7 @@ var HeadersRowColumn = /*#__PURE__*/function (_React$PureComponent2) {
       }, /*#__PURE__*/React.createElement("div", {
         className: "column-title"
       }, /*#__PURE__*/React.createElement("span", {
-        "data-tip": tooltip,
+        "data-tip": hideTooltip ? null : tooltip,
         "data-html": true
       }, showTitle)), sorterIcon), typeof onAdjusterDrag === "function" ? /*#__PURE__*/React.createElement(Draggable, {
         position: {
