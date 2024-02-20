@@ -8,10 +8,10 @@ import _inherits from "@babel/runtime/helpers/inherits";
 import _possibleConstructorReturn from "@babel/runtime/helpers/possibleConstructorReturn";
 import _getPrototypeOf from "@babel/runtime/helpers/getPrototypeOf";
 import _defineProperty from "@babel/runtime/helpers/defineProperty";
-var _excluded = ["tabTitle", "dotPath", "disabled", "active", "prependDotPath", "children", "className"];
+var _excluded = ["tabTitle", "dotPath", "disabled", "active", "prependDotPath", "children", "className", "arrowTabs"];
 function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
 function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
-import React, { useState, useMemo, useCallback, useEffect, useContext } from 'react';
+import React, { useCallback } from 'react';
 import _ from 'underscore';
 import memoize from 'memoize-one';
 import url from 'url';
@@ -230,6 +230,8 @@ export var DotRouterTab = /*#__PURE__*/React.memo(function (props) {
     children = props.children,
     _props$className = props.className,
     className = _props$className === void 0 ? "" : _props$className,
+    _props$arrowTabs = props.arrowTabs,
+    arrowTabs = _props$arrowTabs === void 0 ? true : _props$arrowTabs,
     passProps = _objectWithoutProperties(props, _excluded);
   var onClick = useCallback(function () {
     navigate("#" + (prependDotPath + dotPath), {
@@ -245,32 +247,43 @@ export var DotRouterTab = /*#__PURE__*/React.memo(function (props) {
   if (! /*#__PURE__*/React.isValidElement(children)) {
     throw new Error("Expected children to be present and valid JSX");
   }
-  return /*#__PURE__*/React.createElement("button", {
-    type: "button",
-    onClick: disabled ? null : onClick,
-    disabled: disabled,
-    className: "arrow-tab" + (disabled ? " disabled " : "") + (active ? " active" : "")
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "btn-prepend d-xs-none"
-  }, /*#__PURE__*/React.createElement("svg", {
-    viewBox: "0 0 1.5875 4.2333333",
-    width: 6,
-    height: 16
-  }, /*#__PURE__*/React.createElement("path", {
-    d: "M 0,4.2333333 1.5875,2.1166667 v 2.1166666 z"
-  }), /*#__PURE__*/React.createElement("path", {
-    d: "M 0,3.3e-6 1.5875,0 v 2.1166667 z"
-  }))), /*#__PURE__*/React.createElement("div", {
-    className: "btn-title"
-  }, tabTitle), /*#__PURE__*/React.createElement("div", {
-    className: "btn-append d-xs-none"
-  }, /*#__PURE__*/React.createElement("svg", {
-    viewBox: "0 0 1.5875 4.2333333",
-    width: 6,
-    height: 16
-  }, /*#__PURE__*/React.createElement("path", {
-    d: "M 0,3.3e-6 1.5875,2.1166733 0,4.2333333 Z"
-  }))));
+  if (arrowTabs) {
+    return /*#__PURE__*/React.createElement("button", {
+      type: "button",
+      onClick: disabled ? null : onClick,
+      disabled: disabled,
+      className: "arrow-tab" + (disabled ? " disabled " : "") + (active ? " active" : "")
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "btn-prepend d-xs-none"
+    }, /*#__PURE__*/React.createElement("svg", {
+      viewBox: "0 0 1.5875 4.2333333",
+      width: 6,
+      height: 16
+    }, /*#__PURE__*/React.createElement("path", {
+      d: "M 0,4.2333333 1.5875,2.1166667 v 2.1166666 z"
+    }), /*#__PURE__*/React.createElement("path", {
+      d: "M 0,3.3e-6 1.5875,0 v 2.1166667 z"
+    }))), /*#__PURE__*/React.createElement("div", {
+      className: "btn-title"
+    }, tabTitle), /*#__PURE__*/React.createElement("div", {
+      className: "btn-append d-xs-none"
+    }, /*#__PURE__*/React.createElement("svg", {
+      viewBox: "0 0 1.5875 4.2333333",
+      width: 6,
+      height: 16
+    }, /*#__PURE__*/React.createElement("path", {
+      d: "M 0,3.3e-6 1.5875,2.1166733 0,4.2333333 Z"
+    }))));
+  } else {
+    return /*#__PURE__*/React.createElement("button", {
+      type: "button",
+      onClick: disabled ? null : onClick,
+      disabled: disabled,
+      className: (disabled ? " disabled " : "") + (active ? " active" : "")
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "btn-title"
+    }, tabTitle));
+  }
 }, function (prevProps, nextProps) {
   // Custom equality comparison func.
   // Skip comparing the hardcoded `prependDotPath` & `dotPath` -- revert if those props become dynamic.

@@ -1,6 +1,6 @@
 'use strict';
 
-import React, { useState, useMemo, useCallback, useEffect, useContext } from 'react';
+import React, { useCallback } from 'react';
 import _ from 'underscore';
 import memoize from 'memoize-one';
 import url from 'url';
@@ -202,6 +202,7 @@ export const DotRouterTab = React.memo(function DotRouterTab(props) {
         prependDotPath,
         children,
         className = "",
+        arrowTabs = true,
         ...passProps
     } = props;
 
@@ -218,23 +219,34 @@ export const DotRouterTab = React.memo(function DotRouterTab(props) {
         throw new Error("Expected children to be present and valid JSX");
     }
 
-    return (
-        <button type="button" onClick={disabled ? null : onClick} disabled={disabled}
-            className={"arrow-tab" + (disabled ? " disabled " : "") + (active ? " active" : "")}>
-            <div className="btn-prepend d-xs-none">
-                <svg viewBox="0 0 1.5875 4.2333333" width={6} height={16}>
-                    <path d="M 0,4.2333333 1.5875,2.1166667 v 2.1166666 z" />
-                    <path d="M 0,3.3e-6 1.5875,0 v 2.1166667 z" />
-                </svg>
-            </div>
-            <div className="btn-title">{tabTitle}</div>
-            <div className="btn-append d-xs-none">
-                <svg viewBox="0 0 1.5875 4.2333333" width={6} height={16}>
-                    <path d="M 0,3.3e-6 1.5875,2.1166733 0,4.2333333 Z" />
-                </svg>
-            </div>
-        </button>
-    );
+    if (arrowTabs) {
+        return (
+            <button type="button" onClick={disabled ? null : onClick} disabled={disabled}
+                className={"arrow-tab" + (disabled ? " disabled " : "") + (active ? " active" : "")}>
+                <div className="btn-prepend d-xs-none">
+                    <svg viewBox="0 0 1.5875 4.2333333" width={6} height={16}>
+                        <path d="M 0,4.2333333 1.5875,2.1166667 v 2.1166666 z" />
+                        <path d="M 0,3.3e-6 1.5875,0 v 2.1166667 z" />
+                    </svg>
+                </div>
+                <div className="btn-title">{tabTitle}</div>
+                <div className="btn-append d-xs-none">
+                    <svg viewBox="0 0 1.5875 4.2333333" width={6} height={16}>
+                        <path d="M 0,3.3e-6 1.5875,2.1166733 0,4.2333333 Z" />
+                    </svg>
+                </div>
+            </button>
+        );
+    }
+    else {
+        return (
+            <button type="button" onClick={disabled ? null : onClick} disabled={disabled}
+                className={(disabled ? " disabled " : "") + (active ? " active" : "")}>
+                <div className="btn-title">{tabTitle}</div>
+            </button>
+        );
+
+    }
 }, function (prevProps, nextProps) {
     // Custom equality comparison func.
     // Skip comparing the hardcoded `prependDotPath` & `dotPath` -- revert if those props become dynamic.
