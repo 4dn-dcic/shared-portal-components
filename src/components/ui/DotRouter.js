@@ -5,7 +5,7 @@ import _ from 'underscore';
 import memoize from 'memoize-one';
 import url from 'url';
 
-import { navigate } from '../util';
+import { navigate, logger } from '../util';
 
 export class TabPaneErrorBoundary extends React.PureComponent {
 
@@ -35,8 +35,7 @@ export class TabPaneErrorBoundary extends React.PureComponent {
     }
 
     componentDidCatch(error, info){
-        analytics.exception("TabPaneErrorBoundary: " + info.componentStack);
-        console.error("Caught error", error, info);
+        logger.error("Caught error", error, info)
     }
 
     render(){
