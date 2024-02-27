@@ -15,7 +15,7 @@ import React, { useCallback } from 'react';
 import _ from 'underscore';
 import memoize from 'memoize-one';
 import url from 'url';
-import { navigate } from '../util';
+import { navigate, logger } from '../util';
 export var TabPaneErrorBoundary = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(TabPaneErrorBoundary, _React$PureComponent);
   var _super = _createSuper(TabPaneErrorBoundary);
@@ -31,8 +31,7 @@ export var TabPaneErrorBoundary = /*#__PURE__*/function (_React$PureComponent) {
   _createClass(TabPaneErrorBoundary, [{
     key: "componentDidCatch",
     value: function componentDidCatch(error, info) {
-      analytics.exception("TabPaneErrorBoundary: " + info.componentStack);
-      console.error("Caught error", error, info);
+      logger.error("Caught error", error, info);
     }
   }, {
     key: "render",
