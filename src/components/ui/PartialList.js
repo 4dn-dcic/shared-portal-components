@@ -25,25 +25,54 @@ const Row = React.memo(function Row(props){
     if (valMd < 3) valMd = 12;
     if (valLg < 3) valLg = 12;
 
-    return (
-        <div className={"row list-item " + className} data-for-field={field}>
-            <div className={"item-label col-sm-"+ colSm +" col-md-"+ colMd +" col-lg-"+ colLg}>
-                <div className="inner">
-                    { label || title || "Label" }
+    let actualValue = value || val || children;
+    let actualLabel = label || title;
+
+    /**
+     * If this is a row that contains a "subItemTable", add styling in order
+     * to have it take up the full width of the row. In other words, stack 
+     * this value under the key instead of to its right.
+     */
+    if (actualValue.type.name === "SubItemTable") {
+        return (
+            <div className={"row list-item flex-column" + className} data-for-field={field}>
+                <div className={"item-label col-sm-"+ colSm +" col-md-"+ colMd +" col-lg-"+ colLg}>
+                    <div className="inner border-0">
+                        { actualLabel || "Label" }
+                    </div>
+                </div>
+                <div className={"item-value col-12"}>
+                    <div className="inner">
+                        <div>{title}</div> 
+                        { actualValue || "Value" }
+                    </div>
                 </div>
             </div>
-            <div className={"item-value col-sm-"+ valSm +" col-md-"+ valMd +" col-lg-"+ valLg}>
-                <div className="inner">
-                    { value || val || children || "Value" }
+        );
+    }
+    else {
+        return (
+            <div className={"row list-item " + className} data-for-field={field}>
+                <div className={"item-label col-sm-"+ colSm +" col-md-"+ colMd +" col-lg-"+ colLg}>
+                    <div className="inner">
+                        { actualLabel || "Label" }
+                    </div>
+                </div>
+                <div className={"item-value col-sm-"+ valSm +" col-md-"+ valMd +" col-lg-"+ valLg}>
+                    <div className="inner">
+                        <div>{title}</div>
+                        { actualValue || "Value" }
+                    </div>
                 </div>
             </div>
-        </div>
-    );
+        );
+    }
+
 });
 Row.defaultProps = {
     'colSm' : 12,
-    'colMd' : 4,
-    'colLg' : 4,
+    'colMd' : 3,
+    'colLg' : 3,
     'className' : ''
 };
 
