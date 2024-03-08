@@ -95,9 +95,10 @@ export class EmbeddedSearchView extends React.PureComponent {
 
     filterFacetFxn(facet){
         const { hideFacets = null } = this.props;
+        const { field, hide_from_view = false } = facet || {};
         if (!hideFacets) return true;
         const idMap = this.memoized.listToObj(hideFacets);
-        if (idMap[facet.field]) return false;
+        if (idMap[field] || hide_from_view) return false;
         return true;
     }
 
