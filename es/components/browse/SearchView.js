@@ -53,9 +53,13 @@ export var SearchView = /*#__PURE__*/function (_React$PureComponent) {
     value: function filterFacetFxn(facet) {
       var _this$props$hideFacet = this.props.hideFacets,
         hideFacets = _this$props$hideFacet === void 0 ? null : _this$props$hideFacet;
+      var _ref = facet || {},
+        field = _ref.field,
+        _ref$hide_from_view = _ref.hide_from_view,
+        hide_from_view = _ref$hide_from_view === void 0 ? false : _ref$hide_from_view;
       if (!hideFacets) return true;
       var idMap = this.memoized.listToObj(hideFacets);
-      if (idMap[facet.field]) return false;
+      if (idMap[field] || hide_from_view) return false;
       return true;
     }
 

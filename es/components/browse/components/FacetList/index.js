@@ -4,15 +4,26 @@ import _toConsumableArray from "@babel/runtime/helpers/toConsumableArray";
 import _toArray from "@babel/runtime/helpers/toArray";
 import _classCallCheck from "@babel/runtime/helpers/classCallCheck";
 import _createClass from "@babel/runtime/helpers/createClass";
-import _assertThisInitialized from "@babel/runtime/helpers/assertThisInitialized";
-import _inherits from "@babel/runtime/helpers/inherits";
 import _possibleConstructorReturn from "@babel/runtime/helpers/possibleConstructorReturn";
 import _getPrototypeOf from "@babel/runtime/helpers/getPrototypeOf";
+import _assertThisInitialized from "@babel/runtime/helpers/assertThisInitialized";
+import _inherits from "@babel/runtime/helpers/inherits";
 import _defineProperty from "@babel/runtime/helpers/defineProperty";
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
-function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
+function _callSuper(_this, derived, args) {
+  derived = _getPrototypeOf(derived);
+  return _possibleConstructorReturn(_this, function () {
+    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+    if (Reflect.construct.sham) return false;
+    if (typeof Proxy === "function") return true;
+    try {
+      return !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {}));
+    } catch (e) {
+      return false;
+    }
+  }() ? Reflect.construct(derived, args || [], _getPrototypeOf(_this).constructor) : derived.apply(_this, args));
+}
 import React from 'react';
 import memoize from 'memoize-one';
 import PropTypes from 'prop-types';
@@ -123,11 +134,10 @@ export function generateNextHref(currentHref, contextFilters, facet, term) {
 }
 export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(FacetList, _React$PureComponent);
-  var _super = _createSuper(FacetList);
   function FacetList(props) {
     var _this;
     _classCallCheck(this, FacetList);
-    _this = _super.call(this, props);
+    _this = _callSuper(this, FacetList, [props]);
     console.log("FacetList props,", props);
     _this.onFilterExtended = _this.onFilterExtended.bind(_assertThisInitialized(_this));
     _this.onFilterMultipleExtended = _this.onFilterMultipleExtended.bind(_assertThisInitialized(_this));
@@ -492,7 +502,9 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
         _this$props6$maxBodyH = _this$props6.maxBodyHeight,
         maxHeight = _this$props6$maxBodyH === void 0 ? null : _this$props6$maxBodyH,
         _this$props6$isContex = _this$props6.isContextLoading,
-        isContextLoading = _this$props6$isContex === void 0 ? false : _this$props6$isContex;
+        isContextLoading = _this$props6$isContex === void 0 ? false : _this$props6$isContex,
+        _this$props6$hideHead = _this$props6.hideHeaderToggle,
+        hideHeaderToggle = _this$props6$hideHead === void 0 ? false : _this$props6$hideHead;
       var _this$state3 = this.state,
         openFacets = _this$state3.openFacets,
         openPopover = _this$state3.openPopover,
@@ -526,6 +538,7 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
         onClearFilters: onClearFilters,
         showClearFiltersButton: showClearFiltersButton,
         including: including,
+        hideToggle: hideHeaderToggle,
         onToggleIncluding: this.onToggleIncluding,
         onCollapseFacets: this.handleCollapseAllFacets
       }), /*#__PURE__*/React.createElement("div", bodyProps, selectableFacetElements, staticFacetElements.length > 0 ? /*#__PURE__*/React.createElement("div", {
@@ -851,7 +864,10 @@ _defineProperty(FacetList, "propTypes", {
   'maxBodyHeight': PropTypes.number,
   'useRadioIcon': PropTypes.bool.isRequired,
   // Show either checkbox (False) or radio icon (True) for term component - it is only for styling, not intended to implement single selection (radio) or multiple selection (checkbox)
-  'persistSelectedTerms': PropTypes.bool.isRequired // if True selected/omitted terms are escalated to top, otherwise each term is rendered in regular order. Moreover, inline search options are not displayed if it is False.
+  'persistSelectedTerms': PropTypes.bool.isRequired,
+  // if True selected/omitted terms are escalated to top, otherwise each term is rendered in regular order. Moreover, inline search options are not displayed if it is False.
+  'isContextLoading': PropTypes.bool,
+  'hideHeaderToggle': PropTypes.bool.isRequired // if True hide Include/Exclude Properties toggle on Facet List header
 });
 _defineProperty(FacetList, "defaultProps", {
   /**
@@ -902,14 +918,15 @@ _defineProperty(FacetList, "defaultProps", {
     return term;
   },
   'useRadioIcon': false,
-  'persistSelectedTerms': true
+  'persistSelectedTerms': true,
+  'hideHeaderToggle': false
 });
 export var FacetListHeader = /*#__PURE__*/React.memo(function (props) {
   var _props$including = props.including,
     including = _props$including === void 0 ? true : _props$including,
     onToggleIncluding = props.onToggleIncluding,
-    _props$compound = props.compound,
-    compound = _props$compound === void 0 ? false : _props$compound,
+    _props$hideToggle = props.hideToggle,
+    hideToggle = _props$hideToggle === void 0 ? false : _props$hideToggle,
     _props$title = props.title,
     title = _props$title === void 0 ? "Properties" : _props$title,
     _props$openFacets = props.openFacets,
@@ -925,7 +942,7 @@ export var FacetListHeader = /*#__PURE__*/React.memo(function (props) {
     "data-excluding": !including
   }, /*#__PURE__*/React.createElement("div", {
     className: "col facets-title-column text-truncate"
-  }, !compound && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(IconToggle, {
+  }, !hideToggle && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(IconToggle, {
     activeIdx: including ? 0 : 1,
     options: [{
       title: /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(FontAwesomeV6Icons, {
@@ -942,11 +959,11 @@ export var FacetListHeader = /*#__PURE__*/React.memo(function (props) {
     }]
   }), /*#__PURE__*/React.createElement("h4", {
     className: "facets-title"
-  }, "".concat(including ? "Included" : "Excluded", " ").concat(title))), compound && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("i", {
+  }, "".concat(including ? "Included" : "Excluded", " ").concat(title))), hideToggle && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("i", {
     className: "icon icon-fw icon-filter fas"
   }), "\xA0", /*#__PURE__*/React.createElement("h4", {
     className: "facets-title"
-  }, title)))), !compound && /*#__PURE__*/React.createElement("div", {
+  }, title)))), !hideToggle && /*#__PURE__*/React.createElement("div", {
     className: "row facets-controls"
   }, /*#__PURE__*/React.createElement("div", {
     className: "col"
