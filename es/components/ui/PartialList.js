@@ -39,46 +39,23 @@ var Row = /*#__PURE__*/React.memo(function (props) {
   if (valSm < 3) valSm = 12;
   if (valMd < 3) valMd = 12;
   if (valLg < 3) valLg = 12;
-  var actualValue = value || val || children;
-  var actualLabel = label || title;
-
-  /**
-   * If this is a row that contains a "subItemTable", add styling in order
-   * to have it take up the full width of the row. In other words, stack 
-   * this value under the key instead of to its right.
-   */
-  if (actualValue.type.name === "SubItemTable") {
-    return /*#__PURE__*/React.createElement("div", {
-      className: "row list-item flex-column" + className,
-      "data-for-field": field
-    }, /*#__PURE__*/React.createElement("div", {
-      className: "item-label col-sm-" + colSm + " col-md-" + colMd + " col-lg-" + colLg
-    }, /*#__PURE__*/React.createElement("div", {
-      className: "inner border-0"
-    }, actualLabel || "Label")), /*#__PURE__*/React.createElement("div", {
-      className: "item-value col-12"
-    }, /*#__PURE__*/React.createElement("div", {
-      className: "inner"
-    }, /*#__PURE__*/React.createElement("div", null, title), actualValue || "Value")));
-  } else {
-    return /*#__PURE__*/React.createElement("div", {
-      className: "row list-item " + className,
-      "data-for-field": field
-    }, /*#__PURE__*/React.createElement("div", {
-      className: "item-label col-sm-" + colSm + " col-md-" + colMd + " col-lg-" + colLg
-    }, /*#__PURE__*/React.createElement("div", {
-      className: "inner"
-    }, actualLabel || "Label")), /*#__PURE__*/React.createElement("div", {
-      className: "item-value col-sm-" + valSm + " col-md-" + valMd + " col-lg-" + valLg
-    }, /*#__PURE__*/React.createElement("div", {
-      className: "inner"
-    }, /*#__PURE__*/React.createElement("div", null, title), actualValue || "Value")));
-  }
+  return /*#__PURE__*/React.createElement("div", {
+    className: "row list-item " + className,
+    "data-for-field": field
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "item-label col-sm-" + colSm + " col-md-" + colMd + " col-lg-" + colLg
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "inner"
+  }, label || title || "Label")), /*#__PURE__*/React.createElement("div", {
+    className: "item-value col-sm-" + valSm + " col-md-" + valMd + " col-lg-" + valLg
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "inner"
+  }, value || val || children || "Value")));
 });
 Row.defaultProps = {
   'colSm': 12,
-  'colMd': 3,
-  'colLg': 3,
+  'colMd': 4,
+  'colLg': 4,
   'className': ''
 };
 
