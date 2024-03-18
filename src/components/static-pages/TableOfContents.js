@@ -30,7 +30,8 @@ class TableEntry extends React.Component {
         'mounted' : null,
         'content' : null,
         'nextHeader' : null,
-        'recurDepth' : 1
+        'recurDepth' : 1,
+        'defaultExpanded': undefined,
     };
 
     constructor(props){
@@ -43,8 +44,10 @@ class TableEntry extends React.Component {
         this.toggleOpen = this.toggleOpen.bind(this);
 
         this.targetElement = null; // Header element we scroll to is cached here. Not in state as does not change.
-        if (props.collapsible){
-            this.state = { 'open' : false };
+        const { collapsible, defaultExpanded } = props;
+        if (collapsible) {
+            const open = typeof defaultExpanded === 'boolean' ? defaultExpanded : false;
+            this.state = { 'open': open };
         }
     }
 
@@ -147,7 +150,7 @@ class TableEntry extends React.Component {
     render(){
         const {
             recurDepth, link, content, maxHeaderDepth, depth, collapsible, mounted,
-            listStyleTypes, pageScrollTop, nextHeader, children, skipDepth, className,
+            listStyleTypes, pageScrollTop, nextHeader, children, skipDepth, defaultExpanded, className,
             navigate : propNavigate
         } = this.props;
         let { title } = this.props;
@@ -193,7 +196,7 @@ class TableEntry extends React.Component {
                     <div>
                         <TableEntryChildren navigate={propNavigate} parentClosed={this.state && !open}
                             {...{ active, content, childHeaders, depth, mounted, listStyleTypes,
-                                pageScrollTop, nextHeader, children, link, maxHeaderDepth, skipDepth, recurDepth }} />
+                                pageScrollTop, nextHeader, children, link, maxHeaderDepth, skipDepth, recurDepth, defaultExpanded }} />
                     </div>
                 </Collapse>
             </li>
@@ -265,7 +268,7 @@ class TableEntryChildren extends React.Component {
     });
 
     static renderChildrenElements(childHeaders, currentDepth, jsxContent, opts={ 'skipDepth' : 0, 'nextHeader' : null }){
-        const { skipDepth, maxHeaderDepth, listStyleTypes, pageScrollTop, mounted, nextHeader, recurDepth } = opts;
+        const { skipDepth, maxHeaderDepth, defaultExpanded, listStyleTypes, pageScrollTop, mounted, nextHeader, recurDepth } = opts;
 
         if (Array.isArray(childHeaders) && childHeaders.length > 0){
             return childHeaders.map(function(h, index){
@@ -309,6 +312,7 @@ class TableEntryChildren extends React.Component {
                         collapsible={collapsible}
                         skipDepth={skipDepth}
                         recurDepth={(recurDepth || 0) + 1}
+                        defaultExpanded={defaultExpanded}
                     />
                 );
             });
@@ -341,7 +345,7 @@ class TableEntryChildren extends React.Component {
         const { content, depth, children: propChildren } = this.props;
         const { childHeaders, childDepth } = this.getHeadersFromContent();
         if (childHeaders && childHeaders.length){
-            const opts = _.pick(this.props, 'maxHeaderDepth', 'pageScrollTop', 'listStyleTypes', 'skipDepth', 'nextHeader', 'mounted', 'recurDepth');
+            const opts = _.pick(this.props, 'maxHeaderDepth', 'pageScrollTop', 'listStyleTypes', 'skipDepth', 'defaultExpanded', 'nextHeader', 'mounted', 'recurDepth');
             return TableEntryChildren.renderChildrenElements(childHeaders, childDepth, content, opts);
         } else {
             return propChildren;
@@ -472,7 +476,8 @@ export class TableOfContents extends React.Component {
         'includeTop' : true,
         'includeNextPreviousPages' : true,
         'listStyleTypes' : ['none', 'decimal', 'lower-alpha', 'lower-roman'],
-        'maxHeaderDepth' : 3
+        'maxHeaderDepth' : 3,
+        'defaultExpanded': undefined
     };
 
     constructor(props){
@@ -566,7 +571,7 @@ export class TableOfContents extends React.Component {
     render(){
         const {
             context, maxHeaderDepth, includeTop, fixedGridWidth, includeNextPreviousPages, listStyleTypes,
-            windowWidth, windowHeight, maxHeight, navigate: propNavigate,
+            windowWidth, windowHeight, maxHeight, navigate: propNavigate, defaultExpanded,
             fixedPositionBreakpoint = 1200
         } = this.props;
         const { mounted, scrollTop, widthBound } = this.state;
@@ -595,13 +600,13 @@ export class TableOfContents extends React.Component {
                 if (excludeSectionsFromTOC){
                     skipDepth = 1;
                     const { childHeaders, childDepth } = TableEntryChildren.getHeadersFromContent(content, maxHeaderDepth, 1);
-                    const opts = _.extend({ childHeaders, maxHeaderDepth, listStyleTypes, skipDepth }, {
+                    const opts = _.extend({ childHeaders, maxHeaderDepth, listStyleTypes, skipDepth, defaultExpanded }, {
                         mounted, nextHeader, 'pageScrollTop' : scrollTop
                     });
                     return TableEntryChildren.renderChildrenElements(childHeaders, childDepth, content, opts);
                 }
                 return (
-                    <TableEntry {...{ link, content, listStyleTypes, mounted, nextHeader, skipDepth, maxHeaderDepth }}
+                    <TableEntry {...{ link, content, listStyleTypes, mounted, nextHeader, skipDepth, maxHeaderDepth, defaultExpanded }}
                         title={tocTitle || title || _.map(link.split('-'), function(w){ return w.charAt(0).toUpperCase() + w.slice(1); } ).join(' ') }
                         key={link} depth={1} pageScrollTop={scrollTop} navigate={propNavigate} />
                 );
@@ -624,7 +629,7 @@ export class TableOfContents extends React.Component {
                 key="top" depth={0} listStyleTypes={listStyleTypes}
                 pageScrollTop={scrollTop} mounted={mounted} navigate={propNavigate}
                 nextHeader={firstSectionLink || null}
-                maxHeaderDepth={maxHeaderDepth} skipDepth={skipDepth || 0}>
+                maxHeaderDepth={maxHeaderDepth} skipDepth={skipDepth || 0} defaultExpanded={defaultExpanded}>
                 { renderedSectionsFlattened }
             </TableEntry>
         );
