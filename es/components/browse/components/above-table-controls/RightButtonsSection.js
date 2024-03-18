@@ -52,7 +52,7 @@ export var ConfigureVisibleColumnsButton = /*#__PURE__*/React.memo(function (_re
   }));
 });
 ConfigureVisibleColumnsButton.defaultProps = {
-  "className": "control btn"
+  "className": "btn btn-outline-primary"
 };
 export var MultiColumnSortButton = /*#__PURE__*/React.memo(function (_ref2) {
   var open = _ref2.open,
@@ -73,7 +73,7 @@ export var MultiColumnSortButton = /*#__PURE__*/React.memo(function (_ref2) {
   }));
 });
 MultiColumnSortButton.defaultProps = {
-  "className": "control btn"
+  "className": "btn btn-outline-primary"
 };
 
 /** Toggles between regular & full screen views */

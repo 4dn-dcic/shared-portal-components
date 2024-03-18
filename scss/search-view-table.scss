@@ -737,13 +737,9 @@ $search-results-above-results-row-bottom-padding: 5px !default;
 	min-height: $search-results-above-results-row-height;
 	padding-bottom: $search-results-above-results-row-bottom-padding;
     margin-top: 7px;
-
-    .row {
-        .right-buttons {
-			.control {
-				@extend .btn-outline-primary;
-			}
-
+    
+    > .row {
+        > .right-buttons {
             > button:not(:first-child) {
                 margin-left: 7px;
             }
@@ -752,7 +748,6 @@ $search-results-above-results-row-bottom-padding: 5px !default;
                     display: none;
                 }
             }
-
         }
     }
 
