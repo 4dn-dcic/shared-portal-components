@@ -267,7 +267,7 @@ function DefaultFacetListComponent(props) {
     return /*#__PURE__*/React.createElement("div", {
       className: "facets-container with-header-bg"
     }, /*#__PURE__*/React.createElement(FacetListHeader, {
-      compound: true
+      hideToggle: true
     }), /*#__PURE__*/React.createElement("div", {
       className: "p-4"
     }, /*#__PURE__*/React.createElement("h4", {

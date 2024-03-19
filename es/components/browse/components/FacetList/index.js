@@ -492,7 +492,9 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
         _this$props6$maxBodyH = _this$props6.maxBodyHeight,
         maxHeight = _this$props6$maxBodyH === void 0 ? null : _this$props6$maxBodyH,
         _this$props6$isContex = _this$props6.isContextLoading,
-        isContextLoading = _this$props6$isContex === void 0 ? false : _this$props6$isContex;
+        isContextLoading = _this$props6$isContex === void 0 ? false : _this$props6$isContex,
+        _this$props6$hideHead = _this$props6.hideHeaderToggle,
+        hideHeaderToggle = _this$props6$hideHead === void 0 ? false : _this$props6$hideHead;
       var _this$state3 = this.state,
         openFacets = _this$state3.openFacets,
         openPopover = _this$state3.openPopover,
@@ -526,6 +528,7 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
         onClearFilters: onClearFilters,
         showClearFiltersButton: showClearFiltersButton,
         including: including,
+        hideToggle: hideHeaderToggle,
         onToggleIncluding: this.onToggleIncluding,
         onCollapseFacets: this.handleCollapseAllFacets
       }), /*#__PURE__*/React.createElement("div", bodyProps, selectableFacetElements, staticFacetElements.length > 0 ? /*#__PURE__*/React.createElement("div", {
@@ -851,7 +854,10 @@ _defineProperty(FacetList, "propTypes", {
   'maxBodyHeight': PropTypes.number,
   'useRadioIcon': PropTypes.bool.isRequired,
   // Show either checkbox (False) or radio icon (True) for term component - it is only for styling, not intended to implement single selection (radio) or multiple selection (checkbox)
-  'persistSelectedTerms': PropTypes.bool.isRequired // if True selected/omitted terms are escalated to top, otherwise each term is rendered in regular order. Moreover, inline search options are not displayed if it is False.
+  'persistSelectedTerms': PropTypes.bool.isRequired,
+  // if True selected/omitted terms are escalated to top, otherwise each term is rendered in regular order. Moreover, inline search options are not displayed if it is False.
+  'isContextLoading': PropTypes.bool,
+  'hideHeaderToggle': PropTypes.bool.isRequired // if True hide Include/Exclude Properties toggle on Facet List header
 });
 _defineProperty(FacetList, "defaultProps", {
   /**
@@ -902,14 +908,15 @@ _defineProperty(FacetList, "defaultProps", {
     return term;
   },
   'useRadioIcon': false,
-  'persistSelectedTerms': true
+  'persistSelectedTerms': true,
+  'hideHeaderToggle': false
 });
 export var FacetListHeader = /*#__PURE__*/React.memo(function (props) {
   var _props$including = props.including,
     including = _props$including === void 0 ? true : _props$including,
     onToggleIncluding = props.onToggleIncluding,
-    _props$compound = props.compound,
-    compound = _props$compound === void 0 ? false : _props$compound,
+    _props$hideToggle = props.hideToggle,
+    hideToggle = _props$hideToggle === void 0 ? false : _props$hideToggle,
     _props$title = props.title,
     title = _props$title === void 0 ? "Properties" : _props$title,
     _props$openFacets = props.openFacets,
@@ -925,7 +932,7 @@ export var FacetListHeader = /*#__PURE__*/React.memo(function (props) {
     "data-excluding": !including
   }, /*#__PURE__*/React.createElement("div", {
     className: "col facets-title-column text-truncate"
-  }, !compound && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(IconToggle, {
+  }, !hideToggle && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(IconToggle, {
     activeIdx: including ? 0 : 1,
     options: [{
       title: /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(FontAwesomeV6Icons, {
@@ -942,11 +949,11 @@ export var FacetListHeader = /*#__PURE__*/React.memo(function (props) {
     }]
   }), /*#__PURE__*/React.createElement("h4", {
     className: "facets-title"
-  }, "".concat(including ? "Included" : "Excluded", " ").concat(title))), compound && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("i", {
+  }, "".concat(including ? "Included" : "Excluded", " ").concat(title))), hideToggle && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("i", {
     className: "icon icon-fw icon-filter fas"
   }), "\xA0", /*#__PURE__*/React.createElement("h4", {
     className: "facets-title"
-  }, title)))), !compound && /*#__PURE__*/React.createElement("div", {
+  }, title)))), !hideToggle && /*#__PURE__*/React.createElement("div", {
     className: "row facets-controls"
   }, /*#__PURE__*/React.createElement("div", {
     className: "col"

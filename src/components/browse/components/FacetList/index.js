@@ -141,7 +141,9 @@ export class FacetList extends React.PureComponent {
         'separateSingleTermFacets' : PropTypes.bool,
         'maxBodyHeight' : PropTypes.number,
         'useRadioIcon': PropTypes.bool.isRequired, // Show either checkbox (False) or radio icon (True) for term component - it is only for styling, not intended to implement single selection (radio) or multiple selection (checkbox)
-        'persistSelectedTerms': PropTypes.bool.isRequired // if True selected/omitted terms are escalated to top, otherwise each term is rendered in regular order. Moreover, inline search options are not displayed if it is False.
+        'persistSelectedTerms': PropTypes.bool.isRequired, // if True selected/omitted terms are escalated to top, otherwise each term is rendered in regular order. Moreover, inline search options are not displayed if it is False.
+        'isContextLoading': PropTypes.bool,
+        'hideHeaderToggle': PropTypes.bool.isRequired // if True hide Include/Exclude Properties toggle on Facet List header
     };
 
     static defaultProps = {
@@ -186,7 +188,8 @@ export class FacetList extends React.PureComponent {
             return term;
         },
         'useRadioIcon': false,
-        'persistSelectedTerms': true
+        'persistSelectedTerms': true,
+        'hideHeaderToggle': false
     };
 
     /** Remove any duplicates, merge in filters without selections as terms */
@@ -729,7 +732,8 @@ export class FacetList extends React.PureComponent {
             onClearFilters = null,
             showClearFiltersButton = false,
             maxBodyHeight: maxHeight = null,
-            isContextLoading = false
+            isContextLoading = false,
+            hideHeaderToggle = false
         } = this.props;
         const { openFacets, openPopover, including } = this.state;
         const { popover: popoverJSX, ref: popoverTargetRef } = openPopover || {};
@@ -752,7 +756,7 @@ export class FacetList extends React.PureComponent {
         return (
             <React.Fragment>
                 <div className="facets-container facets with-header-bg" data-context-loading={isContextLoading}>
-                    <FacetListHeader {...{ openFacets, title, onClearFilters, showClearFiltersButton, including }}
+                    <FacetListHeader {...{ openFacets, title, onClearFilters, showClearFiltersButton, including, hideToggle: hideHeaderToggle }}
                         onToggleIncluding={this.onToggleIncluding} onCollapseFacets={this.handleCollapseAllFacets} />
                     <div {...bodyProps}>
                         { selectableFacetElements }
@@ -781,7 +785,7 @@ export const FacetListHeader = React.memo(function FacetListHeader(props){
     const {
         including = true,
         onToggleIncluding,
-        compound = false,
+        hideToggle = false,
         title = "Properties", // @TODO: Is this actually in use anywhere?
         openFacets = {},
         showClearFiltersButton = false, // @Deprecated
@@ -794,7 +798,7 @@ export const FacetListHeader = React.memo(function FacetListHeader(props){
             <div className="row facets-header" data-excluding={!including}>
                 <div className="col facets-title-column text-truncate">
                     {
-                        !compound &&
+                        !hideToggle &&
                             <>
                                 <IconToggle activeIdx={including ? 0 : 1} options={[
                                     {
@@ -809,7 +813,7 @@ export const FacetListHeader = React.memo(function FacetListHeader(props){
                                 <h4 className="facets-title">{`${including ? "Included" : "Excluded"} ${title}`}</h4>
                             </>
                     }
-                    { compound &&
+                    { hideToggle &&
                         <>
                             <i className="icon icon-fw icon-filter fas"></i>
                             &nbsp;
@@ -818,7 +822,7 @@ export const FacetListHeader = React.memo(function FacetListHeader(props){
                     }
                 </div>
             </div>
-            { !compound &&
+            { !hideToggle &&
             <div className="row facets-controls">
                 <div className="col">
                     <div className="properties-controls d-flex py-1 w-100" role="group" aria-label="Properties Controls">
