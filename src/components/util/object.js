@@ -639,7 +639,7 @@ export class CopyWrapper extends React.PureComponent {
     }
 
     render(){
-        const { value, children, mounted, wrapperElement, iconProps, includeIcon, className, stopPropagation } = this.props;
+        const { value, children, mounted, wrapperElement, iconProps, includeIcon, className, stopPropagation, whitespace } = this.props;
         if (!value) return null;
 
         // eslint-disable-next-line react/destructuring-assignment
@@ -659,9 +659,9 @@ export class CopyWrapper extends React.PureComponent {
         };
 
         const elemsToWrap = [];
-        if (children)                   elemsToWrap.push(children);
-        if (children && isMounted)      elemsToWrap.push(' ');
-        if (isMounted && includeIcon)   elemsToWrap.push(<i {...iconProps} key="copy-icon" className="icon icon-fw icon-copy far" title="Copy to clipboard" />);
+        if (children)                               elemsToWrap.push(children);
+        if (children && isMounted && whitespace)    elemsToWrap.push(' ');
+        if (isMounted && includeIcon)               elemsToWrap.push(<i {...iconProps} key="copy-icon" className="icon icon-fw icon-copy far" title="Copy to clipboard" />);
 
         const wrapperProps = _.extend(
             {
@@ -682,6 +682,7 @@ CopyWrapper.defaultProps = {
     'flash' : true,
     'iconProps' : {},
     'includeIcon' : true,
+    'whitespace': true,
     'flashActiveTransform' : 'scale3d(1.2, 1.2, 1.2) translate3d(0, 0, 0)',
     'flashInactiveTransform' : 'translate3d(0, 0, 0)'
 };
