@@ -550,6 +550,7 @@ class SubItemTable extends React.Component {
                                         (keyTitleDescriptionMap[colKey] && keyTitleDescriptionMap[colKey].title) ||
                                         colKey
                                     );
+
                                     const tooltip = (
                                         (keyTitleDescriptionMap[parentKey + '.' + colKey] && keyTitleDescriptionMap[parentKey + '.' + colKey].description) ||
                                         (keyTitleDescriptionMap[colKey] && keyTitleDescriptionMap[colKey].description) ||
@@ -564,19 +565,28 @@ class SubItemTable extends React.Component {
                                                     //var subKeyTitleDescriptionMap = (((this.props.keyTitleDescriptionMap || {})[this.props.parentKey] || {}).items || {}).properties || {};
                                                     //var subKeyTitleDescriptionMap = keyTitleDescriptionMap[this.props.parentKey + '.' + colKey] || keyTitleDescriptionMap[colKey] || {};
                                                     const subKeyTitleDescriptionMap = (( (keyTitleDescriptionMap[parentKey + '.' + colKey] || keyTitleDescriptionMap[colKey]) || {}).items || {}).properties || {};
-                                                    subListKeyRefs[colKey] = {};
+                                                    // console.log("subKeyTitleDescriptionMap:", subKeyTitleDescriptionMap)
+                                                    if (!subListKeyRefs[colKey]) {
+                                                        subListKeyRefs[colKey] = {};
+                                                    }
+
                                                     return (
                                                         <div style={{ whiteSpace: "nowrap" }} className="sub-list-keys-header">
                                                             {
-                                                                [<div key="sub-header-rowNumber" className="d-inline-block child-list-row-number">&nbsp;</div>].concat(colKeyContainer.childKeys.map((ck)=>
-                                                                    <div key={"sub-header-for-" + colKey + '.' + ck} className="d-inline-block" data-key={colKey + '.' + ck} ref={function(r){
-                                                                        if (r) subListKeyRefs[colKey][ck] = r;
-                                                                    }} style={{ 'width' : !subListKeyWidths ? null : ((subListKeyWidths[colKey] || {})[ck] || null) }}>
-                                                                        <TooltipInfoIconContainer
-                                                                            title={(keyTitleDescriptionMap[parentKey + '.' + colKey + '.' + ck] || subKeyTitleDescriptionMap[ck] || {}).title || ck}
-                                                                            tooltip={(keyTitleDescriptionMap[parentKey + '.' + colKey + '.' + ck] || subKeyTitleDescriptionMap[ck] || {}).description || null}
-                                                                        />
-                                                                    </div>
+                                                                [<div key="sub-header-rowNumber" className="d-inline-block child-list-row-number">&nbsp;</div>].concat(colKeyContainer.childKeys.map((ck)=> {                                                                    return (
+                                                                        <div 
+                                                                            key={"sub-header-for-" + colKey + '.' + ck} 
+                                                                            className="d-inline-block" 
+                                                                            data-key={colKey + '.' + ck} 
+                                                                            ref={ (r) => r ? subListKeyRefs[colKey][ck] = r : null }
+                                                                            style={{ 'width' : !subListKeyWidths ? null : ((subListKeyWidths[colKey] || {})[ck] || null) }}
+                                                                        >
+                                                                            <TooltipInfoIconContainer
+                                                                                title={(keyTitleDescriptionMap[parentKey + '.' + colKey + '.' + ck] || subKeyTitleDescriptionMap[ck] || {}).title || ck}
+                                                                                tooltip={(keyTitleDescriptionMap[parentKey + '.' + colKey + '.' + ck] || subKeyTitleDescriptionMap[ck] || {}).description || null}
+                                                                            />
+                                                                        </div>)
+                                                                    }
                                                                 ))
                                                             }
                                                         </div>

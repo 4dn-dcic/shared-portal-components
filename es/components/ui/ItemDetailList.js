@@ -322,7 +322,10 @@ var SubItemTable = /*#__PURE__*/function (_React$Component) {
           //var subKeyTitleDescriptionMap = (((this.props.keyTitleDescriptionMap || {})[this.props.parentKey] || {}).items || {}).properties || {};
           //var subKeyTitleDescriptionMap = keyTitleDescriptionMap[this.props.parentKey + '.' + colKey] || keyTitleDescriptionMap[colKey] || {};
           var subKeyTitleDescriptionMap = ((keyTitleDescriptionMap[parentKey + '.' + colKey] || keyTitleDescriptionMap[colKey] || {}).items || {}).properties || {};
-          subListKeyRefs[colKey] = {};
+          // console.log("subKeyTitleDescriptionMap:", subKeyTitleDescriptionMap)
+          if (!subListKeyRefs[colKey]) {
+            subListKeyRefs[colKey] = {};
+          }
           return /*#__PURE__*/React.createElement("div", {
             style: {
               whiteSpace: "nowrap"
@@ -337,7 +340,7 @@ var SubItemTable = /*#__PURE__*/function (_React$Component) {
               className: "d-inline-block",
               "data-key": colKey + '.' + ck,
               ref: function ref(r) {
-                if (r) subListKeyRefs[colKey][ck] = r;
+                return r ? subListKeyRefs[colKey][ck] = r : null;
               },
               style: {
                 'width': !subListKeyWidths ? null : (subListKeyWidths[colKey] || {})[ck] || null
