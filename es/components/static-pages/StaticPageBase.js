@@ -1,16 +1,26 @@
 import _classCallCheck from "@babel/runtime/helpers/classCallCheck";
 import _createClass from "@babel/runtime/helpers/createClass";
-import _assertThisInitialized from "@babel/runtime/helpers/assertThisInitialized";
-import _inherits from "@babel/runtime/helpers/inherits";
 import _possibleConstructorReturn from "@babel/runtime/helpers/possibleConstructorReturn";
 import _getPrototypeOf from "@babel/runtime/helpers/getPrototypeOf";
+import _inherits from "@babel/runtime/helpers/inherits";
 import _defineProperty from "@babel/runtime/helpers/defineProperty";
 import _extends from "@babel/runtime/helpers/extends";
 import _typeof from "@babel/runtime/helpers/typeof";
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
-function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
+function _callSuper(_this, derived, args) {
+  derived = _getPrototypeOf(derived);
+  return _possibleConstructorReturn(_this, function () {
+    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+    if (Reflect.construct.sham) return false;
+    if (typeof Proxy === "function") return true;
+    try {
+      return !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {}));
+    } catch (e) {
+      return false;
+    }
+  }() ? Reflect.construct(derived, args || [], _getPrototypeOf(_this).constructor) : derived.apply(_this, args));
+}
 import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
@@ -74,6 +84,7 @@ var Wrapper = /*#__PURE__*/React.memo(function (props) {
   var toc = context && context['table-of-contents'] || (tableOfContents && _typeof(tableOfContents) === 'object' ? tableOfContents : null);
   var pageTitle = title || context && context.title || null;
   var tocExists = toc && toc.enabled !== false;
+  var tocDefaultExpanded = toc && toc.expanded === true || undefined;
   return /*#__PURE__*/React.createElement("div", {
     className: "container",
     id: "content"
@@ -86,7 +97,8 @@ var Wrapper = /*#__PURE__*/React.memo(function (props) {
   }, /*#__PURE__*/React.createElement(TableOfContents, _extends({
     pageTitle: pageTitle,
     fixedGridWidth: 3,
-    maxHeaderDepth: toc['header-depth'] || 6
+    maxHeaderDepth: toc['header-depth'] || 6,
+    defaultExpanded: tocDefaultExpanded
   }, _.pick(props, 'navigate', 'windowWidth', 'windowHeight', 'context', 'href', 'registerWindowOnScrollHandler', 'fixedPositionBreakpoint')))) : null, /*#__PURE__*/React.createElement("div", {
     key: "main-column",
     className: "order-2 col-12 col-xl-" + (tocExists ? '9' : '12')
@@ -104,24 +116,23 @@ Wrapper.defaultProps = {
   'tocListStyles': ['decimal', 'lower-alpha', 'lower-roman']
 };
 export var StaticEntry = /*#__PURE__*/function (_React$PureComponent) {
-  _inherits(StaticEntry, _React$PureComponent);
-  var _super = _createSuper(StaticEntry);
   function StaticEntry(props) {
-    var _this;
+    var _this2;
     _classCallCheck(this, StaticEntry);
-    _this = _super.call(this, props);
-    _this.toggleOpen = _.throttle(_this.toggleOpen.bind(_assertThisInitialized(_this)), 1000);
+    _this2 = _callSuper(this, StaticEntry, [props]);
+    _this2.toggleOpen = _.throttle(_this2.toggleOpen.bind(_this2), 1000);
     var options = props.section && props.section.options || {};
-    _this.state = {
+    _this2.state = {
       'open': options.default_open,
       'closing': false
     };
-    return _this;
+    return _this2;
   }
-  _createClass(StaticEntry, [{
+  _inherits(StaticEntry, _React$PureComponent);
+  return _createClass(StaticEntry, [{
     key: "toggleOpen",
     value: function toggleOpen(open) {
-      var _this2 = this;
+      var _this3 = this;
       this.setState(function (currState) {
         if (typeof open !== 'boolean') {
           open = !currState.open;
@@ -133,7 +144,7 @@ export var StaticEntry = /*#__PURE__*/function (_React$PureComponent) {
         };
       }, function () {
         setTimeout(function () {
-          _this2.setState(function (currState) {
+          _this3.setState(function (currState) {
             if (!currState.open && currState.closing) {
               return {
                 'closing': false
@@ -189,7 +200,6 @@ export var StaticEntry = /*#__PURE__*/function (_React$PureComponent) {
       }, section.title) : null, renderedChildComponent);
     }
   }]);
-  return StaticEntry;
 }(React.PureComponent);
 
 /**
@@ -207,13 +217,12 @@ _defineProperty(StaticEntry, "propTypes", {
   'childComponent': PropTypes.elementType
 });
 export var StaticPageBase = /*#__PURE__*/function (_React$PureComponent2) {
-  _inherits(StaticPageBase, _React$PureComponent2);
-  var _super2 = _createSuper(StaticPageBase);
   function StaticPageBase() {
     _classCallCheck(this, StaticPageBase);
-    return _super2.apply(this, arguments);
+    return _callSuper(this, StaticPageBase, arguments);
   }
-  _createClass(StaticPageBase, [{
+  _inherits(StaticPageBase, _React$PureComponent2);
+  return _createClass(StaticPageBase, [{
     key: "render",
     value: function render() {
       var _this$props2 = this.props,
@@ -265,7 +274,6 @@ export var StaticPageBase = /*#__PURE__*/function (_React$PureComponent2) {
       });
     }
   }]);
-  return StaticPageBase;
 }(React.PureComponent);
 _defineProperty(StaticPageBase, "Wrapper", Wrapper);
 _defineProperty(StaticPageBase, "defaultProps", {
