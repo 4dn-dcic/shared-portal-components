@@ -73,13 +73,14 @@ const Wrapper = React.memo(function Wrapper(props){
     const toc = (context && context['table-of-contents']) || (tableOfContents && typeof tableOfContents === 'object' ? tableOfContents : null);
     const pageTitle = title || (context && context.title) || null;
     const tocExists = toc && toc.enabled !== false;
+    const tocDefaultExpanded = (toc && toc.expanded === true) || undefined;
 
     return (
         <div className="container" id="content">
             <div className="static-page row" key="wrapper">
                 { tocExists ? (
                     <div key="toc-wrapper" className="col-12 col-xl-3 order-1 order-xl-3">
-                        <TableOfContents pageTitle={pageTitle} fixedGridWidth={3} maxHeaderDepth={toc['header-depth'] || 6}
+                        <TableOfContents pageTitle={pageTitle} fixedGridWidth={3} maxHeaderDepth={toc['header-depth'] || 6} defaultExpanded={tocDefaultExpanded}
                             {..._.pick(props, 'navigate', 'windowWidth', 'windowHeight', 'context', 'href', 'registerWindowOnScrollHandler', 'fixedPositionBreakpoint')}
                             // skipDepth={1} includeTop={toc['include-top-link']} listStyleTypes={['none'].concat((toc && toc['list-styles']) || this.props.tocListStyles)}
                         />
