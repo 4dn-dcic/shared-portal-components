@@ -2,16 +2,26 @@ import _extends from "@babel/runtime/helpers/extends";
 import _objectWithoutProperties from "@babel/runtime/helpers/objectWithoutProperties";
 import _classCallCheck from "@babel/runtime/helpers/classCallCheck";
 import _createClass from "@babel/runtime/helpers/createClass";
-import _assertThisInitialized from "@babel/runtime/helpers/assertThisInitialized";
-import _inherits from "@babel/runtime/helpers/inherits";
 import _possibleConstructorReturn from "@babel/runtime/helpers/possibleConstructorReturn";
 import _getPrototypeOf from "@babel/runtime/helpers/getPrototypeOf";
+import _inherits from "@babel/runtime/helpers/inherits";
 import _defineProperty from "@babel/runtime/helpers/defineProperty";
-var _excluded = ["href", "context", "navigate", "currentAction", "searchHref", "renderSearchResultTable", "columns", "hideColumns", "facets", "aboveTableComponent", "aboveFacetListComponent", "facetListComponent", "columnExtensionMap", "onLoad", "filterFacetFxn", "filterColumnFxn", "windowWidth", "embeddedTableHeader", "embeddedTableFooter", "onClearFiltersVirtual", "isClearFiltersBtnVisible", "facetColumnClassName", "tableColumnClassName", "allowPostRequest"];
+var _excluded = ["href", "context", "navigate", "currentAction", "searchHref", "renderSearchResultTable", "columns", "hideColumns", "facets", "aboveTableComponent", "aboveFacetListComponent", "facetListComponent", "columnExtensionMap", "onLoad", "filterFacetFxn", "filterColumnFxn", "windowWidth", "embeddedTableHeader", "embeddedTableFooter", "onClearFiltersVirtual", "isClearFiltersBtnVisible", "facetColumnClassName", "tableColumnClassName", "allowPostRequest", "clearSelectedItemsOnFilter", "selectedItems", "onSelectItem", "onResetSelectedItems"];
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
-function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
+function _callSuper(_this, derived, args) {
+  derived = _getPrototypeOf(derived);
+  return _possibleConstructorReturn(_this, function () {
+    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+    if (Reflect.construct.sham) return false;
+    if (typeof Proxy === "function") return true;
+    try {
+      return !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {}));
+    } catch (e) {
+      return false;
+    }
+  }() ? Reflect.construct(derived, args || [], _getPrototypeOf(_this).constructor) : derived.apply(_this, args));
+}
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
@@ -30,19 +40,18 @@ import { SearchResponse, Item, ColumnDefinition, URLParts } from './../util/type
 import { VirtualHrefController } from './components/VirtualHrefController';
 export { SortController, SelectedItemsController, ColumnCombiner, CustomColumnController };
 export var EmbeddedSearchView = /*#__PURE__*/function (_React$PureComponent) {
-  _inherits(EmbeddedSearchView, _React$PureComponent);
-  var _super = _createSuper(EmbeddedSearchView);
   function EmbeddedSearchView(props) {
-    var _this;
+    var _this2;
     _classCallCheck(this, EmbeddedSearchView);
-    _this = _super.call(this, props);
-    _this.filterFacetFxn = _this.filterFacetFxn.bind(_assertThisInitialized(_this));
-    _this.memoized = {
+    _this2 = _callSuper(this, EmbeddedSearchView, [props]);
+    _this2.filterFacetFxn = _this2.filterFacetFxn.bind(_this2);
+    _this2.memoized = {
       listToObj: memoize(EmbeddedSearchView.listToObj)
     };
-    return _this;
+    return _this2;
   }
-  _createClass(EmbeddedSearchView, [{
+  _inherits(EmbeddedSearchView, _React$PureComponent);
+  return _createClass(EmbeddedSearchView, [{
     key: "componentDidMount",
     value: function componentDidMount() {
       ReactTooltip.rebuild();
@@ -110,6 +119,10 @@ export var EmbeddedSearchView = /*#__PURE__*/function (_React$PureComponent) {
         propTableColumnClassName = _this$props.tableColumnClassName,
         _this$props$allowPost = _this$props.allowPostRequest,
         allowPostRequest = _this$props$allowPost === void 0 ? false : _this$props$allowPost,
+        clearSelectedItemsOnFilter = _this$props.clearSelectedItemsOnFilter,
+        selectedItems = _this$props.selectedItems,
+        onSelectItem = _this$props.onSelectItem,
+        onResetSelectedItems = _this$props.onResetSelectedItems,
         passProps = _objectWithoutProperties(_this$props, _excluded);
 
       // If facets are null (hidden/excluded) and no props.tableColumnClassName set table col to be full width of container instead of the default set by ControlsAndResults.
@@ -120,7 +133,11 @@ export var EmbeddedSearchView = /*#__PURE__*/function (_React$PureComponent) {
         aboveFacetListComponent: aboveFacetListComponent,
         facetListComponent: facetListComponent,
         tableColumnClassName: tableColumnClassName,
-        facetColumnClassName: facetColumnClassName
+        facetColumnClassName: facetColumnClassName,
+        clearSelectedItemsOnFilter: clearSelectedItemsOnFilter,
+        selectedItems: selectedItems,
+        onSelectItem: onSelectItem,
+        onResetSelectedItems: onResetSelectedItems
       });
       var filterFacetFxn = propFacetFilterFxn || this.filterFacetFxn;
       return /*#__PURE__*/React.createElement("div", {
@@ -133,6 +150,10 @@ export var EmbeddedSearchView = /*#__PURE__*/function (_React$PureComponent) {
         onClearFiltersVirtual: onClearFiltersVirtual,
         isClearFiltersBtnVisible: isClearFiltersBtnVisible,
         allowPostRequest: allowPostRequest,
+        clearSelectedItemsOnFilter: clearSelectedItemsOnFilter,
+        selectedItems: selectedItems,
+        onSelectItem: onSelectItem,
+        onResetSelectedItems: onResetSelectedItems,
         key: searchHref || 1
       }, /*#__PURE__*/React.createElement(ColumnCombiner, {
         columns: columns,
@@ -153,7 +174,6 @@ export var EmbeddedSearchView = /*#__PURE__*/function (_React$PureComponent) {
       })));
     }
   }]);
-  return EmbeddedSearchView;
 }(React.PureComponent);
 /**
  * @property {string} searchHref - Base URI to search on.
@@ -197,7 +217,12 @@ _defineProperty(EmbeddedSearchView, "propTypes", {
   'facetColumnClassName': PropTypes.string,
   'tableColumnClassName': PropTypes.string,
   'allowPostRequest': PropTypes.bool,
-  'targetTabKey': PropTypes.string
+  'targetTabKey': PropTypes.string,
+  // Specifically for use cases where this is wrapped in SelectedItemsController
+  'clearSelectedItemsOnFilter': PropTypes.bool,
+  'selectedItems': PropTypes.object,
+  'onSelectItem': PropTypes.func,
+  'onResetSelectedItems': PropTypes.func
 });
 _defineProperty(EmbeddedSearchView, "defaultProps", {
   'columnExtensionMap': basicColumnExtensionMap,
