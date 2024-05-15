@@ -3,15 +3,25 @@ import _objectWithoutProperties from "@babel/runtime/helpers/objectWithoutProper
 import _slicedToArray from "@babel/runtime/helpers/slicedToArray";
 import _classCallCheck from "@babel/runtime/helpers/classCallCheck";
 import _createClass from "@babel/runtime/helpers/createClass";
-import _assertThisInitialized from "@babel/runtime/helpers/assertThisInitialized";
-import _inherits from "@babel/runtime/helpers/inherits";
 import _possibleConstructorReturn from "@babel/runtime/helpers/possibleConstructorReturn";
 import _getPrototypeOf from "@babel/runtime/helpers/getPrototypeOf";
+import _inherits from "@babel/runtime/helpers/inherits";
 var _excluded = ["children", "facets", "filterFacetFxn", "columns", "searchHref"];
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
-function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
+function _callSuper(_this, derived, args) {
+  derived = _getPrototypeOf(derived);
+  return _possibleConstructorReturn(_this, function () {
+    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+    if (Reflect.construct.sham) return false;
+    if (typeof Proxy === "function") return true;
+    try {
+      return !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {}));
+    } catch (e) {
+      return false;
+    }
+  }() ? Reflect.construct(derived, args || [], _getPrototypeOf(_this).constructor) : derived.apply(_this, args));
+}
 import React, { useMemo } from 'react';
 import memoize from 'memoize-one';
 import _ from 'underscore';
@@ -34,25 +44,23 @@ import { SearchResponse, Item, ColumnDefinition, URLParts } from './../../util/t
  * navigate to new href.
  */
 export var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) {
-  _inherits(VirtualHrefController, _React$PureComponent);
-  var _super = _createSuper(VirtualHrefController);
   function VirtualHrefController(props) {
-    var _this;
+    var _this2;
     _classCallCheck(this, VirtualHrefController);
-    _this = _super.call(this, props);
-    _this.onFilter = _this.onFilter.bind(_assertThisInitialized(_this));
-    _this.onFilterMultiple = _this.onFilterMultiple.bind(_assertThisInitialized(_this));
-    _this.onClearFilters = _this.onClearFilters.bind(_assertThisInitialized(_this));
-    _this.getTermStatus = _this.getTermStatus.bind(_assertThisInitialized(_this));
-    _this.virtualNavigate = _this.virtualNavigate.bind(_assertThisInitialized(_this));
-    _this.memoized = {
+    _this2 = _callSuper(this, VirtualHrefController, [props]);
+    _this2.onFilter = _this2.onFilter.bind(_this2);
+    _this2.onFilterMultiple = _this2.onFilterMultiple.bind(_this2);
+    _this2.onClearFilters = _this2.onClearFilters.bind(_this2);
+    _this2.getTermStatus = _this2.getTermStatus.bind(_this2);
+    _this2.virtualNavigate = _this2.virtualNavigate.bind(_this2);
+    _this2.memoized = {
       transformedFacets: memoize(VirtualHrefController.transformedFacets),
       isClearFiltersBtnVisible: memoize(props.isClearFiltersBtnVisible || function (currentVirtualSearcHref) {
         // We assume props.searchHref doesn't ever change (we don't handle a change of this in any case)
         VirtualHrefController.isClearFiltersBtnVisible(currentVirtualSearcHref, props.searchHref);
       })
     };
-    _this.state = {
+    _this2.state = {
       "virtualHref": props.searchHref || null,
       // Takes precedence over virtualHref, if present.
       // TODO: Allow props.compoundFilterSet to init with perhaps.
@@ -60,11 +68,12 @@ export var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) 
       "isContextLoading": false,
       "virtualContext": undefined // Let downstream components use defaultProps to fallback
     };
-    return _this;
+    return _this2;
   }
 
   /** Will not be called if EmbeddedSearchView is not initialized with a `props.searchHref` */
-  _createClass(VirtualHrefController, [{
+  _inherits(VirtualHrefController, _React$PureComponent);
+  return _createClass(VirtualHrefController, [{
     key: "componentDidMount",
     value: function componentDidMount() {
       var _this$state = this.state,
@@ -91,7 +100,7 @@ export var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) 
   }, {
     key: "virtualNavigate",
     value: function virtualNavigate(navigationTarget, navOpts, callback) {
-      var _this2 = this;
+      var _this3 = this;
       var _this$props = this.props,
         _this$props$onLoad = _this$props.onLoad,
         onLoad = _this$props$onLoad === void 0 ? null : _this$props$onLoad,
@@ -181,11 +190,11 @@ export var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) 
         var onLoadResponse = function (nextContext) {
           var total = nextContext.total,
             initialResults = nextContext['@graph'];
-          if (scopedRequest !== _this2.currRequest) {
-            console.warn("This is no longer the current request", scopedRequest, _this2.currRequest);
+          if (scopedRequest !== _this3.currRequest) {
+            console.warn("This is no longer the current request", scopedRequest, _this3.currRequest);
             return false;
           }
-          _this2.currRequest = null;
+          _this3.currRequest = null;
           if (typeof total !== "number") {
             throw new Error("Did not get back a search response, request was potentially aborted.");
           }
@@ -205,7 +214,7 @@ export var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) 
             }
           }
           console.info("Loaded Next Context", nextContext);
-          _this2.setState({
+          _this3.setState({
             "virtualContext": nextContext,
             "isContextLoading": false,
             "virtualHref": responseHref,
@@ -219,14 +228,14 @@ export var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) 
             }
           });
         };
-        if (_this2.currRequest) {
+        if (_this3.currRequest) {
           // Try cancel existing request if possible.
-          _this2.currRequest.abort();
-          _this2.currRequest = null;
+          _this3.currRequest.abort();
+          _this3.currRequest = null;
         }
 
         // We still might perform GET request on 4DN which doesn't yet have /compound_search
-        scopedRequest = _this2.currRequest = ajaxLoad(virtualCompoundFilterSet ? "/compound_search" : nextHrefFull, onLoadResponse, virtualCompoundFilterSet ? "POST" : "GET", onLoadResponse, virtualCompoundFilterSet ? JSON.stringify(virtualCompoundFilterSet) : null);
+        scopedRequest = _this3.currRequest = ajaxLoad(virtualCompoundFilterSet ? "/compound_search" : nextHrefFull, onLoadResponse, virtualCompoundFilterSet ? "POST" : "GET", onLoadResponse, virtualCompoundFilterSet ? JSON.stringify(virtualCompoundFilterSet) : null);
       });
       return scopedRequest;
     }
@@ -242,6 +251,9 @@ export var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) 
         facet: facet,
         term: term
       }], callback);
+
+      // Reset any item selections when a new filter is specified
+      this.clearSelectedItems();
     }
 
     /**
@@ -287,6 +299,9 @@ export var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) 
         var thisHref = generateNextHref(newHref, virtualContextFilters, facet, term);
         newHref = thisHref;
       });
+
+      // Reset any item selections when new filters are specified
+      this.clearSelectedItems();
       return this.virtualNavigate(newHref, {
         'dontScrollToTop': true
       }, typeof callback === "function" ? callback : null);
@@ -307,6 +322,9 @@ export var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) 
         // Reset to original searchHref from current virtual href.
         this.virtualNavigate(searchHref, {}, typeof callback === 'function' ? callback : null);
       }
+
+      // When filters are cleared, again, clear any selectedItems
+      this.clearSelectedItems();
     }
   }, {
     key: "getTermStatus",
@@ -315,17 +333,32 @@ export var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) 
       return getTermFacetStatus(term, facet, virtualContextFilters);
     }
   }, {
+    key: "clearSelectedItems",
+    value: function clearSelectedItems() {
+      var _this$props3 = this.props,
+        clearSelectedItemsOnFilter = _this$props3.clearSelectedItemsOnFilter,
+        selectedItems = _this$props3.selectedItems,
+        onResetSelectedItems = _this$props3.onResetSelectedItems;
+
+      // Reset any item selections when a new filter is specified
+      if (clearSelectedItemsOnFilter && !onResetSelectedItems) {
+        throw new Error("Embedded Search View must be wrapped in SelectedItemsController to clearSelectedItemsOnFilter");
+      } else if (clearSelectedItemsOnFilter && selectedItems !== null && selectedItems !== void 0 && selectedItems.size) {
+        onResetSelectedItems();
+      }
+    }
+  }, {
     key: "render",
     value: function render() {
-      var _this$props3 = this.props,
-        children = _this$props3.children,
-        propFacets = _this$props3.facets,
-        _this$props3$filterFa = _this$props3.filterFacetFxn,
-        filterFacetFxn = _this$props3$filterFa === void 0 ? null : _this$props3$filterFa,
-        _this$props3$columns = _this$props3.columns,
-        propColumns = _this$props3$columns === void 0 ? null : _this$props3$columns,
-        originalSearchHref = _this$props3.searchHref,
-        passProps = _objectWithoutProperties(_this$props3, _excluded);
+      var _this$props4 = this.props,
+        children = _this$props4.children,
+        propFacets = _this$props4.facets,
+        _this$props4$filterFa = _this$props4.filterFacetFxn,
+        filterFacetFxn = _this$props4$filterFa === void 0 ? null : _this$props4$filterFa,
+        _this$props4$columns = _this$props4.columns,
+        propColumns = _this$props4$columns === void 0 ? null : _this$props4$columns,
+        originalSearchHref = _this$props4.searchHref,
+        passProps = _objectWithoutProperties(_this$props4, _excluded);
       var _this$state4 = this.state,
         href = _this$state4.virtualHref,
         context = _this$state4.virtualContext,
@@ -386,5 +419,4 @@ export var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) 
       return !_.isEqual(origHrefQuery, virtualHrefPartsQuery);
     }
   }]);
-  return VirtualHrefController;
 }(React.PureComponent);

@@ -259,6 +259,9 @@ export class VirtualHrefController extends React.PureComponent {
      */
     onFilter(facet, term, callback){
         this.onFilterMultiple([{ facet, term }], callback);
+
+        // Reset any item selections when a new filter is specified
+        this.clearSelectedItems();
     }
 
     /**
@@ -304,6 +307,9 @@ export class VirtualHrefController extends React.PureComponent {
             newHref = thisHref;
         });
 
+        // Reset any item selections when new filters are specified
+        this.clearSelectedItems();
+
         return this.virtualNavigate(
             newHref,
             { 'dontScrollToTop' : true },
@@ -325,11 +331,25 @@ export class VirtualHrefController extends React.PureComponent {
             // Reset to original searchHref from current virtual href.
             this.virtualNavigate(searchHref, {}, typeof callback === 'function' ? callback : null);
         }
+
+        // When filters are cleared, again, clear any selectedItems
+        this.clearSelectedItems();
     }
 
     getTermStatus(term, facet){
         const { virtualContext : { filters: virtualContextFilters } } = this.state;
         return getTermFacetStatus(term, facet, virtualContextFilters);
+    }
+
+    clearSelectedItems() {
+        const { clearSelectedItemsOnFilter, selectedItems, onResetSelectedItems } = this.props;
+
+        // Reset any item selections when a new filter is specified
+        if (clearSelectedItemsOnFilter && !onResetSelectedItems) {
+            throw new Error("Embedded Search View must be wrapped in SelectedItemsController to clearSelectedItemsOnFilter");
+        } else if (clearSelectedItemsOnFilter && selectedItems?.size) {
+            onResetSelectedItems();
+        }
     }
 
     render(){

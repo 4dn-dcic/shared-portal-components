@@ -63,7 +63,12 @@ export class EmbeddedSearchView extends React.PureComponent {
         'facetColumnClassName' : PropTypes.string,
         'tableColumnClassName' : PropTypes.string,
         'allowPostRequest' : PropTypes.bool,
-        'targetTabKey': PropTypes.string
+        'targetTabKey': PropTypes.string,
+        // Specifically for use cases where this is wrapped in SelectedItemsController
+        'clearSelectedItemsOnFilter': PropTypes.bool,
+        'selectedItems': PropTypes.object,
+        'onSelectItem': PropTypes.func,
+        'onResetSelectedItems': PropTypes.func
     };
 
     static listToObj(hideFacetStrs){
@@ -152,18 +157,22 @@ export class EmbeddedSearchView extends React.PureComponent {
             facetColumnClassName,               // If undefined, default is set in ControlsAndResults.
             tableColumnClassName: propTableColumnClassName, // If undefined, default is set in ControlsAndResults.
             allowPostRequest = false,           // This is supported only on CGAP right now, so disabled now here until 4DN supports compound_search.
+            clearSelectedItemsOnFilter,         // Determines whether selected items are cleared on facet selection/deselection
+            selectedItems,
+            onSelectItem,
+            onResetSelectedItems,
             ...passProps
         } = this.props;
 
         // If facets are null (hidden/excluded) and no props.tableColumnClassName set table col to be full width of container instead of the default set by ControlsAndResults.
         const tableColumnClassName = propTableColumnClassName || (facets === null ? "col-12" : undefined);
         // Includes pass-through props like `maxHeight`, `hideFacets`, etc.
-        const viewProps = { ...passProps, aboveTableComponent, aboveFacetListComponent, facetListComponent, tableColumnClassName, facetColumnClassName };
+        const viewProps = { ...passProps, aboveTableComponent, aboveFacetListComponent, facetListComponent, tableColumnClassName, facetColumnClassName, clearSelectedItemsOnFilter, selectedItems, onSelectItem, onResetSelectedItems };
         const filterFacetFxn = propFacetFilterFxn || this.filterFacetFxn;
 
         return (
             <div className="embedded-search-container">
-                <VirtualHrefController {...{ searchHref, facets, onLoad, filterFacetFxn, onClearFiltersVirtual, isClearFiltersBtnVisible, allowPostRequest }} key={searchHref || 1}>
+                <VirtualHrefController {...{ searchHref, facets, onLoad, filterFacetFxn, onClearFiltersVirtual, isClearFiltersBtnVisible, allowPostRequest, clearSelectedItemsOnFilter, selectedItems, onSelectItem, onResetSelectedItems }} key={searchHref || 1}>
                     <ColumnCombiner {...{ columns, columnExtensionMap }}>
                         <CustomColumnController {...{ windowWidth, filterColumnFxn }} hiddenColumns={hideColumns}>
                             <SortController>
