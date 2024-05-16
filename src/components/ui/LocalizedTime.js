@@ -150,6 +150,8 @@ export function format(timestamp, formatType = 'date-md', dateTimeSeparator = " 
 }
 
 export function display(dateObj, formatType = 'date-md', dateTimeSeparator = " ", localize = false, customOutputFormat = null){
+    if (!isValid(dateObj)) return null;
+
     var outputFormat;
     if (customOutputFormat) {
         outputFormat = customOutputFormat;
@@ -160,7 +162,7 @@ export function display(dateObj, formatType = 'date-md', dateTimeSeparator = " "
         return localFormat(utcToZonedTime(dateObj), outputFormat);
     }
 
-    return formatDate(dateObj,outputFormat);
+    return formatDate(dateObj, outputFormat);
 }
 
 /**

@@ -103,12 +103,13 @@ export var basicColumnExtensionMap = {
       'sm': 120
     },
     'render': function (result) {
-      var date_created = result.date_created;
+      var _result$date_created = result.date_created,
+        date_created = _result$date_created === void 0 ? null : _result$date_created;
       if (!date_created) return null;
       return /*#__PURE__*/React.createElement("span", {
         className: "value text-right"
       }, /*#__PURE__*/React.createElement(LocalizedTime, {
-        timestamp: result.date_created,
+        timestamp: date_created,
         formatType: "date-sm"
       }));
     },
