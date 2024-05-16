@@ -70,11 +70,11 @@ export const basicColumnExtensionMap = {
         'colTitle' : 'Date Created',
         'widthMap' : { 'lg' : 140, 'md' : 120, 'sm' : 120 },
         'render' : function dateCreatedTitle(result, props){
-            const { date_created } = result;
+            const { date_created = null } = result;
             if (!date_created) return null;
             return (
                 <span className="value text-right">
-                    <LocalizedTime timestamp={result.date_created} formatType="date-sm" />
+                    <LocalizedTime timestamp={date_created} formatType="date-sm" />
                 </span>
             );
         },

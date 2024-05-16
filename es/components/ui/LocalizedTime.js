@@ -1,10 +1,21 @@
 import _classCallCheck from "@babel/runtime/helpers/classCallCheck";
 import _createClass from "@babel/runtime/helpers/createClass";
-import _inherits from "@babel/runtime/helpers/inherits";
 import _possibleConstructorReturn from "@babel/runtime/helpers/possibleConstructorReturn";
 import _getPrototypeOf from "@babel/runtime/helpers/getPrototypeOf";
-function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
-function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
+import _inherits from "@babel/runtime/helpers/inherits";
+function _callSuper(_this, derived, args) {
+  derived = _getPrototypeOf(derived);
+  return _possibleConstructorReturn(_this, function () {
+    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+    if (Reflect.construct.sham) return false;
+    if (typeof Proxy === "function") return true;
+    try {
+      return !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {}));
+    } catch (e) {
+      return false;
+    }
+  }() ? Reflect.construct(derived, args || [], _getPrototypeOf(_this).constructor) : derived.apply(_this, args));
+}
 import React from 'react';
 import PropTypes from 'prop-types';
 import memoize from 'memoize-one';
@@ -13,13 +24,11 @@ import { format as localFormat, zonedTimeToUtc, utcToZonedTime } from "date-fns-
 import { enUS } from "date-fns/locale";
 import { isServerSide } from './../util/misc';
 export var LocalizedTime = /*#__PURE__*/function (_React$Component) {
-  _inherits(LocalizedTime, _React$Component);
-  var _super = _createSuper(LocalizedTime);
   function LocalizedTime(props) {
-    var _this;
+    var _this2;
     _classCallCheck(this, LocalizedTime);
-    _this = _super.call(this, props);
-    _this.memoized = {
+    _this2 = _callSuper(this, LocalizedTime, [props]);
+    _this2.memoized = {
       getDateFns: memoize(function (dateFnsDate, timestamp) {
         var parsedTime = zonedTimeToUtc(timestamp);
         // console.log("parsedTime", parsedTime);
@@ -28,12 +37,13 @@ export var LocalizedTime = /*#__PURE__*/function (_React$Component) {
         return new Date();
       })
     };
-    _this.state = {
+    _this2.state = {
       'mounted': false
     };
-    return _this;
+    return _this2;
   }
-  _createClass(LocalizedTime, [{
+  _inherits(LocalizedTime, _React$Component);
+  return _createClass(LocalizedTime, [{
     key: "componentDidMount",
     value: function componentDidMount() {
       this.setState({
@@ -64,7 +74,6 @@ export var LocalizedTime = /*#__PURE__*/function (_React$Component) {
       }
     }
   }]);
-  return LocalizedTime;
 }(React.Component);
 LocalizedTime.propTypes = {
   dateFnsDate: function dateFnsDate(props, propName) {
@@ -169,6 +178,7 @@ export function display(dateObj) {
   var dateTimeSeparator = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : " ";
   var localize = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
   var customOutputFormat = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : null;
+  if (!isValid(dateObj)) return null;
   var outputFormat;
   if (customOutputFormat) {
     outputFormat = customOutputFormat;
