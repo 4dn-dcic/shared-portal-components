@@ -639,7 +639,7 @@ export class CopyWrapper extends React.PureComponent {
     }
 
     render(){
-        const { value, children, mounted, wrapperElement, iconProps, includeIcon, className, stopPropagation, whitespace } = this.props;
+        const { value, children, mounted, wrapperElement, iconProps, includeIcon, className, stopPropagation, whitespace, analyticsOnCopy, maskAnalyticsValue=true } = this.props;
         if (!value) return null;
 
         // eslint-disable-next-line react/destructuring-assignment
@@ -652,9 +652,9 @@ export class CopyWrapper extends React.PureComponent {
 
             CopyWrapper.copyToClipboard(value, (v)=>{
                 this.onCopy();
-                analytics.event('copy_wrapper', 'CopyWrapper', 'Copy', null, { 'value' : v });
+                analyticsOnCopy && analytics.event('copy_wrapper', 'CopyWrapper', 'Copy', null, { 'value' : maskAnalyticsValue ? '[value_is_masked]' : v });
             }, (v)=>{
-                analytics.event('copy_wrapper', 'CopyWrapper', 'ERROR', null, { 'value' : v });
+                analyticsOnCopy && analytics.event('copy_wrapper', 'CopyWrapper', 'ERROR', null, { 'value' : maskAnalyticsValue ? '[value_is_masked]' : v });
             });
         };
 
@@ -684,7 +684,9 @@ CopyWrapper.defaultProps = {
     'includeIcon' : true,
     'whitespace': true,
     'flashActiveTransform' : 'scale3d(1.2, 1.2, 1.2) translate3d(0, 0, 0)',
-    'flashInactiveTransform' : 'translate3d(0, 0, 0)'
+    'flashInactiveTransform' : 'translate3d(0, 0, 0)',
+    'analyticsOnCopy': false, // false: never trigger analytics event (default)
+    'maskAnalyticsValue': true // true: never send the actual value, send a placeholder instead (default)
 };
 
 
