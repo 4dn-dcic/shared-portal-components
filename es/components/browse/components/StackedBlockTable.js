@@ -1,13 +1,23 @@
 import _extends from "@babel/runtime/helpers/extends";
-import _assertThisInitialized from "@babel/runtime/helpers/assertThisInitialized";
 import _classCallCheck from "@babel/runtime/helpers/classCallCheck";
 import _createClass from "@babel/runtime/helpers/createClass";
-import _inherits from "@babel/runtime/helpers/inherits";
 import _possibleConstructorReturn from "@babel/runtime/helpers/possibleConstructorReturn";
 import _getPrototypeOf from "@babel/runtime/helpers/getPrototypeOf";
+import _inherits from "@babel/runtime/helpers/inherits";
 import _defineProperty from "@babel/runtime/helpers/defineProperty";
-function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
-function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
+function _callSuper(_this, derived, args) {
+  derived = _getPrototypeOf(derived);
+  return _possibleConstructorReturn(_this, function () {
+    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+    if (Reflect.construct.sham) return false;
+    if (typeof Proxy === "function") return true;
+    try {
+      return !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {}));
+    } catch (e) {
+      return false;
+    }
+  }() ? Reflect.construct(derived, args || [], _getPrototypeOf(_this).constructor) : derived.apply(_this, args));
+}
 import React from 'react';
 import PropTypes from 'prop-types';
 import memoize from 'memoize-one';
@@ -43,7 +53,9 @@ export function StackedBlockNameLabel(props) {
     className: "ext" + (accession ? ' is-accession' : '')
   }, accession ? /*#__PURE__*/React.createElement(object.CopyWrapper, {
     value: accession,
-    key: "copy-accession"
+    key: "copy-accession",
+    analyticsOnCopy: true,
+    maskAnalyticsValue: false
   }, accession || subtitle) : subtitle) : null);
 }
 StackedBlockNameLabel.propTypes = {
@@ -58,13 +70,12 @@ StackedBlockNameLabel.propTypes = {
 
 /** Name element to be put inside of StackedBlocks as the first child. */
 export var StackedBlockName = /*#__PURE__*/function (_React$PureComponent) {
-  _inherits(StackedBlockName, _React$PureComponent);
-  var _super = _createSuper(StackedBlockName);
   function StackedBlockName() {
     _classCallCheck(this, StackedBlockName);
-    return _super.apply(this, arguments);
+    return _callSuper(this, StackedBlockName, arguments);
   }
-  _createClass(StackedBlockName, [{
+  _inherits(StackedBlockName, _React$PureComponent);
+  return _createClass(StackedBlockName, [{
     key: "render",
     value: function render() {
       var _this$props = this.props,
@@ -86,7 +97,6 @@ export var StackedBlockName = /*#__PURE__*/function (_React$PureComponent) {
       }, label, children);
     }
   }]);
-  return StackedBlockName;
 }(React.PureComponent);
 
 /**
@@ -94,13 +104,12 @@ export var StackedBlockName = /*#__PURE__*/function (_React$PureComponent) {
  */
 _defineProperty(StackedBlockName, "Label", StackedBlockNameLabel);
 export var StackedBlockListViewMoreButton = /*#__PURE__*/function (_React$PureComponent2) {
-  _inherits(StackedBlockListViewMoreButton, _React$PureComponent2);
-  var _super2 = _createSuper(StackedBlockListViewMoreButton);
   function StackedBlockListViewMoreButton() {
     _classCallCheck(this, StackedBlockListViewMoreButton);
-    return _super2.apply(this, arguments);
+    return _callSuper(this, StackedBlockListViewMoreButton, arguments);
   }
-  _createClass(StackedBlockListViewMoreButton, [{
+  _inherits(StackedBlockListViewMoreButton, _React$PureComponent2);
+  return _createClass(StackedBlockListViewMoreButton, [{
     key: "render",
     value: function render() {
       var _this$props2 = this.props,
@@ -135,7 +144,6 @@ export var StackedBlockListViewMoreButton = /*#__PURE__*/function (_React$PureCo
       }, " ", showMoreExtTitle) : null);
     }
   }]);
-  return StackedBlockListViewMoreButton;
 }(React.PureComponent);
 
 /**
@@ -151,24 +159,23 @@ _defineProperty(StackedBlockListViewMoreButton, "propTypes", {
 });
 
 export var StackedBlockList = /*#__PURE__*/function (_React$PureComponent3) {
-  _inherits(StackedBlockList, _React$PureComponent3);
-  var _super3 = _createSuper(StackedBlockList);
   function StackedBlockList(props) {
-    var _this;
+    var _this2;
     _classCallCheck(this, StackedBlockList);
-    _this = _super3.call(this, props);
-    _this.adjustedChildren = _this.adjustedChildren.bind(_assertThisInitialized(_this));
-    _this.handleCollapseToggle = _this.handleCollapseToggle.bind(_assertThisInitialized(_this));
-    _this.state = {
+    _this2 = _callSuper(this, StackedBlockList, [props]);
+    _this2.adjustedChildren = _this2.adjustedChildren.bind(_this2);
+    _this2.handleCollapseToggle = _this2.handleCollapseToggle.bind(_this2);
+    _this2.state = {
       'collapsed': props.defaultCollapsed,
       'incrementalExpandVisibleCount': props.collapseShow
     };
-    return _this;
+    return _this2;
   }
-  _createClass(StackedBlockList, [{
+  _inherits(StackedBlockList, _React$PureComponent3);
+  return _createClass(StackedBlockList, [{
     key: "adjustedChildren",
     value: function adjustedChildren() {
-      var _this2 = this;
+      var _this3 = this;
       var _this$props3 = this.props,
         children = _this$props3.children,
         stackDepth = _this$props3.stackDepth,
@@ -187,12 +194,12 @@ export var StackedBlockList = /*#__PURE__*/function (_React$PureComponent3) {
 
         _.forEach(['collapseLongLists', 'collapseLimit', 'collapseShow', 'defaultCollapsed', 'incrementalExpandLimit'], function (prop) {
           if (typeof c.props[prop] === 'undefined') {
-            childProps[prop] = _this2.props[prop] || null;
+            childProps[prop] = _this3.props[prop] || null;
           }
         });
-        _.forEach(_.keys(_this2.props), function (prop) {
+        _.forEach(_.keys(_this3.props), function (prop) {
           if (typeof c.props[prop] === 'undefined' && typeof childProps[prop] === 'undefined' && !StackedBlock.excludedPassedProps.has(prop)) {
-            childProps[prop] = _this2.props[prop];
+            childProps[prop] = _this3.props[prop];
           }
         });
         return /*#__PURE__*/React.cloneElement(c, childProps, c.props.children);
@@ -302,7 +309,6 @@ export var StackedBlockList = /*#__PURE__*/function (_React$PureComponent3) {
       }, children.slice(0, collapseShow), collapsibleChildrenElemsList, viewMoreButton);
     }
   }]);
-  return StackedBlockList;
 }(React.PureComponent);
 _defineProperty(StackedBlockList, "ViewMoreButton", StackedBlockListViewMoreButton);
 _defineProperty(StackedBlockList, "propTypes", {
@@ -318,19 +324,18 @@ _defineProperty(StackedBlockList, "propTypes", {
   'incrementalExpandStep': PropTypes.number
 });
 export var StackedBlock = /*#__PURE__*/function (_React$PureComponent4) {
-  _inherits(StackedBlock, _React$PureComponent4);
-  var _super4 = _createSuper(StackedBlock);
   function StackedBlock(props) {
-    var _this3;
+    var _this4;
     _classCallCheck(this, StackedBlock);
-    _this3 = _super4.call(this, props);
-    _this3.adjustedChildren = _this3.adjustedChildren.bind(_assertThisInitialized(_this3));
-    return _this3;
+    _this4 = _callSuper(this, StackedBlock, [props]);
+    _this4.adjustedChildren = _this4.adjustedChildren.bind(_this4);
+    return _this4;
   }
-  _createClass(StackedBlock, [{
+  _inherits(StackedBlock, _React$PureComponent4);
+  return _createClass(StackedBlock, [{
     key: "adjustedChildren",
     value: function adjustedChildren() {
-      var _this4 = this;
+      var _this5 = this;
       var _this$props5 = this.props,
         children = _this$props5.children,
         columnClass = _this$props5.columnClass,
@@ -356,12 +361,12 @@ export var StackedBlock = /*#__PURE__*/function (_React$PureComponent4) {
 
         _.forEach(['collapseLongLists', 'collapseLimit', 'collapseShow', 'defaultCollapsed', 'preventExpand', 'incrementalExpandLimit'], function (prop) {
           if (typeof c.props[prop] === 'undefined') {
-            childProps[prop] = _this4.props[prop];
+            childProps[prop] = _this5.props[prop];
           }
         });
-        _.forEach(_.keys(_this4.props), function (prop) {
+        _.forEach(_.keys(_this5.props), function (prop) {
           if (typeof c.props[prop] === 'undefined' && typeof childProps[prop] === 'undefined' && !StackedBlock.excludedPassedProps.has(prop)) {
-            childProps[prop] = _this4.props[prop];
+            childProps[prop] = _this5.props[prop];
           }
         });
         if (_.keys(childProps).length > 0) {
@@ -385,7 +390,6 @@ export var StackedBlock = /*#__PURE__*/function (_React$PureComponent4) {
       }, this.adjustedChildren());
     }
   }]);
-  return StackedBlock;
 }(React.PureComponent);
 
 /**
@@ -403,24 +407,23 @@ _defineProperty(StackedBlock, "List", StackedBlockList);
 /** TODO MAYBE USE HERE & ON LIST */
 _defineProperty(StackedBlock, "excludedPassedProps", new Set(['stripe', 'hideNameOnHover', 'keepLabelOnHover', 'className', 'children', 'showMoreExtTitle']));
 export var StackedBlockTable = /*#__PURE__*/function (_React$PureComponent5) {
-  _inherits(StackedBlockTable, _React$PureComponent5);
-  var _super5 = _createSuper(StackedBlockTable);
   function StackedBlockTable(props) {
-    var _this5;
+    var _this6;
     _classCallCheck(this, StackedBlockTable);
-    _this5 = _super5.call(this, props);
-    _this5.adjustedChildren = _this5.adjustedChildren.bind(_assertThisInitialized(_this5));
-    _this5.setCollapsingState = _.throttle(_this5.setCollapsingState.bind(_assertThisInitialized(_this5)));
-    _this5.memoized = {
+    _this6 = _callSuper(this, StackedBlockTable, [props]);
+    _this6.adjustedChildren = _this6.adjustedChildren.bind(_this6);
+    _this6.setCollapsingState = _.throttle(_this6.setCollapsingState.bind(_this6));
+    _this6.memoized = {
       totalColumnsMinWidth: memoize(StackedBlockTable.totalColumnsMinWidth),
       colWidthStyles: memoize(StackedBlockTable.colWidthStyles)
     };
-    _this5.state = {
+    _this6.state = {
       'mounted': false
     };
-    return _this5;
+    return _this6;
   }
-  _createClass(StackedBlockTable, [{
+  _inherits(StackedBlockTable, _React$PureComponent5);
+  return _createClass(StackedBlockTable, [{
     key: "componentDidMount",
     value: function componentDidMount() {
       this.setState({
@@ -437,7 +440,7 @@ export var StackedBlockTable = /*#__PURE__*/function (_React$PureComponent5) {
   }, {
     key: "adjustedChildren",
     value: function adjustedChildren() {
-      var _this6 = this;
+      var _this7 = this;
       var _this$props7 = this.props,
         children = _this$props7.children,
         columnHeaders = _this$props7.columnHeaders,
@@ -445,7 +448,7 @@ export var StackedBlockTable = /*#__PURE__*/function (_React$PureComponent5) {
       var colWidthStyles = this.memoized.colWidthStyles(columnHeaders, defaultInitialColumnWidth);
       return React.Children.map(children, function (c) {
         // Includes handleFileCheckboxChange, selectedFiles, etc. if present
-        var addedProps = _.omit(_this6.props, 'columnHeaders', 'stackDepth', 'colWidthStyles', 'width');
+        var addedProps = _.omit(_this7.props, 'columnHeaders', 'stackDepth', 'colWidthStyles', 'width');
 
         // REQUIRED & PASSED DOWN TO STACKEDBLOCKLIST
         addedProps.colWidthStyles = colWidthStyles;
@@ -537,7 +540,6 @@ export var StackedBlockTable = /*#__PURE__*/function (_React$PureComponent5) {
       return retObj;
     }
   }]);
-  return StackedBlockTable;
 }(React.PureComponent);
 _defineProperty(StackedBlockTable, "StackedBlock", StackedBlock);
 _defineProperty(StackedBlockTable, "propTypes", {
