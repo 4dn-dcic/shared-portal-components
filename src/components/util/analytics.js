@@ -652,7 +652,7 @@ export function transformItemsToProducts(items, extData = {}){
  * @returns {Object[]} Representation of what was sent.
  */
 export function impressionListOfItems(itemList, href = null, listName = null, context = null){
-    if (!shouldTrack(itemList)) return false;
+    if (!shouldTrack(itemList)) return [];
     context = context || (state && state.reduxStore && state.reduxStore.getState().context) || null;
     var from = 0;
     if (typeof href === 'string'){ // Convert to URL parts.
