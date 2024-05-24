@@ -35,7 +35,9 @@ export function StackedBlockNameLabel(props){
             { subtitle || accession ?
                 <div className={"ext" + (accession ? ' is-accession' : '')}>
                     { accession ?
-                        <object.CopyWrapper value={accession} key="copy-accession">{ accession || subtitle }</object.CopyWrapper>
+                        <object.CopyWrapper value={accession} key="copy-accession" analyticsOnCopy maskAnalyticsValue={false}>
+                            {accession || subtitle}
+                        </object.CopyWrapper>
                         : subtitle }
                 </div>
                 : null }
