@@ -641,7 +641,7 @@ export function impressionListOfItems(itemList) {
   var href = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
   var listName = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
   var context = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
-  if (!shouldTrack(itemList)) return false;
+  if (!shouldTrack(itemList)) return [];
   context = context || state && state.reduxStore && state.reduxStore.getState().context || null;
   var from = 0;
   if (typeof href === 'string') {
