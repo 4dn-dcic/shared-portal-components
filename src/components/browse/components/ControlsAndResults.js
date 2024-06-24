@@ -75,8 +75,10 @@ export class ControlsAndResults extends React.PureComponent {
             isOwnPage = true,         // <- False when rendered by EmbeddedSearchView, else is true when from a SearchView
             isContextLoading = false, // <- Only applicable for EmbeddedSearchView, passed in by VirtualHrefController only, else is false always since we initialize immediately over search-response context that already has first 25 results
 
-            // From EmbeddedSearchView/manual-entry, used if isOwnPage is true
-            maxHeight = SearchResultTable.defaultProps.maxHeight,
+            // From EmbeddedSearchView/manual-entry, used if isOwnPage is true,
+            maxHeight,
+            maxFacetsBodyHeight = SearchResultTable.defaultProps.maxHeight,
+            maxResultsBodyHeight = SearchResultTable.defaultProps.maxHeight,
 
             // From CustomColumnController:
             hiddenColumns, addHiddenColumn, removeHiddenColumn, visibleColumnDefinitions,
@@ -99,10 +101,9 @@ export class ControlsAndResults extends React.PureComponent {
             columnDefinitions, visibleColumnDefinitions, defaultColAlignment,
             setColumnWidths, columnWidths, detailPane, stickyFirstColumn,
             isOwnPage, sortBy, sortColumns, termTransformFxn, windowWidth, registerWindowOnScrollHandler, rowHeight,
-            defaultOpenIndices, maxHeight, targetTabKey,
+            defaultOpenIndices, maxHeight, maxResultsBodyHeight, targetTabKey,
             isContextLoading // <- Only applicable for EmbeddedSearchView, else is false always
         };
-
 
         /**
          * To Consider:
@@ -154,7 +155,8 @@ export class ControlsAndResults extends React.PureComponent {
                 showClearFiltersButton,
                 separateSingleTermFacets,
                 requestedCompoundFilterSet,
-                maxBodyHeight: (!isOwnPage && maxHeight) || null
+                // Default to maxHeight when provided
+                maxFacetsBodyHeight: (!isOwnPage && (maxHeight ?? maxFacetsBodyHeight)) || null,
             };
             extendedFacetListComponent = React.Children.map(facetListComponent, extendChild.bind(null, facetListProps));
         }
