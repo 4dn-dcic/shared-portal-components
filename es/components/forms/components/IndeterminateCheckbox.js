@@ -12,7 +12,9 @@ export function IndeterminateCheckbox(props) {
     type: "checkbox"
   }, passProps, {
     ref: function callbackRef(el) {
-      if (indeterminate && el) el.indeterminate = indeterminate;
+      if (el) {
+        el.indeterminate = indeterminate === true;
+      }
     }
   }));
 }
