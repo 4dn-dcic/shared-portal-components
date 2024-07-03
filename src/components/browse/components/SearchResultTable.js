@@ -1146,6 +1146,7 @@ export class SearchResultTable extends React.Component {
         'fullWidthContainerSelectorString' : '.browse-page-container',
         'currentAction' : null,
         'isOwnPage' : true,
+        'maxHeight' : 400, // Used only if isOwnPage is false; todo: maybe move this defaultProp definition higher up into EmbeddedSearchView and leave null here.
         'isContextLoading' : false // Used only if isOwnPage is false
     };
 
