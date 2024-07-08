@@ -77,8 +77,8 @@ export class ControlsAndResults extends React.PureComponent {
 
             // From EmbeddedSearchView/manual-entry, used if isOwnPage is true,
             maxHeight,
-            maxFacetsBodyHeight = SearchResultTable.defaultProps.maxHeight,
-            maxResultsBodyHeight = SearchResultTable.defaultProps.maxHeight,
+            maxFacetsBodyHeight = SearchResultTable.defaultProps.maxResultsBodyHeight,
+            maxResultsBodyHeight = SearchResultTable.defaultProps.maxResultsBodyHeight,
 
             // From CustomColumnController:
             hiddenColumns, addHiddenColumn, removeHiddenColumn, visibleColumnDefinitions,

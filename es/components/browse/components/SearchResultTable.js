@@ -1,23 +1,27 @@
-function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
+import _objectWithoutProperties from "@babel/runtime/helpers/objectWithoutProperties";
+import _classCallCheck from "@babel/runtime/helpers/classCallCheck";
+import _createClass from "@babel/runtime/helpers/createClass";
+import _possibleConstructorReturn from "@babel/runtime/helpers/possibleConstructorReturn";
+import _getPrototypeOf from "@babel/runtime/helpers/getPrototypeOf";
+import _inherits from "@babel/runtime/helpers/inherits";
+import _defineProperty from "@babel/runtime/helpers/defineProperty";
+import _extends from "@babel/runtime/helpers/extends";
 var _excluded = ["columnDefinitions", "mounted", "columnWidths", "windowWidth", "defaultColAlignment"];
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-function _objectWithoutProperties(source, excluded) { if (source == null) return {}; var target = _objectWithoutPropertiesLoose(source, excluded); var key, i; if (Object.getOwnPropertySymbols) { var sourceSymbolKeys = Object.getOwnPropertySymbols(source); for (i = 0; i < sourceSymbolKeys.length; i++) { key = sourceSymbolKeys[i]; if (excluded.indexOf(key) >= 0) continue; if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue; target[key] = source[key]; } } return target; }
-function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; var sourceKeys = Object.keys(source); var key, i; for (i = 0; i < sourceKeys.length; i++) { key = sourceKeys[i]; if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } return target; }
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, _toPropertyKey(descriptor.key), descriptor); } }
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); Object.defineProperty(subClass, "prototype", { writable: false }); if (superClass) _setPrototypeOf(subClass, superClass); }
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
-function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } else if (call !== void 0) { throw new TypeError("Derived constructors may only return object or undefined"); } return _assertThisInitialized(self); }
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf.bind() : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return _typeof(key) === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (_typeof(input) !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (_typeof(res) !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
-function _extends() { _extends = Object.assign ? Object.assign.bind() : function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
+function _callSuper(_this, derived, args) {
+  derived = _getPrototypeOf(derived);
+  return _possibleConstructorReturn(_this, function () {
+    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+    if (Reflect.construct.sham) return false;
+    if (typeof Proxy === "function") return true;
+    try {
+      return !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {}));
+    } catch (e) {
+      return false;
+    }
+  }() ? Reflect.construct(derived, args || [], _getPrototypeOf(_this).constructor) : derived.apply(_this, args));
+}
 import React from 'react';
 import PropTypes from 'prop-types';
 import url from 'url';
@@ -90,32 +94,31 @@ var DefaultDetailPane = /*#__PURE__*/React.memo(function (_ref) {
   })));
 });
 var ResultDetail = /*#__PURE__*/function (_React$PureComponent) {
-  _inherits(ResultDetail, _React$PureComponent);
-  var _super = _createSuper(ResultDetail);
   function ResultDetail(props) {
-    var _this;
+    var _this2;
     _classCallCheck(this, ResultDetail);
-    _this = _super.call(this, props);
-    _this.setDetailHeightFromPane = _this.setDetailHeightFromPane.bind(_assertThisInitialized(_this));
-    _this.state = {
+    _this2 = _callSuper(this, ResultDetail, [props]);
+    _this2.setDetailHeightFromPane = _this2.setDetailHeightFromPane.bind(_this2);
+    _this2.state = {
       'closing': false
     };
-    _this.detailRef = /*#__PURE__*/React.createRef();
+    _this2.detailRef = /*#__PURE__*/React.createRef();
 
     // Unsure if worth keeping/using still?
     // Is potentially relevant but not ideally-implemented for BrowseView
     // which has DetailPane which itself has collapsible areas and the height
     // can thus vary outside of the open/closed toggle state in this table.
     // Ideally, those things could hook into `setDetailHeight` maybe...
-    _this.lastFoundHeight = null;
-    return _this;
+    _this2.lastFoundHeight = null;
+    return _this2;
   }
 
   /**
    * @todo Call this function in ExperimentSetDetailPane to keep heights up-to-date
    * when Processed Files or Raw Files sections are expanded/collapsed as well as just row itself.
    */
-  _createClass(ResultDetail, [{
+  _inherits(ResultDetail, _React$PureComponent);
+  return _createClass(ResultDetail, [{
     key: "setDetailHeightFromPane",
     value: function setDetailHeightFromPane() {
       var height = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
@@ -216,7 +219,6 @@ var ResultDetail = /*#__PURE__*/function (_React$PureComponent) {
       })), detailPane) : /*#__PURE__*/React.createElement("div", null));
     }
   }]);
-  return ResultDetail;
 }(React.PureComponent);
 _defineProperty(ResultDetail, "propTypes", {
   'result': PropTypes.object.isRequired,
@@ -234,19 +236,17 @@ _defineProperty(ResultDetail, "propTypes", {
   'context': PropTypes.object // For analyitics
 });
 var ResultRow = /*#__PURE__*/function (_React$PureComponent2) {
-  _inherits(ResultRow, _React$PureComponent2);
-  var _super2 = _createSuper(ResultRow);
   function ResultRow(props) {
-    var _this2;
+    var _this3;
     _classCallCheck(this, ResultRow);
-    _this2 = _super2.call(this, props);
-    _this2.toggleDetailOpen = _.throttle(_this2.toggleDetailOpen.bind(_assertThisInitialized(_this2)), 250);
-    _this2.setDetailHeight = _this2.setDetailHeight.bind(_assertThisInitialized(_this2));
-    _this2.handleDragStart = _this2.handleDragStart.bind(_assertThisInitialized(_this2));
-    _this2.memoized = {
+    _this3 = _callSuper(this, ResultRow, [props]);
+    _this3.toggleDetailOpen = _.throttle(_this3.toggleDetailOpen.bind(_this3), 250);
+    _this3.setDetailHeight = _this3.setDetailHeight.bind(_this3);
+    _this3.handleDragStart = _this3.handleDragStart.bind(_this3);
+    _this3.memoized = {
       getStyles: memoize(ResultRow.getStyles)
     };
-    return _this2;
+    return _this3;
   }
 
   // componentDidUpdate(pastProps){
@@ -256,7 +256,8 @@ var ResultRow = /*#__PURE__*/function (_React$PureComponent2) {
   //         }
   //     });
   // }
-  _createClass(ResultRow, [{
+  _inherits(ResultRow, _React$PureComponent2);
+  return _createClass(ResultRow, [{
     key: "setDetailHeight",
     value: function setDetailHeight() {
       var _this$props3 = this.props,
@@ -316,7 +317,7 @@ var ResultRow = /*#__PURE__*/function (_React$PureComponent2) {
   }, {
     key: "renderColumns",
     value: function renderColumns() {
-      var _this3 = this;
+      var _this4 = this;
       // TODO (?) prop func to do this to control which columns get which props.
       var _this$props6 = this.props,
         columnDefinitions = _this$props6.columnDefinitions,
@@ -335,7 +336,7 @@ var ResultRow = /*#__PURE__*/function (_React$PureComponent2) {
           columnNumber: columnNumber,
           defaultColAlignment: defaultColAlignment,
           // Only needed on first column (contains title, checkbox)
-          'toggleDetailOpen': columnNumber === 0 ? _this3.toggleDetailOpen : null
+          'toggleDetailOpen': columnNumber === 0 ? _this4.toggleDetailOpen : null
         });
         var width;
         if (mounted) {
@@ -412,7 +413,6 @@ var ResultRow = /*#__PURE__*/function (_React$PureComponent2) {
       };
     }
   }]);
-  return ResultRow;
 }(React.PureComponent);
 _defineProperty(ResultRow, "propTypes", {
   'result': PropTypes.shape({
@@ -437,29 +437,28 @@ _defineProperty(ResultRow, "propTypes", {
   'context': PropTypes.object.isRequired
 });
 var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$Component) {
-  _inherits(LoadMoreAsYouScroll, _React$Component);
-  var _super3 = _createSuper(LoadMoreAsYouScroll);
   function LoadMoreAsYouScroll(props) {
-    var _this4;
+    var _this5;
     _classCallCheck(this, LoadMoreAsYouScroll);
-    _this4 = _super3.call(this, props);
-    _this4.handleLoad = _.throttle(_this4.handleLoad.bind(_assertThisInitialized(_this4)), 3000);
-    _this4.state = {
+    _this5 = _callSuper(this, LoadMoreAsYouScroll, [props]);
+    _this5.handleLoad = _.throttle(_this5.handleLoad.bind(_this5), 3000);
+    _this5.state = {
       'isLoading': false
     };
     if (typeof props.mounted === 'undefined') {
-      _this4.state.mounted = false;
+      _this5.state.mounted = false;
     }
-    _this4.memoized = {
+    _this5.memoized = {
       getStyles: memoize(LoadMoreAsYouScroll.getStyles),
       getElementHeight: memoize(LoadMoreAsYouScroll.getElementHeight)
     };
-    _this4.lastIsScrolling = false;
-    _this4.infiniteComponentRef = /*#__PURE__*/React.createRef();
-    _this4.currRequest = null;
-    return _this4;
+    _this5.lastIsScrolling = false;
+    _this5.infiniteComponentRef = /*#__PURE__*/React.createRef();
+    _this5.currRequest = null;
+    return _this5;
   }
-  _createClass(LoadMoreAsYouScroll, [{
+  _inherits(LoadMoreAsYouScroll, _React$Component);
+  return _createClass(LoadMoreAsYouScroll, [{
     key: "componentDidMount",
     value: function componentDidMount() {
       if (typeof this.state.mounted === 'boolean') {
@@ -471,7 +470,7 @@ var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$Component) {
   }, {
     key: "handleLoad",
     value: function handleLoad() {
-      var _this5 = this;
+      var _this6 = this;
       var _this$props8 = this.props,
         origHref = _this$props8.href,
         _this$props8$requeste = _this$props8.requestedCompoundFilterSet,
@@ -504,7 +503,7 @@ var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$Component) {
         this.currRequest.abort();
       }
       var loadCallback = function (resp) {
-        if (requestInThisScope !== _this5.currRequest) {
+        if (requestInThisScope !== _this6.currRequest) {
           // Shouldn't occur - extra redundancy
           console.warn("Throwing out outdated load-more-as-you-scroll request.");
           return false;
@@ -520,7 +519,7 @@ var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$Component) {
           if (keyIntersection.length > 0) {
             logger.error("FOUND ALREADY-PRESENT RESULT IN NEW RESULTS.'", keyIntersection, newKeys);
             // We can refresh current page to get newest results.
-            _this5.setState({
+            _this6.setState({
               'isLoading': false
             }, function () {
               if (origCompoundFilterSet) {
@@ -536,7 +535,7 @@ var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$Component) {
               }
             });
           } else {
-            _this5.setState({
+            _this6.setState({
               'isLoading': false
             }, function () {
               var impressionedItems = analytics.impressionListOfItems(nextResults, nextHref || window.location.href, isOwnPage ? analytics.hrefToListName(nextHref) : "Embedded Search View");
@@ -549,16 +548,16 @@ var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$Component) {
             });
           }
         } else {
-          _this5.setState({
+          _this6.setState({
             'isLoading': false
           });
         }
-        _this5.currRequest = null;
+        _this6.currRequest = null;
       };
       this.setState({
         'isLoading': true
       }, function () {
-        _this5.currRequest = requestInThisScope = load(nextCompoundFilterSetRequest ? "/compound_search" : nextHref, loadCallback, nextCompoundFilterSetRequest ? "POST" : "GET", loadCallback, nextCompoundFilterSetRequest ? JSON.stringify(nextCompoundFilterSetRequest) : null);
+        _this6.currRequest = requestInThisScope = load(nextCompoundFilterSetRequest ? "/compound_search" : nextHref, loadCallback, nextCompoundFilterSetRequest ? "POST" : "GET", loadCallback, nextCompoundFilterSetRequest ? JSON.stringify(nextCompoundFilterSetRequest) : null);
       });
     }
   }, {
@@ -646,7 +645,6 @@ var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$Component) {
       });
     }
   }]);
-  return LoadMoreAsYouScroll;
 }(React.Component);
 _defineProperty(LoadMoreAsYouScroll, "propTypes", {
   'href': PropTypes.string,
@@ -700,23 +698,22 @@ var LoadingSpinner = /*#__PURE__*/React.memo(function (_ref3) {
   }), "\xA0 Loading..."));
 });
 var ShadowBorderLayer = /*#__PURE__*/function (_React$Component2) {
-  _inherits(ShadowBorderLayer, _React$Component2);
-  var _super4 = _createSuper(ShadowBorderLayer);
   function ShadowBorderLayer(props) {
-    var _this6;
+    var _this7;
     _classCallCheck(this, ShadowBorderLayer);
-    _this6 = _super4.call(this, props);
-    _this6.scrolling = false;
-    _this6.performScrollAction = _this6.performScrollAction.bind(_assertThisInitialized(_this6));
-    _this6.handleLeftScrollButtonMouseDown = _this6.handleScrollButtonMouseDown.bind(_assertThisInitialized(_this6), 'left');
-    _this6.handleRightScrollButtonMouseDown = _this6.handleScrollButtonMouseDown.bind(_assertThisInitialized(_this6), 'right');
-    _this6.handleScrollButtonUp = _this6.handleScrollButtonUp.bind(_assertThisInitialized(_this6));
-    _this6.memoized = {
+    _this7 = _callSuper(this, ShadowBorderLayer, [props]);
+    _this7.scrolling = false;
+    _this7.performScrollAction = _this7.performScrollAction.bind(_this7);
+    _this7.handleLeftScrollButtonMouseDown = _this7.handleScrollButtonMouseDown.bind(_this7, 'left');
+    _this7.handleRightScrollButtonMouseDown = _this7.handleScrollButtonMouseDown.bind(_this7, 'right');
+    _this7.handleScrollButtonUp = _this7.handleScrollButtonUp.bind(_this7);
+    _this7.memoized = {
       edgeHiddenContentWidths: memoize(ShadowBorderLayer.edgeHiddenContentWidths)
     };
-    return _this6;
+    return _this7;
   }
-  _createClass(ShadowBorderLayer, [{
+  _inherits(ShadowBorderLayer, _React$Component2);
+  return _createClass(ShadowBorderLayer, [{
     key: "shouldComponentUpdate",
     value: function shouldComponentUpdate(nextProps) {
       var _this$props10 = this.props,
@@ -746,7 +743,7 @@ var ShadowBorderLayer = /*#__PURE__*/function (_React$Component2) {
   }, {
     key: "performScrollAction",
     value: function performScrollAction() {
-      var _this7 = this;
+      var _this8 = this;
       var direction = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "right";
       var _this$props11 = this.props,
         horizontalScrollRateOnEdgeButton = _this$props11.horizontalScrollRateOnEdgeButton,
@@ -766,7 +763,7 @@ var ShadowBorderLayer = /*#__PURE__*/function (_React$Component2) {
           logger.error("Reached depth 10k on a recursive function 'performScrollAction.'");
           return;
         }
-        if (_this7.scrolling) {
+        if (_this8.scrolling) {
           raf(function () {
             scrollAction(depth + 1);
           });
@@ -838,31 +835,28 @@ var ShadowBorderLayer = /*#__PURE__*/function (_React$Component2) {
       return edges;
     }
   }]);
-  return ShadowBorderLayer;
 }(React.Component);
 _defineProperty(ShadowBorderLayer, "defaultProps", {
   'horizontalScrollRateOnEdgeButton': 10
 });
 var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
-  _inherits(DimensioningContainer, _React$PureComponent3);
-  var _super5 = _createSuper(DimensioningContainer);
   function DimensioningContainer(props) {
-    var _this8;
+    var _this9;
     _classCallCheck(this, DimensioningContainer);
-    _this8 = _super5.call(this, props);
-    _this8.getScrollContainer = _this8.getScrollContainer.bind(_assertThisInitialized(_this8));
-    _this8.getScrollableElement = _this8.getScrollableElement.bind(_assertThisInitialized(_this8));
-    _this8.throttledUpdate = _.debounce(_this8.forceUpdate.bind(_assertThisInitialized(_this8)), 500);
-    _this8.toggleDetailPaneOpen = _.throttle(_this8.toggleDetailPaneOpen.bind(_assertThisInitialized(_this8)), 500);
-    _this8.setDetailHeight = _this8.setDetailHeight.bind(_assertThisInitialized(_this8));
+    _this9 = _callSuper(this, DimensioningContainer, [props]);
+    _this9.getScrollContainer = _this9.getScrollContainer.bind(_this9);
+    _this9.getScrollableElement = _this9.getScrollableElement.bind(_this9);
+    _this9.throttledUpdate = _.debounce(_this9.forceUpdate.bind(_this9), 500);
+    _this9.toggleDetailPaneOpen = _.throttle(_this9.toggleDetailPaneOpen.bind(_this9), 500);
+    _this9.setDetailHeight = _this9.setDetailHeight.bind(_this9);
     //this.setContainerScrollLeft = this.setContainerScrollLeft.bind(this);
-    _this8.setContainerScrollLeft = _.throttle(_this8.setContainerScrollLeft.bind(_assertThisInitialized(_this8)), 250);
-    _this8.onHorizontalScroll = _this8.onHorizontalScroll.bind(_assertThisInitialized(_this8));
-    _this8.setResults = _this8.setResults.bind(_assertThisInitialized(_this8));
-    _this8.canLoadMore = _this8.canLoadMore.bind(_assertThisInitialized(_this8));
+    _this9.setContainerScrollLeft = _.throttle(_this9.setContainerScrollLeft.bind(_this9), 250);
+    _this9.onHorizontalScroll = _this9.onHorizontalScroll.bind(_this9);
+    _this9.setResults = _this9.setResults.bind(_this9);
+    _this9.canLoadMore = _this9.canLoadMore.bind(_this9);
     var _props$results = props.results,
       originalResults = _props$results === void 0 ? [] : _props$results;
-    _this8.state = {
+    _this9.state = {
       'mounted': false,
       'results': originalResults.slice(0),
       // { row key : detail pane height } used for determining if detail pane is open + height for Infinite listview
@@ -872,18 +866,19 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
       originalResults: originalResults // Reference to original results in order to utilize getDerivedStateFromProps.
     };
 
-    if (_this8.state.results.length > 0 && Array.isArray(props.defaultOpenIndices) && props.defaultOpenIndices.length > 0) {
-      _this8.state.openDetailPanes[itemUtil.atId(_this8.state.results[0])] = true;
+    if (_this9.state.results.length > 0 && Array.isArray(props.defaultOpenIndices) && props.defaultOpenIndices.length > 0) {
+      _this9.state.openDetailPanes[itemUtil.atId(_this9.state.results[0])] = true;
     }
-    _this8.outerRef = /*#__PURE__*/React.createRef();
-    _this8.outerContainerSizeInterval = null;
-    _this8.scrollHandlerUnsubscribeFxn = null;
-    _this8.memoized = {
+    _this9.outerRef = /*#__PURE__*/React.createRef();
+    _this9.outerContainerSizeInterval = null;
+    _this9.scrollHandlerUnsubscribeFxn = null;
+    _this9.memoized = {
       fullRowWidth: memoize(DimensioningContainer.fullRowWidth)
     };
-    return _this8;
+    return _this9;
   }
-  _createClass(DimensioningContainer, [{
+  _inherits(DimensioningContainer, _React$PureComponent3);
+  return _createClass(DimensioningContainer, [{
     key: "getScrollContainer",
     value: function getScrollContainer() {
       var outerContainerElem = this.outerRef.current;
@@ -908,7 +903,7 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
   }, {
     key: "componentDidMount",
     value: function componentDidMount() {
-      var _this9 = this;
+      var _this10 = this;
       // Maybe todo: play with 'experimental technology' for controlling columing widths (& compare performance),
       // see https://developer.mozilla.org/en-US/docs/Web/API/DocumentOrShadowRoot/styleSheets
       // and https://developer.mozilla.org/en-US/docs/Web/API/CSSStylesheet.
@@ -927,10 +922,10 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
       // and element might change width independent of window (e.g. open/hide
       // facetlist in future, expand table to fullscreen, etc.)
       this.outerContainerSizeInterval = setInterval(function () {
-        _this9.setState(function (_ref4, _ref5) {
+        _this10.setState(function (_ref4, _ref5) {
           var pastWidth = _ref4.tableContainerWidth;
           var windowWidth = _ref5.windowWidth;
-          var currDims = DimensioningContainer.getTableDims(_this9.getScrollContainer(), windowWidth);
+          var currDims = DimensioningContainer.getTableDims(_this10.getScrollContainer(), windowWidth);
           if (pastWidth !== currDims.tableContainerWidth) {
             return currDims;
           }
@@ -1022,7 +1017,7 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
   }, {
     key: "onHorizontalScroll",
     value: function onHorizontalScroll(e) {
-      var _this10 = this;
+      var _this11 = this;
       var innerElem = e.target;
 
       // ( Shouldn't need to do commented out stuff if layout is within width )
@@ -1038,7 +1033,7 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
         caf(this.horizScrollRAF);
       }
       this.horizScrollRAF = raf(function () {
-        var tableContainerScrollLeft = _this10.state.tableContainerScrollLeft;
+        var tableContainerScrollLeft = _this11.state.tableContainerScrollLeft;
         var nextScrollLeft = innerElem.scrollLeft;
         if (nextScrollLeft < 0) {
           nextScrollLeft = 0; // Might occur right after changing column widths or something.
@@ -1048,9 +1043,9 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
         columnsWrapperElement.style.left = "-".concat(nextScrollLeft, "px");
         if (nextScrollLeft !== tableContainerScrollLeft) {
           // Shouldn't occur or matter but presence of this seems to improve smoothness (?)
-          _this10.setContainerScrollLeft(nextScrollLeft);
+          _this11.setContainerScrollLeft(nextScrollLeft);
         }
-        delete _this10.horizScrollRAF;
+        delete _this11.horizScrollRAF;
       });
       return false;
     }
@@ -1117,7 +1112,7 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
         openRowHeight: openRowHeight,
         results: results,
         openDetailPanes: openDetailPanes,
-        maxResultsBodyHeight: maxHeight || maxResultsBodyHeight,
+        maxResultsBodyHeight: maxHeight !== null && maxHeight !== void 0 ? maxHeight : maxResultsBodyHeight,
         isOwnPage: isOwnPage,
         fullRowWidth: fullRowWidth,
         canLoadMore: canLoadMore,
@@ -1277,7 +1272,6 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
       return null;
     }
   }]);
-  return DimensioningContainer;
 }(React.PureComponent);
 var EndOfListItem = /*#__PURE__*/React.memo(function (_ref10) {
   var tableContainerWidth = _ref10.tableContainerWidth,
@@ -1318,13 +1312,12 @@ var EndOfListItem = /*#__PURE__*/React.memo(function (_ref10) {
  * @prop {function}         termTransformFxn    Function passed from parent portal to transform system values into human readable values. Is portal-specific; not used if `render` for field in columnExtensionMap/columnDefinition exists/used.
  */
 export var SearchResultTable = /*#__PURE__*/function (_React$Component3) {
-  _inherits(SearchResultTable, _React$Component3);
-  var _super6 = _createSuper(SearchResultTable);
   function SearchResultTable() {
     _classCallCheck(this, SearchResultTable);
-    return _super6.apply(this, arguments);
+    return _callSuper(this, SearchResultTable, arguments);
   }
-  _createClass(SearchResultTable, [{
+  _inherits(SearchResultTable, _React$Component3);
+  return _createClass(SearchResultTable, [{
     key: "render",
     value: function render() {
       var _this$props15 = this.props,
@@ -1360,7 +1353,6 @@ export var SearchResultTable = /*#__PURE__*/function (_React$Component3) {
       return !isServerSide() && responsiveGridState(windowWidth) !== 'xs';
     }
   }]);
-  return SearchResultTable;
 }(React.Component);
 _defineProperty(SearchResultTable, "propTypes", {
   'results': PropTypes.arrayOf(ResultRow.propTypes.result),
@@ -1432,7 +1424,7 @@ _defineProperty(SearchResultTable, "defaultProps", {
   'fullWidthContainerSelectorString': '.browse-page-container',
   'currentAction': null,
   'isOwnPage': true,
-  'maxHeight': 400,
+  'maxResultsBodyHeight': 400,
   // Used only if isOwnPage is false; todo: maybe move this defaultProp definition higher up into EmbeddedSearchView and leave null here.
   'isContextLoading': false // Used only if isOwnPage is false
 });
