@@ -139,7 +139,7 @@ export class FacetList extends React.PureComponent {
         'onFilter' : PropTypes.func,        // What happens when Term is clicked.
         'onFilterMultiple': PropTypes.func, // Same as onFilter, but processes multiple filter changes in one go
         'separateSingleTermFacets' : PropTypes.bool,
-        'maxBodyHeight' : PropTypes.number,
+        'maxFacetsBodyHeight' : PropTypes.number,
         'useRadioIcon': PropTypes.bool.isRequired, // Show either checkbox (False) or radio icon (True) for term component - it is only for styling, not intended to implement single selection (radio) or multiple selection (checkbox)
         'persistSelectedTerms': PropTypes.bool.isRequired, // if True selected/omitted terms are escalated to top, otherwise each term is rendered in regular order. Moreover, inline search options are not displayed if it is False.
         'isContextLoading': PropTypes.bool,
@@ -731,7 +731,7 @@ export class FacetList extends React.PureComponent {
             title,
             onClearFilters = null,
             showClearFiltersButton = false,
-            maxBodyHeight: maxHeight = null,
+            maxFacetsBodyHeight = null,
             isContextLoading = false,
             hideHeaderToggle = false
         } = this.props;
@@ -747,8 +747,8 @@ export class FacetList extends React.PureComponent {
         }
 
         const bodyProps = {
-            className: "facets-body" + (typeof maxHeight === "number" ? " has-max-height" : ""),
-            style: typeof maxHeight === "number" ? { maxHeight } : null
+            className: "facets-body" + (typeof maxFacetsBodyHeight === "number" ? " has-max-height" : ""),
+            style: typeof maxFacetsBodyHeight === "number" ? { maxHeight: maxFacetsBodyHeight } : null
         };
 
         const { staticFacetElements, selectableFacetElements } = this.renderFacetComponents();

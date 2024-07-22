@@ -363,7 +363,7 @@ class LoadMoreAsYouScroll extends React.Component {
         'results' : PropTypes.array.isRequired,                     // From parent
         'rowHeight' : PropTypes.number.isRequired,
         'isOwnPage' : PropTypes.bool.isRequired,
-        'maxHeight' : PropTypes.number,
+        'maxResultsBodyHeight' : PropTypes.number,
         'tableContainerScrollLeft' : PropTypes.number.isRequired,   // From parent
         'tableContainerWidth' : PropTypes.number,                   // From parent; required but may be null if table not visible/displayed in DOM.
         'setResults' : PropTypes.func.isRequired,                   // From parent
@@ -392,11 +392,11 @@ class LoadMoreAsYouScroll extends React.Component {
      * Used for memoization of styles that dont frequently change (prevent needless PureComponent updates).
      * `scrollableStyle` is applied to Infinite's outermost div element/container.
      */
-    static getStyles(maxHeight){
+    static getStyles(maxResultsBodyHeight){
         const styles = {};
         styles.scrollableStyle = {
-            maxHeight,
-            height: null, // Unset, let maxHeight take over.
+            maxHeight: maxResultsBodyHeight,
+            height: null, // Unset, let maxResultsBodyHeight take over.
             overflow: "auto" // Override "hidden scroll" default.
         };
         return styles;
@@ -537,7 +537,7 @@ class LoadMoreAsYouScroll extends React.Component {
     render(){
         const {
             children, rowHeight, openRowHeight, openDetailPanes, tableContainerWidth, tableContainerScrollLeft,
-            mounted: propMounted, isOwnPage, maxHeight, canLoadMore
+            mounted: propMounted, isOwnPage, maxResultsBodyHeight, canLoadMore
         } = this.props;
         const { mounted: stateMounted, isLoading } = this.state;
         if (!(propMounted || stateMounted)){
@@ -555,7 +555,7 @@ class LoadMoreAsYouScroll extends React.Component {
                 className="react-infinite-container"
                 ref={this.infiniteComponentRef}
                 elementHeight={elementHeight}
-                containerHeight={(!isOwnPage && maxHeight) || undefined}
+                containerHeight={(!isOwnPage && maxResultsBodyHeight) || undefined}
                 useWindowAsScrollContainer={isOwnPage}
                 onInfiniteLoad={this.handleLoad}
                 isInfiniteLoading={isLoading}
@@ -565,7 +565,7 @@ class LoadMoreAsYouScroll extends React.Component {
                 infiniteLoadBeginEdgeOffset={canLoadMore ? 200 : undefined}
                 preloadAdditionalHeight={Infinite.containerHeightScaleFactor(1.5)}
                 preloadBatchSize={Infinite.containerHeightScaleFactor(1.5)}
-                styles={isOwnPage ? null : this.memoized.getStyles(maxHeight)}>
+                styles={isOwnPage ? null : this.memoized.getStyles(maxResultsBodyHeight)}>
                 { children }
             </Infinite>
         );
@@ -965,7 +965,8 @@ class DimensioningContainer extends React.PureComponent {
             navigate,
             rowHeight = 47, // `rowHeight - rowBottomPadding` must be aligned in CSS stylesheets
             openRowHeight = null, // Will default to `rowHeight` if not supplied.
-            maxHeight = 500, // Only used if not isOwnPage
+            maxHeight, // Only used if not isOwnPage
+            maxResultsBodyHeight, // Only used if not isOwnPage
             isContextLoading = false,
             setColumnWidths,
             columnWidths,
@@ -984,7 +985,7 @@ class DimensioningContainer extends React.PureComponent {
         const loadMoreAsYouScrollProps = {
             ..._.pick(this.props, 'href', 'onDuplicateResultsFoundCallback', 'schemas', 'requestedCompoundFilterSet'),
             context, navigate, rowHeight, openRowHeight,
-            results, openDetailPanes, maxHeight, isOwnPage, fullRowWidth, canLoadMore, anyResults,
+            results, openDetailPanes, maxResultsBodyHeight: maxHeight ?? maxResultsBodyHeight, isOwnPage, fullRowWidth, canLoadMore, anyResults,
             tableContainerWidth, tableContainerScrollLeft, windowWidth, mounted,
             setResults: this.setResults
         };
@@ -1123,7 +1124,9 @@ export class SearchResultTable extends React.Component {
         })),
         'termTransformFxn' : PropTypes.func.isRequired,
         'isOwnPage' : PropTypes.bool,
-        'maxHeight' : PropTypes.number, //PropTypes.oneOfType([PropTypes.number, PropTypes.string]) // Used only if isOwnPage is false
+        // Used only if isOwnPage is false
+        'maxHeight' : PropTypes.number, //PropTypes.oneOfType([PropTypes.number, PropTypes.string])
+        'maxResultsBodyHeight' : PropTypes.number,
         'isContextLoading' : PropTypes.bool
     };
 
@@ -1143,7 +1146,7 @@ export class SearchResultTable extends React.Component {
         'fullWidthContainerSelectorString' : '.browse-page-container',
         'currentAction' : null,
         'isOwnPage' : true,
-        'maxHeight' : 400, // Used only if isOwnPage is false; todo: maybe move this defaultProp definition higher up into EmbeddedSearchView and leave null here.
+        'maxResultsBodyHeight' : 400, // Used only if isOwnPage is false; todo: maybe move this defaultProp definition higher up into EmbeddedSearchView and leave null here.
         'isContextLoading' : false // Used only if isOwnPage is false
     };
 

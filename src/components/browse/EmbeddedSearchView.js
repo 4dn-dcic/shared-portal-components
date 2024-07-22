@@ -166,7 +166,7 @@ export class EmbeddedSearchView extends React.PureComponent {
 
         // If facets are null (hidden/excluded) and no props.tableColumnClassName set table col to be full width of container instead of the default set by ControlsAndResults.
         const tableColumnClassName = propTableColumnClassName || (facets === null ? "col-12" : undefined);
-        // Includes pass-through props like `maxHeight`, `hideFacets`, etc.
+        // Includes pass-through props like `maxHeight`, `maxFacetsBodyHeight`, `maxResultsBodyHeight`, `hideFacets`, etc.
         const viewProps = { ...passProps, aboveTableComponent, aboveFacetListComponent, facetListComponent, tableColumnClassName, facetColumnClassName, clearSelectedItemsOnFilter, selectedItems, onSelectItem, onResetSelectedItems };
         const filterFacetFxn = propFacetFilterFxn || this.filterFacetFxn;
 
