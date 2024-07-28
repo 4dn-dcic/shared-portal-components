@@ -98,7 +98,12 @@ export var Alerts = /*#__PURE__*/function (_React$Component) {
     }
   }], [{
     key: "setStore",
-    value: /** This must be called with the current Redux store for the app before Alerts can be used. */
+    value:
+    /**
+     * This must be called with the current Redux store for the app before Alerts can be used.
+     * @param {*} useStore
+     * @param {*} isLegacy pass false to use new redux v5 dispatcher call ({ type: 'STRING', payload: ... })
+     */
     function setStore(useStore, isLegacy) {
       store = useStore;
       if (typeof isLegacy === 'boolean') {
