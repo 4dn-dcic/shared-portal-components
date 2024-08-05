@@ -1,25 +1,27 @@
-function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
-function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
-function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
-function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
-function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
-function _iterableToArrayLimit(arr, i) { var _i = null == arr ? null : "undefined" != typeof Symbol && arr[Symbol.iterator] || arr["@@iterator"]; if (null != _i) { var _s, _e, _x, _r, _arr = [], _n = !0, _d = !1; try { if (_x = (_i = _i.call(arr)).next, 0 === i) { if (Object(_i) !== _i) return; _n = !1; } else for (; !(_n = (_s = _x.call(_i)).done) && (_arr.push(_s.value), _arr.length !== i); _n = !0); } catch (err) { _d = !0, _e = err; } finally { try { if (!_n && null != _i["return"] && (_r = _i["return"](), Object(_r) !== _r)) return; } finally { if (_d) throw _e; } } return _arr; } }
-function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+import _typeof from "@babel/runtime/helpers/typeof";
+import _slicedToArray from "@babel/runtime/helpers/slicedToArray";
+import _classCallCheck from "@babel/runtime/helpers/classCallCheck";
+import _createClass from "@babel/runtime/helpers/createClass";
+import _possibleConstructorReturn from "@babel/runtime/helpers/possibleConstructorReturn";
+import _getPrototypeOf from "@babel/runtime/helpers/getPrototypeOf";
+import _inherits from "@babel/runtime/helpers/inherits";
+import _defineProperty from "@babel/runtime/helpers/defineProperty";
+var _TableEntryChildren;
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, _toPropertyKey(descriptor.key), descriptor); } }
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); Object.defineProperty(subClass, "prototype", { writable: false }); if (superClass) _setPrototypeOf(subClass, superClass); }
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
-function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } else if (call !== void 0) { throw new TypeError("Derived constructors may only return object or undefined"); } return _assertThisInitialized(self); }
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf.bind() : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return _typeof(key) === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (_typeof(input) !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (_typeof(res) !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
+function _callSuper(_this, derived, args) {
+  derived = _getPrototypeOf(derived);
+  return _possibleConstructorReturn(_this, function () {
+    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+    if (Reflect.construct.sham) return false;
+    if (typeof Proxy === "function") return true;
+    try {
+      return !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {}));
+    } catch (e) {
+      return false;
+    }
+  }() ? Reflect.construct(derived, args || [], _getPrototypeOf(_this).constructor) : derived.apply(_this, args));
+}
 import React from 'react';
 import * as d3 from 'd3';
 import _ from 'underscore';
@@ -30,30 +32,29 @@ import { navigate } from './../util/navigate';
 import { isServerSide } from './../util/misc';
 import { CopyWrapper, itemUtil } from './../util/object';
 var TableEntry = /*#__PURE__*/function (_React$Component) {
-  _inherits(TableEntry, _React$Component);
-  var _super = _createSuper(TableEntry);
   function TableEntry(props) {
-    var _this;
+    var _this2;
     _classCallCheck(this, TableEntry);
-    _this = _super.call(this, props);
-    _this.shouldComponentUpdate = _this.shouldComponentUpdate.bind(_assertThisInitialized(_this));
-    _this.getTargetElement = _this.getTargetElement.bind(_assertThisInitialized(_this));
-    _this.getNextHeaderElement = _this.getNextHeaderElement.bind(_assertThisInitialized(_this));
-    _this.handleClick = _.throttle(_this.handleClick.bind(_assertThisInitialized(_this)), 300);
-    _this.determineIfActive = _this.determineIfActive.bind(_assertThisInitialized(_this));
-    _this.toggleOpen = _this.toggleOpen.bind(_assertThisInitialized(_this));
-    _this.targetElement = null; // Header element we scroll to is cached here. Not in state as does not change.
+    _this2 = _callSuper(this, TableEntry, [props]);
+    _this2.shouldComponentUpdate = _this2.shouldComponentUpdate.bind(_this2);
+    _this2.getTargetElement = _this2.getTargetElement.bind(_this2);
+    _this2.getNextHeaderElement = _this2.getNextHeaderElement.bind(_this2);
+    _this2.handleClick = _.throttle(_this2.handleClick.bind(_this2), 300);
+    _this2.determineIfActive = _this2.determineIfActive.bind(_this2);
+    _this2.toggleOpen = _this2.toggleOpen.bind(_this2);
+    _this2.targetElement = null; // Header element we scroll to is cached here. Not in state as does not change.
     var collapsible = props.collapsible,
       defaultExpanded = props.defaultExpanded;
     if (collapsible) {
       var open = typeof defaultExpanded === 'boolean' ? defaultExpanded : false;
-      _this.state = {
+      _this2.state = {
         'open': open
       };
     }
-    return _this;
+    return _this2;
   }
-  _createClass(TableEntry, [{
+  _inherits(TableEntry, _React$Component);
+  return _createClass(TableEntry, [{
     key: "shouldComponentUpdate",
     value: function shouldComponentUpdate(nextProps, nextState) {
       if (nextProps.mounted !== this.props.mounted || nextProps.pageScrollTop !== this.props.pageScrollTop || this && this.state && nextState && nextState.open !== this.state.open) {
@@ -154,7 +155,7 @@ var TableEntry = /*#__PURE__*/function (_React$Component) {
   }, {
     key: "render",
     value: function render() {
-      var _this2 = this;
+      var _this3 = this;
       var _this$props2 = this.props,
         recurDepth = _this$props2.recurDepth,
         link = _this$props2.link,
@@ -191,7 +192,7 @@ var TableEntry = /*#__PURE__*/function (_React$Component) {
           href: (link.charAt(0) === '/' ? '' : '#') + link,
           onClick: function onClick(e) {
             e.preventDefault();
-            _this2.handleClick();
+            _this3.handleClick();
           }
         }, title));
       }
@@ -229,7 +230,6 @@ var TableEntry = /*#__PURE__*/function (_React$Component) {
       }))));
     }
   }]);
-  return TableEntry;
 }(React.Component);
 _defineProperty(TableEntry, "getChildHeaders", memoize(function (content, maxHeaderDepth, currentDepth) {
   if (!TableOfContents.isContentJSX(content) || !content.props || !content.props.children) return [];
@@ -253,19 +253,18 @@ _defineProperty(TableEntry, "defaultProps", {
   'defaultExpanded': undefined
 });
 var TableEntryChildren = /*#__PURE__*/function (_React$Component2) {
-  _inherits(TableEntryChildren, _React$Component2);
-  var _super2 = _createSuper(TableEntryChildren);
   function TableEntryChildren(props) {
-    var _this3;
+    var _this4;
     _classCallCheck(this, TableEntryChildren);
-    _this3 = _super2.call(this, props);
-    _this3.shouldComponentUpdate = _this3.shouldComponentUpdate.bind(_assertThisInitialized(_this3));
-    _this3.getHeadersFromContent = _this3.getHeadersFromContent.bind(_assertThisInitialized(_this3));
-    _this3.children = _this3.children.bind(_assertThisInitialized(_this3));
-    _this3.render = _this3.render.bind(_assertThisInitialized(_this3));
-    return _this3;
+    _this4 = _callSuper(this, TableEntryChildren, [props]);
+    _this4.shouldComponentUpdate = _this4.shouldComponentUpdate.bind(_this4);
+    _this4.getHeadersFromContent = _this4.getHeadersFromContent.bind(_this4);
+    _this4.children = _this4.children.bind(_this4);
+    _this4.render = _this4.render.bind(_this4);
+    return _this4;
   }
-  _createClass(TableEntryChildren, [{
+  _inherits(TableEntryChildren, _React$Component2);
+  return _createClass(TableEntryChildren, [{
     key: "shouldComponentUpdate",
     value: function shouldComponentUpdate(nextProps) {
       if (nextProps.active) return true;
@@ -373,13 +372,13 @@ var TableEntryChildren = /*#__PURE__*/function (_React$Component2) {
       return null;
     }
   }]);
-  return TableEntryChildren;
 }(React.Component);
+_TableEntryChildren = TableEntryChildren;
 _defineProperty(TableEntryChildren, "getHeadersFromContent", memoize(function (jsxContent, maxHeaderDepth, currentDepth) {
   if (Array.isArray(jsxContent)) {
     // As of html-react-parser v1.2.8, we may get back array of content, including "\n" or similar.
     return jsxContent.reduce(function (m, c) {
-      var res = TableEntryChildren.getHeadersFromContent(c, maxHeaderDepth, currentDepth);
+      var res = _TableEntryChildren.getHeadersFromContent(c, maxHeaderDepth, currentDepth);
       m.childDepth = Math.max(res.childDepth, m.childDepth);
       m.childrenForDepth = m.childrenForDepth.concat(res.childrenForDepth);
       return m;
@@ -429,22 +428,21 @@ _defineProperty(TableEntryChildren, "getSubsequentChildHeaders", memoize(functio
   };
 }));
 export var TableOfContents = /*#__PURE__*/function (_React$Component3) {
-  _inherits(TableOfContents, _React$Component3);
-  var _super3 = _createSuper(TableOfContents);
   function TableOfContents(props) {
-    var _this4;
+    var _this5;
     _classCallCheck(this, TableOfContents);
-    _this4 = _super3.call(this, props);
-    _this4.onPageScroll = _this4.onPageScroll.bind(_assertThisInitialized(_this4));
-    _this4.onToggleWidthBound = _this4.onToggleWidthBound.bind(_assertThisInitialized(_this4));
-    _this4.state = {
+    _this5 = _callSuper(this, TableOfContents, [props]);
+    _this5.onPageScroll = _this5.onPageScroll.bind(_this5);
+    _this5.onToggleWidthBound = _this5.onToggleWidthBound.bind(_this5);
+    _this5.state = {
       'scrollTop': 0,
       'mounted': false,
       'widthBound': true
     };
-    return _this4;
+    return _this5;
   }
-  _createClass(TableOfContents, [{
+  _inherits(TableOfContents, _React$Component3);
+  return _createClass(TableOfContents, [{
     key: "componentDidMount",
     value: function componentDidMount() {
       if (window && !isServerSide()) {
@@ -471,12 +469,12 @@ export var TableOfContents = /*#__PURE__*/function (_React$Component3) {
   }, {
     key: "componentDidUpdate",
     value: function componentDidUpdate(pastProps) {
-      var _this5 = this;
+      var _this6 = this;
       if (pastProps.windowWidth !== this.props.windowWidth) {
         // Recalculate new position on page etc.
         this.updateQueued = true;
         setTimeout(function () {
-          _this5.setState({
+          _this6.setState({
             'scrollTop': parseInt(getPageVerticalScrollPosition())
           });
         }, 0);
@@ -792,7 +790,6 @@ export var TableOfContents = /*#__PURE__*/function (_React$Component3) {
       });
     }
   }]);
-  return TableOfContents;
 }(React.Component);
 _defineProperty(TableOfContents, "defaultProps", {
   "context": {
@@ -865,16 +862,15 @@ NextPreviousPageSection.defaultProps = {
  * @todo need to rename it as StaticContentHeading (here and in 4DN-CGAP-SMaHT) since we started to use it for not only MD but all types of content
  */
 export var MarkdownHeading = /*#__PURE__*/function (_React$PureComponent) {
-  _inherits(MarkdownHeading, _React$PureComponent);
-  var _super4 = _createSuper(MarkdownHeading);
   function MarkdownHeading(props) {
-    var _this6;
+    var _this7;
     _classCallCheck(this, MarkdownHeading);
-    _this6 = _super4.call(this, props);
-    _this6.getID = _this6.getID.bind(_assertThisInitialized(_this6));
-    return _this6;
+    _this7 = _callSuper(this, MarkdownHeading, [props]);
+    _this7.getID = _this7.getID.bind(_this7);
+    return _this7;
   }
-  _createClass(MarkdownHeading, [{
+  _inherits(MarkdownHeading, _React$PureComponent);
+  return _createClass(MarkdownHeading, [{
     key: "getID",
     value: function getID() {
       var set = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
@@ -948,23 +944,21 @@ export var MarkdownHeading = /*#__PURE__*/function (_React$PureComponent) {
       return attr;
     }
   }]);
-  return MarkdownHeading;
 }(React.PureComponent);
 _defineProperty(MarkdownHeading, "defaultProps", {
   'type': 'h1',
   'id': null
 });
 export var HeaderWithLink = /*#__PURE__*/function (_React$PureComponent2) {
-  _inherits(HeaderWithLink, _React$PureComponent2);
-  var _super5 = _createSuper(HeaderWithLink);
   function HeaderWithLink(props) {
-    var _this7;
+    var _this8;
     _classCallCheck(this, HeaderWithLink);
-    _this7 = _super5.call(this, props);
-    _this7.handleLinkClick = _this7.handleLinkClick.bind(_assertThisInitialized(_this7));
-    return _this7;
+    _this8 = _callSuper(this, HeaderWithLink, [props]);
+    _this8.handleLinkClick = _this8.handleLinkClick.bind(_this8);
+    return _this8;
   }
-  _createClass(HeaderWithLink, [{
+  _inherits(HeaderWithLink, _React$PureComponent2);
+  return _createClass(HeaderWithLink, [{
     key: "handleLinkClick",
     value: function handleLinkClick() {
       var _this$props7 = this.props,
@@ -1000,5 +994,4 @@ export var HeaderWithLink = /*#__PURE__*/function (_React$PureComponent2) {
       })]);
     }
   }]);
-  return HeaderWithLink;
 }(React.PureComponent);

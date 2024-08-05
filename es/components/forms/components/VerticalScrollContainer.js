@@ -1,17 +1,22 @@
-function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, _toPropertyKey(descriptor.key), descriptor); } }
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); Object.defineProperty(subClass, "prototype", { writable: false }); if (superClass) _setPrototypeOf(subClass, superClass); }
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
-function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } else if (call !== void 0) { throw new TypeError("Derived constructors may only return object or undefined"); } return _assertThisInitialized(self); }
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf.bind() : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return _typeof(key) === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (_typeof(input) !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (_typeof(res) !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
+import _classCallCheck from "@babel/runtime/helpers/classCallCheck";
+import _createClass from "@babel/runtime/helpers/createClass";
+import _possibleConstructorReturn from "@babel/runtime/helpers/possibleConstructorReturn";
+import _getPrototypeOf from "@babel/runtime/helpers/getPrototypeOf";
+import _inherits from "@babel/runtime/helpers/inherits";
+import _defineProperty from "@babel/runtime/helpers/defineProperty";
+function _callSuper(_this, derived, args) {
+  derived = _getPrototypeOf(derived);
+  return _possibleConstructorReturn(_this, function () {
+    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+    if (Reflect.construct.sham) return false;
+    if (typeof Proxy === "function") return true;
+    try {
+      return !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {}));
+    } catch (e) {
+      return false;
+    }
+  }() ? Reflect.construct(derived, args || [], _getPrototypeOf(_this).constructor) : derived.apply(_this, args));
+}
 import React from 'react';
 import PropTypes from 'prop-types';
 import { debounce } from 'underscore';
@@ -26,35 +31,34 @@ This component is used by:
     - SearchSelectionMenu.js
 */
 export var VerticalScrollContainer = /*#__PURE__*/function (_React$PureComponent) {
-  _inherits(VerticalScrollContainer, _React$PureComponent);
-  var _super = _createSuper(VerticalScrollContainer);
   function VerticalScrollContainer(props) {
-    var _this;
+    var _this2;
     _classCallCheck(this, VerticalScrollContainer);
-    _this = _super.call(this, props);
-    _this.state = {
+    _this2 = _callSuper(this, VerticalScrollContainer, [props]);
+    _this2.state = {
       hasOverflow: false,
       canScrollUp: false,
       canScrollDown: false,
       scrollingDirection: null
     };
-    _this.scrollContainer = /*#__PURE__*/React.createRef();
-    _this.onMouseDownJumpToTop = _this.onMouseDownJumpToTop.bind(_assertThisInitialized(_this));
-    _this.onMouseDownJumpToBottom = _this.onMouseDownJumpToBottom.bind(_assertThisInitialized(_this));
-    _this.onMouseOverScrollDown = _this.onMouseOverScrollDown.bind(_assertThisInitialized(_this));
-    _this.onMouseOverScrollUp = _this.onMouseOverScrollUp.bind(_assertThisInitialized(_this));
-    _this.onMouseUp = _this.onMouseUp.bind(_assertThisInitialized(_this));
-    _this.performScrollAction = _this.performScrollAction.bind(_assertThisInitialized(_this));
-    _this.performJumpToAction = _this.performJumpToAction.bind(_assertThisInitialized(_this));
-    _this.checkForOverflow = _this.checkForOverflow.bind(_assertThisInitialized(_this));
-    _this.checkForScrollPosition = _this.checkForScrollPosition.bind(_assertThisInitialized(_this));
-    _this.checkArrowKeyScrollPosition = _this.checkArrowKeyScrollPosition.bind(_assertThisInitialized(_this));
-    _this.debounceCheckforOverflow = debounce(_this.checkForOverflow, 500, true);
-    _this.debounceCheckForScrollPosition = debounce(_this.checkForScrollPosition, 100, false);
-    _this.debounceCheckForScrollPositionImmediate = debounce(_this.checkForScrollPosition, 100, true);
-    return _this;
+    _this2.scrollContainer = /*#__PURE__*/React.createRef();
+    _this2.onMouseDownJumpToTop = _this2.onMouseDownJumpToTop.bind(_this2);
+    _this2.onMouseDownJumpToBottom = _this2.onMouseDownJumpToBottom.bind(_this2);
+    _this2.onMouseOverScrollDown = _this2.onMouseOverScrollDown.bind(_this2);
+    _this2.onMouseOverScrollUp = _this2.onMouseOverScrollUp.bind(_this2);
+    _this2.onMouseUp = _this2.onMouseUp.bind(_this2);
+    _this2.performScrollAction = _this2.performScrollAction.bind(_this2);
+    _this2.performJumpToAction = _this2.performJumpToAction.bind(_this2);
+    _this2.checkForOverflow = _this2.checkForOverflow.bind(_this2);
+    _this2.checkForScrollPosition = _this2.checkForScrollPosition.bind(_this2);
+    _this2.checkArrowKeyScrollPosition = _this2.checkArrowKeyScrollPosition.bind(_this2);
+    _this2.debounceCheckforOverflow = debounce(_this2.checkForOverflow, 500, true);
+    _this2.debounceCheckForScrollPosition = debounce(_this2.checkForScrollPosition, 100, false);
+    _this2.debounceCheckForScrollPositionImmediate = debounce(_this2.checkForScrollPosition, 100, true);
+    return _this2;
   }
-  _createClass(VerticalScrollContainer, [{
+  _inherits(VerticalScrollContainer, _React$PureComponent);
+  return _createClass(VerticalScrollContainer, [{
     key: "componentDidMount",
     value: function componentDidMount() {
       this.checkForOverflow();
@@ -131,41 +135,41 @@ export var VerticalScrollContainer = /*#__PURE__*/function (_React$PureComponent
   }, {
     key: "onMouseOverScrollUp",
     value: function onMouseOverScrollUp() {
-      var _this2 = this;
+      var _this3 = this;
       this.setState({
         scrollingDirection: -1
       }, function () {
-        raf(_this2.performScrollAction);
+        raf(_this3.performScrollAction);
       });
     }
   }, {
     key: "onMouseDownJumpToTop",
     value: function onMouseDownJumpToTop() {
-      var _this3 = this;
+      var _this4 = this;
       this.setState({
         scrollingDirection: -1
       }, function () {
-        raf(_this3.performJumpToAction);
+        raf(_this4.performJumpToAction);
       });
     }
   }, {
     key: "onMouseOverScrollDown",
     value: function onMouseOverScrollDown() {
-      var _this4 = this;
+      var _this5 = this;
       this.setState({
         scrollingDirection: 1
       }, function () {
-        raf(_this4.performScrollAction);
+        raf(_this5.performScrollAction);
       });
     }
   }, {
     key: "onMouseDownJumpToBottom",
     value: function onMouseDownJumpToBottom() {
-      var _this5 = this;
+      var _this6 = this;
       this.setState({
         scrollingDirection: 1
       }, function () {
-        raf(_this5.performJumpToAction);
+        raf(_this6.performJumpToAction);
       });
     }
   }, {
@@ -255,7 +259,6 @@ export var VerticalScrollContainer = /*#__PURE__*/function (_React$PureComponent
       }))));
     }
   }]);
-  return VerticalScrollContainer;
 }(React.PureComponent);
 _defineProperty(VerticalScrollContainer, "defaultProps", {
   'scrollRate': 40

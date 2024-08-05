@@ -1,18 +1,24 @@
-function _extends() { _extends = Object.assign ? Object.assign.bind() : function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
-function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, _toPropertyKey(descriptor.key), descriptor); } }
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); Object.defineProperty(subClass, "prototype", { writable: false }); if (superClass) _setPrototypeOf(subClass, superClass); }
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
-function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } else if (call !== void 0) { throw new TypeError("Derived constructors may only return object or undefined"); } return _assertThisInitialized(self); }
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf.bind() : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return _typeof(key) === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (_typeof(input) !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (_typeof(res) !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
+import _extends from "@babel/runtime/helpers/extends";
+import _typeof from "@babel/runtime/helpers/typeof";
+import _classCallCheck from "@babel/runtime/helpers/classCallCheck";
+import _createClass from "@babel/runtime/helpers/createClass";
+import _possibleConstructorReturn from "@babel/runtime/helpers/possibleConstructorReturn";
+import _getPrototypeOf from "@babel/runtime/helpers/getPrototypeOf";
+import _inherits from "@babel/runtime/helpers/inherits";
+import _defineProperty from "@babel/runtime/helpers/defineProperty";
+function _callSuper(_this, derived, args) {
+  derived = _getPrototypeOf(derived);
+  return _possibleConstructorReturn(_this, function () {
+    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+    if (Reflect.construct.sham) return false;
+    if (typeof Proxy === "function") return true;
+    try {
+      return !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {}));
+    } catch (e) {
+      return false;
+    }
+  }() ? Reflect.construct(derived, args || [], _getPrototypeOf(_this).constructor) : derived.apply(_this, args));
+}
 import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
@@ -37,46 +43,44 @@ import { ajax, console, object, navigate, logger } from './../../util';
  * @see EditableField.propTypes for more info of props to provide.
  */
 export var EditableField = /*#__PURE__*/function (_React$Component) {
-  _inherits(EditableField, _React$Component);
-  var _super = _createSuper(EditableField);
   function EditableField(props) {
-    var _this;
+    var _this2;
     _classCallCheck(this, EditableField);
-    _this = _super.call(this, props);
-    _this.onResizeStateChange = _this.onResizeStateChange.bind(_assertThisInitialized(_this));
-    _this.objectType = _this.objectType.bind(_assertThisInitialized(_this));
-    _this.isSet = _this.isSet.bind(_assertThisInitialized(_this));
-    _this.isRequired = _this.isRequired.bind(_assertThisInitialized(_this));
-    _this.isValid = _this.isValid.bind(_assertThisInitialized(_this));
-    _this.fieldSchema = _this.fieldSchema.bind(_assertThisInitialized(_this));
-    _this.validationPattern = _this.validationPattern.bind(_assertThisInitialized(_this));
-    _this.validationFeedbackMessage = _this.validationFeedbackMessage.bind(_assertThisInitialized(_this));
-    _this.save = _this.save.bind(_assertThisInitialized(_this));
-    _this.enterEditState = _this.enterEditState.bind(_assertThisInitialized(_this));
-    _this.cancelEditState = _this.cancelEditState.bind(_assertThisInitialized(_this));
-    _this.saveEditState = _this.saveEditState.bind(_assertThisInitialized(_this));
-    _this.handleChange = _this.handleChange.bind(_assertThisInitialized(_this));
-    _this.handleKeyDown = _this.handleKeyDown.bind(_assertThisInitialized(_this));
-    _this.renderActionIcon = _this.renderActionIcon.bind(_assertThisInitialized(_this));
-    _this.renderSavedValue = _this.renderSavedValue.bind(_assertThisInitialized(_this));
-    _this.renderSaved = _this.renderSaved.bind(_assertThisInitialized(_this));
-    _this.inputField = _this.inputField.bind(_assertThisInitialized(_this));
-    _this.renderEditing = _this.renderEditing.bind(_assertThisInitialized(_this));
+    _this2 = _callSuper(this, EditableField, [props]);
+    _this2.onResizeStateChange = _this2.onResizeStateChange.bind(_this2);
+    _this2.objectType = _this2.objectType.bind(_this2);
+    _this2.isSet = _this2.isSet.bind(_this2);
+    _this2.isRequired = _this2.isRequired.bind(_this2);
+    _this2.isValid = _this2.isValid.bind(_this2);
+    _this2.fieldSchema = _this2.fieldSchema.bind(_this2);
+    _this2.validationPattern = _this2.validationPattern.bind(_this2);
+    _this2.validationFeedbackMessage = _this2.validationFeedbackMessage.bind(_this2);
+    _this2.save = _this2.save.bind(_this2);
+    _this2.enterEditState = _this2.enterEditState.bind(_this2);
+    _this2.cancelEditState = _this2.cancelEditState.bind(_this2);
+    _this2.saveEditState = _this2.saveEditState.bind(_this2);
+    _this2.handleChange = _this2.handleChange.bind(_this2);
+    _this2.handleKeyDown = _this2.handleKeyDown.bind(_this2);
+    _this2.renderActionIcon = _this2.renderActionIcon.bind(_this2);
+    _this2.renderSavedValue = _this2.renderSavedValue.bind(_this2);
+    _this2.renderSaved = _this2.renderSaved.bind(_this2);
+    _this2.inputField = _this2.inputField.bind(_this2);
+    _this2.renderEditing = _this2.renderEditing.bind(_this2);
     var initialValue = null;
     try {
       initialValue = object.getNestedProperty(props.context, props.labelID); // Returns undefined if doesn't exist in context
     } catch (e) {
       logger.error(e);
     }
-    _this.state = {
+    _this2.state = {
       'value': initialValue || null,
       // Changes on input field change
       'savedValue': initialValue || null,
       // Changes only on sync w/ server.
       'valueExistsOnObj': typeof initialValue !== 'undefined',
       // If undefined then field doesn't exist on props.context
-      'validationPattern': props.pattern || _this.validationPattern(),
-      'required': props.required || _this.isRequired(),
+      'validationPattern': props.pattern || _this2.validationPattern(),
+      'required': props.required || _this2.isRequired(),
       'valid': null,
       // Must distinguish between true, false, and null.
       'serverErrors': [],
@@ -92,11 +96,12 @@ export var EditableField = /*#__PURE__*/function (_React$Component) {
       // Re: inline style
       'selectAllDone': false
     };
-    _this.fieldRef = /*#__PURE__*/React.createRef(); // Field container element
-    _this.inputElementRef = /*#__PURE__*/React.createRef(); // Input element
-    return _this;
+    _this2.fieldRef = /*#__PURE__*/React.createRef(); // Field container element
+    _this2.inputElementRef = /*#__PURE__*/React.createRef(); // Input element
+    return _this2;
   }
-  _createClass(EditableField, [{
+  _inherits(EditableField, _React$Component);
+  return _createClass(EditableField, [{
     key: "onResizeStateChange",
     value: function onResizeStateChange() {
       var fieldElem = this.fieldRef.current;
@@ -239,7 +244,7 @@ export var EditableField = /*#__PURE__*/function (_React$Component) {
   }, {
     key: "validationPattern",
     value: function validationPattern() {
-      var _this2 = this;
+      var _this3 = this;
       var schemas = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.props.schemas;
       var _this$props = this.props,
         labelID = _this$props.labelID,
@@ -249,9 +254,9 @@ export var EditableField = /*#__PURE__*/function (_React$Component) {
         // TODO: Maybe move to util/Schemas.js
         // We do not handle nested, linked or embedded properties for now.
         if (!schemas || !labelID || labelID.indexOf('.') > -1) return null;
-        var fieldSchema = _this2.fieldSchema(schemas);
+        var fieldSchema = _this3.fieldSchema(schemas);
         if (!fieldSchema || typeof fieldSchema.pattern === 'undefined') return null; // No pattern set.
-        if (debug) console.info('Obtained EditableField validationPattern from schema (' + [_this2.objectType(), 'properties', labelID].join('.') + ')');
+        if (debug) console.info('Obtained EditableField validationPattern from schema (' + [_this3.objectType(), 'properties', labelID].join('.') + ')');
         return fieldSchema.pattern;
       }();
       if (schemaDerivedPattern) return schemaDerivedPattern;
@@ -310,7 +315,7 @@ export var EditableField = /*#__PURE__*/function (_React$Component) {
   }, {
     key: "save",
     value: function save() {
-      var _this3 = this;
+      var _this4 = this;
       var successCallback = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
       var errorCallback = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
       var _this$props2 = this.props,
@@ -323,7 +328,7 @@ export var EditableField = /*#__PURE__*/function (_React$Component) {
       var errorFallback = function (res) {
         // ToDo display (bigger?) errors
         logger.error("Error: ", res);
-        _this3.setState({
+        _this4.setState({
           'serverErrors': res.errors,
           'serverErrorsMessage': res.description,
           'loading': false
@@ -332,7 +337,7 @@ export var EditableField = /*#__PURE__*/function (_React$Component) {
       this.setState({
         'loading': true
       }, function () {
-        var value = _this3.state.value;
+        var value = _this4.state.value;
         if (dataType === 'int') {
           value = parseInt(value);
         }
@@ -353,7 +358,7 @@ export var EditableField = /*#__PURE__*/function (_React$Component) {
           var extendSuccess = object.deepExtend(nextContext, patchData);
           console.info('EditableField Extended Context', extendSuccess, nextContext);
           if (extendSuccess) {
-            _this3.setState({
+            _this4.setState({
               'savedValue': value,
               'value': value,
               'dispatching': true
@@ -362,7 +367,7 @@ export var EditableField = /*#__PURE__*/function (_React$Component) {
                 parent.setState({
                   'currentlyEditing': null
                 }, function () {
-                  _this3.setState({
+                  _this4.setState({
                     'loading': false,
                     'dispatching': false
                   });
@@ -419,7 +424,7 @@ export var EditableField = /*#__PURE__*/function (_React$Component) {
   }, {
     key: "saveEditState",
     value: function saveEditState(e) {
-      var _this4 = this;
+      var _this5 = this;
       e.preventDefault();
       var _this$props3 = this.props,
         labelID = _this$props3.labelID,
@@ -452,7 +457,7 @@ export var EditableField = /*#__PURE__*/function (_React$Component) {
               parent.setState({
                 'currentlyEditing': null
               }, function () {
-                _this4.setState({
+                _this5.setState({
                   'loading': false,
                   'dispatching': false
                 });
@@ -463,7 +468,7 @@ export var EditableField = /*#__PURE__*/function (_React$Component) {
       } else {
         this.save(function () {
           // Success callback
-          console.info("Saved " + _this4.props.labelID + " : " + _this4.state.savedValue);
+          console.info("Saved " + _this5.props.labelID + " : " + _this5.state.savedValue);
         });
       }
     }
@@ -800,7 +805,6 @@ export var EditableField = /*#__PURE__*/function (_React$Component) {
       }
     }
   }]);
-  return EditableField;
 }(React.Component);
 
 /**
@@ -871,20 +875,19 @@ _defineProperty(EditableField, "defaultProps", {
   'buttonAlwaysVisible': false
 });
 export var FieldSet = /*#__PURE__*/function (_React$PureComponent) {
-  _inherits(FieldSet, _React$PureComponent);
-  var _super2 = _createSuper(FieldSet);
   function FieldSet(props) {
-    var _this5;
+    var _this6;
     _classCallCheck(this, FieldSet);
-    _this5 = _super2.call(this, props);
-    _this5.adjustedChildren = _this5.adjustedChildren.bind(_assertThisInitialized(_this5));
-    _this5.fullClassName = _this5.fullClassName.bind(_assertThisInitialized(_this5));
-    return _this5;
+    _this6 = _callSuper(this, FieldSet, [props]);
+    _this6.adjustedChildren = _this6.adjustedChildren.bind(_this6);
+    _this6.fullClassName = _this6.fullClassName.bind(_this6);
+    return _this6;
   }
-  _createClass(FieldSet, [{
+  _inherits(FieldSet, _React$PureComponent);
+  return _createClass(FieldSet, [{
     key: "adjustedChildren",
     value: function adjustedChildren() {
-      var _this6 = this;
+      var _this7 = this;
       var _this$props9 = this.props,
         children = _this$props9.children,
         endpoint = _this$props9.endpoint,
@@ -904,7 +907,7 @@ export var FieldSet = /*#__PURE__*/function (_React$PureComponent) {
         if (child.type && child.type.displayName === 'EditableField') {
           var newProps = {};
           if (!child.props.context || _.isEmpty(child.props.context)) newProps.context = context;
-          if (!child.props.parent) newProps.parent = parent || _this6;
+          if (!child.props.parent) newProps.parent = parent || _this7;
           if (!child.props.endpoint && endpoint) newProps.endpoint = endpoint;
           if (!child.props.href && href) newProps.href = href;
           if (!child.props.objectType && objectType) newProps.objectType = objectType;
@@ -947,7 +950,6 @@ export var FieldSet = /*#__PURE__*/function (_React$PureComponent) {
       }, this.adjustedChildren());
     }
   }]);
-  return FieldSet;
 }(React.PureComponent);
 _defineProperty(FieldSet, "propTypes", {
   children: PropTypes.node,

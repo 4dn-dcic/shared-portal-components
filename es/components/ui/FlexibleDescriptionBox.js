@@ -1,17 +1,22 @@
-function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, _toPropertyKey(descriptor.key), descriptor); } }
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); Object.defineProperty(subClass, "prototype", { writable: false }); if (superClass) _setPrototypeOf(subClass, superClass); }
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
-function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } else if (call !== void 0) { throw new TypeError("Derived constructors may only return object or undefined"); } return _assertThisInitialized(self); }
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf.bind() : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return _typeof(key) === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (_typeof(input) !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (_typeof(res) !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
+import _classCallCheck from "@babel/runtime/helpers/classCallCheck";
+import _createClass from "@babel/runtime/helpers/createClass";
+import _possibleConstructorReturn from "@babel/runtime/helpers/possibleConstructorReturn";
+import _getPrototypeOf from "@babel/runtime/helpers/getPrototypeOf";
+import _inherits from "@babel/runtime/helpers/inherits";
+import _defineProperty from "@babel/runtime/helpers/defineProperty";
+function _callSuper(_this, derived, args) {
+  derived = _getPrototypeOf(derived);
+  return _possibleConstructorReturn(_this, function () {
+    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+    if (Reflect.construct.sham) return false;
+    if (typeof Proxy === "function") return true;
+    try {
+      return !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {}));
+    } catch (e) {
+      return false;
+    }
+  }() ? Reflect.construct(derived, args || [], _getPrototypeOf(_this).constructor) : derived.apply(_this, args));
+}
 import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
@@ -21,20 +26,19 @@ import { gridContainerWidth, textContentWidth } from './../util/layout';
 import { requestAnimationFrame as raf } from './../viz/utilities';
 import { EditableField, FieldSet } from '../forms/components/EditableField';
 export var FlexibleCharacterCountBox = /*#__PURE__*/function (_React$Component) {
-  _inherits(FlexibleCharacterCountBox, _React$Component);
-  var _super = _createSuper(FlexibleCharacterCountBox);
   function FlexibleCharacterCountBox(props) {
-    var _this;
+    var _this2;
     _classCallCheck(this, FlexibleCharacterCountBox);
-    _this = _super.call(this, props);
-    _this.render = _this.render.bind(_assertThisInitialized(_this));
-    _this.onClick = _.debounce(_this.onClick.bind(_assertThisInitialized(_this)), 300, true);
-    _this.state = {
+    _this2 = _callSuper(this, FlexibleCharacterCountBox, [props]);
+    _this2.render = _this2.render.bind(_this2);
+    _this2.onClick = _.debounce(_this2.onClick.bind(_this2), 300, true);
+    _this2.state = {
       'expanded': props.defaultExpanded || false
     };
-    return _this;
+    return _this2;
   }
-  _createClass(FlexibleCharacterCountBox, [{
+  _inherits(FlexibleCharacterCountBox, _React$Component);
+  return _createClass(FlexibleCharacterCountBox, [{
     key: "onClick",
     value: function onClick() {
       this.setState(function (_ref) {
@@ -72,7 +76,6 @@ export var FlexibleCharacterCountBox = /*#__PURE__*/function (_React$Component) 
       }), " \xA0 ", visibleIcon);
     }
   }]);
-  return FlexibleCharacterCountBox;
 }(React.Component);
 _defineProperty(FlexibleCharacterCountBox, "propTypes", {
   'characters': PropTypes.number.isRequired,
@@ -80,13 +83,12 @@ _defineProperty(FlexibleCharacterCountBox, "propTypes", {
   'icon': PropTypes.element
 });
 var FlexibleCharacterCountString = /*#__PURE__*/function (_React$Component2) {
-  _inherits(FlexibleCharacterCountString, _React$Component2);
-  var _super2 = _createSuper(FlexibleCharacterCountString);
   function FlexibleCharacterCountString() {
     _classCallCheck(this, FlexibleCharacterCountString);
-    return _super2.apply(this, arguments);
+    return _callSuper(this, FlexibleCharacterCountString, arguments);
   }
-  _createClass(FlexibleCharacterCountString, [{
+  _inherits(FlexibleCharacterCountString, _React$Component2);
+  return _createClass(FlexibleCharacterCountString, [{
     key: "isExpanded",
     value: function isExpanded() {
       var props = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.props;
@@ -106,7 +108,6 @@ var FlexibleCharacterCountString = /*#__PURE__*/function (_React$Component2) {
       }
     }
   }]);
-  return FlexibleCharacterCountString;
 }(React.Component);
 /**
  * Works by calculating height of text content using a temporary off-screen container element.
@@ -121,42 +122,41 @@ _defineProperty(FlexibleCharacterCountString, "defaultProps", {
   'expanded': false
 });
 export var FlexibleDescriptionBox = /*#__PURE__*/function (_React$Component3) {
-  _inherits(FlexibleDescriptionBox, _React$Component3);
-  var _super3 = _createSuper(FlexibleDescriptionBox);
   function FlexibleDescriptionBox(props) {
-    var _this2;
+    var _this3;
     _classCallCheck(this, FlexibleDescriptionBox);
-    _this2 = _super3.call(this, props);
-    _this2.dimensions = _this2.dimensions.bind(_assertThisInitialized(_this2));
-    _this2.checkWillDescriptionFitOneLineAndUpdateHeight = _this2.checkWillDescriptionFitOneLineAndUpdateHeight.bind(_assertThisInitialized(_this2));
-    _this2.toggleDescriptionExpand = _this2.toggleDescriptionExpand.bind(_assertThisInitialized(_this2));
-    _this2.makeShortContent = _this2.makeShortContent.bind(_assertThisInitialized(_this2));
-    _this2.havePermissionToEdit = _this2.havePermissionToEdit.bind(_assertThisInitialized(_this2));
-    _this2.descriptionHeight = null;
-    _this2.state = {
+    _this3 = _callSuper(this, FlexibleDescriptionBox, [props]);
+    _this3.dimensions = _this3.dimensions.bind(_this3);
+    _this3.checkWillDescriptionFitOneLineAndUpdateHeight = _this3.checkWillDescriptionFitOneLineAndUpdateHeight.bind(_this3);
+    _this3.toggleDescriptionExpand = _this3.toggleDescriptionExpand.bind(_this3);
+    _this3.makeShortContent = _this3.makeShortContent.bind(_this3);
+    _this3.havePermissionToEdit = _this3.havePermissionToEdit.bind(_this3);
+    _this3.descriptionHeight = null;
+    _this3.state = {
       'descriptionExpanded': props.defaultExpanded,
       'descriptionWillFitOneLine': true,
-      'descriptionWhiteSpace': _this2.props.linesOfText > 1 ? 'normal' : 'nowrap',
+      'descriptionWhiteSpace': _this3.props.linesOfText > 1 ? 'normal' : 'nowrap',
       'shortContent': null,
       'mounted': false
     };
-    return _this2;
+    return _this3;
   }
-  _createClass(FlexibleDescriptionBox, [{
+  _inherits(FlexibleDescriptionBox, _React$Component3);
+  return _createClass(FlexibleDescriptionBox, [{
     key: "componentDidUpdate",
     value: function componentDidUpdate(pastProps) {
-      var _this3 = this;
+      var _this4 = this;
       // Handle window resize
       if (pastProps.windowWidth !== this.props.windowWidth) {
         // Recalculate some layouting stuff
 
         raf(function () {
-          _this3.setState(function () {
-            _this3.descriptionHeight;
-            var willDescriptionFitAtNewWindowSize = _this3.checkWillDescriptionFitOneLineAndUpdateHeight();
+          _this4.setState(function () {
+            _this4.descriptionHeight;
+            var willDescriptionFitAtNewWindowSize = _this4.checkWillDescriptionFitOneLineAndUpdateHeight();
             return {
               'descriptionWillFitOneLine': willDescriptionFitAtNewWindowSize,
-              'shortContent': _this3.props.linesOfText > 1 ? _this3.makeShortContent() : null
+              'shortContent': _this4.props.linesOfText > 1 ? _this4.makeShortContent() : null
             };
           });
         });
@@ -175,16 +175,16 @@ export var FlexibleDescriptionBox = /*#__PURE__*/function (_React$Component3) {
   }, {
     key: "componentDidMount",
     value: function componentDidMount() {
-      var _this4 = this;
+      var _this5 = this;
       if (this.props.debug) console.info("Mounted FlexibleDescriptionBox");
       if (!isServerSide()) {
         // Create throttled version of toggleDescriptionExpand for button.
         this.throttledToggleDescriptionExpand = _.throttle(this.toggleDescriptionExpand, 350);
         window.addEventListener('resize', function () {
-          return _this4.updateDescriptionHeight();
+          return _this5.updateDescriptionHeight();
         });
         setTimeout(function () {
-          _this4.updateDescriptionHeight();
+          _this5.updateDescriptionHeight();
         }, 50);
       }
     }
@@ -258,7 +258,7 @@ export var FlexibleDescriptionBox = /*#__PURE__*/function (_React$Component3) {
   }, {
     key: "toggleDescriptionExpand",
     value: function toggleDescriptionExpand() {
-      var _this5 = this;
+      var _this6 = this;
       this.setState(function (_ref2) {
         var descriptionExpanded = _ref2.descriptionExpanded;
         return {
@@ -266,12 +266,12 @@ export var FlexibleDescriptionBox = /*#__PURE__*/function (_React$Component3) {
           "descriptionExpanded": !descriptionExpanded
         };
       }, function () {
-        var linesOfText = _this5.props.linesOfText;
-        var descriptionExpanded = _this5.state.descriptionExpanded;
+        var linesOfText = _this6.props.linesOfText;
+        var descriptionExpanded = _this6.state.descriptionExpanded;
         if (!descriptionExpanded && linesOfText === 1) {
           // Delay whiteSpace style since can't transition it w/ CSS3
           setTimeout(function () {
-            _this5.setState({
+            _this6.setState({
               "descriptionWhiteSpace": 'nowrap'
             });
           }, 350);
@@ -379,7 +379,6 @@ export var FlexibleDescriptionBox = /*#__PURE__*/function (_React$Component3) {
       }, expanded ? description : shortContent || description));
     }
   }]);
-  return FlexibleDescriptionBox;
 }(React.Component);
 _defineProperty(FlexibleDescriptionBox, "defaultDimensions", {
   'paddingWidth': 0,

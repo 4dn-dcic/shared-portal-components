@@ -1,23 +1,27 @@
+import _objectWithoutProperties from "@babel/runtime/helpers/objectWithoutProperties";
+import _classCallCheck from "@babel/runtime/helpers/classCallCheck";
+import _createClass from "@babel/runtime/helpers/createClass";
+import _possibleConstructorReturn from "@babel/runtime/helpers/possibleConstructorReturn";
+import _getPrototypeOf from "@babel/runtime/helpers/getPrototypeOf";
+import _inherits from "@babel/runtime/helpers/inherits";
+import _defineProperty from "@babel/runtime/helpers/defineProperty";
 var _excluded = ["children"],
   _excluded2 = ["children"];
-function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
-function _objectWithoutProperties(source, excluded) { if (source == null) return {}; var target = _objectWithoutPropertiesLoose(source, excluded); var key, i; if (Object.getOwnPropertySymbols) { var sourceSymbolKeys = Object.getOwnPropertySymbols(source); for (i = 0; i < sourceSymbolKeys.length; i++) { key = sourceSymbolKeys[i]; if (excluded.indexOf(key) >= 0) continue; if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue; target[key] = source[key]; } } return target; }
-function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; var sourceKeys = Object.keys(source); var key, i; for (i = 0; i < sourceKeys.length; i++) { key = sourceKeys[i]; if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } return target; }
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, _toPropertyKey(descriptor.key), descriptor); } }
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); Object.defineProperty(subClass, "prototype", { writable: false }); if (superClass) _setPrototypeOf(subClass, superClass); }
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
-function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } else if (call !== void 0) { throw new TypeError("Derived constructors may only return object or undefined"); } return _assertThisInitialized(self); }
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf.bind() : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return _typeof(key) === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (_typeof(input) !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (_typeof(res) !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
+function _callSuper(_this, derived, args) {
+  derived = _getPrototypeOf(derived);
+  return _possibleConstructorReturn(_this, function () {
+    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+    if (Reflect.construct.sham) return false;
+    if (typeof Proxy === "function") return true;
+    try {
+      return !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {}));
+    } catch (e) {
+      return false;
+    }
+  }() ? Reflect.construct(derived, args || [], _getPrototypeOf(_this).constructor) : derived.apply(_this, args));
+}
 import React from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
@@ -37,21 +41,19 @@ var Auth0Lock = null;
 
 /** Controls Login process, also shows Registration Modal */
 export var LoginController = /*#__PURE__*/function (_React$PureComponent) {
-  _inherits(LoginController, _React$PureComponent);
-  var _super = _createSuper(LoginController);
   function LoginController(props) {
-    var _this;
+    var _this2;
     _classCallCheck(this, LoginController);
-    _this = _super.call(this, props);
-    _this.showLock = _.throttle(_this.showLock.bind(_assertThisInitialized(_this)), 1000, {
+    _this2 = _callSuper(this, LoginController, [props]);
+    _this2.showLock = _.throttle(_this2.showLock.bind(_this2), 1000, {
       trailing: false
     });
-    _this.validateCookieAndObtainAdditionalUserInfo = _this.validateCookieAndObtainAdditionalUserInfo.bind(_assertThisInitialized(_this));
-    _this.auth0LoginCallback = _this.auth0LoginCallback.bind(_assertThisInitialized(_this));
-    _this.onAuth0LoginShow = _this.onAuth0LoginShow.bind(_assertThisInitialized(_this));
-    _this.onRegistrationComplete = _this.onRegistrationComplete.bind(_assertThisInitialized(_this));
-    _this.onRegistrationCancel = _this.onRegistrationCancel.bind(_assertThisInitialized(_this));
-    _this.state = {
+    _this2.validateCookieAndObtainAdditionalUserInfo = _this2.validateCookieAndObtainAdditionalUserInfo.bind(_this2);
+    _this2.auth0LoginCallback = _this2.auth0LoginCallback.bind(_this2);
+    _this2.onAuth0LoginShow = _this2.onAuth0LoginShow.bind(_this2);
+    _this2.onRegistrationComplete = _this2.onRegistrationComplete.bind(_this2);
+    _this2.onRegistrationCancel = _this2.onRegistrationCancel.bind(_this2);
+    _this2.state = {
       // Contains email of Auth0-authenticated user but not in-system user
       "unverifiedUserEmail": null,
       // Whether the code-split JS library for Auth0 has loaded yet.
@@ -63,12 +65,13 @@ export var LoginController = /*#__PURE__*/function (_React$PureComponent) {
       // Should be deleted by time user can authenticate
       "jwtToken": null
     };
-    return _this;
+    return _this2;
   }
-  _createClass(LoginController, [{
+  _inherits(LoginController, _React$PureComponent);
+  return _createClass(LoginController, [{
     key: "componentDidMount",
     value: function componentDidMount() {
-      var _this2 = this;
+      var _this3 = this;
       var auth0OptionsFallback = this.props.auth0Options;
       var isAuth0LibraryLoaded = this.state.isAuth0LibraryLoaded;
       ajaxPromise("/auth0_config").then(function (_ref) {
@@ -87,11 +90,11 @@ export var LoginController = /*#__PURE__*/function (_React$PureComponent) {
         var options = _objectSpread(_objectSpread({}, auth0OptionsFallback), auth0Options);
         if (auth0Domain.indexOf('auth0') != -1) {
           var createLock = function () {
-            _this2.lock = new Auth0Lock(auth0Client, auth0Domain, options);
-            _this2.lock.on("authenticated", _this2.auth0LoginCallback);
-            _this2.lock.on("show", _this2.onAuth0LoginShow);
+            _this3.lock = new Auth0Lock(auth0Client, auth0Domain, options);
+            _this3.lock.on("authenticated", _this3.auth0LoginCallback);
+            _this3.lock.on("show", _this3.onAuth0LoginShow);
             setTimeout(function () {
-              _this2.setState({
+              _this3.setState({
                 "isAuth0LibraryLoaded": true
               });
             }, 200);
@@ -109,7 +112,7 @@ export var LoginController = /*#__PURE__*/function (_React$PureComponent) {
               // We import it here in separate bundle instead to avoid issues during server-side render.
               createLock();
               setTimeout(function () {
-                _this2.setState({
+                _this3.setState({
                   "isAuth0LibraryLoaded": true
                 });
               }, 200);
@@ -119,9 +122,9 @@ export var LoginController = /*#__PURE__*/function (_React$PureComponent) {
           }
         } else if (auth0Domain.indexOf('nih.gov') != -1) {
           // RAS authentication
-          _this2.lock = {
+          _this3.lock = {
             show: function show() {
-              var href = _this2.props.href;
+              var href = _this3.props.href;
               var _ref3$auth = (auth0Options || {}).auth,
                 _ref3$auth2 = _ref3$auth === void 0 ? {} : _ref3$auth,
                 _ref3$auth2$responseT = _ref3$auth2.responseType,
@@ -138,7 +141,7 @@ export var LoginController = /*#__PURE__*/function (_React$PureComponent) {
               // keep return url for 10 mins
               document.cookie = "returnUrl=".concat(encodeURIComponent(returnUrl), "; max-age=").concat(10 * 60, "; path=/; SameSite=Lax;");
               var authenticationUrl = "https://".concat(auth0Domain, "/auth/oauth/v2/authorize?client_id=").concat(auth0Client, "&prompt=").concat(encodeURIComponent(prompt), "&redirect_uri=").concat(host + '/callback', "&response_type=").concat(encodeURIComponent(responseType), "&scope=").concat(encodeURIComponent(scope));
-              _this2.setState({
+              _this3.setState({
                 "isLoading": true
               }, function () {
                 return setTimeout(function () {
@@ -150,19 +153,19 @@ export var LoginController = /*#__PURE__*/function (_React$PureComponent) {
           // However Auth0 libraries are never imported in RAS implementation,
           // isAuth0LibraryLoaded is set for compatibility
           setTimeout(function () {
-            _this2.setState({
+            _this3.setState({
               "isAuth0LibraryLoaded": true
             });
           }, 200);
         } else {
           // fallback
-          _this2.lock = {
+          _this3.lock = {
             show: function show() {
               console.error('Non-supported authentication type: ' + auth0Domain);
             }
           };
           setTimeout(function () {
-            _this2.setState({
+            _this3.setState({
               "isAuth0LibraryLoaded": true
             });
           }, 200);
@@ -178,7 +181,7 @@ export var LoginController = /*#__PURE__*/function (_React$PureComponent) {
   }, {
     key: "validateCookieAndObtainAdditionalUserInfo",
     value: function validateCookieAndObtainAdditionalUserInfo(token) {
-      var _this3 = this;
+      var _this4 = this;
       var successCallback = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
       var errorCallback = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
       var _this$props = this.props,
@@ -188,7 +191,7 @@ export var LoginController = /*#__PURE__*/function (_React$PureComponent) {
       this.setState({
         "isLoading": true
       }, function () {
-        _this3.lock.hide();
+        _this4.lock.hide();
 
         // Second stage: get this valid OAuth account (Google or w/e) auth'd from our end.
         // We probably can get rid of this Promise.race wrapper, since request/server will likely time out in 30s, idk..
@@ -236,7 +239,7 @@ export var LoginController = /*#__PURE__*/function (_React$PureComponent) {
             'id': 'profile'
           }) || {}).href;
           if (profileURL) {
-            _this3.setState({
+            _this4.setState({
               "isLoading": false
             });
             JWT.saveUserInfoLocalStorage(userInfoResponse);
@@ -280,7 +283,7 @@ export var LoginController = /*#__PURE__*/function (_React$PureComponent) {
           // Handle Errors
           logger.error("Error during login: ", error.description);
           console.log(error);
-          _this3.setState({
+          _this4.setState({
             "isLoading": false
           });
           // Alerts.deQueue(Alerts.LoggedOut);
@@ -294,7 +297,7 @@ export var LoginController = /*#__PURE__*/function (_React$PureComponent) {
   }, {
     key: "auth0LoginCallback",
     value: function auth0LoginCallback(authResult) {
-      var _this4 = this;
+      var _this5 = this;
       // First stage: we just have gotten JWT from the Auth0 widget but have not auth'd it against it our own system
       // to see if this is a valid user account or some random person who just logged into their Google account.
       var idToken = authResult.idToken;
@@ -312,8 +315,8 @@ export var LoginController = /*#__PURE__*/function (_React$PureComponent) {
           if (unverifiedUserEmail) {
             // Somewhat weird/hacky approach to mask the idToken in private func enclosure
             // and not leave potentially-more-exposed in state
-            _this4.onRegistrationCompleteBoundWithToken = _this4.onRegistrationComplete.bind(_this4, idToken);
-            _this4.setState({
+            _this5.onRegistrationCompleteBoundWithToken = _this5.onRegistrationComplete.bind(_this5, idToken);
+            _this5.setState({
               unverifiedUserEmail: unverifiedUserEmail
             });
           } else {
@@ -375,7 +378,7 @@ export var LoginController = /*#__PURE__*/function (_React$PureComponent) {
   }, {
     key: "onRegistrationComplete",
     value: function onRegistrationComplete(idToken) {
-      var _this5 = this;
+      var _this6 = this;
       var unverifiedUserEmail = this.state.unverifiedUserEmail;
       if (!idToken) {
         throw Error("Expected an idToken");
@@ -407,11 +410,11 @@ export var LoginController = /*#__PURE__*/function (_React$PureComponent) {
           "style": 'success',
           'navigateDisappearThreshold': 2
         });
-        _this5.setState({
+        _this6.setState({
           "unverifiedUserEmail": null
         });
       }, function () {
-        _this5.setState({
+        _this6.setState({
           "unverifiedUserEmail": null
         });
 
@@ -461,7 +464,6 @@ export var LoginController = /*#__PURE__*/function (_React$PureComponent) {
       });
     }
   }]);
-  return LoginController;
 }(React.PureComponent);
 
 /**
@@ -535,17 +537,15 @@ export function performLogout() {
   });
 }
 export var LogoutController = /*#__PURE__*/function (_React$PureComponent2) {
-  _inherits(LogoutController, _React$PureComponent2);
-  var _super2 = _createSuper(LogoutController);
   function LogoutController(props) {
-    var _this6;
+    var _this7;
     _classCallCheck(this, LogoutController);
-    _this6 = _super2.call(this, props);
-    _this6.performLogoutUI = _this6.performLogoutUI.bind(_assertThisInitialized(_this6));
-    _this6.state = {
+    _this7 = _callSuper(this, LogoutController, [props]);
+    _this7.performLogoutUI = _this7.performLogoutUI.bind(_this7);
+    _this7.state = {
       "isLoading": false
     };
-    return _this6;
+    return _this7;
   }
 
   /**
@@ -554,10 +554,11 @@ export var LogoutController = /*#__PURE__*/function (_React$PureComponent2) {
    *
    * @param {Event} [evt] - Not needed. Will prevent default / stopPropagation if present.
    */
-  _createClass(LogoutController, [{
+  _inherits(LogoutController, _React$PureComponent2);
+  return _createClass(LogoutController, [{
     key: "performLogoutUI",
     value: function performLogoutUI() {
-      var _this7 = this;
+      var _this8 = this;
       var evt = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
       if (evt && evt.preventDefault) {
         evt.preventDefault();
@@ -567,7 +568,7 @@ export var LogoutController = /*#__PURE__*/function (_React$PureComponent2) {
         "isLoading": true
       }, function () {
         performLogout().then(function () {
-          _this7.setState({
+          _this8.setState({
             "isLoading": false
           });
 
@@ -601,5 +602,4 @@ export var LogoutController = /*#__PURE__*/function (_React$PureComponent2) {
       }));
     }
   }]);
-  return LogoutController;
 }(React.PureComponent);

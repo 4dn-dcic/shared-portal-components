@@ -139,7 +139,12 @@ class SubItemTable extends React.Component {
 
                 if (Array.isArray(v2[valKey])){
                    // Concatenate value in [v2] into value in [m]
-                   m[valKey] = (m[valKey] || []).concat(v2[valKey]);
+                   if (typeof m[valKey] === "number") {
+                       m[valKey] = [m[valKey]].concat(v2[valKey]);
+                   }
+                   else { // m[valKey] is already an array
+                       m[valKey] = (m[valKey] || []).concat(v2[valKey]);
+                   }
                    delete v2[valKey];
                 } else if (v2[valKey] && typeof v2[valKey] === 'object') {
                      // Extend value in [m] with value in [v2]
