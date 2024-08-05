@@ -1,20 +1,24 @@
+import _objectWithoutProperties from "@babel/runtime/helpers/objectWithoutProperties";
+import _classCallCheck from "@babel/runtime/helpers/classCallCheck";
+import _createClass from "@babel/runtime/helpers/createClass";
+import _possibleConstructorReturn from "@babel/runtime/helpers/possibleConstructorReturn";
+import _getPrototypeOf from "@babel/runtime/helpers/getPrototypeOf";
+import _inherits from "@babel/runtime/helpers/inherits";
+import _defineProperty from "@babel/runtime/helpers/defineProperty";
 var _excluded = ["alerts", "children"];
-function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
-function _objectWithoutProperties(source, excluded) { if (source == null) return {}; var target = _objectWithoutPropertiesLoose(source, excluded); var key, i; if (Object.getOwnPropertySymbols) { var sourceSymbolKeys = Object.getOwnPropertySymbols(source); for (i = 0; i < sourceSymbolKeys.length; i++) { key = sourceSymbolKeys[i]; if (excluded.indexOf(key) >= 0) continue; if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue; target[key] = source[key]; } } return target; }
-function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; var sourceKeys = Object.keys(source); var key, i; for (i = 0; i < sourceKeys.length; i++) { key = sourceKeys[i]; if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } return target; }
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, _toPropertyKey(descriptor.key), descriptor); } }
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); Object.defineProperty(subClass, "prototype", { writable: false }); if (superClass) _setPrototypeOf(subClass, superClass); }
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
-function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } else if (call !== void 0) { throw new TypeError("Derived constructors may only return object or undefined"); } return _assertThisInitialized(self); }
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf.bind() : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return _typeof(key) === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (_typeof(input) !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (_typeof(res) !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
+function _callSuper(_this, derived, args) {
+  derived = _getPrototypeOf(derived);
+  return _possibleConstructorReturn(_this, function () {
+    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+    if (Reflect.construct.sham) return false;
+    if (typeof Proxy === "function") return true;
+    try {
+      return !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {}));
+    } catch (e) {
+      return false;
+    }
+  }() ? Reflect.construct(derived, args || [], _getPrototypeOf(_this).constructor) : derived.apply(_this, args));
+}
 import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
@@ -31,14 +35,12 @@ var store = null;
  * title for alert that was queued.
  */
 export var Alerts = /*#__PURE__*/function (_React$Component) {
-  _inherits(Alerts, _React$Component);
-  var _super = _createSuper(Alerts);
   /** @ignore */
   function Alerts(props) {
-    var _this;
+    var _this2;
     _classCallCheck(this, Alerts);
-    _this = _super.call(this, props);
-    _this.setDismissing = _this.setDismissing.bind(_assertThisInitialized(_this));
+    _this2 = _callSuper(this, Alerts, [props]);
+    _this2.setDismissing = _this2.setDismissing.bind(_this2);
 
     /**
      * State object for component.
@@ -47,17 +49,18 @@ export var Alerts = /*#__PURE__*/function (_React$Component) {
      * @private
      * @property {AlertObj[]} state.dismissing - List of alerts currently being faded out.
      */
-    _this.state = {
+    _this2.state = {
       'dismissing': []
     };
-    return _this;
+    return _this2;
   }
 
   /**
    * Called when 'fade out' of an alert is initialized.
    * @private
    */
-  _createClass(Alerts, [{
+  _inherits(Alerts, _React$Component);
+  return _createClass(Alerts, [{
     key: "setDismissing",
     value: function setDismissing(dismissing) {
       this.setState({
@@ -74,7 +77,7 @@ export var Alerts = /*#__PURE__*/function (_React$Component) {
   }, {
     key: "render",
     value: function render() {
-      var _this2 = this;
+      var _this3 = this;
       var _this$props = this.props,
         alerts = _this$props.alerts,
         children = _this$props.children,
@@ -86,7 +89,7 @@ export var Alerts = /*#__PURE__*/function (_React$Component) {
           alert: alert,
           index: index,
           alerts: alerts,
-          setDismissing: _this2.setDismissing,
+          setDismissing: _this3.setDismissing,
           dismissing: dismissing,
           key: index
         });
@@ -206,7 +209,6 @@ export var Alerts = /*#__PURE__*/function (_React$Component) {
       });
     }
   }]);
-  return Alerts;
 }(React.Component);
 _defineProperty(Alerts, "defaultProps", {
   "className": "alerts mt-2"
@@ -262,17 +264,16 @@ export var LoginFailed = Alerts.LoginFailed = {
  * @private
  */
 var AlertItem = /*#__PURE__*/function (_React$PureComponent) {
-  _inherits(AlertItem, _React$PureComponent);
-  var _super2 = _createSuper(AlertItem);
   function AlertItem(props) {
-    var _this3;
+    var _this4;
     _classCallCheck(this, AlertItem);
-    _this3 = _super2.call(this, props);
-    _this3.dismiss = _this3.dismiss.bind(_assertThisInitialized(_this3));
-    _this3.finishDismiss = _this3.finishDismiss.bind(_assertThisInitialized(_this3));
-    return _this3;
+    _this4 = _callSuper(this, AlertItem, [props]);
+    _this4.dismiss = _this4.dismiss.bind(_this4);
+    _this4.finishDismiss = _this4.finishDismiss.bind(_this4);
+    return _this4;
   }
-  _createClass(AlertItem, [{
+  _inherits(AlertItem, _React$PureComponent);
+  return _createClass(AlertItem, [{
     key: "dismiss",
     value: function dismiss(e) {
       e.stopPropagation();
@@ -335,5 +336,4 @@ var AlertItem = /*#__PURE__*/function (_React$PureComponent) {
       }, message) : null));
     }
   }]);
-  return AlertItem;
 }(React.PureComponent);

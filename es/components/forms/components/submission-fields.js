@@ -1,24 +1,25 @@
-function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
-function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
-function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
-function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
-function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
-function _iterableToArrayLimit(arr, i) { var _i = null == arr ? null : "undefined" != typeof Symbol && arr[Symbol.iterator] || arr["@@iterator"]; if (null != _i) { var _s, _e, _x, _r, _arr = [], _n = !0, _d = !1; try { if (_x = (_i = _i.call(arr)).next, 0 === i) { if (Object(_i) !== _i) return; _n = !1; } else for (; !(_n = (_s = _x.call(_i)).done) && (_arr.push(_s.value), _arr.length !== i); _n = !0); } catch (err) { _d = !0, _e = err; } finally { try { if (!_n && null != _i["return"] && (_r = _i["return"](), Object(_r) !== _r)) return; } finally { if (_d) throw _e; } } return _arr; } }
-function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
-function _extends() { _extends = Object.assign ? Object.assign.bind() : function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, _toPropertyKey(descriptor.key), descriptor); } }
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
-function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return _typeof(key) === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (_typeof(input) !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (_typeof(res) !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); Object.defineProperty(subClass, "prototype", { writable: false }); if (superClass) _setPrototypeOf(subClass, superClass); }
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
-function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } else if (call !== void 0) { throw new TypeError("Derived constructors may only return object or undefined"); } return _assertThisInitialized(self); }
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf.bind() : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+import _typeof from "@babel/runtime/helpers/typeof";
+import _defineProperty from "@babel/runtime/helpers/defineProperty";
+import _slicedToArray from "@babel/runtime/helpers/slicedToArray";
+import _extends from "@babel/runtime/helpers/extends";
+import _classCallCheck from "@babel/runtime/helpers/classCallCheck";
+import _createClass from "@babel/runtime/helpers/createClass";
+import _possibleConstructorReturn from "@babel/runtime/helpers/possibleConstructorReturn";
+import _getPrototypeOf from "@babel/runtime/helpers/getPrototypeOf";
+import _inherits from "@babel/runtime/helpers/inherits";
+function _callSuper(_this, derived, args) {
+  derived = _getPrototypeOf(derived);
+  return _possibleConstructorReturn(_this, function () {
+    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+    if (Reflect.construct.sham) return false;
+    if (typeof Proxy === "function") return true;
+    try {
+      return !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {}));
+    } catch (e) {
+      return false;
+    }
+  }() ? Reflect.construct(derived, args || [], _getPrototypeOf(_this).constructor) : derived.apply(_this, args));
+}
 import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
@@ -43,20 +44,19 @@ import { Alerts } from './../../ui/Alerts';
  * @todo Possibly rename both this class and the containing file to be `SubmissionViewField` or `SubmissionField`.
  */
 export var BuildField = /*#__PURE__*/function (_React$PureComponent) {
-  _inherits(BuildField, _React$PureComponent);
-  var _super = _createSuper(BuildField);
   function BuildField(props) {
-    var _this;
+    var _this2;
     _classCallCheck(this, BuildField);
-    _this = _super.call(this, props);
-    _.bindAll(_assertThisInitialized(_this), 'displayField', 'handleDropdownButtonToggle', 'handleAliasChange', 'handleEnumChange', 'buildSuggestedEnumEntry', 'submitSuggestedEnumVal', 'handleChange', 'handleAliasChange', 'deleteField', 'pushArrayValue', 'commonRowProps', 'labelTypeDescriptor', 'wrapWithLabel', 'wrapWithNoLabel');
-    _this.state = {
+    _this2 = _callSuper(this, BuildField, [props]);
+    _.bindAll(_this2, 'displayField', 'handleDropdownButtonToggle', 'handleAliasChange', 'handleEnumChange', 'buildSuggestedEnumEntry', 'submitSuggestedEnumVal', 'handleChange', 'handleAliasChange', 'deleteField', 'pushArrayValue', 'commonRowProps', 'labelTypeDescriptor', 'wrapWithLabel', 'wrapWithNoLabel');
+    _this2.state = {
       'dropdownOpen': false
     };
-    _this.inputElementRef = /*#__PURE__*/React.createRef();
-    return _this;
+    _this2.inputElementRef = /*#__PURE__*/React.createRef();
+    return _this2;
   }
-  _createClass(BuildField, [{
+  _inherits(BuildField, _React$PureComponent);
+  return _createClass(BuildField, [{
     key: "componentDidMount",
     value: function componentDidMount() {
       ReactTooltip.rebuild();
@@ -563,7 +563,6 @@ export var BuildField = /*#__PURE__*/function (_React$PureComponent) {
       return fieldType;
     }
   }]);
-  return BuildField;
 }(React.PureComponent);
 
 //var linkedObjChildWindow = null; // Global var
@@ -606,20 +605,19 @@ var PreviewField = /*#__PURE__*/React.memo(function (props) {
  * unique to ArrayField, since it needs to update the arrayIdx
  */
 var ArrayField = /*#__PURE__*/function (_React$Component) {
-  _inherits(ArrayField, _React$Component);
-  var _super2 = _createSuper(ArrayField);
   function ArrayField(props) {
-    var _this2;
+    var _this3;
     _classCallCheck(this, ArrayField);
-    _this2 = _super2.call(this, props);
-    _.bindAll(_assertThisInitialized(_this2), 'initiateArrayField', 'generateAddButton');
-    return _this2;
+    _this3 = _callSuper(this, ArrayField, [props]);
+    _.bindAll(_this3, 'initiateArrayField', 'generateAddButton');
+    return _this3;
   }
 
   /**
    * If empty array, add initial 'null' element. On Mount & Update.
    */
-  _createClass(ArrayField, [{
+  _inherits(ArrayField, _React$Component);
+  return _createClass(ArrayField, [{
     key: "componentDidMount",
     value: function componentDidMount() {
       var _this$props11 = this.props,
@@ -775,23 +773,20 @@ var ArrayField = /*#__PURE__*/function (_React$Component) {
       return false;
     }
   }]);
-  return ArrayField;
 }(React.Component);
 /**
  * Builds a field that represents a sub-object. Essentially serves to hold
  * and coordinate BuildFields that correspond to the fields within the subfield.
  */
 var ObjectField = /*#__PURE__*/function (_React$PureComponent2) {
-  _inherits(ObjectField, _React$PureComponent2);
-  var _super3 = _createSuper(ObjectField);
   function ObjectField() {
-    var _this3;
+    var _this4;
     _classCallCheck(this, ObjectField);
     for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
       args[_key] = arguments[_key];
     }
-    _this3 = _super3.call.apply(_super3, [this].concat(args));
-    _defineProperty(_assertThisInitialized(_this3), "includeField", function (schema, field) {
+    _this4 = _callSuper(this, ObjectField, [].concat(args));
+    _defineProperty(_this4, "includeField", function (schema, field) {
       if (!schema) return null;
       var schemaVal = object.getNestedProperty(schema, ['properties', field], true);
       if (!schemaVal) return null;
@@ -812,9 +807,10 @@ var ObjectField = /*#__PURE__*/function (_React$PureComponent2) {
       }
       return schemaVal;
     });
-    return _this3;
+    return _this4;
   }
-  _createClass(ObjectField, [{
+  _inherits(ObjectField, _React$PureComponent2);
+  return _createClass(ObjectField, [{
     key: "componentDidMount",
     value: function componentDidMount() {
       var _this$props16 = this.props,
@@ -838,7 +834,7 @@ var ObjectField = /*#__PURE__*/function (_React$PureComponent2) {
   }, {
     key: "render",
     value: function render() {
-      var _this4 = this;
+      var _this5 = this;
       var _this$props17 = this.props,
         objectSchema = _this$props17.schema,
         parentObject = _this$props17.value,
@@ -847,7 +843,7 @@ var ObjectField = /*#__PURE__*/function (_React$PureComponent2) {
       var allFieldsInSchema = objectSchema['properties'] ? _.keys(objectSchema['properties']) : [];
       var fieldsToBuild = _.filter(_.map(allFieldsInSchema, function (f) {
         // List of [field, fieldSchema] pairs.
-        var fieldSchemaToUseOrNull = _this4.includeField(objectSchema, f);
+        var fieldSchemaToUseOrNull = _this5.includeField(objectSchema, f);
         return fieldSchemaToUseOrNull && [f, fieldSchemaToUseOrNull] || null;
       }));
       var passProps = _.pick(this.props, 'modifyNewContext', 'linkType', 'setSubmissionState', 'selectObj', 'selectComplete', 'selectCancel', 'arrayIdx', 'keyDisplay', 'keyComplete', 'currType', 'updateUpload', 'upload', 'uploadStatus', 'md5Progress', 'fieldBeingSelected', 'fieldBeingSelectedArrayIdx');
@@ -898,7 +894,6 @@ var ObjectField = /*#__PURE__*/function (_React$PureComponent2) {
       }, builtFields);
     }
   }]);
-  return ObjectField;
 }(React.PureComponent);
 /**
  * For version 1. A simple local file upload that gets the name, type,
@@ -906,16 +901,15 @@ var ObjectField = /*#__PURE__*/function (_React$PureComponent2) {
  * upload, adds this information to NewContext
  */
 var AttachmentInput = /*#__PURE__*/function (_React$Component2) {
-  _inherits(AttachmentInput, _React$Component2);
-  var _super4 = _createSuper(AttachmentInput);
   function AttachmentInput(props) {
-    var _this5;
+    var _this6;
     _classCallCheck(this, AttachmentInput);
-    _this5 = _super4.call(this, props);
-    _this5.handleChange = _this5.handleChange.bind(_assertThisInitialized(_this5));
-    return _this5;
+    _this6 = _callSuper(this, AttachmentInput, [props]);
+    _this6.handleChange = _this6.handleChange.bind(_this6);
+    return _this6;
   }
-  _createClass(AttachmentInput, [{
+  _inherits(AttachmentInput, _React$Component2);
+  return _createClass(AttachmentInput, [{
     key: "acceptedTypes",
     value: function acceptedTypes() {
       var schema = this.props.schema;
@@ -992,7 +986,6 @@ var AttachmentInput = /*#__PURE__*/function (_React$Component2) {
       }, attach_title)));
     }
   }]);
-  return AttachmentInput;
 }(React.Component);
 /**
  * Input for an s3 file upload. Context value set is local value of the filename.
@@ -1000,22 +993,21 @@ var AttachmentInput = /*#__PURE__*/function (_React$Component2) {
  * async using the upload_manager passed down in props.
  */
 var S3FileInput = /*#__PURE__*/function (_React$Component3) {
-  _inherits(S3FileInput, _React$Component3);
-  var _super5 = _createSuper(S3FileInput);
   function S3FileInput(props) {
-    var _this6;
+    var _this7;
     _classCallCheck(this, S3FileInput);
-    _this6 = _super5.call(this, props);
-    _.bindAll(_assertThisInitialized(_this6), 'modifyFile', 'handleChange', 'handleAsyncUpload', 'modifyRunningUploads', 'cancelUpload', 'deleteField');
-    _this6.state = {
+    _this7 = _callSuper(this, S3FileInput, [props]);
+    _.bindAll(_this7, 'modifyFile', 'handleChange', 'handleAsyncUpload', 'modifyRunningUploads', 'cancelUpload', 'deleteField');
+    _this7.state = {
       'percentDone': null,
       'sizeUploaded': null,
       'newFile': false,
       'status': null
     };
-    return _this6;
+    return _this7;
   }
-  _createClass(S3FileInput, [{
+  _inherits(S3FileInput, _React$Component3);
+  return _createClass(S3FileInput, [{
     key: "componentDidUpdate",
     value: function componentDidUpdate(pastProps) {
       var _this$props19 = this.props,
@@ -1056,7 +1048,7 @@ var S3FileInput = /*#__PURE__*/function (_React$Component3) {
   }, {
     key: "handleChange",
     value: function handleChange(e) {
-      var _this7 = this;
+      var _this8 = this;
       var _this$props20 = this.props,
         modifyNewContext = _this$props20.modifyNewContext,
         nestedField = _this$props20.nestedField,
@@ -1089,7 +1081,7 @@ var S3FileInput = /*#__PURE__*/function (_React$Component3) {
           }
           modifyNewContext(nestedField, filename, 'file upload', linkType, arrayIdx);
           // calling modifyFile changes the 'file' state of top level component
-          _this7.modifyFile(file);
+          _this8.modifyFile(file);
         } else {
           alert('Internal file extension conflict.');
         }
@@ -1103,22 +1095,22 @@ var S3FileInput = /*#__PURE__*/function (_React$Component3) {
   }, {
     key: "handleAsyncUpload",
     value: function handleAsyncUpload(upload_manager) {
-      var _this8 = this;
+      var _this9 = this;
       if (upload_manager === null) {
         return;
       }
       upload_manager.on('httpUploadProgress', function (evt) {
         var percentage = Math.round(evt.loaded * 100 / evt.total);
-        _this8.modifyRunningUploads(percentage, evt.total);
+        _this9.modifyRunningUploads(percentage, evt.total);
       }).send(function (err) {
         if (err) {
-          _this8.modifyRunningUploads(null, null);
-          _this8.props.updateUpload(null, false, true);
+          _this9.modifyRunningUploads(null, null);
+          _this9.props.updateUpload(null, false, true);
           alert("File upload failed!");
         } else {
-          _this8.modifyRunningUploads(null, null);
+          _this9.modifyRunningUploads(null, null);
           // this will finish roundTwo for the file
-          _this8.props.updateUpload(null, true);
+          _this9.props.updateUpload(null, true);
         }
       });
     }
@@ -1259,7 +1251,6 @@ var S3FileInput = /*#__PURE__*/function (_React$Component3) {
       }))) : null);
     }
   }]);
-  return S3FileInput;
 }(React.Component);
 /**
  * Accepts a 'value' prop (which should contain a colon, at minimum) and present two fields for modifying its two parts.
@@ -1269,16 +1260,15 @@ var S3FileInput = /*#__PURE__*/function (_React$Component3) {
  * On change of either inputs, calls 'onAliasChange' function callback, passing the new modified value (including colon) as parameter.
  */
 export var AliasInputField = /*#__PURE__*/function (_React$Component4) {
-  _inherits(AliasInputField, _React$Component4);
-  var _super6 = _createSuper(AliasInputField);
   function AliasInputField(props) {
-    var _this9;
+    var _this10;
     _classCallCheck(this, AliasInputField);
-    _this9 = _super6.call(this, props);
-    _.bindAll(_assertThisInitialized(_this9), 'onAliasSecondPartChange', 'onAliasFirstPartChange', 'onAliasFirstPartChangeTyped', 'getInitialSubmitsForPart', 'finalizeAliasPartsChange');
-    return _this9;
+    _this10 = _callSuper(this, AliasInputField, [props]);
+    _.bindAll(_this10, 'onAliasSecondPartChange', 'onAliasFirstPartChange', 'onAliasFirstPartChangeTyped', 'getInitialSubmitsForPart', 'finalizeAliasPartsChange');
+    return _this10;
   }
-  _createClass(AliasInputField, [{
+  _inherits(AliasInputField, _React$Component4);
+  return _createClass(AliasInputField, [{
     key: "getInitialSubmitsForPart",
     value: function getInitialSubmitsForPart() {
       var currentSubmittingUser = this.props.currentSubmittingUser;
@@ -1437,7 +1427,6 @@ export var AliasInputField = /*#__PURE__*/function (_React$Component4) {
       return parts;
     }
   }]);
-  return AliasInputField;
 }(React.Component);
 _defineProperty(AliasInputField, "propTypes", {
   'value': PropTypes.string.isRequired,
@@ -1456,26 +1445,25 @@ _defineProperty(AliasInputField, "defaultProps", {
   'value': ':'
 });
 export var AliasInputFieldValidated = /*#__PURE__*/function (_React$PureComponent3) {
-  _inherits(AliasInputFieldValidated, _React$PureComponent3);
-  var _super7 = _createSuper(AliasInputFieldValidated);
   function AliasInputFieldValidated(props) {
-    var _this10;
+    var _this11;
     _classCallCheck(this, AliasInputFieldValidated);
-    _this10 = _super7.call(this, props);
-    _this10.doValidateAlias = _this10.doValidateAlias.bind(_assertThisInitialized(_this10));
-    _this10.onAliasChange = _this10.onAliasChange.bind(_assertThisInitialized(_this10));
-    _this10.request = null;
-    _this10.state = {
+    _this11 = _callSuper(this, AliasInputFieldValidated, [props]);
+    _this11.doValidateAlias = _this11.doValidateAlias.bind(_this11);
+    _this11.onAliasChange = _this11.onAliasChange.bind(_this11);
+    _this11.request = null;
+    _this11.state = {
       value: props.value || AliasInputField.defaultProps.value,
       isValid: null,
       errorMessage: null
     };
-    return _this10;
+    return _this11;
   }
-  _createClass(AliasInputFieldValidated, [{
+  _inherits(AliasInputFieldValidated, _React$PureComponent3);
+  return _createClass(AliasInputFieldValidated, [{
     key: "doValidateAlias",
     value: function doValidateAlias(alias) {
-      var _this11 = this;
+      var _this12 = this;
       var _this$props23 = this.props,
         onAliasChange = _this$props23.onAliasChange,
         errorValue = _this$props23.errorValue;
@@ -1485,23 +1473,23 @@ export var AliasInputFieldValidated = /*#__PURE__*/function (_React$PureComponen
       }
       var currReq = null;
       var cb = function (res) {
-        if (!_this11.request || _this11.request && _this11.request !== currReq) {
+        if (!_this12.request || _this12.request && _this12.request !== currReq) {
           // A newer request has been launched, cancel this
           // to prevent accidental overwrites or something.
           return;
         }
-        _this11.request = null;
+        _this12.request = null;
         if (res.code !== 404) {
           // Not valid - something exists already.
           onAliasChange(errorValue);
-          _this11.setState({
+          _this12.setState({
             errorMessage: "Alias " + alias + " already exists",
             isValid: false
           });
           return;
         }
         onAliasChange(alias);
-        _this11.setState({
+        _this12.setState({
           isValid: true,
           errorMessage: null
         });
@@ -1511,7 +1499,7 @@ export var AliasInputFieldValidated = /*#__PURE__*/function (_React$PureComponen
   }, {
     key: "onAliasChange",
     value: function (nextAlias) {
-      var _this12 = this;
+      var _this13 = this;
       var _this$props24 = this.props,
         onAliasChange = _this$props24.onAliasChange,
         errorValue = _this$props24.errorValue,
@@ -1524,14 +1512,14 @@ export var AliasInputFieldValidated = /*#__PURE__*/function (_React$PureComponen
       this.setState({
         value: nextAlias
       }, function () {
-        var value = _this12.state.value;
+        var value = _this13.state.value;
         var _value$split = value.split(':'),
           _value$split2 = _slicedToArray(_value$split, 2),
           firstPart = _value$split2[0],
           secondPart = _value$split2[1];
         if (!firstPart || !secondPart) {
           onAliasChange(null);
-          _this12.setState({
+          _this13.setState({
             errorMessage: "Part of alias is blank. Will be excluded."
           });
           return;
@@ -1539,7 +1527,7 @@ export var AliasInputFieldValidated = /*#__PURE__*/function (_React$PureComponen
         var passedRegex = new RegExp('^\\S+:\\S+$').test(value);
         if (!passedRegex) {
           onAliasChange(errorValue);
-          _this12.setState({
+          _this13.setState({
             errorMessage: "Aliases must be formatted as: <text>:<text> (e.g. dcic-lab:42)."
           });
           return;
@@ -1547,7 +1535,7 @@ export var AliasInputFieldValidated = /*#__PURE__*/function (_React$PureComponen
         if (rejectAliases.length > 0 && rejectAliases.indexOf(nextAlias) > -1) {
           // Presume is saved in database as this, skip validation.
           onAliasChange("ERROR");
-          _this12.setState({
+          _this13.setState({
             errorMessage: "Alias rejected, make sure is not used already."
           });
           return;
@@ -1555,12 +1543,12 @@ export var AliasInputFieldValidated = /*#__PURE__*/function (_React$PureComponen
         if (skipValidateAliases.length > 0 && skipValidateAliases.indexOf(nextAlias) > -1) {
           // Presume is saved in database as this, skip validation.
           onAliasChange(nextAlias);
-          _this12.setState({
+          _this13.setState({
             errorMessage: null
           });
           return;
         }
-        _this12.doValidateAlias(value);
+        _this13.doValidateAlias(value);
       });
     }
   }, {
@@ -1571,7 +1559,6 @@ export var AliasInputFieldValidated = /*#__PURE__*/function (_React$PureComponen
       }));
     }
   }]);
-  return AliasInputFieldValidated;
 }(React.PureComponent);
 _defineProperty(AliasInputFieldValidated, "defaultProps", {
   errorValue: "ERROR",
@@ -1579,13 +1566,12 @@ _defineProperty(AliasInputFieldValidated, "defaultProps", {
   rejectAliases: []
 });
 var InfoIcon = /*#__PURE__*/function (_React$PureComponent4) {
-  _inherits(InfoIcon, _React$PureComponent4);
-  var _super8 = _createSuper(InfoIcon);
   function InfoIcon() {
     _classCallCheck(this, InfoIcon);
-    return _super8.apply(this, arguments);
+    return _callSuper(this, InfoIcon, arguments);
   }
-  _createClass(InfoIcon, [{
+  _inherits(InfoIcon, _React$PureComponent4);
+  return _createClass(InfoIcon, [{
     key: "fieldTypeDescriptor",
     value: function fieldTypeDescriptor() {
       var _this$props25 = this.props,
@@ -1621,7 +1607,6 @@ var InfoIcon = /*#__PURE__*/function (_React$PureComponent4) {
       });
     }
   }]);
-  return InfoIcon;
 }(React.PureComponent);
 export function isValueNull(value) {
   if (value === null) return true;

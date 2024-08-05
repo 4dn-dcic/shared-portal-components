@@ -1,26 +1,26 @@
-function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
-function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
-function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
-function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
-function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter); }
-function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
-function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
-function _extends() { _extends = Object.assign ? Object.assign.bind() : function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
+import _toConsumableArray from "@babel/runtime/helpers/toConsumableArray";
+import _extends from "@babel/runtime/helpers/extends";
+import _defineProperty from "@babel/runtime/helpers/defineProperty";
+import _classCallCheck from "@babel/runtime/helpers/classCallCheck";
+import _createClass from "@babel/runtime/helpers/createClass";
+import _possibleConstructorReturn from "@babel/runtime/helpers/possibleConstructorReturn";
+import _getPrototypeOf from "@babel/runtime/helpers/getPrototypeOf";
+import _inherits from "@babel/runtime/helpers/inherits";
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, _toPropertyKey(descriptor.key), descriptor); } }
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
-function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return _typeof(key) === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (_typeof(input) !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (_typeof(res) !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); Object.defineProperty(subClass, "prototype", { writable: false }); if (superClass) _setPrototypeOf(subClass, superClass); }
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
-function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } else if (call !== void 0) { throw new TypeError("Derived constructors may only return object or undefined"); } return _assertThisInitialized(self); }
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf.bind() : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+function _callSuper(_this, derived, args) {
+  derived = _getPrototypeOf(derived);
+  return _possibleConstructorReturn(_this, function () {
+    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+    if (Reflect.construct.sham) return false;
+    if (typeof Proxy === "function") return true;
+    try {
+      return !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {}));
+    } catch (e) {
+      return false;
+    }
+  }() ? Reflect.construct(derived, args || [], _getPrototypeOf(_this).constructor) : derived.apply(_this, args));
+}
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
@@ -128,36 +128,35 @@ export function formatRangeVal(termTransformFxn, fieldFacetObj, rangeValue) {
   return valToShow;
 }
 export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
-  _inherits(RangeFacet, _React$PureComponent);
-  var _super = _createSuper(RangeFacet);
   function RangeFacet(props) {
-    var _this;
+    var _this2;
     _classCallCheck(this, RangeFacet);
-    _this = _super.call(this, props);
-    _this.handleOpenToggleClick = _this.handleOpenToggleClick.bind(_assertThisInitialized(_this));
-    _this.handleExpandListToggleClick = _this.handleExpandListToggleClick.bind(_assertThisInitialized(_this));
-    _this.setFrom = _this.setFrom.bind(_assertThisInitialized(_this));
-    _this.setTo = _this.setTo.bind(_assertThisInitialized(_this));
-    _this.setToAndFrom = _this.setToAndFrom.bind(_assertThisInitialized(_this));
-    _this.selectRange = _this.selectRange.bind(_assertThisInitialized(_this));
-    _this.resetAll = _this.selectRange.bind(_assertThisInitialized(_this), null, null);
-    _this.resetFrom = _this.resetFrom.bind(_assertThisInitialized(_this));
-    _this.resetTo = _this.resetTo.bind(_assertThisInitialized(_this));
-    _this.performUpdateFrom = _this.performUpdateFrom.bind(_assertThisInitialized(_this));
-    _this.performUpdateTo = _this.performUpdateTo.bind(_assertThisInitialized(_this));
-    _this.performUpdateToAndFrom = _this.performUpdateToAndFrom.bind(_assertThisInitialized(_this));
-    _this.termTitle = _this.termTitle.bind(_assertThisInitialized(_this));
-    _this.memoized = {
+    _this2 = _callSuper(this, RangeFacet, [props]);
+    _this2.handleOpenToggleClick = _this2.handleOpenToggleClick.bind(_this2);
+    _this2.handleExpandListToggleClick = _this2.handleExpandListToggleClick.bind(_this2);
+    _this2.setFrom = _this2.setFrom.bind(_this2);
+    _this2.setTo = _this2.setTo.bind(_this2);
+    _this2.setToAndFrom = _this2.setToAndFrom.bind(_this2);
+    _this2.selectRange = _this2.selectRange.bind(_this2);
+    _this2.resetAll = _this2.selectRange.bind(_this2, null, null);
+    _this2.resetFrom = _this2.resetFrom.bind(_this2);
+    _this2.resetTo = _this2.resetTo.bind(_this2);
+    _this2.performUpdateFrom = _this2.performUpdateFrom.bind(_this2);
+    _this2.performUpdateTo = _this2.performUpdateTo.bind(_this2);
+    _this2.performUpdateToAndFrom = _this2.performUpdateToAndFrom.bind(_this2);
+    _this2.termTitle = _this2.termTitle.bind(_this2);
+    _this2.memoized = {
       fieldSchema: memoize(getSchemaProperty),
       validIncrements: memoize(RangeFacet.validIncrements)
     };
-    _this.state = _objectSpread(_objectSpread({}, RangeFacet.initialStateValues(props)), {}, {
+    _this2.state = _objectSpread(_objectSpread({}, RangeFacet.initialStateValues(props)), {}, {
       "facetClosing": false,
       "expanded": false
     });
-    return _this;
+    return _this2;
   }
-  _createClass(RangeFacet, [{
+  _inherits(RangeFacet, _React$PureComponent);
+  return _createClass(RangeFacet, [{
     key: "componentDidUpdate",
     value: function componentDidUpdate(pastProps) {
       var previousToVal = pastProps.toVal,
@@ -288,25 +287,25 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
   }, {
     key: "resetFrom",
     value: function resetFrom(callback) {
-      var _this2 = this;
+      var _this3 = this;
       this.setFrom(null, function () {
-        _this2.performUpdateFrom(callback);
+        _this3.performUpdateFrom(callback);
       });
     }
   }, {
     key: "resetTo",
     value: function resetTo(callback) {
-      var _this3 = this;
+      var _this4 = this;
       this.setTo(null, function () {
-        _this3.performUpdateTo(callback);
+        _this4.performUpdateTo(callback);
       });
     }
   }, {
     key: "selectRange",
     value: function selectRange(to, from, callback) {
-      var _this4 = this;
+      var _this5 = this;
       this.setToAndFrom(to, from, function () {
-        _this4.performUpdateToAndFrom(callback);
+        _this5.performUpdateToAndFrom(callback);
       });
     }
   }, {
@@ -620,7 +619,6 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
       return state;
     }
   }]);
-  return RangeFacet;
 }(React.PureComponent);
 var ListOfRanges = /*#__PURE__*/React.memo(function (props) {
   var facet = props.facet,
@@ -769,16 +767,15 @@ var ListOfRanges = /*#__PURE__*/React.memo(function (props) {
  * Used to render a term with range functionality in FacetList. Basically same as FacetTermsList > Term... maybe merge later
  */
 export var RangeTerm = /*#__PURE__*/function (_React$PureComponent2) {
-  _inherits(RangeTerm, _React$PureComponent2);
-  var _super2 = _createSuper(RangeTerm);
   function RangeTerm(props) {
-    var _this5;
+    var _this6;
     _classCallCheck(this, RangeTerm);
-    _this5 = _super2.call(this, props);
-    _this5.handleClick = _this5.handleClick.bind(_assertThisInitialized(_this5));
-    return _this5;
+    _this6 = _callSuper(this, RangeTerm, [props]);
+    _this6.handleClick = _this6.handleClick.bind(_this6);
+    return _this6;
   }
-  _createClass(RangeTerm, [{
+  _inherits(RangeTerm, _React$PureComponent2);
+  return _createClass(RangeTerm, [{
     key: "handleClick",
     value: function handleClick(e) {
       var _this$props8 = this.props,
@@ -855,7 +852,6 @@ export var RangeTerm = /*#__PURE__*/function (_React$PureComponent2) {
       }, doc_count || 0) : null));
     }
   }]);
-  return RangeTerm;
 }(React.PureComponent);
 RangeTerm.propTypes = {
   'facet': PropTypes.shape({
@@ -960,25 +956,24 @@ var RangeClear = /*#__PURE__*/React.memo(function (props) {
   }))));
 });
 var RangeDropdown = /*#__PURE__*/function (_React$PureComponent3) {
-  _inherits(RangeDropdown, _React$PureComponent3);
-  var _super3 = _createSuper(RangeDropdown);
   function RangeDropdown(props) {
-    var _this6;
+    var _this7;
     _classCallCheck(this, RangeDropdown);
-    _this6 = _super3.call(this, props);
-    _this6.state = {
+    _this7 = _callSuper(this, RangeDropdown, [props]);
+    _this7.state = {
       showMenu: false,
       toggling: false
     };
-    _this6.onTextInputChange = _this6.onTextInputChange.bind(_assertThisInitialized(_this6));
-    _this6.onDropdownSelect = _this6.onDropdownSelect.bind(_assertThisInitialized(_this6));
-    _this6.onTextInputFormSubmit = _this6.onTextInputFormSubmit.bind(_assertThisInitialized(_this6));
-    _this6.onTextInputKeyDown = _this6.onTextInputKeyDown.bind(_assertThisInitialized(_this6));
-    _this6.toggleDrop = _this6.toggleDrop.bind(_assertThisInitialized(_this6));
-    _this6.onBlur = _this6.onBlur.bind(_assertThisInitialized(_this6));
-    return _this6;
+    _this7.onTextInputChange = _this7.onTextInputChange.bind(_this7);
+    _this7.onDropdownSelect = _this7.onDropdownSelect.bind(_this7);
+    _this7.onTextInputFormSubmit = _this7.onTextInputFormSubmit.bind(_this7);
+    _this7.onTextInputKeyDown = _this7.onTextInputKeyDown.bind(_this7);
+    _this7.toggleDrop = _this7.toggleDrop.bind(_this7);
+    _this7.onBlur = _this7.onBlur.bind(_this7);
+    return _this7;
   }
-  _createClass(RangeDropdown, [{
+  _inherits(RangeDropdown, _React$PureComponent3);
+  return _createClass(RangeDropdown, [{
     key: "onTextInputChange",
     value: function onTextInputChange(evt) {
       var onSelect = this.props.onSelect;
@@ -1032,7 +1027,7 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent3) {
   }, {
     key: "toggleDrop",
     value: function toggleDrop() {
-      var _this7 = this;
+      var _this8 = this;
       var _this$state3 = this.state,
         showMenu = _this$state3.showMenu,
         toggling = _this$state3.toggling;
@@ -1042,7 +1037,7 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent3) {
           showMenu: !showMenu,
           toggling: true
         }, function () {
-          _this7.setState({
+          _this8.setState({
             toggling: false
           });
         });
@@ -1191,5 +1186,4 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent3) {
       }
     }
   }]);
-  return RangeDropdown;
 }(React.PureComponent);
