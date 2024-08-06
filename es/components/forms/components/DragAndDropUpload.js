@@ -1,29 +1,33 @@
-function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
-function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, _toPropertyKey(descriptor.key), descriptor); } }
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
-function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return _typeof(key) === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (_typeof(input) !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (_typeof(res) !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); Object.defineProperty(subClass, "prototype", { writable: false }); if (superClass) _setPrototypeOf(subClass, superClass); }
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
-function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } else if (call !== void 0) { throw new TypeError("Derived constructors may only return object or undefined"); } return _assertThisInitialized(self); }
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf.bind() : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+import _defineProperty from "@babel/runtime/helpers/defineProperty";
+import _createClass from "@babel/runtime/helpers/createClass";
+import _classCallCheck from "@babel/runtime/helpers/classCallCheck";
+import _possibleConstructorReturn from "@babel/runtime/helpers/possibleConstructorReturn";
+import _getPrototypeOf from "@babel/runtime/helpers/getPrototypeOf";
+import _inherits from "@babel/runtime/helpers/inherits";
+function _callSuper(_this, derived, args) {
+  derived = _getPrototypeOf(derived);
+  return _possibleConstructorReturn(_this, function () {
+    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+    if (Reflect.construct.sham) return false;
+    if (typeof Proxy === "function") return true;
+    try {
+      return !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {}));
+    } catch (e) {
+      return false;
+    }
+  }() ? Reflect.construct(derived, args || [], _getPrototypeOf(_this).constructor) : derived.apply(_this, args));
+}
 import React from 'react';
 import Modal from 'react-bootstrap/esm/Modal';
 import PropTypes from 'prop-types';
 import { ajax } from './../../util';
 import _ from 'underscore';
 export var DragAndDropUploadSubmissionViewController = /*#__PURE__*/function (_React$Component) {
-  _inherits(DragAndDropUploadSubmissionViewController, _React$Component);
-  var _super = _createSuper(DragAndDropUploadSubmissionViewController);
   function DragAndDropUploadSubmissionViewController() {
     _classCallCheck(this, DragAndDropUploadSubmissionViewController);
-    return _super.apply(this, arguments);
+    return _callSuper(this, DragAndDropUploadSubmissionViewController, arguments);
   }
+  _inherits(DragAndDropUploadSubmissionViewController, _React$Component);
   return _createClass(DragAndDropUploadSubmissionViewController);
 }(React.Component);
 
@@ -38,28 +42,27 @@ export var DragAndDropUploadSubmissionViewController = /*#__PURE__*/function (_R
  * Heavily reworked from this reference: https://medium.com/@650egor/simple-drag-and-drop-file-upload-in-react-2cb409d88929
  */
 export var DragAndDropFileUploadController = /*#__PURE__*/function (_React$Component2) {
-  _inherits(DragAndDropFileUploadController, _React$Component2);
-  var _super2 = _createSuper(DragAndDropFileUploadController);
   function DragAndDropFileUploadController(props) {
-    var _this;
+    var _this2;
     _classCallCheck(this, DragAndDropFileUploadController);
-    _this = _super2.call(this, props);
-    _this.state = {
+    _this2 = _callSuper(this, DragAndDropFileUploadController, [props]);
+    _this2.state = {
       files: [],
       // Always in an array, even if multiselect disabled
       isLoading: false
     };
     console.log("DragAndDropUploadFileControlller props", props);
-    _this.handleAddFile = _this.handleAddFile.bind(_assertThisInitialized(_this));
-    _this.handleRemoveFile = _this.handleRemoveFile.bind(_assertThisInitialized(_this));
-    _this.handleClearAllFiles = _this.handleClearAllFiles.bind(_assertThisInitialized(_this));
-    _this.onUploadStart = _this.onUploadStart.bind(_assertThisInitialized(_this));
-    return _this;
+    _this2.handleAddFile = _this2.handleAddFile.bind(_this2);
+    _this2.handleRemoveFile = _this2.handleRemoveFile.bind(_this2);
+    _this2.handleClearAllFiles = _this2.handleClearAllFiles.bind(_this2);
+    _this2.onUploadStart = _this2.onUploadStart.bind(_this2);
+    return _this2;
   }
-  _createClass(DragAndDropFileUploadController, [{
+  _inherits(DragAndDropFileUploadController, _React$Component2);
+  return _createClass(DragAndDropFileUploadController, [{
     key: "handleAddFile",
     value: function handleAddFile(evt) {
-      var _this2 = this;
+      var _this3 = this;
       var _evt$dataTransfer = evt.dataTransfer,
         items = _evt$dataTransfer.items,
         files = _evt$dataTransfer.files;
@@ -73,41 +76,40 @@ export var DragAndDropFileUploadController = /*#__PURE__*/function (_React$Compo
         var fileLimit = multiselect ? files.length : 1;
         // Populate an array with all of the new files
         var _loop = function _loop() {
-          var attachment = {};
-          var file = files[i];
+            var attachment = {};
+            var file = files[i];
 
-          // Check that file type is in schema (TODO: Is this too strict? MIME-types can get complicated...)
-          var acceptableFileTypes = fileSchema.properties.attachment.properties.type["enum"];
-          if (_.indexOf(acceptableFileTypes, file.type) === -1) {
-            var listOfTypes = acceptableFileTypes.toString();
-            alert("FILE NOT ADDED: File \"".concat(file.name, "\" is not of the correct file type for this field.\n\nMust be of type: ").concat(listOfTypes, "."));
-            return "continue";
-          }
-          attachment.type = file.type;
-
-          // TODO: Figure out how best to check/limit file size pre-attachment...
-          if (file.size) {
-            attachment.size = file.size;
-          }
-          if (file.name) {
-            attachment.download = file.name;
-          }
-          fileReader = new window.FileReader();
-          fileReader.readAsDataURL(file);
-          fileReader.onloadend = function (e) {
-            if (e.target.result) {
-              attachment.href = e.target.result;
-            } else {
-              alert('ERROR: There was a problem reading the given file. Please try again.');
-              return;
+            // Check that file type is in schema (TODO: Is this too strict? MIME-types can get complicated...)
+            var acceptableFileTypes = fileSchema.properties.attachment.properties.type["enum"];
+            if (_.indexOf(acceptableFileTypes, file.type) === -1) {
+              var listOfTypes = acceptableFileTypes.toString();
+              alert("FILE NOT ADDED: File \"".concat(file.name, "\" is not of the correct file type for this field.\n\nMust be of type: ").concat(listOfTypes, "."));
+              return 1; // continue
             }
-          }.bind(_this2);
-          fileArr.push(attachment);
-        };
+            attachment.type = file.type;
+
+            // TODO: Figure out how best to check/limit file size pre-attachment...
+            if (file.size) {
+              attachment.size = file.size;
+            }
+            if (file.name) {
+              attachment.download = file.name;
+            }
+            fileReader = new window.FileReader();
+            fileReader.readAsDataURL(file);
+            fileReader.onloadend = function (e) {
+              if (e.target.result) {
+                attachment.href = e.target.result;
+              } else {
+                alert('ERROR: There was a problem reading the given file. Please try again.');
+                return;
+              }
+            }.bind(_this3);
+            fileArr.push(attachment);
+          },
+          fileReader;
         for (var i = 0; i < fileLimit; i++) {
-          var fileReader;
-          var _ret = _loop();
-          if (_ret === "continue") continue;
+          if (_loop()) continue;
         }
 
         // Concat with previous files
@@ -260,12 +262,12 @@ export var DragAndDropFileUploadController = /*#__PURE__*/function (_React$Compo
   }, {
     key: "onUploadStart",
     value: function onUploadStart() {
-      var _this3 = this;
+      var _this4 = this;
       var files = this.state.files;
       var previouslySubmittedAtIds = [];
       var newFileSubmit = function newFileSubmit(file) {
         console.log("Attempting to upload file... ", file);
-        return _this3.createItem(file, true) // Validate
+        return _this4.createItem(file, true) // Validate
         .then(function (response) {
           if (response.status && response.status !== 'success') {
             var _response$errors = response.errors,
@@ -278,7 +280,7 @@ export var DragAndDropFileUploadController = /*#__PURE__*/function (_React$Compo
             throw new Error(errorMessage);
           } else {
             console.log("validation succeeded");
-            return _this3.createItem(file, false); // Submit item
+            return _this4.createItem(file, false); // Submit item
           }
         }).then(function (resp) {
           if (resp.status && resp.status !== 'success') {
@@ -298,7 +300,7 @@ export var DragAndDropFileUploadController = /*#__PURE__*/function (_React$Compo
 
             // Also pass through the atIds of other new files
             previouslySubmittedAtIds.push(submitted_at_id);
-            return _this3.patchToParent(resp, previouslySubmittedAtIds);
+            return _this4.patchToParent(resp, previouslySubmittedAtIds);
           }
         }).then(function (res) {
           if (res.status && res.status !== 'success') {
@@ -313,7 +315,7 @@ export var DragAndDropFileUploadController = /*#__PURE__*/function (_React$Compo
             throw new Error(errorMessage);
           } else {
             alert("".concat(file.download, " uploaded and linked successfully."));
-            _this3.handleRemoveFile(file.download);
+            _this4.handleRemoveFile(file.download);
           }
         })["catch"](function (error) {
           console.log("Error occurred", error);
@@ -337,7 +339,7 @@ export var DragAndDropFileUploadController = /*#__PURE__*/function (_React$Compo
         })["catch"](function (error) {
           console.log("May not have completed all uploads!", error);
         })["finally"](function () {
-          _this3.setState({
+          _this4.setState({
             isLoading: false
           });
         });
@@ -370,7 +372,6 @@ export var DragAndDropFileUploadController = /*#__PURE__*/function (_React$Compo
       });
     }
   }]);
-  return DragAndDropFileUploadController;
 }(React.Component);
 _defineProperty(DragAndDropFileUploadController, "propTypes", {
   files: PropTypes.array.isRequired,
@@ -399,22 +400,21 @@ _defineProperty(DragAndDropFileUploadController, "defaultProps", {
   cls: "btn"
 });
 var DragAndDropUploadButton = /*#__PURE__*/function (_React$Component3) {
-  _inherits(DragAndDropUploadButton, _React$Component3);
-  var _super3 = _createSuper(DragAndDropUploadButton);
   function DragAndDropUploadButton(props) {
-    var _this4;
+    var _this5;
     _classCallCheck(this, DragAndDropUploadButton);
-    _this4 = _super3.call(this, props);
-    _this4.state = {
+    _this5 = _callSuper(this, DragAndDropUploadButton, [props]);
+    _this5.state = {
       showModal: false
     };
     console.log("props, ", props);
-    _this4.onHide = _this4.onHide.bind(_assertThisInitialized(_this4));
-    _this4.onShow = _this4.onShow.bind(_assertThisInitialized(_this4));
-    _this4.handleHideModal = _this4.handleHideModal.bind(_assertThisInitialized(_this4));
-    return _this4;
+    _this5.onHide = _this5.onHide.bind(_this5);
+    _this5.onShow = _this5.onShow.bind(_this5);
+    _this5.handleHideModal = _this5.handleHideModal.bind(_this5);
+    return _this5;
   }
-  _createClass(DragAndDropUploadButton, [{
+  _inherits(DragAndDropUploadButton, _React$Component3);
+  return _createClass(DragAndDropUploadButton, [{
     key: "onHide",
     value: function onHide() {
       var showModal = this.state.showModal;
@@ -481,7 +481,6 @@ var DragAndDropUploadButton = /*#__PURE__*/function (_React$Component3) {
       }), " Quick Upload a new ", fieldName));
     }
   }]);
-  return DragAndDropUploadButton;
 }(React.Component);
 _defineProperty(DragAndDropUploadButton, "propTypes", {
   onUploadStart: PropTypes.func.isRequired,
@@ -511,21 +510,20 @@ _defineProperty(DragAndDropUploadButton, "defaultProps", {
   files: []
 });
 var DragAndDropModal = /*#__PURE__*/function (_React$Component4) {
-  _inherits(DragAndDropModal, _React$Component4);
-  var _super4 = _createSuper(DragAndDropModal);
   function DragAndDropModal(props) {
-    var _this5;
+    var _this6;
     _classCallCheck(this, DragAndDropModal);
-    _this5 = _super4.call(this, props);
-    _this5.state = {
+    _this6 = _callSuper(this, DragAndDropModal, [props]);
+    _this6.state = {
       isVerified: false
     };
-    _this5.toggleCheckbox = _this5.toggleCheckbox.bind(_assertThisInitialized(_this5));
-    _this5.disableCheckbox = _this5.toggleCheckbox.bind(_assertThisInitialized(_this5));
-    _this5.handleAddFileAndResetVerification = _this5.handleAddFileAndResetVerification.bind(_assertThisInitialized(_this5));
-    return _this5;
+    _this6.toggleCheckbox = _this6.toggleCheckbox.bind(_this6);
+    _this6.disableCheckbox = _this6.toggleCheckbox.bind(_this6);
+    _this6.handleAddFileAndResetVerification = _this6.handleAddFileAndResetVerification.bind(_this6);
+    return _this6;
   }
-  _createClass(DragAndDropModal, [{
+  _inherits(DragAndDropModal, _React$Component4);
+  return _createClass(DragAndDropModal, [{
     key: "toggleCheckbox",
     value: function toggleCheckbox() {
       var isVerified = this.state.isVerified;
@@ -624,7 +622,6 @@ var DragAndDropModal = /*#__PURE__*/function (_React$Component4) {
       }), " Upload ", fieldDisplayTitle)));
     }
   }]);
-  return DragAndDropModal;
 }(React.Component);
 /*
     Drag and Drop File Manager Component that accepts an onHide and onContainerKeyDown function
@@ -677,24 +674,23 @@ function RequestVerification(props) {
   }, requestVerificationMsg, " "));
 }
 export var DragAndDropZone = /*#__PURE__*/function (_React$Component5) {
-  _inherits(DragAndDropZone, _React$Component5);
-  var _super5 = _createSuper(DragAndDropZone);
   function DragAndDropZone(props) {
-    var _this6;
+    var _this7;
     _classCallCheck(this, DragAndDropZone);
-    _this6 = _super5.call(this, props);
-    _this6.state = {
+    _this7 = _callSuper(this, DragAndDropZone, [props]);
+    _this7.state = {
       dragging: false
     };
-    _this6.dropZoneRef = /*#__PURE__*/React.createRef();
-    _this6.fileUploadRef = /*#__PURE__*/React.createRef();
-    _this6.cleanUpEventListeners = _this6.cleanUpEventListeners.bind(_assertThisInitialized(_this6));
-    _this6.setUpEventListeners = _this6.setUpEventListeners.bind(_assertThisInitialized(_this6));
-    _this6.handleDrop = _this6.handleDrop.bind(_assertThisInitialized(_this6));
-    _this6.handleDropzoneClick = _this6.handleDropzoneClick.bind(_assertThisInitialized(_this6));
-    return _this6;
+    _this7.dropZoneRef = /*#__PURE__*/React.createRef();
+    _this7.fileUploadRef = /*#__PURE__*/React.createRef();
+    _this7.cleanUpEventListeners = _this7.cleanUpEventListeners.bind(_this7);
+    _this7.setUpEventListeners = _this7.setUpEventListeners.bind(_this7);
+    _this7.handleDrop = _this7.handleDrop.bind(_this7);
+    _this7.handleDropzoneClick = _this7.handleDropzoneClick.bind(_this7);
+    return _this7;
   }
-  _createClass(DragAndDropZone, [{
+  _inherits(DragAndDropZone, _React$Component5);
+  return _createClass(DragAndDropZone, [{
     key: "componentDidMount",
     value: function componentDidMount() {
       this.setUpEventListeners();
@@ -778,7 +774,7 @@ export var DragAndDropZone = /*#__PURE__*/function (_React$Component5) {
   }, {
     key: "render",
     value: function render() {
-      var _this7 = this;
+      var _this8 = this;
       var _this$props8 = this.props,
         files = _this$props8.files,
         handleRemoveFile = _this$props8.handleRemoveFile,
@@ -792,7 +788,7 @@ export var DragAndDropZone = /*#__PURE__*/function (_React$Component5) {
         ref: this.fileUploadRef,
         multiple: multiselect,
         onChange: function onChange(e) {
-          return _this7.handleAddFromBrowse(e);
+          return _this8.handleAddFromBrowse(e);
         },
         name: "filesFromBrowse",
         className: "d-none"
@@ -815,7 +811,6 @@ export var DragAndDropZone = /*#__PURE__*/function (_React$Component5) {
       })));
     }
   }]);
-  return DragAndDropZone;
 }(React.Component);
 _defineProperty(DragAndDropZone, "propTypes", {
   /** Callback called when Item is received. Should accept @ID and Item context (not guaranteed) as params. */

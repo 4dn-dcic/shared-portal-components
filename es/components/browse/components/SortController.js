@@ -1,34 +1,30 @@
+import _extends from "@babel/runtime/helpers/extends";
+import _slicedToArray from "@babel/runtime/helpers/slicedToArray";
+import _toConsumableArray from "@babel/runtime/helpers/toConsumableArray";
+import _objectWithoutProperties from "@babel/runtime/helpers/objectWithoutProperties";
+import _classCallCheck from "@babel/runtime/helpers/classCallCheck";
+import _createClass from "@babel/runtime/helpers/createClass";
+import _possibleConstructorReturn from "@babel/runtime/helpers/possibleConstructorReturn";
+import _getPrototypeOf from "@babel/runtime/helpers/getPrototypeOf";
+import _inherits from "@babel/runtime/helpers/inherits";
+import _defineProperty from "@babel/runtime/helpers/defineProperty";
 var _excluded = ["query"],
   _excluded2 = ["children", "context"];
-function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
-function _extends() { _extends = Object.assign ? Object.assign.bind() : function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
-function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
-function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
-function _iterableToArrayLimit(arr, i) { var _i = null == arr ? null : "undefined" != typeof Symbol && arr[Symbol.iterator] || arr["@@iterator"]; if (null != _i) { var _s, _e, _x, _r, _arr = [], _n = !0, _d = !1; try { if (_x = (_i = _i.call(arr)).next, 0 === i) { if (Object(_i) !== _i) return; _n = !1; } else for (; !(_n = (_s = _x.call(_i)).done) && (_arr.push(_s.value), _arr.length !== i); _n = !0); } catch (err) { _d = !0, _e = err; } finally { try { if (!_n && null != _i["return"] && (_r = _i["return"](), Object(_r) !== _r)) return; } finally { if (_d) throw _e; } } return _arr; } }
-function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
-function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
-function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
-function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
-function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter); }
-function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
-function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-function _objectWithoutProperties(source, excluded) { if (source == null) return {}; var target = _objectWithoutPropertiesLoose(source, excluded); var key, i; if (Object.getOwnPropertySymbols) { var sourceSymbolKeys = Object.getOwnPropertySymbols(source); for (i = 0; i < sourceSymbolKeys.length; i++) { key = sourceSymbolKeys[i]; if (excluded.indexOf(key) >= 0) continue; if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue; target[key] = source[key]; } } return target; }
-function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; var sourceKeys = Object.keys(source); var key, i; for (i = 0; i < sourceKeys.length; i++) { key = sourceKeys[i]; if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } return target; }
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, _toPropertyKey(descriptor.key), descriptor); } }
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); Object.defineProperty(subClass, "prototype", { writable: false }); if (superClass) _setPrototypeOf(subClass, superClass); }
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
-function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } else if (call !== void 0) { throw new TypeError("Derived constructors may only return object or undefined"); } return _assertThisInitialized(self); }
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf.bind() : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return _typeof(key) === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (_typeof(input) !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (_typeof(res) !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
+function _callSuper(_this, derived, args) {
+  derived = _getPrototypeOf(derived);
+  return _possibleConstructorReturn(_this, function () {
+    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+    if (Reflect.construct.sham) return false;
+    if (typeof Proxy === "function") return true;
+    try {
+      return !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {}));
+    } catch (e) {
+      return false;
+    }
+  }() ? Reflect.construct(derived, args || [], _getPrototypeOf(_this).constructor) : derived.apply(_this, args));
+}
 import React, { useCallback } from 'react';
 import DropdownButton from 'react-bootstrap/esm/DropdownButton';
 import DropdownItem from 'react-bootstrap/esm/DropdownItem';
@@ -40,21 +36,19 @@ import _ from 'underscore';
 import { navigate as _navigate } from './../../util/navigate';
 import { flattenColumnsDefinitionsSortFields, HeadersRow } from './table-commons';
 export var SortController = /*#__PURE__*/function (_React$PureComponent) {
-  _inherits(SortController, _React$PureComponent);
-  var _super = _createSuper(SortController);
   function SortController(props) {
-    var _this;
+    var _this2;
     _classCallCheck(this, SortController);
-    _this = _super.call(this, props);
-    _this.sortBy = _this.sortBy.bind(_assertThisInitialized(_this));
-    _this.state = {
+    _this2 = _callSuper(this, SortController, [props]);
+    _this2.sortBy = _this2.sortBy.bind(_this2);
+    _this2.state = {
       'changingPage': false
     }; // 'changingPage' = historical name, analogous of 'loading'
 
-    _this.memoized = {
+    _this2.memoized = {
       getSortColumnAndOrderPairs: memoize(MultiColumnSortSelector.getSortColumnAndOrderPairs)
     };
-    return _this;
+    return _this2;
   }
 
   /**
@@ -63,10 +57,11 @@ export var SortController = /*#__PURE__*/function (_React$PureComponent) {
    * to make into POST request if needed. Else will operate w. `requestedCompoundFilterSet`
    * for compound filter-blocks requests.
    */
-  _createClass(SortController, [{
+  _inherits(SortController, _React$PureComponent);
+  return _createClass(SortController, [{
     key: "sortBy",
     value: function sortBy(sortingPairs, callback) {
-      var _this2 = this;
+      var _this3 = this;
       var _this$props = this.props,
         propNavigate = _this$props.navigate,
         _this$props$href = _this$props.href,
@@ -116,7 +111,7 @@ export var SortController = /*#__PURE__*/function (_React$PureComponent) {
         propNavigate(navTarget, {
           'replace': true
         }, function () {
-          _this2.setState({
+          _this3.setState({
             'changingPage': false
           }, callback);
         });
@@ -143,7 +138,6 @@ export var SortController = /*#__PURE__*/function (_React$PureComponent) {
       });
     }
   }]);
-  return SortController;
 }(React.PureComponent);
 _defineProperty(SortController, "propTypes", {
   /** One of 'href' or 'requestedCompoundFilterSet' is required */
@@ -160,31 +154,30 @@ _defineProperty(SortController, "defaultProps", {
   }
 });
 export var MultiColumnSortSelector = /*#__PURE__*/function (_React$PureComponent2) {
-  _inherits(MultiColumnSortSelector, _React$PureComponent2);
-  var _super2 = _createSuper(MultiColumnSortSelector);
   function MultiColumnSortSelector(props) {
-    var _this3;
+    var _this4;
     _classCallCheck(this, MultiColumnSortSelector);
-    _this3 = _super2.call(this, props);
-    _this3.handleSortColumnSelection = _this3.handleSortColumnSelection.bind(_assertThisInitialized(_this3));
-    _this3.handleSortOrderSelection = _this3.handleSortOrderSelection.bind(_assertThisInitialized(_this3));
-    _this3.handleSortRowDelete = _this3.handleSortRowDelete.bind(_assertThisInitialized(_this3));
-    _this3.handleSettingsApply = _this3.handleSettingsApply.bind(_assertThisInitialized(_this3));
-    _this3.memoized = {
+    _this4 = _callSuper(this, MultiColumnSortSelector, [props]);
+    _this4.handleSortColumnSelection = _this4.handleSortColumnSelection.bind(_this4);
+    _this4.handleSortOrderSelection = _this4.handleSortOrderSelection.bind(_this4);
+    _this4.handleSortRowDelete = _this4.handleSortRowDelete.bind(_this4);
+    _this4.handleSettingsApply = _this4.handleSettingsApply.bind(_this4);
+    _this4.memoized = {
       flattenColumnsDefinitionsSortFields: memoize(flattenColumnsDefinitionsSortFields)
     };
     var _props$sortColumns = props.sortColumns,
       sortColumns = _props$sortColumns === void 0 ? [] : _props$sortColumns;
-    _this3.state = {
+    _this4.state = {
       /** @type {{ column: string, direction: "asc"|"desc" }[]} */
       'sortingPairs': [].concat(_toConsumableArray(sortColumns), [{
         'column': null,
         'direction': 'asc'
       }])
     };
-    return _this3;
+    return _this4;
   }
-  _createClass(MultiColumnSortSelector, [{
+  _inherits(MultiColumnSortSelector, _React$PureComponent2);
+  return _createClass(MultiColumnSortSelector, [{
     key: "componentDidUpdate",
     value: function componentDidUpdate(pastProps) {
       var _pastProps$sortColumn = pastProps.sortColumns,
@@ -324,7 +317,6 @@ export var MultiColumnSortSelector = /*#__PURE__*/function (_React$PureComponent
       return columns;
     }
   }]);
-  return MultiColumnSortSelector;
 }(React.PureComponent);
 MultiColumnSortSelector.propTypes = {
   'columnDefinitions': PropTypes.arrayOf(PropTypes.object).isRequired,

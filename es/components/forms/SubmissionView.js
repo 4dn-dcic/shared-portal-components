@@ -1,33 +1,29 @@
-function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
+import _toConsumableArray from "@babel/runtime/helpers/toConsumableArray";
+import _extends from "@babel/runtime/helpers/extends";
+import _objectWithoutProperties from "@babel/runtime/helpers/objectWithoutProperties";
+import _slicedToArray from "@babel/runtime/helpers/slicedToArray";
+import _defineProperty from "@babel/runtime/helpers/defineProperty";
+import _classCallCheck from "@babel/runtime/helpers/classCallCheck";
+import _createClass from "@babel/runtime/helpers/createClass";
+import _possibleConstructorReturn from "@babel/runtime/helpers/possibleConstructorReturn";
+import _getPrototypeOf from "@babel/runtime/helpers/getPrototypeOf";
+import _inherits from "@babel/runtime/helpers/inherits";
 var _excluded = ["context", "navigate"];
-function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
-function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
-function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter); }
-function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
-function _extends() { _extends = Object.assign ? Object.assign.bind() : function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
-function _objectWithoutProperties(source, excluded) { if (source == null) return {}; var target = _objectWithoutPropertiesLoose(source, excluded); var key, i; if (Object.getOwnPropertySymbols) { var sourceSymbolKeys = Object.getOwnPropertySymbols(source); for (i = 0; i < sourceSymbolKeys.length; i++) { key = sourceSymbolKeys[i]; if (excluded.indexOf(key) >= 0) continue; if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue; target[key] = source[key]; } } return target; }
-function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; var sourceKeys = Object.keys(source); var key, i; for (i = 0; i < sourceKeys.length; i++) { key = sourceKeys[i]; if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } return target; }
-function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
-function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
-function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
-function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
-function _iterableToArrayLimit(arr, i) { var _i = null == arr ? null : "undefined" != typeof Symbol && arr[Symbol.iterator] || arr["@@iterator"]; if (null != _i) { var _s, _e, _x, _r, _arr = [], _n = !0, _d = !1; try { if (_x = (_i = _i.call(arr)).next, 0 === i) { if (Object(_i) !== _i) return; _n = !1; } else for (; !(_n = (_s = _x.call(_i)).done) && (_arr.push(_s.value), _arr.length !== i); _n = !0); } catch (err) { _d = !0, _e = err; } finally { try { if (!_n && null != _i["return"] && (_r = _i["return"](), Object(_r) !== _r)) return; } finally { if (_d) throw _e; } } return _arr; } }
-function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, _toPropertyKey(descriptor.key), descriptor); } }
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
-function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return _typeof(key) === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (_typeof(input) !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (_typeof(res) !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); Object.defineProperty(subClass, "prototype", { writable: false }); if (superClass) _setPrototypeOf(subClass, superClass); }
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
-function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } else if (call !== void 0) { throw new TypeError("Derived constructors may only return object or undefined"); } return _assertThisInitialized(self); }
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf.bind() : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+function _callSuper(_this, derived, args) {
+  derived = _getPrototypeOf(derived);
+  return _possibleConstructorReturn(_this, function () {
+    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+    if (Reflect.construct.sham) return false;
+    if (typeof Proxy === "function") return true;
+    try {
+      return !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {}));
+    } catch (e) {
+      return false;
+    }
+  }() ? Reflect.construct(derived, args || [], _getPrototypeOf(_this).constructor) : derived.apply(_this, args));
+}
 import React from 'react';
 import _ from 'underscore';
 import url from 'url';
@@ -74,13 +70,11 @@ import { BuildField, AliasInputField, isValueNull } from './components/submissio
  * @prop {boolean} edit     Is this an Item being edited?
  */
 var SubmissionView = /*#__PURE__*/function (_React$PureComponent) {
-  _inherits(SubmissionView, _React$PureComponent);
-  var _super = _createSuper(SubmissionView);
   function SubmissionView(props) {
-    var _this;
+    var _this2;
     _classCallCheck(this, SubmissionView);
-    _this = _super.call(this, props);
-    _.bindAll(_assertThisInitialized(_this), 'modifyKeyContext', 'initializePrincipal', 'initCreateObj', 'initCreateAlias', 'submitAmbiguousType', 'buildAmbiguousEnumEntry', 'handleTypeSelection', 'handleAliasChange', 'handleAliasLabChange', 'submitAlias', 'modifyAlias', 'createObj', 'removeObj', 'initExistingObj', 'addExistingObj', 'setSubmissionState', 'updateUpload', 'testPostNewContext', 'realPostNewContext', 'removeNullsFromContext', 'checkRoundTwo', 'buildDeleteFields', 'modifyMD5Progess', 'submitObject', 'finishRoundTwo', 'cancelCreateNewObject', 'cancelCreatePrimaryObject');
+    _this2 = _callSuper(this, SubmissionView, [props]);
+    _.bindAll(_this2, 'modifyKeyContext', 'initializePrincipal', 'initCreateObj', 'initCreateAlias', 'submitAmbiguousType', 'buildAmbiguousEnumEntry', 'handleTypeSelection', 'handleAliasChange', 'handleAliasLabChange', 'submitAlias', 'modifyAlias', 'createObj', 'removeObj', 'initExistingObj', 'addExistingObj', 'setSubmissionState', 'updateUpload', 'testPostNewContext', 'realPostNewContext', 'removeNullsFromContext', 'checkRoundTwo', 'buildDeleteFields', 'modifyMD5Progess', 'submitObject', 'finishRoundTwo', 'cancelCreateNewObject', 'cancelCreatePrimaryObject');
 
     /**
      * *** DETAIL ON THIS.STATE ***
@@ -118,7 +112,7 @@ var SubmissionView = /*#__PURE__*/function (_React$PureComponent) {
      * @prop {!string} uploadStatus             Holds message relevant to file BuildField. Reset to null when currKey changes.
      * @prop {!Object} currentSubmittingUser    Holds current/submitting User Item; used primarily for submission permission(s) and autosuggesting an alias.
      */
-    _this.state = {
+    _this2.state = {
       'keyContext': null,
       'keyValid': null,
       'keyTypes': null,
@@ -161,14 +155,15 @@ var SubmissionView = /*#__PURE__*/function (_React$PureComponent) {
       'create': props.currentAction === 'create' || props.currentAction === 'add',
       'callbackHref': null // Where we navigate to after submission
     };
-    return _this;
+    return _this2;
   }
 
   /**
    * Call initializePrincipal to get state set up, but only if schemas are
    * available.
    */
-  _createClass(SubmissionView, [{
+  _inherits(SubmissionView, _React$PureComponent);
+  return _createClass(SubmissionView, [{
     key: "componentDidMount",
     value: function componentDidMount() {
       var schemas = this.props.schemas;
@@ -257,7 +252,7 @@ var SubmissionView = /*#__PURE__*/function (_React$PureComponent) {
   }, {
     key: "initializePrincipal",
     value: function initializePrincipal() {
-      var _this2 = this;
+      var _this3 = this;
       var _this$props2 = this.props,
         context = _this$props2.context,
         schemas = _this$props2.schemas,
@@ -314,7 +309,7 @@ var SubmissionView = /*#__PURE__*/function (_React$PureComponent) {
           // We may not have schema (if Abstract type). If so, leave empty and allow initCreateObj ... -> createObj() to create it.
           if (schema) keyContext["0"] = buildContext({}, schema, bookmarksList, edit, create);
           keyLinkBookmarks["0"] = bookmarksList;
-          _this2.setState({
+          _this3.setState({
             keyContext: keyContext,
             keyValid: keyValid,
             keyTypes: keyTypes,
@@ -324,7 +319,7 @@ var SubmissionView = /*#__PURE__*/function (_React$PureComponent) {
             currKey: 0,
             callbackHref: callbackHref
           }, function () {
-            _this2.initCreateObj(principalType, 0, 'Primary Object');
+            _this3.initCreateObj(principalType, 0, 'Primary Object');
           });
         } else {
           // get the DB result to avoid any possible indexing hang-ups
@@ -346,7 +341,7 @@ var SubmissionView = /*#__PURE__*/function (_React$PureComponent) {
               keyContext["0"] = buildContext({}, schema, bookmarksList, edit, create);
               keyLinkBookmarks["0"] = bookmarksList;
             }
-            _this2.setState({
+            _this3.setState({
               keyContext: keyContext,
               keyValid: keyValid,
               keyTypes: keyTypes,
@@ -358,13 +353,13 @@ var SubmissionView = /*#__PURE__*/function (_React$PureComponent) {
               _.forEach(initObjs, function (initObj) {
                 // We get 'path' as display in buildContext->delveExistingObj.. so override here.
                 initObj.display = keyDisplay[initObj.path] || initObj.display;
-                _this2.initExistingObj(initObj);
+                _this3.initExistingObj(initObj);
               });
               // if we are cloning and there is not an existing alias
               // never prompt alias creation on edit
               // do not initiate ambiguous type lookup on edit or create
               if (!edit && !existingAlias) {
-                _this2.initCreateObj(principalType, 0, 'Primary Object', true);
+                _this3.initCreateObj(principalType, 0, 'Primary Object', true);
               }
             });
           });
@@ -375,7 +370,7 @@ var SubmissionView = /*#__PURE__*/function (_React$PureComponent) {
 
       // Grab current user via AJAX and store to state. To use for alias auto-generation using current user's top submits_for lab name.
       ajax.load(userHref + '?frame=embedded', function (r) {
-        _this2.setState({
+        _this3.setState({
           'currentSubmittingUser': r
         }, continueInitProcess);
       }, 'GET', continueInitProcess);
@@ -539,7 +534,7 @@ var SubmissionView = /*#__PURE__*/function (_React$PureComponent) {
   }, {
     key: "submitAlias",
     value: function submitAlias(e) {
-      var _this3 = this;
+      var _this4 = this;
       e.preventDefault();
       e.stopPropagation();
       var schemas = this.props.schemas;
@@ -576,7 +571,7 @@ var SubmissionView = /*#__PURE__*/function (_React$PureComponent) {
         // see if the input alias is already being used
         ajax.promise('/' + alias).then(function (data) {
           if (data && data.title && data.title === "Not Found") {
-            _this3.createObj(type, newIdx, newLink, alias, {
+            _this4.createObj(type, newIdx, newLink, alias, {
               'creatingIdx': null,
               'creatingType': null,
               'creatingLink': null,
@@ -585,7 +580,7 @@ var SubmissionView = /*#__PURE__*/function (_React$PureComponent) {
               'creatingLinkForField': null
             });
           } else {
-            _this3.setState({
+            _this4.setState({
               'creatingAliasMessage': 'ERROR. That alias is already taken.'
             });
             return false;
@@ -980,7 +975,7 @@ var SubmissionView = /*#__PURE__*/function (_React$PureComponent) {
   }, {
     key: "updateUpload",
     value: function updateUpload(uploadInfo) {
-      var _this4 = this;
+      var _this5 = this;
       var completed = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
       var failed = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
       var stateToSet = {};
@@ -1000,7 +995,7 @@ var SubmissionView = /*#__PURE__*/function (_React$PureComponent) {
           // doesn't really matter what response is
           stateToSet.uploadStatus = 'Upload failed';
           stateToSet.upload = null;
-          _this4.setState(stateToSet);
+          _this5.setState(stateToSet);
         });
       } else {
         // must be the initial run
@@ -1012,7 +1007,7 @@ var SubmissionView = /*#__PURE__*/function (_React$PureComponent) {
         if (file === null) return;
         getLargeMD5(file, this.modifyMD5Progess).then(function (hash) {
           // perform async patch to set md5sum field of the file
-          var destination = _this4.state.keyComplete[_this4.state.currKey];
+          var destination = _this5.state.keyComplete[_this5.state.currKey];
           var payload = JSON.stringify({
             'md5sum': hash
           });
@@ -1022,24 +1017,24 @@ var SubmissionView = /*#__PURE__*/function (_React$PureComponent) {
               stateToSet.upload = uploadInfo;
               stateToSet.md5Progress = null;
               stateToSet.uploadStatus = null;
-              _this4.setState(stateToSet);
+              _this5.setState(stateToSet);
             } else if (data.status && data.title && data.status == 'error' && data.title == 'Conflict') {
               // md5 key conflict
               stateToSet.uploadStatus = 'MD5 conflicts with another file';
               stateToSet.md5Progress = null;
-              _this4.setState(stateToSet);
+              _this5.setState(stateToSet);
             } else {
               // error setting md5
               stateToSet.uploadStatus = 'MD5 calculation error';
               stateToSet.md5Progress = null;
-              _this4.setState(stateToSet);
+              _this5.setState(stateToSet);
             }
           });
         })["catch"](function () {
           stateToSet.uploadStatus = 'MD5 calculation error';
           stateToSet.file = null;
           stateToSet.md5Progress = null;
-          _this4.setState(stateToSet);
+          _this5.setState(stateToSet);
         });
       }
     }
@@ -1114,7 +1109,7 @@ var SubmissionView = /*#__PURE__*/function (_React$PureComponent) {
   }, {
     key: "buildDeleteFields",
     value: function buildDeleteFields(patchContext, origContext, schema) {
-      var _this5 = this;
+      var _this6 = this;
       var deleteFields = [];
       // must remove nulls from the orig copy to sync with patchContext
       var origCopy = object.deepClone(origContext);
@@ -1146,11 +1141,11 @@ var SubmissionView = /*#__PURE__*/function (_React$PureComponent) {
           }
           // check round two fields if the parameter roundTwo is set
           if (fieldSchema.ff_flag && fieldSchema.ff_flag == 'second round') {
-            if (_this5.state.roundTwo) deleteFields.push(field);
+            if (_this6.state.roundTwo) deleteFields.push(field);
             return;
           }
           // if we're here, the submission field was legitimately deleted
-          if (!_this5.state.roundTwo) deleteFields.push(field);
+          if (!_this6.state.roundTwo) deleteFields.push(field);
         }
       });
       return deleteFields;
@@ -1196,7 +1191,7 @@ var SubmissionView = /*#__PURE__*/function (_React$PureComponent) {
   }, {
     key: "submitObject",
     value: function submitObject(inKey) {
-      var _this6 = this;
+      var _this7 = this;
       var test = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
       var suppressWarnings = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
       console.log.apply(console, ["SUBMITOBJ"].concat(Array.prototype.slice.call(arguments)));
@@ -1309,12 +1304,12 @@ var SubmissionView = /*#__PURE__*/function (_React$PureComponent) {
           actionMethod = 'PATCH';
           var alreadySubmittedContext = keyContext[destination];
           // roundTwo flag set to true for second round
-          deleteFields = _this6.buildDeleteFields(finalizedContext, alreadySubmittedContext, currSchema);
+          deleteFields = _this7.buildDeleteFields(finalizedContext, alreadySubmittedContext, currSchema);
         } else if (edit && inKey === 0) {
           // submitting the principal object
           destination = object.itemUtil.atId(context);
           actionMethod = 'PATCH';
-          deleteFields = _this6.buildDeleteFields(finalizedContext, context, currSchema);
+          deleteFields = _this7.buildDeleteFields(finalizedContext, context, currSchema);
         } else {
           // submitting a new object
           destination = '/' + currType + '/';
@@ -1362,14 +1357,14 @@ var SubmissionView = /*#__PURE__*/function (_React$PureComponent) {
               setTimeout(layout.animateScrollTo(0), 100); // scroll to top
             }
 
-            _this6.setState(stateToSet);
+            _this7.setState(stateToSet);
           } else {
             // response successful
             var responseData;
             var submitted_at_id;
             if (test) {
               stateToSet.keyValid[inKey] = 3;
-              _this6.setState(stateToSet);
+              _this7.setState(stateToSet);
               return;
             } else {
               var _response$Graph = _slicedToArray(response['@graph'], 1);
@@ -1401,14 +1396,14 @@ var SubmissionView = /*#__PURE__*/function (_React$PureComponent) {
                     // file will be uploaded to s3. If all of this
                     // is succesful, call finishRoundTwo.
                     stateToSet.uploadStatus = null;
-                    _this6.setState(stateToSet);
-                    _this6.updateUpload(upload_manager);
+                    _this7.setState(stateToSet);
+                    _this7.updateUpload(upload_manager);
                   }
                 });
               } else {
                 // state cleanup for this key
-                _this6.finishRoundTwo();
-                _this6.setState(stateToSet);
+                _this7.finishRoundTwo();
+                _this7.setState(stateToSet);
               }
             } else {
               // posted new object; need to re-key this item
@@ -1468,7 +1463,7 @@ var SubmissionView = /*#__PURE__*/function (_React$PureComponent) {
               stateToSet.keyValid[submitted_at_id] = 4;
 
               // update roundTwoKeys if necessary
-              var needsRoundTwo = _this6.checkRoundTwo(currSchema);
+              var needsRoundTwo = _this7.checkRoundTwo(currSchema);
               if (needsRoundTwo && !_.contains(roundTwoCopy, inKey)) {
                 // was getting an error where this could be str
                 roundTwoCopy.push(parseInt(inKey));
@@ -1492,7 +1487,7 @@ var SubmissionView = /*#__PURE__*/function (_React$PureComponent) {
                     stateToSet.keyValid[roundTwoCopy[i]] = 0;
                   }
                   alert('Success! All objects were submitted. However, one or more have additional fields that can be only filled in second round submission. You will now be guided through this process for each object.');
-                  _this6.setState(stateToSet);
+                  _this7.setState(stateToSet);
                 }
               } else {
                 // Check if parent validation state will change based on current submission... update that alongside rest of state, if so
@@ -1506,7 +1501,7 @@ var SubmissionView = /*#__PURE__*/function (_React$PureComponent) {
                 // console.log("inKey: ", inKey);
 
                 alert(keyDisplay[inKey] + ' was successfully submitted.');
-                _this6.setState(stateToSet);
+                _this7.setState(stateToSet);
               }
             }
             ReactTooltip.rebuild();
@@ -1537,7 +1532,7 @@ var SubmissionView = /*#__PURE__*/function (_React$PureComponent) {
   }, {
     key: "finishRoundTwo",
     value: function finishRoundTwo() {
-      var _this7 = this;
+      var _this8 = this;
       this.setState(function (_ref8) {
         var currKey = _ref8.currKey,
           keyValid = _ref8.keyValid,
@@ -1560,14 +1555,14 @@ var SubmissionView = /*#__PURE__*/function (_React$PureComponent) {
           roundTwoKeys: roundTwoCopy
         };
       }, function () {
-        var _this7$props = _this7.props,
-          setIsSubmitting = _this7$props.setIsSubmitting,
-          propNavigate = _this7$props.navigate;
-        var _this7$state = _this7.state,
-          keyComplete = _this7$state.keyComplete,
-          _this7$state$roundTwo = _this7$state.roundTwoKeys,
-          roundTwoKeys = _this7$state$roundTwo === void 0 ? [] : _this7$state$roundTwo,
-          callbackHref = _this7$state.callbackHref;
+        var _this8$props = _this8.props,
+          setIsSubmitting = _this8$props.setIsSubmitting,
+          propNavigate = _this8$props.navigate;
+        var _this8$state = _this8.state,
+          keyComplete = _this8$state.keyComplete,
+          _this8$state$roundTwo = _this8$state.roundTwoKeys,
+          roundTwoKeys = _this8$state$roundTwo === void 0 ? [] : _this8$state$roundTwo,
+          callbackHref = _this8$state.callbackHref;
         if (roundTwoKeys.length === 0) {
           // we're done!
           setIsSubmitting(false, function () {
@@ -1786,7 +1781,6 @@ var SubmissionView = /*#__PURE__*/function (_React$PureComponent) {
       return principalDisplay;
     }
   }]);
-  return SubmissionView;
 }(React.PureComponent);
 /**
  * Generate JSX for a validation button. Disabled unless validation state == 1
@@ -1948,21 +1942,20 @@ var WarningBanner = /*#__PURE__*/React.memo(function (props) {
   }, children))));
 });
 var DetailTitleBanner = /*#__PURE__*/function (_React$PureComponent2) {
-  _inherits(DetailTitleBanner, _React$PureComponent2);
-  var _super2 = _createSuper(DetailTitleBanner);
   function DetailTitleBanner(props) {
-    var _this8;
+    var _this9;
     _classCallCheck(this, DetailTitleBanner);
-    _this8 = _super2.call(this, props);
-    _this8.generateCrumbTitle = _this8.generateCrumbTitle.bind(_assertThisInitialized(_this8));
-    _this8.toggleOpen = _.throttle(_this8.toggleOpen.bind(_assertThisInitialized(_this8)), 500);
-    _this8.generateHierarchicalTitles = _this8.generateHierarchicalTitles.bind(_assertThisInitialized(_this8));
-    _this8.state = {
+    _this9 = _callSuper(this, DetailTitleBanner, [props]);
+    _this9.generateCrumbTitle = _this9.generateCrumbTitle.bind(_this9);
+    _this9.toggleOpen = _.throttle(_this9.toggleOpen.bind(_this9), 500);
+    _this9.generateHierarchicalTitles = _this9.generateHierarchicalTitles.bind(_this9);
+    _this9.state = {
       'open': true
     };
-    return _this8;
+    return _this9;
   }
-  _createClass(DetailTitleBanner, [{
+  _inherits(DetailTitleBanner, _React$PureComponent2);
+  return _createClass(DetailTitleBanner, [{
     key: "handleClick",
     value: function handleClick(keyIdx, e) {
       e.preventDefault();
@@ -2113,21 +2106,19 @@ var DetailTitleBanner = /*#__PURE__*/function (_React$PureComponent2) {
       return foundPropertyName;
     }
   }]);
-  return DetailTitleBanner;
 }(React.PureComponent);
 /** TODO: DropdownButton to be v4 bootstrap compliant */
 var TypeSelectModal = /*#__PURE__*/function (_React$Component) {
-  _inherits(TypeSelectModal, _React$Component);
-  var _super3 = _createSuper(TypeSelectModal);
   function TypeSelectModal(props) {
-    var _this9;
+    var _this10;
     _classCallCheck(this, TypeSelectModal);
-    _this9 = _super3.call(this, props);
-    _this9.onHide = _this9.onHide.bind(_assertThisInitialized(_this9));
-    _this9.onContainerKeyDown = _this9.onContainerKeyDown.bind(_assertThisInitialized(_this9));
-    return _this9;
+    _this10 = _callSuper(this, TypeSelectModal, [props]);
+    _this10.onHide = _this10.onHide.bind(_this10);
+    _this10.onContainerKeyDown = _this10.onContainerKeyDown.bind(_this10);
+    return _this10;
   }
-  _createClass(TypeSelectModal, [{
+  _inherits(TypeSelectModal, _React$Component);
+  return _createClass(TypeSelectModal, [{
     key: "onHide",
     value: function onHide() {
       var _this$props9 = this.props,
@@ -2200,17 +2191,15 @@ var TypeSelectModal = /*#__PURE__*/function (_React$Component) {
       }, "Submit"))));
     }
   }]);
-  return TypeSelectModal;
 }(React.Component);
 /** Ordinary React Component which just inherits TypeSelectModal.onHide() */
 var AliasSelectModal = /*#__PURE__*/function (_TypeSelectModal) {
-  _inherits(AliasSelectModal, _TypeSelectModal);
-  var _super4 = _createSuper(AliasSelectModal);
   function AliasSelectModal() {
     _classCallCheck(this, AliasSelectModal);
-    return _super4.apply(this, arguments);
+    return _callSuper(this, AliasSelectModal, arguments);
   }
-  _createClass(AliasSelectModal, [{
+  _inherits(AliasSelectModal, _TypeSelectModal);
+  return _createClass(AliasSelectModal, [{
     key: "render",
     value: function render() {
       var _this$props11 = this.props,
@@ -2257,7 +2246,6 @@ var AliasSelectModal = /*#__PURE__*/function (_TypeSelectModal) {
       }, "Submit")))));
     }
   }]);
-  return AliasSelectModal;
 }(TypeSelectModal);
 /**
  * Main view for editing a specific object. This includes all non-same level
@@ -2274,13 +2262,11 @@ var AliasSelectModal = /*#__PURE__*/function (_TypeSelectModal) {
  * Use _.bindAll, make sure setState is using functional updater anywhere state update may derive from other state.
  */
 var IndividualObjectView = /*#__PURE__*/function (_React$Component2) {
-  _inherits(IndividualObjectView, _React$Component2);
-  var _super5 = _createSuper(IndividualObjectView);
   function IndividualObjectView(props) {
-    var _this10;
+    var _this11;
     _classCallCheck(this, IndividualObjectView);
-    _this10 = _super5.call(this, props);
-    _.bindAll(_assertThisInitialized(_this10), 'modifyNewContext', 'fetchAndValidateItem', 'selectObj', 'selectComplete', 'selectCancel', 'initiateField');
+    _this11 = _callSuper(this, IndividualObjectView, [props]);
+    _.bindAll(_this11, 'modifyNewContext', 'fetchAndValidateItem', 'selectObj', 'selectComplete', 'selectCancel', 'initiateField');
 
     /**
      * State in this component mostly has to do with selection of existing objs
@@ -2289,12 +2275,12 @@ var IndividualObjectView = /*#__PURE__*/function (_React$Component2) {
      * @prop {!string} selectField          Actual fieldname that we're selecting the existing obj for. May be nested in the case of subobjects, e.g. experiments_in_set.experiment
      * @prop {!number[]} selectArrayIdx     List of int numbers keeping track of list positions of the object we're selecting for. Since you can have arrays within arrays, one int won't do. Example: [1,2] would mean the current field is the second item within the first item of the array given by the top level field. When null, no arrays involved.
      */
-    _this10.state = {
+    _this11.state = {
       'selectType': null,
       'selectField': null,
       'selectArrayIdx': null
     };
-    return _this10;
+    return _this11;
   }
 
   // componentDidUpdate(pastProps, pastState) {
@@ -2328,7 +2314,8 @@ var IndividualObjectView = /*#__PURE__*/function (_React$Component2) {
    *
    * TODO: Examine why newLink isn't being used anywhere; what was it for, why did it disappear? Should it be in use?
    */
-  _createClass(IndividualObjectView, [{
+  _inherits(IndividualObjectView, _React$Component2);
+  return _createClass(IndividualObjectView, [{
     key: "modifyNewContext",
     value: function modifyNewContext(field, value, fieldType) {
       var arrayIdx = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : null;
@@ -2434,7 +2421,7 @@ var IndividualObjectView = /*#__PURE__*/function (_React$Component2) {
   }, {
     key: "fetchAndValidateItem",
     value: function fetchAndValidateItem(itemAtID, field, type, arrayIdx) {
-      var _this11 = this;
+      var _this12 = this;
       arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : null;
       // console.log(`calling fetchAndValidateItem(
       //     field=${field},
@@ -2451,14 +2438,14 @@ var IndividualObjectView = /*#__PURE__*/function (_React$Component2) {
           "style": "danger"
         });
         layout.animateScrollTo(0); // Scroll to top of page so alert is visible to end-user.
-        _this11.modifyNewContext(field, null, 'existing linked object', null, arrayIdx);
+        _this12.modifyNewContext(field, null, 'existing linked object', null, arrayIdx);
       };
       var successCallback = function (result) {
         // console.log("fetchAndValidateItem successfully found: ", result);
         Alerts.deQueue({
           'title': failureAlertTitle
         });
-        _this11.modifyNewContext(field, result['@id'], 'existing linked object', result['@type'][1], arrayIdx, result.display_title);
+        _this12.modifyNewContext(field, result['@id'], 'existing linked object', result['@type'][1], arrayIdx, result.display_title);
         addExistingObj(itemAtID, result.display_title, type, field, false);
       };
       if (typeof hrefToFetch !== 'string') {
@@ -2524,7 +2511,7 @@ var IndividualObjectView = /*#__PURE__*/function (_React$Component2) {
   }, {
     key: "selectComplete",
     value: function selectComplete(atIds) {
-      var _this12 = this;
+      var _this13 = this;
       var customSelectField = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
       var customSelectType = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
       var customArrayIdx = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
@@ -2552,7 +2539,7 @@ var IndividualObjectView = /*#__PURE__*/function (_React$Component2) {
         var currentlySelectedIds = selectField && currContext[selectField];
         var isRepeat = Array.isArray(currentlySelectedIds) && _.contains(currentlySelectedIds, atId);
         if (!isRepeat) {
-          _this12.fetchAndValidateItem(atId, selectField, customSelectType || stateSelectType, isInArray ? nextArrayIndices.slice() : null, null);
+          _this13.fetchAndValidateItem(atId, selectField, customSelectType || stateSelectType, isInArray ? nextArrayIndices.slice() : null, null);
           if (isMultiSelect) {
             // Sets up nextArrayIndices for next Item being added in multiselect
             nextArrayIndices[nextArrayIndices.length - 1]++;
@@ -2562,14 +2549,14 @@ var IndividualObjectView = /*#__PURE__*/function (_React$Component2) {
             // if the only value, just "replace" the value so it doesn't get deleted from state
             // this can also serve to update the display title if, say, a recently created item is indexed and then
             // reselected from dropdown
-            _this12.modifyNewContext(selectField, atId, 'existing linked object', null, selectArrayIdx);
+            _this13.modifyNewContext(selectField, atId, 'existing linked object', null, selectArrayIdx);
           } else {
             // check if the repeat is the current field; if it is, "replace" it.
             if (currentlySelectedIds[selectArrayIdx] === atId) {
-              _this12.modifyNewContext(selectField, atId, 'existing linked object', null, selectArrayIdx);
+              _this13.modifyNewContext(selectField, atId, 'existing linked object', null, selectArrayIdx);
             } else {
               // don't allow a "replacement"; cancel
-              _this12.modifyNewContext(selectField, null, 'existing linked object', null, selectArrayIdx);
+              _this13.modifyNewContext(selectField, null, 'existing linked object', null, selectArrayIdx);
             }
           }
         }
@@ -2752,7 +2739,6 @@ var IndividualObjectView = /*#__PURE__*/function (_React$Component2) {
       }) : null);
     }
   }]);
-  return IndividualObjectView;
 }(React.Component);
 var FormFieldsContainer = /*#__PURE__*/React.memo(function (props) {
   var children = props.children,
@@ -2776,19 +2762,18 @@ FormFieldsContainer.defaultProps = {
  * and schemas passed to it.
  */
 var RoundTwoDetailPanel = /*#__PURE__*/function (_React$PureComponent3) {
-  _inherits(RoundTwoDetailPanel, _React$PureComponent3);
-  var _super6 = _createSuper(RoundTwoDetailPanel);
   function RoundTwoDetailPanel(props) {
-    var _this13;
+    var _this14;
     _classCallCheck(this, RoundTwoDetailPanel);
-    _this13 = _super6.call(this, props);
-    _this13.handleToggle = _this13.handleToggle.bind(_assertThisInitialized(_this13));
-    _this13.state = {
+    _this14 = _callSuper(this, RoundTwoDetailPanel, [props]);
+    _this14.handleToggle = _this14.handleToggle.bind(_this14);
+    _this14.state = {
       'open': props.open || false
     };
-    return _this13;
+    return _this14;
   }
-  _createClass(RoundTwoDetailPanel, [{
+  _inherits(RoundTwoDetailPanel, _React$PureComponent3);
+  return _createClass(RoundTwoDetailPanel, [{
     key: "handleToggle",
     value: function handleToggle(e) {
       e.preventDefault();
@@ -2829,5 +2814,4 @@ var RoundTwoDetailPanel = /*#__PURE__*/function (_React$PureComponent3) {
       }))));
     }
   }]);
-  return RoundTwoDetailPanel;
 }(React.PureComponent);

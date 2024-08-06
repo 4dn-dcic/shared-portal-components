@@ -1,29 +1,28 @@
-function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
+import _slicedToArray from "@babel/runtime/helpers/slicedToArray";
+import _extends from "@babel/runtime/helpers/extends";
+import _defineProperty from "@babel/runtime/helpers/defineProperty";
+import _objectWithoutProperties from "@babel/runtime/helpers/objectWithoutProperties";
+import _classCallCheck from "@babel/runtime/helpers/classCallCheck";
+import _createClass from "@babel/runtime/helpers/createClass";
+import _possibleConstructorReturn from "@babel/runtime/helpers/possibleConstructorReturn";
+import _getPrototypeOf from "@babel/runtime/helpers/getPrototypeOf";
+import _inherits from "@babel/runtime/helpers/inherits";
 var _excluded = ["optionsHeader", "value", "keyComplete"];
-function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
-function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
-function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
-function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
-function _iterableToArrayLimit(arr, i) { var _i = null == arr ? null : "undefined" != typeof Symbol && arr[Symbol.iterator] || arr["@@iterator"]; if (null != _i) { var _s, _e, _x, _r, _arr = [], _n = !0, _d = !1; try { if (_x = (_i = _i.call(arr)).next, 0 === i) { if (Object(_i) !== _i) return; _n = !1; } else for (; !(_n = (_s = _x.call(_i)).done) && (_arr.push(_s.value), _arr.length !== i); _n = !0); } catch (err) { _d = !0, _e = err; } finally { try { if (!_n && null != _i["return"] && (_r = _i["return"](), Object(_r) !== _r)) return; } finally { if (_d) throw _e; } } return _arr; } }
-function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
-function _extends() { _extends = Object.assign ? Object.assign.bind() : function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-function _objectWithoutProperties(source, excluded) { if (source == null) return {}; var target = _objectWithoutPropertiesLoose(source, excluded); var key, i; if (Object.getOwnPropertySymbols) { var sourceSymbolKeys = Object.getOwnPropertySymbols(source); for (i = 0; i < sourceSymbolKeys.length; i++) { key = sourceSymbolKeys[i]; if (excluded.indexOf(key) >= 0) continue; if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue; target[key] = source[key]; } } return target; }
-function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; var sourceKeys = Object.keys(source); var key, i; for (i = 0; i < sourceKeys.length; i++) { key = sourceKeys[i]; if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } return target; }
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, _toPropertyKey(descriptor.key), descriptor); } }
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
-function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return _typeof(key) === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (_typeof(input) !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (_typeof(res) !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); Object.defineProperty(subClass, "prototype", { writable: false }); if (superClass) _setPrototypeOf(subClass, superClass); }
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
-function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } else if (call !== void 0) { throw new TypeError("Derived constructors may only return object or undefined"); } return _assertThisInitialized(self); }
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf.bind() : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+function _callSuper(_this, derived, args) {
+  derived = _getPrototypeOf(derived);
+  return _possibleConstructorReturn(_this, function () {
+    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+    if (Reflect.construct.sham) return false;
+    if (typeof Proxy === "function") return true;
+    try {
+      return !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {}));
+    } catch (e) {
+      return false;
+    }
+  }() ? Reflect.construct(derived, args || [], _getPrototypeOf(_this).constructor) : derived.apply(_this, args));
+}
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
@@ -34,29 +33,28 @@ import { Alerts } from './../../ui/Alerts';
 import { LinkToSelector } from './LinkToSelector';
 import { SearchSelectionMenu } from './SearchSelectionMenu';
 export var SearchAsYouTypeAjax = /*#__PURE__*/function (_React$PureComponent) {
-  _inherits(SearchAsYouTypeAjax, _React$PureComponent);
-  var _super = _createSuper(SearchAsYouTypeAjax);
   function SearchAsYouTypeAjax(props) {
-    var _this;
+    var _this2;
     _classCallCheck(this, SearchAsYouTypeAjax);
-    _this = _super.call(this, props);
-    _this.state = {
+    _this2 = _callSuper(this, SearchAsYouTypeAjax, [props]);
+    _this2.state = {
       results: [],
       currentTextValue: props.value || "",
       loading: true,
       // starts out by loading base RequestURL
       error: null
     };
-    _this.currentRequest = null;
-    _this.hasBeenOpened = false;
-    _this.onLoadData = _.debounce(_this.onLoadData.bind(_assertThisInitialized(_this)), 500, false);
-    _this.constructFetchURL = _this.constructFetchURL.bind(_assertThisInitialized(_this));
-    _this.onTextInputChange = _this.onTextInputChange.bind(_assertThisInitialized(_this));
-    _this.onDropdownSelect = _this.onDropdownSelect.bind(_assertThisInitialized(_this));
-    _this.onToggleOpen = _this.onToggleOpen.bind(_assertThisInitialized(_this));
-    return _this;
+    _this2.currentRequest = null;
+    _this2.hasBeenOpened = false;
+    _this2.onLoadData = _.debounce(_this2.onLoadData.bind(_this2), 500, false);
+    _this2.constructFetchURL = _this2.constructFetchURL.bind(_this2);
+    _this2.onTextInputChange = _this2.onTextInputChange.bind(_this2);
+    _this2.onDropdownSelect = _this2.onDropdownSelect.bind(_this2);
+    _this2.onToggleOpen = _this2.onToggleOpen.bind(_this2);
+    return _this2;
   }
-  _createClass(SearchAsYouTypeAjax, [{
+  _inherits(SearchAsYouTypeAjax, _React$PureComponent);
+  return _createClass(SearchAsYouTypeAjax, [{
     key: "componentDidUpdate",
     value: function componentDidUpdate(pastProps, pastState) {
       var pastSelectedID = pastProps.value;
@@ -109,29 +107,29 @@ export var SearchAsYouTypeAjax = /*#__PURE__*/function (_React$PureComponent) {
   }, {
     key: "onLoadData",
     value: function onLoadData() {
-      var _this2 = this;
+      var _this3 = this;
       this.setState({
         loading: true
       }, function () {
-        if (_this2.currentRequest) {
+        if (_this3.currentRequest) {
           // if there's already a request running, abort it
-          _this2.currentRequest.abort && _this2.currentRequest.abort();
+          _this3.currentRequest.abort && _this3.currentRequest.abort();
         }
-        var requestInThisScope = _this2.currentRequest = ajax.load(_this2.constructFetchURL(), function (response) {
-          if (requestInThisScope !== _this2.currentRequest) {
+        var requestInThisScope = _this3.currentRequest = ajax.load(_this3.constructFetchURL(), function (response) {
+          if (requestInThisScope !== _this3.currentRequest) {
             return false; // some other request has been fired; cancel this one
           }
 
-          _this2.currentRequest = null;
+          _this3.currentRequest = null;
           if (!response || Object.keys(response).length === 0) {
-            _this2.setState({
+            _this3.setState({
               loading: false,
               results: [],
               error: "Could not get a response from server. Check network and try again."
             });
             return;
           }
-          _this2.setState({
+          _this3.setState({
             loading: false,
             results: response['@graph'],
             error: null
@@ -145,10 +143,10 @@ export var SearchAsYouTypeAjax = /*#__PURE__*/function (_React$PureComponent) {
             error = _response$error === void 0 ? null : _response$error;
           var status = xhr.status,
             statusText = xhr.statusText;
-          _this2.currentRequest = null;
+          _this3.currentRequest = null;
           if (graph.length === 0) {
             // handle case in which no results found
-            _this2.setState({
+            _this3.setState({
               loading: false,
               results: results,
               error: null
@@ -156,7 +154,7 @@ export var SearchAsYouTypeAjax = /*#__PURE__*/function (_React$PureComponent) {
           } else if (error) {
             // handle more general errors (should we display the actual error message to users?)
             logger.error("Status code " + status + " encountered. " + statusText);
-            _this2.setState({
+            _this3.setState({
               loading: false,
               results: results,
               error: error || "Something went wrong while handling this request."
@@ -241,7 +239,6 @@ export var SearchAsYouTypeAjax = /*#__PURE__*/function (_React$PureComponent) {
       }));
     }
   }]);
-  return SearchAsYouTypeAjax;
 }(React.PureComponent);
 SearchAsYouTypeAjax.propTypes = {
   "value": PropTypes.any,
@@ -497,25 +494,24 @@ export var optionCustomizationsByType = {
 
 /** Case for a linked object. */
 export var LinkedObj = /*#__PURE__*/function (_React$PureComponent2) {
-  _inherits(LinkedObj, _React$PureComponent2);
-  var _super2 = _createSuper(LinkedObj);
   function LinkedObj(props) {
-    var _this3;
+    var _this4;
     _classCallCheck(this, LinkedObj);
-    _this3 = _super2.call(this, props);
-    _this3.setSubmissionStateToLinkedToItem = _this3.setSubmissionStateToLinkedToItem.bind(_assertThisInitialized(_this3));
-    _this3.handleStartSelectItem = _this3.handleStartSelectItem.bind(_assertThisInitialized(_this3));
-    _this3.handleFinishSelectItem = _this3.handleFinishSelectItem.bind(_assertThisInitialized(_this3));
-    _this3.handleCreateNewItemClick = _this3.handleCreateNewItemClick.bind(_assertThisInitialized(_this3));
-    _this3.handleTextInputChange = _this3.handleTextInputChange.bind(_assertThisInitialized(_this3));
-    _this3.handleAcceptTypedID = _this3.handleAcceptTypedID.bind(_assertThisInitialized(_this3));
-    _this3.childWindowAlert = _this3.childWindowAlert.bind(_assertThisInitialized(_this3));
-    _this3.state = {
+    _this4 = _callSuper(this, LinkedObj, [props]);
+    _this4.setSubmissionStateToLinkedToItem = _this4.setSubmissionStateToLinkedToItem.bind(_this4);
+    _this4.handleStartSelectItem = _this4.handleStartSelectItem.bind(_this4);
+    _this4.handleFinishSelectItem = _this4.handleFinishSelectItem.bind(_this4);
+    _this4.handleCreateNewItemClick = _this4.handleCreateNewItemClick.bind(_this4);
+    _this4.handleTextInputChange = _this4.handleTextInputChange.bind(_this4);
+    _this4.handleAcceptTypedID = _this4.handleAcceptTypedID.bind(_this4);
+    _this4.childWindowAlert = _this4.childWindowAlert.bind(_this4);
+    _this4.state = {
       'textInputValue': typeof props.value === 'string' && props.value || ''
     };
-    return _this3;
+    return _this4;
   }
-  _createClass(LinkedObj, [{
+  _inherits(LinkedObj, _React$PureComponent2);
+  return _createClass(LinkedObj, [{
     key: "componentDidUpdate",
     value: function componentDidUpdate() {
       ReactTooltip.rebuild();
@@ -783,7 +779,6 @@ export var LinkedObj = /*#__PURE__*/function (_React$PureComponent2) {
       return false;
     }
   }]);
-  return LinkedObj;
 }(React.PureComponent);
 export var SquareButton = /*#__PURE__*/React.memo(function (props) {
   var show = props.show,
