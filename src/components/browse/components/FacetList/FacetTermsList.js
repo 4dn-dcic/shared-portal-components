@@ -417,7 +417,7 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
     } = useMemo(function(){
         const { field } = facet;
 
-        const facetSearchActive = searchType === 'basic' && searchText && typeof searchText === 'string' && searchText.length > 0;
+        const facetSearchActive = searchType === 'basic' && typeof searchText === 'string' && searchText.length > 0;
         const {
             filteredTerms: textFilteredTerms = {},
             filteredSubTerms : textFilteredSubTerms = null
