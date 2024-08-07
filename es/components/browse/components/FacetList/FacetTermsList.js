@@ -299,7 +299,7 @@ _defineProperty(Term, "propTypes", {
     term: PropTypes.string
   }),
   'onClick': PropTypes.func.isRequired,
-  'status': PropTypes.oneOf(["none", "selected", "omitted"]),
+  'status': PropTypes.oneOf(["none", "selected", "omitted", "partial"]),
   'getTermStatus': PropTypes.func.isRequired,
   'termTransformFxn': PropTypes.func,
   'useRadioIcon': PropTypes.bool.isRequired,
