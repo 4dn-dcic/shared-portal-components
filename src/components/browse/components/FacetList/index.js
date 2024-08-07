@@ -826,10 +826,11 @@ export const FacetListHeader = React.memo(function FacetListHeader(props){
                 <div className="row facets-controls">
                     <div className="col">
                         <div className="properties-controls d-flex py-1 w-100" role="group" aria-label="Properties Controls">
-                            <button type="button" disabled={!anyFacetsOpen} style={{ flex: "1" }} className="btn btn-xs btn-outline-secondary" onClick={onCollapseFacets} data-tip="Collapse all facets below">
+                            {/* weird but autocomplete="off" fixes the hydration error: https://github.com/vercel/next.js/discussions/21999#discussioncomment-6315670 */}
+                            <button type="button" disabled={!anyFacetsOpen} style={{ flex: "1" }} className="btn btn-xs btn-outline-secondary" onClick={onCollapseFacets} data-tip="Collapse all facets below" autoComplete="off">
                                 <i className="icon icon-fw icon-minus fas"/> Collapse All
                             </button>
-                            <button type="button" disabled={typeof onClearFilters !== "function"} style={{ flex: "1" }} className="btn btn-xs btn-outline-secondary" onClick={onClearFilters} data-tip="Clear all filters">
+                            <button type="button" disabled={typeof onClearFilters !== "function"} style={{ flex: "1" }} className="btn btn-xs btn-outline-secondary" onClick={onClearFilters} data-tip="Clear all filters" autoComplete="off">
                                 <i className="icon icon-fw icon-times fas"/> Clear All
                             </button>
                         </div>
