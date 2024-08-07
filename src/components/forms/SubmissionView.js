@@ -193,7 +193,7 @@ export default class SubmissionView extends React.PureComponent{
             }
         }
         if (currentAction !== pastProps.currentAction){
-            var edit = ncurrentAction === 'edit';
+            var edit = currentAction === 'edit';
             var create = (currentAction === 'create' || currentAction === 'add');
             this.setState({ edit, create });
         }
