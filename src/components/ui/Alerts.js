@@ -11,6 +11,7 @@ const alertNavigatationCountMap = {};
 
 
 let store = null;
+let reduxIsLegacy = true;
 
 /**
  * A Component and utility (via Component's 'statics' property & functions) to
@@ -20,9 +21,16 @@ let store = null;
  */
 export class Alerts extends React.Component {
 
-    /** This must be called with the current Redux store for the app before Alerts can be used. */
-    static setStore(useStore){
+    /**
+     * This must be called with the current Redux store for the app before Alerts can be used.
+     * @param {*} useStore
+     * @param {*} isLegacy pass false to use new redux v5 dispatcher call ({ type: 'STRING', payload: ... })
+     */
+    static setStore(useStore, isLegacy){
         store = useStore;
+        if (typeof isLegacy === 'boolean') {
+            reduxIsLegacy = isLegacy;
+        }
     }
 
     /**
@@ -52,9 +60,11 @@ export class Alerts extends React.Component {
         } else {
             newAlerts.push(alert);
         }
-        store.dispatch({
-            type: { 'alerts' : newAlerts }
-        });
+        if (reduxIsLegacy) {
+            store.dispatch({ type: { 'alerts': newAlerts } });
+        } else {
+            store.dispatch({ type: 'SET_ALERTS', payload: newAlerts });
+        }
     }
 
     /**
@@ -88,11 +98,12 @@ export class Alerts extends React.Component {
         });
 
         if (nextAlerts.length < currentAlerts.length) {
-            store.dispatch({
-                type: { 'alerts' : nextAlerts }
-            });
+            if (reduxIsLegacy) {
+                store.dispatch({ type: { 'alerts': nextAlerts } });
+            } else {
+                store.dispatch({ type: 'SET_ALERTS', payload: nextAlerts });
+            }
         }
-
     }
 
     /**
@@ -248,9 +259,11 @@ class AlertItem extends React.PureComponent {
     finishDismiss(){
         const { alert, dismissing, setDismissing, alerts } = this.props;
         setDismissing(_.without(dismissing, alert));
-        store.dispatch({
-            type: { 'alerts' : _.without(alerts, alert) }
-        });
+        if (reduxIsLegacy) {
+            store.dispatch({ type: { 'alerts': _.without(alerts, alert) } });
+        } else {
+            store.dispatch({ type: 'SET_ALERTS', payload: _.without(alerts, alert) });
+        }
     }
 
     render(){

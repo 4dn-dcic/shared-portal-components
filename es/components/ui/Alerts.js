@@ -27,6 +27,7 @@ import { AlertObj } from './../util/typedefs';
 var defaultNavigateDisappearThreshold = 1;
 var alertNavigatationCountMap = {};
 var store = null;
+var reduxIsLegacy = true;
 
 /**
  * A Component and utility (via Component's 'statics' property & functions) to
@@ -97,9 +98,17 @@ export var Alerts = /*#__PURE__*/function (_React$Component) {
     }
   }], [{
     key: "setStore",
-    value: /** This must be called with the current Redux store for the app before Alerts can be used. */
-    function setStore(useStore) {
+    value:
+    /**
+     * This must be called with the current Redux store for the app before Alerts can be used.
+     * @param {*} useStore
+     * @param {*} isLegacy pass false to use new redux v5 dispatcher call ({ type: 'STRING', payload: ... })
+     */
+    function setStore(useStore, isLegacy) {
       store = useStore;
+      if (typeof isLegacy === 'boolean') {
+        reduxIsLegacy = isLegacy;
+      }
     }
 
     /**
@@ -133,11 +142,18 @@ export var Alerts = /*#__PURE__*/function (_React$Component) {
       } else {
         newAlerts.push(alert);
       }
-      store.dispatch({
-        type: {
-          'alerts': newAlerts
-        }
-      });
+      if (reduxIsLegacy) {
+        store.dispatch({
+          type: {
+            'alerts': newAlerts
+          }
+        });
+      } else {
+        store.dispatch({
+          type: 'SET_ALERTS',
+          payload: newAlerts
+        });
+      }
     }
 
     /**
@@ -170,11 +186,18 @@ export var Alerts = /*#__PURE__*/function (_React$Component) {
         }
       });
       if (nextAlerts.length < currentAlerts.length) {
-        store.dispatch({
-          type: {
-            'alerts': nextAlerts
-          }
-        });
+        if (reduxIsLegacy) {
+          store.dispatch({
+            type: {
+              'alerts': nextAlerts
+            }
+          });
+        } else {
+          store.dispatch({
+            type: 'SET_ALERTS',
+            payload: nextAlerts
+          });
+        }
       }
     }
 
@@ -297,11 +320,18 @@ var AlertItem = /*#__PURE__*/function (_React$PureComponent) {
         setDismissing = _this$props3.setDismissing,
         alerts = _this$props3.alerts;
       setDismissing(_.without(dismissing, alert));
-      store.dispatch({
-        type: {
-          'alerts': _.without(alerts, alert)
-        }
-      });
+      if (reduxIsLegacy) {
+        store.dispatch({
+          type: {
+            'alerts': _.without(alerts, alert)
+          }
+        });
+      } else {
+        store.dispatch({
+          type: 'SET_ALERTS',
+          payload: _.without(alerts, alert)
+        });
+      }
     }
   }, {
     key: "render",

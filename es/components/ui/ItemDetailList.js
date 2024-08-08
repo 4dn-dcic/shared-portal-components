@@ -475,7 +475,7 @@ var SubItemTable = /*#__PURE__*/function (_React$Component) {
           var valKey = valKeys[_i];
           if (Array.isArray(v2[valKey])) {
             // Concatenate value in [v2] into value in [m]
-            if (typeof m[valKey] === "number") {
+            if (!Array.isArray(m[valKey])) {
               m[valKey] = [m[valKey]].concat(v2[valKey]);
             } else {
               // m[valKey] is already an array

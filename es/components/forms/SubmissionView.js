@@ -189,9 +189,8 @@ var SubmissionView = /*#__PURE__*/function (_React$PureComponent) {
         }
       }
       if (currentAction !== pastProps.currentAction) {
-        var edit = ncurrentAction === 'edit';
         this.setState({
-          edit: edit,
+          edit: currentAction === 'edit',
           create: currentAction === 'create' || currentAction === 'add'
         });
       }

@@ -65,11 +65,13 @@ export var LocalizedTime = /*#__PURE__*/function (_React$Component) {
       var selfDateFns = this.memoized.getDateFns(dateFnsDate, timestamp);
       if (!mounted || isServerSide()) {
         return /*#__PURE__*/React.createElement("span", {
-          className: className + ' utc'
+          className: className + ' utc',
+          suppressHydrationWarning: true
         }, display(selfDateFns, formatType, dateTimeSeparator, false, customOutputFormat));
       } else {
         return /*#__PURE__*/React.createElement("span", {
-          className: className + (localize ? ' local' : ' utc')
+          className: className + (localize ? ' local' : ' utc'),
+          suppressHydrationWarning: true
         }, display(selfDateFns, formatType, dateTimeSeparator, localize, customOutputFormat));
       }
     }
