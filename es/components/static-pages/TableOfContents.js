@@ -577,7 +577,9 @@ export var TableOfContents = /*#__PURE__*/function (_React$Component3) {
           identifier = section.identifier;
         var link = TableOfContents.elementIDFromSectionName(name || identifier);
         if (previousEncounteredSection) {
-          previousEncounteredSection.nextHeader = link;
+          previousEncounteredSection = _objectSpread(_objectSpread({}, previousEncounteredSection), {}, {
+            nextHeader: link
+          });
         }
         previousEncounteredSection = section;
         var sectionCopy = _objectSpread(_objectSpread({}, section), {}, {

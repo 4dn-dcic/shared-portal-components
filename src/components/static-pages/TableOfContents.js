@@ -585,8 +585,11 @@ export class TableOfContents extends React.Component {
             .map(function(section, i, all){
                 const { name, identifier } = section;
                 const link = TableOfContents.elementIDFromSectionName(name || identifier);
-                if (previousEncounteredSection){
-                    previousEncounteredSection.nextHeader = link;
+                if (previousEncounteredSection) {
+                    previousEncounteredSection = {
+                        ...previousEncounteredSection,
+                        nextHeader: link
+                    };
                 }
                 previousEncounteredSection = section;
                 const sectionCopy = { ...section, link };
