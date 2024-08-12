@@ -430,7 +430,7 @@ _defineProperty(ResultRow, "propTypes", {
   'columnWidths': PropTypes.objectOf(PropTypes.number),
   'renderDetailPane': PropTypes.func.isRequired,
   'detailPane': PropTypes.element,
-  'detailOpen': PropTypes.bool.isRequired,
+  'detailOpen': PropTypes.oneOfType([PropTypes.number, PropTypes.bool]).isRequired,
   'defaultColAlignment': PropTypes.string,
   'setDetailHeight': PropTypes.func.isRequired,
   'id': PropTypes.string.isRequired,
