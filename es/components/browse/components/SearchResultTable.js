@@ -601,7 +601,7 @@ var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$Component) {
         infiniteLoadBeginEdgeOffset: canLoadMore ? 200 : undefined,
         preloadAdditionalHeight: Infinite.containerHeightScaleFactor(1.5),
         preloadBatchSize: Infinite.containerHeightScaleFactor(1.5),
-        styles: isOwnPage ? null : this.memoized.getStyles(maxResultsBodyHeight)
+        styles: isOwnPage ? {} : this.memoized.getStyles(maxResultsBodyHeight)
       }, children);
     }
   }], [{
