@@ -69,7 +69,7 @@ export function correctRelativeLinks(elem, context, depth=0){
 
 
 const Wrapper = React.memo(function Wrapper(props){
-    const { children, tableOfContents, title, context, windowWidth } = props;
+    const { children, tableOfContents = false, title, context, windowWidth, tocListStyles = ['decimal', 'lower-alpha', 'lower-roman'] } = props;
     const toc = (context && context['table-of-contents']) || (tableOfContents && typeof tableOfContents === 'object' ? tableOfContents : null);
     const pageTitle = title || (context && context.title) || null;
     const tocExists = toc && toc.enabled !== false;
@@ -96,11 +96,6 @@ const Wrapper = React.memo(function Wrapper(props){
         </div>
     );
 });
-Wrapper.defaultProps = {
-    //'contentColSize' : 12,
-    'tableOfContents' : false,
-    'tocListStyles' : ['decimal', 'lower-alpha', 'lower-roman']
-};
 
 
 export class StaticEntry extends React.PureComponent {
@@ -208,38 +203,6 @@ export class StaticPageBase extends React.PureComponent {
         );
     }
 
-    static defaultProps = {
-        "context" : {
-            "title" : "Page Title",
-            "content" : {
-                "sectionNameID1" : {
-                    "order"      : 0,
-                    "title"      : "Section Title 1",
-                    "content"    : "<h2>Hello</h2>",
-                    "filetype"   : "html"
-                },
-                "sectionNameID2" : {
-                    "order"      : 1,
-                    "title"      : "Section Title 2",
-                    "content"    : "<h2>World</h2>",
-                    "filetype"   : "html"
-                }
-            }
-        },
-
-        /**
-         * Default function for rendering out parsed section(s) content.
-         *
-         * @param {string} sectionName - Unique identifier of the section. Use to navigate to via '#<sectionName>' in URL.
-         * @param {{ content : string|JSX.Element }} section - Object with parsed content, title, etc.
-         * @param {Object} props - Collection of props passed down from BodyElement.
-         */
-        'entryRenderFxn' : memoize(function(sectionName, section, props){
-            return (
-                <StaticEntry {...props} key={sectionName} sectionName={sectionName} section={section} />
-            );
-        })
-    };
 
     static propTypes = {
         'context' : PropTypes.shape({
@@ -247,14 +210,38 @@ export class StaticPageBase extends React.PureComponent {
             "content" : PropTypes.any.isRequired,
             "table-of-contents" : PropTypes.object
         }).isRequired,
-        'entryRenderFxn' : PropTypes.func.isRequired,
+        'entryRenderFxn' : PropTypes.func,
         'contentParseFxn' : PropTypes.func.isRequired,
         'href' : PropTypes.string,
         'CustomWrapper': PropTypes.element
     };
 
-    render(){
-        const { context, entryRenderFxn, contentParseFxn, CustomWrapper } = this.props;
+    render() {
+        const {
+            context = {
+                title: "Page Title",
+                content: {
+                    sectionNameID1: {
+                        order: 0,
+                        title: "Section Title 1",
+                        content: "<h2>Hello</h2>",
+                        filetype: "html"
+                    },
+                    sectionNameID2: {
+                        order: 1,
+                        title: "Section Title 2",
+                        content: "<h2>World</h2>",
+                        filetype: "html"
+                    }
+                }
+            },
+            entryRenderFxn = memoize((sectionName, section, props) => (
+                <StaticEntry {...props} key={sectionName} sectionName={sectionName} section={section} />
+            )),
+            contentParseFxn,
+            CustomWrapper
+        } = this.props;
+
         let parsedContent = null;
         try {
             parsedContent = contentParseFxn(context);

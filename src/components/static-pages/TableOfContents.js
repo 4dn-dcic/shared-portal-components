@@ -681,7 +681,7 @@ export class TableOfContents extends React.Component {
 
 
 export const NextPreviousPageSection = React.memo(function NextPreviousPageSection(props){
-    const { context, className, previousTitle, nextTitle } = props;
+    const { context, className, previousTitle = 'Previous', nextTitle = 'Next' } = props;
     const { next, previous } = context;
     if (!next && !previous) return null;
     const colSize = previous && next ? 6 : 12;
@@ -704,10 +704,6 @@ export const NextPreviousPageSection = React.memo(function NextPreviousPageSecti
         </div>
     );
 });
-NextPreviousPageSection.defaultProps = {
-    'previousTitle' : 'Previous',
-    'nextTitle' : 'Next'
-};
 
 
 /**

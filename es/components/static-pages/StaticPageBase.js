@@ -77,10 +77,13 @@ export function correctRelativeLinks(elem, context) {
 }
 var Wrapper = /*#__PURE__*/React.memo(function (props) {
   var children = props.children,
-    tableOfContents = props.tableOfContents,
+    _props$tableOfContent = props.tableOfContents,
+    tableOfContents = _props$tableOfContent === void 0 ? false : _props$tableOfContent,
     title = props.title,
     context = props.context,
-    windowWidth = props.windowWidth;
+    windowWidth = props.windowWidth,
+    _props$tocListStyles = props.tocListStyles,
+    tocListStyles = _props$tocListStyles === void 0 ? ['decimal', 'lower-alpha', 'lower-roman'] : _props$tocListStyles;
   var toc = context && context['table-of-contents'] || (tableOfContents && _typeof(tableOfContents) === 'object' ? tableOfContents : null);
   var pageTitle = title || context && context.title || null;
   var tocExists = toc && toc.enabled !== false;
@@ -110,11 +113,6 @@ var Wrapper = /*#__PURE__*/React.memo(function (props) {
     windowInnerWidth: windowWidth
   })) : null));
 });
-Wrapper.defaultProps = {
-  //'contentColSize' : 12,
-  'tableOfContents': false,
-  'tocListStyles': ['decimal', 'lower-alpha', 'lower-roman']
-};
 export var StaticEntry = /*#__PURE__*/function (_React$PureComponent) {
   function StaticEntry(props) {
     var _this2;
@@ -226,8 +224,32 @@ export var StaticPageBase = /*#__PURE__*/function (_React$PureComponent2) {
     key: "render",
     value: function render() {
       var _this$props2 = this.props,
-        context = _this$props2.context,
-        entryRenderFxn = _this$props2.entryRenderFxn,
+        _this$props2$context = _this$props2.context,
+        context = _this$props2$context === void 0 ? {
+          title: "Page Title",
+          content: {
+            sectionNameID1: {
+              order: 0,
+              title: "Section Title 1",
+              content: "<h2>Hello</h2>",
+              filetype: "html"
+            },
+            sectionNameID2: {
+              order: 1,
+              title: "Section Title 2",
+              content: "<h2>World</h2>",
+              filetype: "html"
+            }
+          }
+        } : _this$props2$context,
+        _this$props2$entryRen = _this$props2.entryRenderFxn,
+        entryRenderFxn = _this$props2$entryRen === void 0 ? memoize(function (sectionName, section, props) {
+          return /*#__PURE__*/React.createElement(StaticEntry, _extends({}, props, {
+            key: sectionName,
+            sectionName: sectionName,
+            section: section
+          }));
+        }) : _this$props2$entryRen,
         contentParseFxn = _this$props2.contentParseFxn,
         CustomWrapper = _this$props2.CustomWrapper;
       var parsedContent = null;
@@ -276,46 +298,13 @@ export var StaticPageBase = /*#__PURE__*/function (_React$PureComponent2) {
   }]);
 }(React.PureComponent);
 _defineProperty(StaticPageBase, "Wrapper", Wrapper);
-_defineProperty(StaticPageBase, "defaultProps", {
-  "context": {
-    "title": "Page Title",
-    "content": {
-      "sectionNameID1": {
-        "order": 0,
-        "title": "Section Title 1",
-        "content": "<h2>Hello</h2>",
-        "filetype": "html"
-      },
-      "sectionNameID2": {
-        "order": 1,
-        "title": "Section Title 2",
-        "content": "<h2>World</h2>",
-        "filetype": "html"
-      }
-    }
-  },
-  /**
-   * Default function for rendering out parsed section(s) content.
-   *
-   * @param {string} sectionName - Unique identifier of the section. Use to navigate to via '#<sectionName>' in URL.
-   * @param {{ content : string|JSX.Element }} section - Object with parsed content, title, etc.
-   * @param {Object} props - Collection of props passed down from BodyElement.
-   */
-  'entryRenderFxn': memoize(function (sectionName, section, props) {
-    return /*#__PURE__*/React.createElement(StaticEntry, _extends({}, props, {
-      key: sectionName,
-      sectionName: sectionName,
-      section: section
-    }));
-  })
-});
 _defineProperty(StaticPageBase, "propTypes", {
   'context': PropTypes.shape({
     "title": PropTypes.string,
     "content": PropTypes.any.isRequired,
     "table-of-contents": PropTypes.object
   }).isRequired,
-  'entryRenderFxn': PropTypes.func.isRequired,
+  'entryRenderFxn': PropTypes.func,
   'contentParseFxn': PropTypes.func.isRequired,
   'href': PropTypes.string,
   'CustomWrapper': PropTypes.element
