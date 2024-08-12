@@ -19,7 +19,7 @@ export const RightButtonsSection = React.memo(function RightButtonsSection(props
 
 
 
-export const ConfigureVisibleColumnsButton = React.memo(function ConfigureVisibleColumnsButton({ open, onClick, className }){
+export const ConfigureVisibleColumnsButton = React.memo(function ConfigureVisibleColumnsButton({ open, onClick, className = "btn btn-outline-primary" }){
     return (
         <button type="button" key="toggle-visible-columns" data-tip="Configure visible columns" data-event-off="click"
             active={open.toString()} onClick={onClick} className={(className || "") + (open ? " active" : "")}>
@@ -28,11 +28,8 @@ export const ConfigureVisibleColumnsButton = React.memo(function ConfigureVisibl
         </button>
     );
 });
-ConfigureVisibleColumnsButton.defaultProps = {
-    "className" : "btn btn-outline-primary"
-};
 
-export const MultiColumnSortButton = React.memo(function MultiColumnSortButton({ open, onClick, className }){
+export const MultiColumnSortButton = React.memo(function MultiColumnSortButton({ open, onClick, className = "btn btn-outline-primary" }){
     return (
         <button type="button" key="toggle-visible-columns" data-tip="Sort multiple columns" data-event-off="click"
             active={open.toString()} onClick={onClick} className={(className || "") + (open ? " active" : "")}>
@@ -41,9 +38,6 @@ export const MultiColumnSortButton = React.memo(function MultiColumnSortButton({
         </button>
     );
 });
-MultiColumnSortButton.defaultProps = {
-    "className" : "btn btn-outline-primary"
-};
 
 /** Toggles between regular & full screen views */
 export class ToggleLayoutButton extends React.PureComponent {
