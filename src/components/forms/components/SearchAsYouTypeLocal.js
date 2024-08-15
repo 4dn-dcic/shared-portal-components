@@ -104,7 +104,7 @@ export class SearchAsYouTypeLocal extends React.PureComponent {
     }
 }
 SearchAsYouTypeLocal.propTypes = {
-    searchList : PropTypes.arrayOf(PropTypes.oneOf(PropTypes.string, PropTypes.number)).isRequired,
+    searchList : PropTypes.arrayOf(PropTypes.oneOf([PropTypes.string, PropTypes.number])).isRequired,
     value : PropTypes.string,
     onChange : PropTypes.func.isRequired,
     filterMethod : PropTypes.string, // "startsWith", "includes" (can add more in future if necessary) -- defaults to startsWith
