@@ -63,11 +63,12 @@ var canDownloadFile = memoize(function (file, validStatuses) {
 });
 export var FileDownloadButtonAuto = /*#__PURE__*/React.memo(function (props) {
   var file = props.result,
-    canDownloadStatuses = props.canDownloadStatuses,
     _props$onClick = props.onClick,
     onClick = _props$onClick === void 0 ? null : _props$onClick,
     _props$disabled = props.disabled,
-    propDisabled = _props$disabled === void 0 ? false : _props$disabled;
+    propDisabled = _props$disabled === void 0 ? false : _props$disabled,
+    _props$canDownloadSta = props.canDownloadStatuses,
+    canDownloadStatuses = _props$canDownloadSta === void 0 ? ['uploaded', 'released', 'replaced', 'submission in progress', 'released to project', 'archived'] : _props$canDownloadSta;
   var href = file.href,
     filename = file.filename;
   var isDownloadable = canDownloadFile(file, canDownloadStatuses);
@@ -89,9 +90,6 @@ FileDownloadButtonAuto.propTypes = {
   'onClick': PropTypes.func,
   'disabled': PropTypes.bool,
   'tooltip': PropTypes.string
-};
-FileDownloadButtonAuto.defaultProps = {
-  'canDownloadStatuses': ['uploaded', 'released', 'replaced', 'submission in progress', 'released to project', 'archived']
 };
 export var ViewFileButton = /*#__PURE__*/React.memo(function (props) {
   var filename = props.filename,
