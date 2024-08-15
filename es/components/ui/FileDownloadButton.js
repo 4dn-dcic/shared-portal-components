@@ -82,7 +82,7 @@ export var FileDownloadButtonAuto = /*#__PURE__*/React.memo(function (props) {
 FileDownloadButtonAuto.propTypes = {
   'result': PropTypes.shape({
     'href': PropTypes.string.isRequired,
-    'filename': PropTypes.string.isRequired
+    'filename': PropTypes.string
   }).isRequired,
   'canDownloadStatuses': PropTypes.arrayOf(PropTypes.string),
   'onClick': PropTypes.func,
