@@ -224,32 +224,8 @@ export var StaticPageBase = /*#__PURE__*/function (_React$PureComponent2) {
     key: "render",
     value: function render() {
       var _this$props2 = this.props,
-        _this$props2$context = _this$props2.context,
-        context = _this$props2$context === void 0 ? {
-          title: "Page Title",
-          content: {
-            sectionNameID1: {
-              order: 0,
-              title: "Section Title 1",
-              content: "<h2>Hello</h2>",
-              filetype: "html"
-            },
-            sectionNameID2: {
-              order: 1,
-              title: "Section Title 2",
-              content: "<h2>World</h2>",
-              filetype: "html"
-            }
-          }
-        } : _this$props2$context,
-        _this$props2$entryRen = _this$props2.entryRenderFxn,
-        entryRenderFxn = _this$props2$entryRen === void 0 ? memoize(function (sectionName, section, props) {
-          return /*#__PURE__*/React.createElement(StaticEntry, _extends({}, props, {
-            key: sectionName,
-            sectionName: sectionName,
-            section: section
-          }));
-        }) : _this$props2$entryRen,
+        context = _this$props2.context,
+        entryRenderFxn = _this$props2.entryRenderFxn,
         contentParseFxn = _this$props2.contentParseFxn,
         CustomWrapper = _this$props2.CustomWrapper;
       var parsedContent = null;
@@ -298,6 +274,39 @@ export var StaticPageBase = /*#__PURE__*/function (_React$PureComponent2) {
   }]);
 }(React.PureComponent);
 _defineProperty(StaticPageBase, "Wrapper", Wrapper);
+_defineProperty(StaticPageBase, "defaultProps", {
+  "context": {
+    "title": "Page Title",
+    "content": {
+      "sectionNameID1": {
+        "order": 0,
+        "title": "Section Title 1",
+        "content": "<h2>Hello</h2>",
+        "filetype": "html"
+      },
+      "sectionNameID2": {
+        "order": 1,
+        "title": "Section Title 2",
+        "content": "<h2>World</h2>",
+        "filetype": "html"
+      }
+    }
+  },
+  /**
+   * Default function for rendering out parsed section(s) content.
+   *
+   * @param {string} sectionName - Unique identifier of the section. Use to navigate to via '#<sectionName>' in URL.
+   * @param {{ content : string|JSX.Element }} section - Object with parsed content, title, etc.
+   * @param {Object} props - Collection of props passed down from BodyElement.
+   */
+  'entryRenderFxn': memoize(function (sectionName, section, props) {
+    return /*#__PURE__*/React.createElement(StaticEntry, _extends({}, props, {
+      key: sectionName,
+      sectionName: sectionName,
+      section: section
+    }));
+  })
+});
 _defineProperty(StaticPageBase, "propTypes", {
   'context': PropTypes.shape({
     "title": PropTypes.string,

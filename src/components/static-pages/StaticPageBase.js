@@ -203,6 +203,38 @@ export class StaticPageBase extends React.PureComponent {
         );
     }
 
+    static defaultProps = {
+        "context" : {
+            "title" : "Page Title",
+            "content" : {
+                "sectionNameID1" : {
+                    "order"      : 0,
+                    "title"      : "Section Title 1",
+                    "content"    : "<h2>Hello</h2>",
+                    "filetype"   : "html"
+                },
+                "sectionNameID2" : {
+                    "order"      : 1,
+                    "title"      : "Section Title 2",
+                    "content"    : "<h2>World</h2>",
+                    "filetype"   : "html"
+                }
+            }
+        },
+
+        /**
+         * Default function for rendering out parsed section(s) content.
+         *
+         * @param {string} sectionName - Unique identifier of the section. Use to navigate to via '#<sectionName>' in URL.
+         * @param {{ content : string|JSX.Element }} section - Object with parsed content, title, etc.
+         * @param {Object} props - Collection of props passed down from BodyElement.
+         */
+        'entryRenderFxn' : memoize(function(sectionName, section, props){
+            return (
+                <StaticEntry {...props} key={sectionName} sectionName={sectionName} section={section} />
+            );
+        })
+    };
 
     static propTypes = {
         'context' : PropTypes.shape({
@@ -217,30 +249,7 @@ export class StaticPageBase extends React.PureComponent {
     };
 
     render() {
-        const {
-            context = {
-                title: "Page Title",
-                content: {
-                    sectionNameID1: {
-                        order: 0,
-                        title: "Section Title 1",
-                        content: "<h2>Hello</h2>",
-                        filetype: "html"
-                    },
-                    sectionNameID2: {
-                        order: 1,
-                        title: "Section Title 2",
-                        content: "<h2>World</h2>",
-                        filetype: "html"
-                    }
-                }
-            },
-            entryRenderFxn = memoize((sectionName, section, props) => (
-                <StaticEntry {...props} key={sectionName} sectionName={sectionName} section={section} />
-            )),
-            contentParseFxn,
-            CustomWrapper
-        } = this.props;
+        const { context, entryRenderFxn, contentParseFxn, CustomWrapper } = this.props;
 
         let parsedContent = null;
         try {
