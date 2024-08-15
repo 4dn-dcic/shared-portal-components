@@ -124,7 +124,7 @@ export class FacetList extends React.PureComponent {
         'context' : PropTypes.shape({
             'filters' : PropTypes.arrayOf(PropTypes.object).isRequired, // context.filters
         }).isRequired,
-        'itemTypeForSchemas' : PropTypes.string.isRequired, // For tooltips
+        'itemTypeForSchemas' : PropTypes.string, // For tooltips
         'showClearFiltersButton' : PropTypes.bool.isRequired,
         'onClearFilters' : PropTypes.func.isRequired,
         /**
