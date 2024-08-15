@@ -137,7 +137,7 @@ export class BuildField extends React.PureComponent {
             case 'integer'          : return <FormControl type="number" {...inputProps} step={1} />;
             case 'number'           : return <FormControl type="number" {...inputProps} />;
             case 'boolean'          : return (
-                <Checkbox {..._.omit(inputProps, 'value', 'placeholder')} checked={!!(value)}>
+                <Checkbox {..._.omit(inputProps, 'value', 'placeholder', 'ref')} checked={!!(value)}>
                     <span style={{ 'verticalAlign' : 'middle', 'textTransform' : 'capitalize' }}>
                         { typeof value === 'boolean' ? value + '' : null }
                     </span>

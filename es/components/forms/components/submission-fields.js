@@ -168,7 +168,7 @@ export var BuildField = /*#__PURE__*/function (_React$PureComponent) {
             type: "number"
           }, inputProps));
         case 'boolean':
-          return /*#__PURE__*/React.createElement(Checkbox, _extends({}, _.omit(inputProps, 'value', 'placeholder'), {
+          return /*#__PURE__*/React.createElement(Checkbox, _extends({}, _.omit(inputProps, 'value', 'placeholder', 'ref'), {
             checked: !!value
           }), /*#__PURE__*/React.createElement("span", {
             style: {
