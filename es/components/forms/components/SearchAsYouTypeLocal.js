@@ -131,7 +131,7 @@ export var SearchAsYouTypeLocal = /*#__PURE__*/function (_React$PureComponent) {
   }]);
 }(React.PureComponent);
 SearchAsYouTypeLocal.propTypes = {
-  searchList: PropTypes.arrayOf(PropTypes.string).isRequired,
+  searchList: PropTypes.arrayOf(PropTypes.oneOf(PropTypes.string, PropTypes.number)).isRequired,
   value: PropTypes.string,
   onChange: PropTypes.func.isRequired,
   filterMethod: PropTypes.string,
