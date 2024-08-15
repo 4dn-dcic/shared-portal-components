@@ -19,11 +19,15 @@ import { event as trackEvent } from './../util/analytics';
 /** @todo (?) Move to ui folder */
 export function FileDownloadButton(props) {
   var href = props.href,
-    className = props.className,
-    disabled = props.disabled,
-    title = props.title,
+    _props$className = props.className,
+    className = _props$className === void 0 ? "btn-block btn-primary" : _props$className,
+    _props$disabled = props.disabled,
+    disabled = _props$disabled === void 0 ? false : _props$disabled,
+    _props$title = props.title,
+    title = _props$title === void 0 ? "Download" : _props$title,
     filename = props.filename,
-    size = props.size,
+    _props$size = props.size,
+    size = _props$size === void 0 ? null : _props$size,
     tooltip = props.tooltip,
     onClick = props.onClick;
   var cls = "btn download-button" + (disabled ? ' disabled' : '') + (size ? ' btn-' + size : '') + (className ? " " + className : '');
@@ -41,12 +45,6 @@ export function FileDownloadButton(props) {
     className: "w-100"
   }, button) : button;
 }
-FileDownloadButton.defaultProps = {
-  'className': "btn-block btn-primary",
-  'title': 'Download',
-  'disabled': false,
-  'size': null
-};
 var canDownloadFile = memoize(function (file, validStatuses) {
   if (!file || _typeof(file) !== 'object') {
     console.error("Incorrect data type");
@@ -65,8 +63,8 @@ export var FileDownloadButtonAuto = /*#__PURE__*/React.memo(function (props) {
   var file = props.result,
     _props$onClick = props.onClick,
     onClick = _props$onClick === void 0 ? null : _props$onClick,
-    _props$disabled = props.disabled,
-    propDisabled = _props$disabled === void 0 ? false : _props$disabled,
+    _props$disabled2 = props.disabled,
+    propDisabled = _props$disabled2 === void 0 ? false : _props$disabled2,
     _props$canDownloadSta = props.canDownloadStatuses,
     canDownloadStatuses = _props$canDownloadSta === void 0 ? ['uploaded', 'released', 'replaced', 'submission in progress', 'released to project', 'archived'] : _props$canDownloadSta;
   var href = file.href,
@@ -77,7 +75,7 @@ export var FileDownloadButtonAuto = /*#__PURE__*/React.memo(function (props) {
     href: href,
     filename: filename,
     'disabled': !!propDisabled || !isDownloadable,
-    'title': !isDownloadable ? 'Not ready to download' : FileDownloadButton.defaultProps.title
+    'title': !isDownloadable ? 'Not ready to download' : "Download"
   };
   return /*#__PURE__*/React.createElement(FileDownloadButton, _extends({}, _.omit(props, 'disabled'), passProps));
 });
@@ -93,14 +91,21 @@ FileDownloadButtonAuto.propTypes = {
 };
 export var ViewFileButton = /*#__PURE__*/React.memo(function (props) {
   var filename = props.filename,
-    href = props.href,
-    target = props.target,
-    title = props.title,
-    mimeType = props.mimeType,
-    size = props.size,
-    className = props.className,
+    _props$href = props.href,
+    href = _props$href === void 0 ? null : _props$href,
+    _props$target = props.target,
+    target = _props$target === void 0 ? "_blank" : _props$target,
+    _props$title2 = props.title,
+    title = _props$title2 === void 0 ? null : _props$title2,
+    _props$mimeType = props.mimeType,
+    mimeType = _props$mimeType === void 0 ? null : _props$mimeType,
+    _props$size2 = props.size,
+    size = _props$size2 === void 0 ? null : _props$size2,
+    _props$className2 = props.className,
+    className = _props$className2 === void 0 ? "text-truncate mb-1" : _props$className2,
     bsStyle = props.bsStyle,
-    variant = props.variant,
+    _props$variant = props.variant,
+    variant = _props$variant === void 0 ? "primary" : _props$variant,
     propClick = props.onClick,
     passProps = _objectWithoutProperties(props, _excluded);
   var action = 'View';
@@ -158,13 +163,3 @@ export var ViewFileButton = /*#__PURE__*/React.memo(function (props) {
     className: "text-600"
   }, filename) || 'File', " ", extLink);
 });
-ViewFileButton.defaultProps = {
-  'className': "text-truncate mb-1",
-  'target': "_blank",
-  'href': null,
-  'disabled': false,
-  'title': null,
-  'mimeType': null,
-  'size': null,
-  'variant': 'primary'
-};

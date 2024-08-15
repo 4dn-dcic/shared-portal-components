@@ -11,7 +11,16 @@ import { event as trackEvent } from './../util/analytics';
 
 /** @todo (?) Move to ui folder */
 export function FileDownloadButton(props){
-    const { href, className, disabled, title, filename, size, tooltip, onClick } = props;
+    const {
+        href,
+        className = "btn-block btn-primary",
+        disabled = false,
+        title = "Download",
+        filename,
+        size = null,
+        tooltip,
+        onClick
+    } = props;
     const cls = "btn download-button" + (disabled ? ' disabled' : '') + (size ? ' btn-' + size : '') + (className ? " " + className : '');
 
     const button = (
@@ -26,12 +35,6 @@ export function FileDownloadButton(props){
         </span>
     ) : button;
 }
-FileDownloadButton.defaultProps = {
-    'className' : "btn-block btn-primary",
-    'title' : 'Download',
-    'disabled' : false,
-    'size' : null
-};
 
 
 const canDownloadFile = memoize(function(file, validStatuses){
@@ -66,7 +69,7 @@ export const FileDownloadButtonAuto = React.memo(function FileDownloadButtonAuto
     const passProps = {
         onClick, href, filename,
         'disabled': !!propDisabled || !isDownloadable,
-        'title': !isDownloadable ? 'Not ready to download' : FileDownloadButton.defaultProps.title
+        'title': !isDownloadable ? 'Not ready to download' : "Download"
     };
     return <FileDownloadButton {..._.omit(props, 'disabled')} {...passProps} />;
 });
@@ -83,7 +86,19 @@ FileDownloadButtonAuto.propTypes = {
 
 
 export const ViewFileButton = React.memo(function ViewFileButton(props){
-    const { filename, href, target, title, mimeType, size, className, bsStyle, variant, onClick: propClick, ...passProps } = props;
+    const {
+        filename,
+        href = null,
+        target = "_blank",
+        title = null,
+        mimeType = null,
+        size = null,
+        className = "text-truncate mb-1",
+        bsStyle,
+        variant = "primary",
+        onClick: propClick,
+        ...passProps
+    } = props;
     let action = 'View';
     let extLink = null; // Unsure if really used. Maybe should test href for presence of http[s]:// instd of target="_blank"?
     let preLink = null;
@@ -128,14 +143,4 @@ export const ViewFileButton = React.memo(function ViewFileButton(props){
         </a>
     );
 });
-ViewFileButton.defaultProps = {
-    'className' : "text-truncate mb-1",
-    'target' : "_blank",
-    'href' : null,
-    'disabled' : false,
-    'title' : null,
-    'mimeType' : null,
-    'size' : null,
-    'variant' : 'primary'
-};
 
