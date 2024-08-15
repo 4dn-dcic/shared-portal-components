@@ -1,6 +1,6 @@
 import _extends from "@babel/runtime/helpers/extends";
 import _objectWithoutProperties from "@babel/runtime/helpers/objectWithoutProperties";
-var _excluded = ["className", "id", "disabled"];
+var _excluded = ["className", "id", "disabled", "name", "onChange", "checked"];
 import React from 'react';
 import _ from 'underscore';
 import { randomId } from './../../util/object';
@@ -15,20 +15,33 @@ import { patchedConsoleInstance as console } from './../../util/patched-console'
  * @prop {boolean} checked - Whether is checked or not.
  */
 export var Toggle = /*#__PURE__*/React.memo(function (_ref) {
-  var className = _ref.className,
-    id = _ref.id,
-    disabled = _ref.disabled,
+  var _ref$className = _ref.className,
+    className = _ref$className === void 0 ? "" : _ref$className,
+    _ref$id = _ref.id,
+    id = _ref$id === void 0 ? null : _ref$id,
+    _ref$disabled = _ref.disabled,
+    disabled = _ref$disabled === void 0 ? false : _ref$disabled,
+    _ref$name = _ref.name,
+    name = _ref$name === void 0 ? "onoffswitch" : _ref$name,
+    _ref$onChange = _ref.onChange,
+    onChange = _ref$onChange === void 0 ? function (e) {
+      console.log("Toggled ", e.target);
+    } : _ref$onChange,
+    _ref$checked = _ref.checked,
+    checked = _ref$checked === void 0 ? false : _ref$checked,
     remainingProps = _objectWithoutProperties(_ref, _excluded);
   var useID = id || randomId();
   return /*#__PURE__*/React.createElement("div", {
     className: "onoffswitch " + className + (disabled ? ' disabled' : '')
   }, /*#__PURE__*/React.createElement("input", _extends({
     type: "checkbox",
-    id: useID
-  }, remainingProps, {
+    id: useID,
+    name: name,
+    onChange: onChange,
+    checked: checked,
     className: "onoffswitch-checkbox",
     disabled: disabled
-  })), /*#__PURE__*/React.createElement("label", {
+  }, remainingProps)), /*#__PURE__*/React.createElement("label", {
     className: "onoffswitch-label",
     htmlFor: id
   }, /*#__PURE__*/React.createElement("span", {
@@ -37,15 +50,6 @@ export var Toggle = /*#__PURE__*/React.memo(function (_ref) {
     className: "onoffswitch-switch"
   })));
 });
-Toggle.defaultProps = {
-  'name': 'onoffswitch',
-  'onChange': function onChange() {
-    console.log("Toggled ", this);
-  },
-  'id': null,
-  'checked': false,
-  'className': ''
-};
 
 /** Pulled out into own component so can style/adjust-if-needed together w. Case Review Tab */
 export var IconToggle = function (props) {

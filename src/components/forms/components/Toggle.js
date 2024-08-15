@@ -11,11 +11,23 @@ import { patchedConsoleInstance as console } from './../../util/patched-console'
  * @prop {function} onChange - Change event handler.
  * @prop {boolean} checked - Whether is checked or not.
  */
-export const Toggle = React.memo(function Toggle({ className, id, disabled, ...remainingProps }){
+export const Toggle = React.memo(function Toggle({
+    className = "",
+    id = null,
+    disabled = false,
+    name = "onoffswitch",
+    onChange = (e) => { console.log("Toggled ", e.target); },
+    checked = false,
+    ...remainingProps
+}) {
     const useID = id || randomId();
     return (
         <div className={"onoffswitch " + className + (disabled ? ' disabled' : '')}>
-            <input type="checkbox" id={useID} {...remainingProps} className="onoffswitch-checkbox" disabled={disabled} />
+            <input type="checkbox" id={useID}
+                name={name} onChange={onChange} checked={checked}
+                className="onoffswitch-checkbox" disabled={disabled}
+                {...remainingProps}
+            />
             <label className="onoffswitch-label" htmlFor={id}>
                 <span className="onoffswitch-inner"></span>
                 <span className="onoffswitch-switch"></span>
@@ -23,15 +35,6 @@ export const Toggle = React.memo(function Toggle({ className, id, disabled, ...r
         </div>
     );
 });
-Toggle.defaultProps = {
-    'name' : 'onoffswitch',
-    'onChange' : function(e){
-        console.log("Toggled ", this);
-    },
-    'id' : null,
-    'checked' : false,
-    'className' : ''
-};
 
 
 /** Pulled out into own component so can style/adjust-if-needed together w. Case Review Tab */
