@@ -10,10 +10,15 @@ export var BasicStaticSectionBody = /*#__PURE__*/React.memo(function (props) {
   var content = props.content,
     content_as_html = props.content_as_html,
     children = props.children,
-    filetype = props.filetype,
-    element = props.element,
+    _props$filetype = props.filetype,
+    filetype = _props$filetype === void 0 ? "md" : _props$filetype,
+    _props$element = props.element,
+    element = _props$element === void 0 ? "div" : _props$element,
     markdownCompilerOptions = props.markdownCompilerOptions,
-    placeholderReplacementFxn = props.placeholderReplacementFxn,
+    _props$placeholderRep = props.placeholderReplacementFxn,
+    placeholderReplacementFxn = _props$placeholderRep === void 0 ? function (placeholderString) {
+      return placeholderString;
+    } : _props$placeholderRep,
     passProps = _objectWithoutProperties(props, _excluded);
   //In some cases, markdown to html conversion is handled by backend by assigning the content_as_html. For the rest, use markdown-to-jsx compiler.
   if (filetype === 'md' && typeof content === 'string' && !content_as_html) {
@@ -36,12 +41,4 @@ BasicStaticSectionBody.propTypes = {
   "element": PropTypes.string.isRequired,
   "markdownCompilerOptions": PropTypes.any,
   "placeholderReplacementFxn": PropTypes.func.isRequired
-};
-BasicStaticSectionBody.defaultProps = {
-  "filetype": "md",
-  "element": "div",
-  "placeholderReplacementFxn": function placeholderReplacementFxn(placeholderString) {
-    // To be implemented by parent app.
-    return placeholderString;
-  }
 };

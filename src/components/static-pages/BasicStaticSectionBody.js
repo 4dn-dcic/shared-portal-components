@@ -7,7 +7,17 @@ import { compiler } from 'markdown-to-jsx';
 
 
 export const BasicStaticSectionBody = React.memo(function BasicStaticSectionBody(props){
-    const { content, content_as_html, children, filetype, element, markdownCompilerOptions, placeholderReplacementFxn, ...passProps } = props;
+    const {
+        content,
+        content_as_html,
+        children,
+        filetype = "md",
+        element = "div",
+        markdownCompilerOptions,
+        // To be implemented by parent app.
+        placeholderReplacementFxn = function (placeholderString, props) { return placeholderString; },
+        ...passProps
+    } = props;
     //In some cases, markdown to html conversion is handled by backend by assigning the content_as_html. For the rest, use markdown-to-jsx compiler.
     if (filetype === 'md' && typeof content === 'string' && !content_as_html){
         return React.createElement(element, null, compiler(content, markdownCompilerOptions || undefined) );
@@ -29,12 +39,4 @@ BasicStaticSectionBody.propTypes = {
     "element" : PropTypes.string.isRequired,
     "markdownCompilerOptions" : PropTypes.any,
     "placeholderReplacementFxn" : PropTypes.func.isRequired
-};
-BasicStaticSectionBody.defaultProps = {
-    "filetype" : "md",
-    "element" : "div",
-    "placeholderReplacementFxn" : function(placeholderString, props){
-        // To be implemented by parent app.
-        return placeholderString;
-    }
 };

@@ -17,7 +17,7 @@ import { console } from './../util';
  * @prop {Component|Element|string} children - Alias for props.value.
  */
 const Row = React.memo(function Row(props){
-    const { colSm, colMd, colLg, field, className, label, title, value, val, children } = props;
+    const { colSm = 12, colMd = 4, colLg = 4, field, className = '', label, title, value, val, children } = props;
     let valSm = 12 - colSm;
     let valMd = 12 - colMd;
     let valLg = 12 - colLg;
@@ -40,12 +40,6 @@ const Row = React.memo(function Row(props){
         </div>
     );
 });
-Row.defaultProps = {
-    'colSm' : 12,
-    'colMd' : 4,
-    'colLg' : 4,
-    'className' : ''
-};
 
 
 /**
