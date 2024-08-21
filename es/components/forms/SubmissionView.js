@@ -2741,7 +2741,8 @@ var IndividualObjectView = /*#__PURE__*/function (_React$Component2) {
 }(React.Component);
 var FormFieldsContainer = /*#__PURE__*/React.memo(function (props) {
   var children = props.children,
-    title = props.title;
+    _props$title = props.title,
+    title = _props$title === void 0 ? 'Fields & Dependencies' : _props$title;
   if (React.Children.count(children) === 0) return null;
   return /*#__PURE__*/React.createElement("div", {
     className: "form-fields-container"
@@ -2751,10 +2752,6 @@ var FormFieldsContainer = /*#__PURE__*/React.memo(function (props) {
     className: "form-section-body"
   }, children));
 });
-FormFieldsContainer.defaultProps = {
-  'title': 'Fields & Dependencies',
-  'currKey': 0
-};
 
 /**
  * Simple Component that opens/closes and renders a Detail panel using the context

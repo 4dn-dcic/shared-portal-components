@@ -256,7 +256,7 @@ export const SelectStickyFooter = React.memo(function SelectStickyFooter(props){
 });
 
 export const BackNavigationStickyFooter = React.memo(function BackNavigationStickyFooter(props) {
-    const { text, tooltip, navigateToInitialPage } = props;
+    const { text = 'Return to Selection List', tooltip = 'Go to selection page', navigateToInitialPage = true } = props;
 
     const onBackButtonClick = useCallback(function () {
         if (window.history.length === 0) {
@@ -282,12 +282,6 @@ BackNavigationStickyFooter.propTypes = {
     'text': PropTypes.string,
     'tooltip': PropTypes.string,
     'navigateToInitialPage': PropTypes.bool
-};
-
-BackNavigationStickyFooter.defaultProps = {
-    'text': 'Return to Selection List',
-    'tooltip': 'Go to selection page',
-    'navigateToInitialPage': true
 };
 
 /**

@@ -785,11 +785,14 @@ export var SquareButton = /*#__PURE__*/React.memo(function (props) {
     disabled = props.disabled,
     onClick = props.onClick,
     tip = props.tip,
-    bsStyle = props.bsStyle,
+    _props$bsStyle = props.bsStyle,
+    bsStyle = _props$bsStyle === void 0 ? 'danger' : _props$bsStyle,
     className = props.className,
     buttonContainerClassName = props.buttonContainerClassName,
-    icon = props.icon,
-    style = props.style;
+    _props$icon = props.icon,
+    icon = _props$icon === void 0 ? 'times fas' : _props$icon,
+    _props$style = props.style,
+    style = _props$style === void 0 ? null : _props$style;
   var outerCls = "remove-button-container" + (buttonContainerClassName ? ' ' + buttonContainerClassName : '');
   var btnCls = "btn" + (className ? " " + className : "");
   if (bsStyle) {
@@ -813,8 +816,3 @@ export var SquareButton = /*#__PURE__*/React.memo(function (props) {
     className: "icon icon-fw icon-" + icon
   })))));
 });
-SquareButton.defaultProps = {
-  'bsStyle': 'danger',
-  'icon': 'times fas',
-  'style': null
-};
