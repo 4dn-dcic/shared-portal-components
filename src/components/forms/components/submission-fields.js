@@ -398,7 +398,7 @@ export class BuildField extends React.PureComponent {
         }
 
         return wrapFunc(
-            <React.Fragment>
+            <React.Fragment key={field + '.' + (arrayIdx || '')}>
                 <div className={'field-column col' + extClass}>{ fieldToDisplay }</div>
                 { excludeRemoveButton ? null : <SquareButton show={showDelete} disabled={disableDelete} tip={isArray ? 'Remove Item' : 'Clear Value'} onClick={this.deleteField} /> }
             </React.Fragment>
