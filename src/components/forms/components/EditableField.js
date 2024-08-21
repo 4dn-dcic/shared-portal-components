@@ -45,7 +45,7 @@ export class EditableField extends React.Component {
         objectType      : PropTypes.string, // Class name of object being edited, e.g. User, Biosource, AccessKey, etc. for schema-based validation.
         pattern         : PropTypes.any,    // Optional pattern to use in lieu of one derived from schema or default field pattern. If set to false, will skip (default or schema-based) validation.
         required        : PropTypes.bool,   // Optionally set if field is required, overriding setting derived from schema (if any). Defaults to false.
-        schemas         : PropTypes.object.isRequired,
+        schemas         : PropTypes.object,
         debug           : PropTypes.bool,   // Verbose lifecycle log messages.
         handleCustomSave: PropTypes.func,   // instead of built-in save function, pass custom save
         dataType        : PropTypes.oneOf(['string', 'int']), //return value is converted one of these types
@@ -141,60 +141,61 @@ export class EditableField extends React.Component {
         });
     }
 
-    /** @todo Refactor to use memoization, didUpdate, derivedStateFromProps, or remove component entirely */
-    UNSAFE_componentWillReceiveProps(newProps){
-        var newState = {},
-            stateChangeCallback = null;
+    componentDidUpdate(prevProps, prevState) {
+        const newState = {};
+        let stateChangeCallback = null;
 
-        // Reset value/savedValue if props.context or props.labelID changes for some reason.
+        // Handle prop changes
         if (
             !this.state.dispatching && (
-                (this.props.context !== newProps.context) ||
-                (this.props.labelID !== newProps.labelID)
+                (prevProps.context !== this.props.context) ||
+                (prevProps.labelID !== this.props.labelID)
             )
         ) {
-            var newVal = object.getNestedProperty(newProps.context, this.props.labelID, true);
+            var newVal = object.getNestedProperty(this.props.context, this.props.labelID, true);
             newState.savedValue = newState.value = newVal || null;
             newState.valueExistsOnObj = typeof newVal !== 'undefined';
         }
+
         // Update state.validationPattern && state.isRequired if this.props.schemas becomes available
         // (loaded via ajax by app.js) or from props if is provided.
         if (
-            newProps.schemas !== this.props.schemas ||
-            newProps.pattern !== this.props.pattern ||
-            newProps.required !== this.props.required
-        ){
-            newState.validationPattern = newProps.pattern || this.validationPattern(newProps.schemas);
-            newState.required = newProps.required || this.isRequired(newProps.schemas);
+            this.props.schemas !== prevProps.schemas ||
+            this.props.pattern !== prevProps.pattern ||
+            this.props.required !== prevProps.required
+        ) {
+            newState.validationPattern = this.props.pattern || this.validationPattern(this.props.schemas);
+            newState.required = this.props.required || this.isRequired(this.props.schemas);
             // Also, update state.valid if in editing mode
-            if (this.props.parent.state && this.props.parent.state.currentlyEditing && this.inputElementRef.current){
+            if (this.props.parent.state && this.props.parent.state.currentlyEditing && this.inputElementRef.current) {
                 stateChangeCallback = this.handleChange;
             }
         }
-        // Apply state edits, if any
-        if (_.keys(newState).length > 0) this.setState(newState, stateChangeCallback);
-    }
 
-    componentDidUpdate(oldProps, oldState){
-        // If state change but not onChange event -- e.g. change to/from editing state
+        // Apply state edits, if any
+        if (_.keys(newState).length > 0) {
+            this.setState(newState, stateChangeCallback);
+        }
+
+        // Handle state changes
         if (
-            oldState.value === this.state.value &&
-            oldState.loading === this.state.loading &&
-            oldState.dispatching === this.state.dispatching &&
-            oldState.savedValue === this.state.savedValue
-        ){
-            if (this.justUpdatedLayout){
+            prevState.value === this.state.value &&
+            prevState.loading === this.state.loading &&
+            prevState.dispatching === this.state.dispatching &&
+            prevState.savedValue === this.state.savedValue
+        ) {
+            if (this.justUpdatedLayout) {
                 this.justUpdatedLayout = false;
                 return false;
             }
-            if (this.props.parent.state && this.props.parent.state.currentlyEditing === this.props.labelID){
+            if (this.props.parent.state && this.props.parent.state.currentlyEditing === this.props.labelID) {
                 this.onResizeStateChange();
                 if (!this.state.selectAllDone && this.inputElementRef && this.inputElementRef.current) {
                     this.inputElementRef.current.select();
-                    this.setState({ 'selectAllDone' : true });
+                    this.setState({ 'selectAllDone': true });
                 }
             } else {
-                this.setState({ 'leanTo' : null });
+                this.setState({ 'leanTo': null });
             }
             this.justUpdatedLayout = true;
         }
