@@ -36,7 +36,7 @@ BasicStaticSectionBody.propTypes = {
     "content" : PropTypes.string.isRequired,
     "content_as_html" : PropTypes.string,
     "filetype" : PropTypes.string,
-    "element" : PropTypes.string.isRequired,
+    "element" : PropTypes.string,
     "markdownCompilerOptions" : PropTypes.any,
-    "placeholderReplacementFxn" : PropTypes.func.isRequired
+    "placeholderReplacementFxn" : PropTypes.func
 };
