@@ -24,7 +24,7 @@ export const BasicStaticSectionBody = React.memo(function BasicStaticSectionBody
     } else if ((filetype === 'html' || filetype === 'rst' || filetype === 'md') && (typeof content_as_html === 'string' || typeof content === 'string')){
         return React.createElement(element, null, htmlToJSX(content_as_html || content));
     } else if (filetype === 'jsx' && typeof content === 'string'){
-        return placeholderReplacementFxn(content.trim(), passProps);
+        return placeholderReplacementFxn((content_as_html || content).trim(), passProps);
     } else if (filetype === 'txt' && typeof content === 'string' && content.slice(0,12) === 'placeholder:'){
         // Deprecated older method - to be removed once data.4dn uses filetype=jsx everywhere w/ placeholder
         return placeholderReplacementFxn(content.slice(12).trim());
