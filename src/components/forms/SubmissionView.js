@@ -193,7 +193,7 @@ export default class SubmissionView extends React.PureComponent{
             }
         }
         if (currentAction !== pastProps.currentAction){
-            var edit = ncurrentAction === 'edit';
+            var edit = currentAction === 'edit';
             var create = (currentAction === 'create' || currentAction === 'add');
             this.setState({ edit, create });
         }
@@ -2317,7 +2317,7 @@ class IndividualObjectView extends React.Component {
 
 
 const FormFieldsContainer = React.memo(function FormFieldsContainer(props){
-    const { children, title } = props;
+    const { children, title = 'Fields & Dependencies' } = props;
     if (React.Children.count(children) === 0) return null;
     return (
         <div className="form-fields-container">
@@ -2326,10 +2326,6 @@ const FormFieldsContainer = React.memo(function FormFieldsContainer(props){
         </div>
     );
 });
-FormFieldsContainer.defaultProps = {
-    'title' : 'Fields & Dependencies',
-    'currKey' : 0
-};
 
 /**
  * Simple Component that opens/closes and renders a Detail panel using the context

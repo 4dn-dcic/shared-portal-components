@@ -585,8 +585,11 @@ export class TableOfContents extends React.Component {
             .map(function(section, i, all){
                 const { name, identifier } = section;
                 const link = TableOfContents.elementIDFromSectionName(name || identifier);
-                if (previousEncounteredSection){
-                    previousEncounteredSection.nextHeader = link;
+                if (previousEncounteredSection) {
+                    previousEncounteredSection = {
+                        ...previousEncounteredSection,
+                        nextHeader: link
+                    };
                 }
                 previousEncounteredSection = section;
                 const sectionCopy = { ...section, link };
@@ -678,7 +681,7 @@ export class TableOfContents extends React.Component {
 
 
 export const NextPreviousPageSection = React.memo(function NextPreviousPageSection(props){
-    const { context, className, previousTitle, nextTitle } = props;
+    const { context, className, previousTitle = 'Previous', nextTitle = 'Next' } = props;
     const { next, previous } = context;
     if (!next && !previous) return null;
     const colSize = previous && next ? 6 : 12;
@@ -701,10 +704,6 @@ export const NextPreviousPageSection = React.memo(function NextPreviousPageSecti
         </div>
     );
 });
-NextPreviousPageSection.defaultProps = {
-    'previousTitle' : 'Previous',
-    'nextTitle' : 'Next'
-};
 
 
 /**

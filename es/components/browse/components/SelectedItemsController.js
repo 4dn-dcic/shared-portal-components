@@ -329,9 +329,12 @@ export var SelectStickyFooter = /*#__PURE__*/React.memo(function (props) {
   }), "\xA0 Cancel"))));
 });
 export var BackNavigationStickyFooter = /*#__PURE__*/React.memo(function (props) {
-  var text = props.text,
-    tooltip = props.tooltip,
-    navigateToInitialPage = props.navigateToInitialPage;
+  var _props$text = props.text,
+    text = _props$text === void 0 ? 'Return to Selection List' : _props$text,
+    _props$tooltip = props.tooltip,
+    tooltip = _props$tooltip === void 0 ? 'Go to selection page' : _props$tooltip,
+    _props$navigateToInit = props.navigateToInitialPage,
+    navigateToInitialPage = _props$navigateToInit === void 0 ? true : _props$navigateToInit;
   var onBackButtonClick = useCallback(function () {
     if (window.history.length === 0) {
       return;
@@ -355,11 +358,6 @@ BackNavigationStickyFooter.propTypes = {
   'text': PropTypes.string,
   'tooltip': PropTypes.string,
   'navigateToInitialPage': PropTypes.bool
-};
-BackNavigationStickyFooter.defaultProps = {
-  'text': 'Return to Selection List',
-  'tooltip': 'Go to selection page',
-  'navigateToInitialPage': true
 };
 
 /**

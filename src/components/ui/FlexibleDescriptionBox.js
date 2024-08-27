@@ -125,7 +125,7 @@ export class FlexibleDescriptionBox extends React.Component {
         'textElement'   : PropTypes.oneOf(['p', 'span', 'div', 'label', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6']),
         'textStyle'     : PropTypes.object,
         'expanded'      : PropTypes.bool,
-        'windowWidth'   : PropTypes.number.isRequired,
+        'windowWidth'   : PropTypes.number,
         'context'       : PropTypes.object
     }
 

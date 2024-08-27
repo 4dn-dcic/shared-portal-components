@@ -168,7 +168,7 @@ export var BuildField = /*#__PURE__*/function (_React$PureComponent) {
             type: "number"
           }, inputProps));
         case 'boolean':
-          return /*#__PURE__*/React.createElement(Checkbox, _extends({}, _.omit(inputProps, 'value', 'placeholder'), {
+          return /*#__PURE__*/React.createElement(Checkbox, _extends({}, _.omit(inputProps, 'value', 'placeholder', 'ref'), {
             checked: !!value
           }), /*#__PURE__*/React.createElement("span", {
             style: {
@@ -514,7 +514,9 @@ export var BuildField = /*#__PURE__*/function (_React$PureComponent) {
       if (fieldType === 'linked object' && LinkedObj.isInSelectionField(fieldBeingSelected, nestedField, arrayIdx, fieldBeingSelectedArrayIdx)) {
         extClass += ' in-selection-field';
       }
-      return wrapFunc( /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+      return wrapFunc( /*#__PURE__*/React.createElement(React.Fragment, {
+        key: field + '.' + (arrayIdx || '')
+      }, /*#__PURE__*/React.createElement("div", {
         className: 'field-column col' + extClass
       }, fieldToDisplay), fieldType === 'array' || fieldType === 'file upload' ? null : /*#__PURE__*/React.createElement(SquareButton, {
         show: showDelete,

@@ -124,7 +124,7 @@ export class FacetList extends React.PureComponent {
         'context' : PropTypes.shape({
             'filters' : PropTypes.arrayOf(PropTypes.object).isRequired, // context.filters
         }).isRequired,
-        'itemTypeForSchemas' : PropTypes.string.isRequired, // For tooltips
+        'itemTypeForSchemas' : PropTypes.string, // For tooltips
         'showClearFiltersButton' : PropTypes.bool.isRequired,
         'onClearFilters' : PropTypes.func.isRequired,
         /**
@@ -822,35 +822,21 @@ export const FacetListHeader = React.memo(function FacetListHeader(props){
                     }
                 </div>
             </div>
-            { !hideToggle &&
-            <div className="row facets-controls">
-                <div className="col">
-                    <div className="properties-controls d-flex py-1 w-100" role="group" aria-label="Properties Controls">
-                        <button type="button" disabled={!anyFacetsOpen} style={{ flex: "1" }} className="btn btn-xs btn-outline-secondary" onClick={onCollapseFacets} data-tip="Collapse all facets below">
-                            <i className="icon icon-fw icon-minus fas"/> Collapse All
-                        </button>
-                        {/* { showClearFiltersButton ? */}
-                        <button type="button" disabled={typeof onClearFilters !== "function"} style={{ flex: "1" }} className="btn btn-xs btn-outline-secondary" onClick={onClearFilters} data-tip="Clear all filters">
-                            <i className="icon icon-fw icon-times fas"/> Clear All
-                        </button>
-                        {/* : null } */}
+            {!hideToggle &&
+                <div className="row facets-controls">
+                    <div className="col">
+                        <div className="properties-controls d-flex py-1 w-100" role="group" aria-label="Properties Controls">
+                            {/* weird but autocomplete="off" fixes the hydration error: https://github.com/vercel/next.js/discussions/21999#discussioncomment-6315670 */}
+                            <button type="button" disabled={!anyFacetsOpen} style={{ flex: "1" }} className="btn btn-xs btn-outline-secondary" onClick={onCollapseFacets} data-tip="Collapse all facets below" autoComplete="off">
+                                <i className="icon icon-fw icon-minus fas"/> Collapse All
+                            </button>
+                            <button type="button" disabled={typeof onClearFilters !== "function"} style={{ flex: "1" }} className="btn btn-xs btn-outline-secondary" onClick={onClearFilters} data-tip="Clear all filters" autoComplete="off">
+                                <i className="icon icon-fw icon-times fas"/> Clear All
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </div>}
-            {/*
-            <div className={"col-auto clear-filters-control" + (showClearFiltersButton ? '' : ' placeholder')}>
-                <a href="#" onClick={onClearFilters} className={"btn clear-filters-btn btn-xs " + clearButtonClassName}>
-                    <i className="icon icon-fw icon-times fas mr-03"/>
-                    <span>Clear All</span>
-                </a>
-            </div>
-            <div className={"col-auto clear-filters-control" + (anyFacetsOpen ? '' : ' placeholder')}>
-                <a href="#" onClick={onClearFilters} className={"btn clear-filters-btn btn-xs " + clearButtonClassName}>
-                    <i className="icon icon-fw icon-minus fas mr-03"/>
-                    <span>Clear All</span>
-                </a>
-            </div>
-            */}
+            }
         </div>
     );
 });

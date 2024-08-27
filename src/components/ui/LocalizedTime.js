@@ -40,13 +40,13 @@ export class LocalizedTime extends React.Component {
         const selfDateFns = this.memoized.getDateFns(dateFnsDate, timestamp);
         if (!mounted || isServerSide()) {
             return (
-                <span className={className + ' utc'}>
+                <span className={className + ' utc'} suppressHydrationWarning={true}>
                     { display(selfDateFns, formatType, dateTimeSeparator, false, customOutputFormat) }
                 </span>
             );
         } else {
             return (
-                <span className={className + (localize ? ' local' : ' utc')}>
+                <span className={className + (localize ? ' local' : ' utc')} suppressHydrationWarning={true}>
                     { display(selfDateFns, formatType, dateTimeSeparator, localize, customOutputFormat) }
                 </span>
             );

@@ -299,7 +299,7 @@ _defineProperty(Term, "propTypes", {
     term: PropTypes.string
   }),
   'onClick': PropTypes.func.isRequired,
-  'status': PropTypes.oneOf(["none", "selected", "omitted"]),
+  'status': PropTypes.oneOf(["none", "selected", "omitted", "partial"]),
   'getTermStatus': PropTypes.func.isRequired,
   'termTransformFxn': PropTypes.func,
   'useRadioIcon': PropTypes.bool.isRequired,
@@ -565,7 +565,7 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
   /** Create term components and sort by status (selected->omitted->unselected) */
   var _useMemo = useMemo(function () {
       var field = facet.field;
-      var facetSearchActive = searchType === 'basic' && searchText && typeof searchText === 'string' && searchText.length > 0;
+      var facetSearchActive = searchType === 'basic' && typeof searchText === 'string' && searchText.length > 0;
       var _ref7 = facetSearchActive ? getFilteredTerms(terms, searchText, facetHasGroupBy) : {},
         _ref7$filteredTerms = _ref7.filteredTerms,
         textFilteredTerms = _ref7$filteredTerms === void 0 ? {} : _ref7$filteredTerms,

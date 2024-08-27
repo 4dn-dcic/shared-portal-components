@@ -121,7 +121,7 @@ export class Term extends React.PureComponent {
         'isFiltering'       : PropTypes.bool,
         'filteringFieldTerm': PropTypes.shape({ field: PropTypes.string, term: PropTypes.string }),
         'onClick'           : PropTypes.func.isRequired,
-        'status'            : PropTypes.oneOf(["none", "selected", "omitted"]),
+        'status'            : PropTypes.oneOf(["none", "selected", "omitted", "partial"]),
         'getTermStatus'     : PropTypes.func.isRequired,
         'termTransformFxn'  : PropTypes.func,
         'useRadioIcon'      : PropTypes.bool.isRequired,
@@ -417,7 +417,7 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
     } = useMemo(function(){
         const { field } = facet;
 
-        const facetSearchActive = searchType === 'basic' && searchText && typeof searchText === 'string' && searchText.length > 0;
+        const facetSearchActive = searchType === 'basic' && typeof searchText === 'string' && searchText.length > 0;
         const {
             filteredTerms: textFilteredTerms = {},
             filteredSubTerms : textFilteredSubTerms = null

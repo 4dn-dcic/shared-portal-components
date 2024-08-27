@@ -21,7 +21,6 @@ export const AboveSearchTablePanel = React.memo(function AboveSearchTablePanel({
     );
 });
 AboveSearchTablePanel.propTypes = {
-    'href' : PropTypes.string.isRequired,
     'context' : PropTypes.object.isRequired,
     'placeholderReplacementFxn' : PropTypes.func
 };

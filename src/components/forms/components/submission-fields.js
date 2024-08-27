@@ -137,7 +137,7 @@ export class BuildField extends React.PureComponent {
             case 'integer'          : return <FormControl type="number" {...inputProps} step={1} />;
             case 'number'           : return <FormControl type="number" {...inputProps} />;
             case 'boolean'          : return (
-                <Checkbox {..._.omit(inputProps, 'value', 'placeholder')} checked={!!(value)}>
+                <Checkbox {..._.omit(inputProps, 'value', 'placeholder', 'ref')} checked={!!(value)}>
                     <span style={{ 'verticalAlign' : 'middle', 'textTransform' : 'capitalize' }}>
                         { typeof value === 'boolean' ? value + '' : null }
                     </span>
@@ -398,7 +398,7 @@ export class BuildField extends React.PureComponent {
         }
 
         return wrapFunc(
-            <React.Fragment>
+            <React.Fragment key={field + '.' + (arrayIdx || '')}>
                 <div className={'field-column col' + extClass}>{ fieldToDisplay }</div>
                 { excludeRemoveButton ? null : <SquareButton show={showDelete} disabled={disableDelete} tip={isArray ? 'Remove Item' : 'Clear Value'} onClick={this.deleteField} /> }
             </React.Fragment>

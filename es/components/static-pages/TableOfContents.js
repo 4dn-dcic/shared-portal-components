@@ -577,7 +577,9 @@ export var TableOfContents = /*#__PURE__*/function (_React$Component3) {
           identifier = section.identifier;
         var link = TableOfContents.elementIDFromSectionName(name || identifier);
         if (previousEncounteredSection) {
-          previousEncounteredSection.nextHeader = link;
+          previousEncounteredSection = _objectSpread(_objectSpread({}, previousEncounteredSection), {}, {
+            nextHeader: link
+          });
         }
         previousEncounteredSection = section;
         var sectionCopy = _objectSpread(_objectSpread({}, section), {}, {
@@ -821,8 +823,10 @@ _defineProperty(TableOfContents, "defaultProps", {
 export var NextPreviousPageSection = /*#__PURE__*/React.memo(function (props) {
   var context = props.context,
     className = props.className,
-    previousTitle = props.previousTitle,
-    nextTitle = props.nextTitle;
+    _props$previousTitle = props.previousTitle,
+    previousTitle = _props$previousTitle === void 0 ? 'Previous' : _props$previousTitle,
+    _props$nextTitle = props.nextTitle,
+    nextTitle = _props$nextTitle === void 0 ? 'Next' : _props$nextTitle;
   var next = context.next,
     previous = context.previous;
   if (!next && !previous) return null;
@@ -853,10 +857,6 @@ export var NextPreviousPageSection = /*#__PURE__*/React.memo(function (props) {
     href: next['@id'] || '/' + (next.name || previous.identifier)
   }, next.display_title))) : null));
 });
-NextPreviousPageSection.defaultProps = {
-  'previousTitle': 'Previous',
-  'nextTitle': 'Next'
-};
 
 /**
  * @todo need to rename it as StaticContentHeading (here and in 4DN-CGAP-SMaHT) since we started to use it for not only MD but all types of content

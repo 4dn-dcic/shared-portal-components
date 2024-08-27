@@ -627,7 +627,7 @@ export class LinkedObj extends React.PureComponent {
 }
 
 export const SquareButton = React.memo(function SquareButton(props){
-    const { show, disabled, onClick, tip, bsStyle, className, buttonContainerClassName, icon, style } = props;
+    const { show, disabled, onClick, tip, bsStyle = 'danger', className, buttonContainerClassName, icon = 'times fas', style = null } = props;
     const outerCls = "remove-button-container" + (buttonContainerClassName ? ' ' + buttonContainerClassName : '');
     let btnCls = ("btn" + (className ? " " + className : ""));
     if (bsStyle){
@@ -645,8 +645,3 @@ export const SquareButton = React.memo(function SquareButton(props){
         </div>
     );
 });
-SquareButton.defaultProps = {
-    'bsStyle' : 'danger',
-    'icon' : 'times fas',
-    'style' : null
-};

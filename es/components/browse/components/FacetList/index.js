@@ -839,7 +839,7 @@ _defineProperty(FacetList, "propTypes", {
   'context': PropTypes.shape({
     'filters': PropTypes.arrayOf(PropTypes.object).isRequired // context.filters
   }).isRequired,
-  'itemTypeForSchemas': PropTypes.string.isRequired,
+  'itemTypeForSchemas': PropTypes.string,
   // For tooltips
   'showClearFiltersButton': PropTypes.bool.isRequired,
   'onClearFilters': PropTypes.func.isRequired,
@@ -977,7 +977,8 @@ export var FacetListHeader = /*#__PURE__*/React.memo(function (props) {
     },
     className: "btn btn-xs btn-outline-secondary",
     onClick: onCollapseFacets,
-    "data-tip": "Collapse all facets below"
+    "data-tip": "Collapse all facets below",
+    autoComplete: "off"
   }, /*#__PURE__*/React.createElement("i", {
     className: "icon icon-fw icon-minus fas"
   }), " Collapse All"), /*#__PURE__*/React.createElement("button", {
@@ -988,7 +989,8 @@ export var FacetListHeader = /*#__PURE__*/React.memo(function (props) {
     },
     className: "btn btn-xs btn-outline-secondary",
     onClick: onClearFilters,
-    "data-tip": "Clear all filters"
+    "data-tip": "Clear all filters",
+    autoComplete: "off"
   }, /*#__PURE__*/React.createElement("i", {
     className: "icon icon-fw icon-times fas"
   }), " Clear All")))));

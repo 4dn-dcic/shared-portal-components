@@ -77,10 +77,13 @@ export function correctRelativeLinks(elem, context) {
 }
 var Wrapper = /*#__PURE__*/React.memo(function (props) {
   var children = props.children,
-    tableOfContents = props.tableOfContents,
+    _props$tableOfContent = props.tableOfContents,
+    tableOfContents = _props$tableOfContent === void 0 ? false : _props$tableOfContent,
     title = props.title,
     context = props.context,
-    windowWidth = props.windowWidth;
+    windowWidth = props.windowWidth,
+    _props$tocListStyles = props.tocListStyles,
+    tocListStyles = _props$tocListStyles === void 0 ? ['decimal', 'lower-alpha', 'lower-roman'] : _props$tocListStyles;
   var toc = context && context['table-of-contents'] || (tableOfContents && _typeof(tableOfContents) === 'object' ? tableOfContents : null);
   var pageTitle = title || context && context.title || null;
   var tocExists = toc && toc.enabled !== false;
@@ -110,11 +113,6 @@ var Wrapper = /*#__PURE__*/React.memo(function (props) {
     windowInnerWidth: windowWidth
   })) : null));
 });
-Wrapper.defaultProps = {
-  //'contentColSize' : 12,
-  'tableOfContents': false,
-  'tocListStyles': ['decimal', 'lower-alpha', 'lower-roman']
-};
 export var StaticEntry = /*#__PURE__*/function (_React$PureComponent) {
   function StaticEntry(props) {
     var _this2;
@@ -315,7 +313,7 @@ _defineProperty(StaticPageBase, "propTypes", {
     "content": PropTypes.any.isRequired,
     "table-of-contents": PropTypes.object
   }).isRequired,
-  'entryRenderFxn': PropTypes.func.isRequired,
+  'entryRenderFxn': PropTypes.func,
   'contentParseFxn': PropTypes.func.isRequired,
   'href': PropTypes.string,
   'CustomWrapper': PropTypes.element

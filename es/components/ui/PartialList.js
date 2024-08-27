@@ -34,11 +34,15 @@ import { console } from './../util';
  * @prop {Component|Element|string} children - Alias for props.value.
  */
 var Row = /*#__PURE__*/React.memo(function (props) {
-  var colSm = props.colSm,
-    colMd = props.colMd,
-    colLg = props.colLg,
+  var _props$colSm = props.colSm,
+    colSm = _props$colSm === void 0 ? 12 : _props$colSm,
+    _props$colMd = props.colMd,
+    colMd = _props$colMd === void 0 ? 4 : _props$colMd,
+    _props$colLg = props.colLg,
+    colLg = _props$colLg === void 0 ? 4 : _props$colLg,
     field = props.field,
-    className = props.className,
+    _props$className = props.className,
+    className = _props$className === void 0 ? '' : _props$className,
     label = props.label,
     title = props.title,
     value = props.value,
@@ -63,12 +67,6 @@ var Row = /*#__PURE__*/React.memo(function (props) {
     className: "inner"
   }, value || val || children || "Value")));
 });
-Row.defaultProps = {
-  'colSm': 12,
-  'colMd': 4,
-  'colLg': 4,
-  'className': ''
-};
 
 /**
  * Renders a list using elements along the Bootstrap grid.

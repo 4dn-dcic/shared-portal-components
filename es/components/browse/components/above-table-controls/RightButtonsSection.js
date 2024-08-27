@@ -46,7 +46,8 @@ export var RightButtonsSection = /*#__PURE__*/React.memo(function (props) {
 export var ConfigureVisibleColumnsButton = /*#__PURE__*/React.memo(function (_ref) {
   var open = _ref.open,
     onClick = _ref.onClick,
-    className = _ref.className;
+    _ref$className = _ref.className,
+    className = _ref$className === void 0 ? "btn btn-outline-primary" : _ref$className;
   return /*#__PURE__*/React.createElement("button", {
     type: "button",
     key: "toggle-visible-columns",
@@ -61,13 +62,11 @@ export var ConfigureVisibleColumnsButton = /*#__PURE__*/React.memo(function (_re
     className: "icon icon-fw icon-angle-down ml-03 fas"
   }));
 });
-ConfigureVisibleColumnsButton.defaultProps = {
-  "className": "btn btn-outline-primary"
-};
 export var MultiColumnSortButton = /*#__PURE__*/React.memo(function (_ref2) {
   var open = _ref2.open,
     onClick = _ref2.onClick,
-    className = _ref2.className;
+    _ref2$className = _ref2.className,
+    className = _ref2$className === void 0 ? "btn btn-outline-primary" : _ref2$className;
   return /*#__PURE__*/React.createElement("button", {
     type: "button",
     key: "toggle-visible-columns",
@@ -82,9 +81,6 @@ export var MultiColumnSortButton = /*#__PURE__*/React.memo(function (_ref2) {
     className: "icon icon-fw icon-angle-down ml-03 fas"
   }));
 });
-MultiColumnSortButton.defaultProps = {
-  "className": "btn btn-outline-primary"
-};
 
 /** Toggles between regular & full screen views */
 export var ToggleLayoutButton = /*#__PURE__*/function (_React$PureComponent) {

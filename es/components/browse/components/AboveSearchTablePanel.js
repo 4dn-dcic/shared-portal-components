@@ -21,7 +21,6 @@ export var AboveSearchTablePanel = /*#__PURE__*/React.memo(function (_ref) {
   })));
 });
 AboveSearchTablePanel.propTypes = {
-  'href': PropTypes.string.isRequired,
   'context': PropTypes.object.isRequired,
   'placeholderReplacementFxn': PropTypes.func
 };
