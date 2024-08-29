@@ -438,7 +438,7 @@ export default class SubmissionView extends React.PureComponent{
     /** Simple function to generate enum entries for ambiguous types */
     buildAmbiguousEnumEntry(val, idx, all){
         return(
-            <DropdownItem key={val} title={val || ''} eventKey={val} onSelect={this.handleTypeSelection}>
+            <DropdownItem key={val} title={val || ''} eventKey={val}>
                 {val || ''}
             </DropdownItem>
         );
@@ -1490,7 +1490,7 @@ export default class SubmissionView extends React.PureComponent{
         return (
             <div className="submission-view-page-container container" id="content">
                 <TypeSelectModal show={showAmbiguousModal} {..._.pick(this.state, 'ambiguousIdx', 'ambiguousType', 'ambiguousSelected', 'currKey', 'creatingIdx')}
-                    {..._.pick(this, 'buildAmbiguousEnumEntry', 'submitAmbiguousType', 'cancelCreateNewObject', 'cancelCreatePrimaryObject')} schemas={schemas}
+                    {..._.pick(this, 'buildAmbiguousEnumEntry', 'handleTypeSelection', 'submitAmbiguousType', 'cancelCreateNewObject', 'cancelCreatePrimaryObject')} schemas={schemas}
                 />
                 <AliasSelectModal
                     show={showAliasModal} {..._.pick(this.state, 'creatingAlias', 'creatingType', 'creatingAliasMessage', 'currKey', 'creatingIdx', 'currentSubmittingUser')}
@@ -1805,7 +1805,7 @@ class TypeSelectModal extends React.Component {
     }
 
     render(){
-        const { show, ambiguousType, ambiguousSelected, buildAmbiguousEnumEntry, submitAmbiguousType, schemas } = this.props;
+        const { show, ambiguousType, ambiguousSelected, buildAmbiguousEnumEntry, submitAmbiguousType, schemas, handleTypeSelection } = this.props;
         if (!show) return null;
 
         const itemTypeHierarchy = schemaTransforms.schemasToItemTypeHierarchy(schemas);
@@ -1835,7 +1835,7 @@ class TypeSelectModal extends React.Component {
                     <div onKeyDown={this.onContainerKeyDown.bind(this, submitAmbiguousType)}>
                         <p>Please select a specific Item type from the menu below.</p>
                         <div className="input-wrapper mb-15">
-                            <DropdownButton id="dropdown-type-select" title={ambiguousSelected || "No value"}>
+                            <DropdownButton id="dropdown-type-select" title={ambiguousSelected || "No value"} onSelect={handleTypeSelection}>
                                 { specificItemTypeOptions.map(buildAmbiguousEnumEntry) }
                             </DropdownButton>
                         </div>
