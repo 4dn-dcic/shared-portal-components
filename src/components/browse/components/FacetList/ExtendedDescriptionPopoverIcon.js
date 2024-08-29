@@ -64,7 +64,7 @@ export const ExtendedDescriptionPopoverIcon = React.memo(function ExtendedDescri
                 ref: target, // By time icon is clicked, this will be mounted.
                 popover: (
                     <Popover>
-                        <Popover.Title as="div">
+                        <Popover.Header as="div">
                             <div className="row align-items-center">
                                 <div className="col">
                                     <h5 className="text-600 my-0">{ title }</h5>
@@ -73,10 +73,10 @@ export const ExtendedDescriptionPopoverIcon = React.memo(function ExtendedDescri
                                     <i className="icon icon-times fas" />
                                 </div>
                             </div>
-                        </Popover.Title>
-                        <Popover.Content>
+                        </Popover.Header>
+                        <Popover.Body>
                             <div className="popover-content-inner" dangerouslySetInnerHTML={{ __html: extendedDescription }} />
-                        </Popover.Content>
+                        </Popover.Body>
                     </Popover>
                 )
             });
