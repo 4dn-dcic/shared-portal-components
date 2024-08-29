@@ -64,8 +64,8 @@ export class BuildField extends React.PureComponent {
     constructor(props){
         super(props);
         _.bindAll(this,
-            'displayField', 'handleDropdownButtonToggle', 'handleAliasChange',
-            'handleEnumChange', 'buildSuggestedEnumEntry', 'submitSuggestedEnumVal',
+            'displayField', 'handleDropdownButtonToggle',
+            'handleEnumChange', 'submitSuggestedEnumVal',
             'handleChange', 'handleAliasChange', 'deleteField', 'pushArrayValue',
             'commonRowProps', 'labelTypeDescriptor', 'wrapWithLabel', 'wrapWithNoLabel'
         );
@@ -168,14 +168,6 @@ export class BuildField extends React.PureComponent {
         }
         // Fallback
         return <div>No field for this case yet.</div>;
-    }
-
-    buildSuggestedEnumEntry(val) {
-        return (
-            <DropdownItem key={val} title={val || ''} eventKey={val} onSelect={this.submitSuggestedEnumVal}>
-                {val || ''}
-            </DropdownItem>
-        );
     }
 
     submitSuggestedEnumVal(eventKey) {

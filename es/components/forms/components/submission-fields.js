@@ -48,7 +48,7 @@ export var BuildField = /*#__PURE__*/function (_React$PureComponent) {
     var _this2;
     _classCallCheck(this, BuildField);
     _this2 = _callSuper(this, BuildField, [props]);
-    _.bindAll(_this2, 'displayField', 'handleDropdownButtonToggle', 'handleAliasChange', 'handleEnumChange', 'buildSuggestedEnumEntry', 'submitSuggestedEnumVal', 'handleChange', 'handleAliasChange', 'deleteField', 'pushArrayValue', 'commonRowProps', 'labelTypeDescriptor', 'wrapWithLabel', 'wrapWithNoLabel');
+    _.bindAll(_this2, 'displayField', 'handleDropdownButtonToggle', 'handleEnumChange', 'submitSuggestedEnumVal', 'handleChange', 'handleAliasChange', 'deleteField', 'pushArrayValue', 'commonRowProps', 'labelTypeDescriptor', 'wrapWithLabel', 'wrapWithNoLabel');
     _this2.state = {
       'dropdownOpen': false
     };
@@ -226,16 +226,6 @@ export var BuildField = /*#__PURE__*/function (_React$PureComponent) {
       }
       // Fallback
       return /*#__PURE__*/React.createElement("div", null, "No field for this case yet.");
-    }
-  }, {
-    key: "buildSuggestedEnumEntry",
-    value: function buildSuggestedEnumEntry(val) {
-      return /*#__PURE__*/React.createElement(DropdownItem, {
-        key: val,
-        title: val || '',
-        eventKey: val,
-        onSelect: this.submitSuggestedEnumVal
-      }, val || '');
     }
   }, {
     key: "submitSuggestedEnumVal",
