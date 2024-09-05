@@ -133,7 +133,7 @@ export class BuildField extends React.PureComponent {
                 return <textarea {...inputProps} type="text" inputMode="latin" rows={4} className="form-control mb-08 mt-08" />;
             case 'html':
             case 'code':
-                return <textarea {...inputProps} type="text" inputMode="latin" rows={8} wrap="off" className="form-control text-small mb-08 mt-08" style={{ 'fontFamily' : "Source Code Pro, monospace", 'fontSize' : 'small' }} />;
+                return <textarea {...inputProps} type="text" inputMode="latin" rows={8} wrap="off" className="form-control fs-6 mb-08 mt-08" style={{ 'fontFamily' : "Source Code Pro, monospace", 'fontSize' : 'small' }} />;
             case 'integer'          : return <FormControl type="number" {...inputProps} step={1} />;
             case 'number'           : return <FormControl type="number" {...inputProps} />;
             case 'boolean'          : return (
@@ -309,7 +309,7 @@ export class BuildField extends React.PureComponent {
                         <h5 className="submission-field-title text-truncate">
                             { this.labelTypeDescriptor() }
                             { fieldTip ?
-                                <InfoIcon className="mr-07" title={title} fieldType={fieldType} schema={schema}>{ fieldTip }</InfoIcon>
+                                <InfoIcon className="me-07" title={title} fieldType={fieldType} schema={schema}>{ fieldTip }</InfoIcon>
                                 : null}
                             <span>{ title }</span>
                         </h5>
@@ -1121,7 +1121,7 @@ export class AliasInputField extends React.Component {
                         autoFocus={withinModal && !parts[1] ? true : false} placeholder="Type in a new identifier"
                         onChange={this.onAliasSecondPartChange} className={"form-control" + (errorMessage ? " is-invalid" : isValid ? " is-valid" : "")} />
                 </div>
-                { showErrorMsg && errorMessage ? <div className="invalid-feedback d-block text-right">{ errorMessage }</div> : null }
+                { showErrorMsg && errorMessage ? <div className="invalid-feedback d-block text-end">{ errorMessage }</div> : null }
             </div>
         );
     }

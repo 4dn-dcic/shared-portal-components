@@ -242,7 +242,7 @@ export var SelectionItemCheckbox = /*#__PURE__*/React.memo(function (props) {
     type: "checkbox",
     checked: isChecked,
     onChange: onChange,
-    className: "mr-2"
+    className: "me-2"
   });
 });
 
@@ -321,7 +321,7 @@ export var SelectStickyFooter = /*#__PURE__*/React.memo(function (props) {
     className: "icon icon-fw fas icon-check"
   }), "\xA0 Apply"), /*#__PURE__*/React.createElement("button", {
     type: "button",
-    className: "btn btn-outline-warning ml-1",
+    className: "btn btn-outline-warning ms-1",
     onClick: onCancel,
     "data-tip": "Cancel selection and close window"
   }, /*#__PURE__*/React.createElement("i", {
@@ -347,7 +347,7 @@ export var BackNavigationStickyFooter = /*#__PURE__*/React.memo(function (props)
     className: "col-12 col-md-auto"
   }, /*#__PURE__*/React.createElement("button", {
     type: "button",
-    className: "btn btn-outline-warning ml-1",
+    className: "btn btn-outline-warning ms-1",
     onClick: onBackButtonClick,
     "data-tip": tooltip || ''
   }, /*#__PURE__*/React.createElement("i", {

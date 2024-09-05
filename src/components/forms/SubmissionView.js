@@ -1635,7 +1635,7 @@ const WarningBanner = React.memo(function WarningBanner(props){
                     Please note: your work will be lost if you navigate away from, refresh or close this page while submitting. The submission process is under active development and features may change.
                 </div>
                 <div className="col-md-auto">
-                    <div className="action-buttons-container text-right">{ children }</div>
+                    <div className="action-buttons-container text-end">{ children }</div>
                 </div>
             </div>
         </div>
@@ -1881,7 +1881,7 @@ class AliasSelectModal extends TypeSelectModal {
                                 { creatingAliasMessage }
                             </div>
                             : null }
-                        <div className="text-right">
+                        <div className="text-end">
                             {/*
                             <Button type="button" bsStyle="danger" onClick={this.onHide}>Cancel / Exit</Button>
                             {' '}

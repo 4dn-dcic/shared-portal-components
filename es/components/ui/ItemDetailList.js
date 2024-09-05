@@ -243,7 +243,7 @@ var SubItemTable = /*#__PURE__*/function (_React$Component) {
                     style: {
                       whiteSpace: "nowrap"
                     },
-                    className: "text-left child-list-row",
+                    className: "text-start child-list-row",
                     key: colKey + '--row-' + i
                   }, /*#__PURE__*/React.createElement("div", {
                     className: "d-inline-block child-list-row-number"
@@ -419,7 +419,7 @@ var SubItemTable = /*#__PURE__*/function (_React$Component) {
             });
             if (renderAsList) {
               val = /*#__PURE__*/React.createElement("ol", null, val);
-              className += ' text-left';
+              className += ' text-start';
             }
           }
           return /*#__PURE__*/React.createElement("td", {
@@ -1167,25 +1167,29 @@ var ToggleJSONButton = /*#__PURE__*/React.memo(function (_ref3) {
   var onClick = _ref3.onClick,
     showingJSON = _ref3.showingJSON,
     className = _ref3.className;
-  return /*#__PURE__*/React.createElement("button", {
+  return /*#__PURE__*/React.createElement("div", {
+    className: "d-grid gap-1"
+  }, /*#__PURE__*/React.createElement("button", {
     type: "button",
-    className: "btn btn-block btn-outline-secondary",
+    className: "btn btn-outline-secondary",
     onClick: onClick
   }, showingJSON ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("i", {
     className: "icon fas icon-fw icon-list"
   }), " View as List") : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("i", {
     className: "icon fas icon-fw icon-code"
-  }), " View as JSON"));
+  }), " View as JSON")));
 });
 var SeeMoreRowsButton = /*#__PURE__*/React.memo(function (_ref4) {
   var onClick = _ref4.onClick,
     collapsed = _ref4.collapsed,
     className = _ref4.className;
-  return /*#__PURE__*/React.createElement("button", {
+  return /*#__PURE__*/React.createElement("div", {
+    className: "d-grid gap-1"
+  }, /*#__PURE__*/React.createElement("button", {
     type: "button",
-    className: "btn btn-block btn-outline-secondary",
+    className: "btn btn-outline-secondary",
     onClick: onClick
-  }, collapsed ? "See advanced information" : "Hide");
+  }, collapsed ? "See advanced information" : "Hide"));
 });
 
 /**

@@ -1936,7 +1936,7 @@ var WarningBanner = /*#__PURE__*/React.memo(function (props) {
   }, "Please note: your work will be lost if you navigate away from, refresh or close this page while submitting. The submission process is under active development and features may change."), /*#__PURE__*/React.createElement("div", {
     className: "col-md-auto"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "action-buttons-container text-right"
+    className: "action-buttons-container text-end"
   }, children))));
 });
 var DetailTitleBanner = /*#__PURE__*/function (_React$PureComponent2) {
@@ -2237,7 +2237,7 @@ var AliasSelectModal = /*#__PURE__*/function (_TypeSelectModal) {
           'fontSize': '1.2em'
         }
       }, creatingAliasMessage) : null, /*#__PURE__*/React.createElement("div", {
-        className: "text-right"
+        className: "text-end"
       }, /*#__PURE__*/React.createElement("button", {
         type: "button",
         className: "btn btn-primary",

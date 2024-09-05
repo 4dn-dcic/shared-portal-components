@@ -188,7 +188,7 @@ export const SelectionItemCheckbox = React.memo(function SelectionItemCheckbox(p
     const onChange = useMemo(function(){
         return onSelectItem.bind(onSelectItem, result, isMultiSelect);
     }, [ onSelectItem, result, isMultiSelect ]);
-    return <input type="checkbox" checked={isChecked} onChange={onChange} className="mr-2" />;
+    return <input type="checkbox" checked={isChecked} onChange={onChange} className="me-2" />;
 });
 
 /** Move to own file later maybe. Especially if functionality expands. */
@@ -246,7 +246,7 @@ export const SelectStickyFooter = React.memo(function SelectStickyFooter(props){
                     <button type="button" className="btn btn-success" onClick={onComplete} disabled={selectedItems.size === 0} data-tip="Select checked items and close window">
                         <i className="icon icon-fw fas icon-check"></i>&nbsp; Apply
                     </button>
-                    <button type="button" className="btn btn-outline-warning ml-1" onClick={onCancel} data-tip="Cancel selection and close window">
+                    <button type="button" className="btn btn-outline-warning ms-1" onClick={onCancel} data-tip="Cancel selection and close window">
                         <i className="icon icon-fw fas icon-times"></i>&nbsp; Cancel
                     </button>
                 </div>
@@ -269,7 +269,7 @@ export const BackNavigationStickyFooter = React.memo(function BackNavigationStic
         <StickyFooter>
             <div className="row selection-controls-footer pull-right">
                 <div className="col-12 col-md-auto">
-                    <button type="button" className="btn btn-outline-warning ml-1" onClick={onBackButtonClick} data-tip={tooltip || ''}>
+                    <button type="button" className="btn btn-outline-warning ms-1" onClick={onBackButtonClick} data-tip={tooltip || ''}>
                         <i className="icon icon-fw fas icon-arrow-left"></i>&nbsp; {text || ''}
                     </button>
                 </div>

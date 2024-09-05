@@ -482,7 +482,7 @@ class SubItemTable extends React.Component {
                         return {
                             'value' : _.map(value, function(embeddedRow, i){
                                 return (
-                                    <div style={{ whiteSpace: "nowrap" }} className="text-left child-list-row" key={colKey + '--row-' + i}>
+                                    <div style={{ whiteSpace: "nowrap" }} className="text-start child-list-row" key={colKey + '--row-' + i}>
                                         <div className="d-inline-block child-list-row-number">{ i + 1 }.</div>
                                         { allKeys.map((k, j)=>{
                                             var renderedSubVal;// = Schemas.Term.toName(k, embeddedRow[k]);
@@ -639,7 +639,7 @@ class SubItemTable extends React.Component {
                                                         });
                                                         if (renderAsList) {
                                                             val = <ol>{val}</ol>;
-                                                            className += ' text-left';
+                                                            className += ' text-start';
                                                         }
                                                     }
                                                     return (
@@ -1035,21 +1035,25 @@ export class Detail extends React.PureComponent {
 
 const ToggleJSONButton = React.memo(function ToggleJSONButton({ onClick, showingJSON, className }){
     return (
-        <button type="button" className="btn btn-block btn-outline-secondary" onClick={onClick}>
-            { showingJSON ?
-                <React.Fragment><i className="icon fas icon-fw icon-list"/> View as List</React.Fragment>
-                :
-                <React.Fragment><i className="icon fas icon-fw icon-code"/> View as JSON</React.Fragment>
-            }
-        </button>
+        <div className="d-grid gap-1">
+            <button type="button" className="btn btn-outline-secondary" onClick={onClick}>
+                {showingJSON ?
+                    <React.Fragment><i className="icon fas icon-fw icon-list" /> View as List</React.Fragment>
+                    :
+                    <React.Fragment><i className="icon fas icon-fw icon-code" /> View as JSON</React.Fragment>
+                }
+            </button>
+        </div>
     );
 });
 
 const SeeMoreRowsButton = React.memo(function SeeMoreRowsButton({ onClick, collapsed, className }){
     return (
-        <button type="button" className="btn btn-block btn-outline-secondary" onClick={onClick}>
-            { collapsed ? "See advanced information" : "Hide" }
-        </button>
+        <div className="d-grid gap-1">
+            <button type="button" className="btn btn-outline-secondary" onClick={onClick}>
+                {collapsed ? "See advanced information" : "Hide"}
+            </button>
+        </div>
     );
 });
 

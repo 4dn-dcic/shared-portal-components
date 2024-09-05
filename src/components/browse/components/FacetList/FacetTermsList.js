@@ -208,7 +208,7 @@ export class Term extends React.PureComponent {
         }
         return (
             <React.Fragment>
-                <li className={"facet-list-element" + statusClassName + (groupingTermKey && !facetSearchActive ? " pl-3" : "")}
+                <li className={"facet-list-element" + statusClassName + (groupingTermKey && !facetSearchActive ? " ps-3" : "")}
                     key={term.key} data-key={term.key}
                     data-is-grouping={isGroupingTerm} data-grouping-key={groupingTermKey}>
                     <a className="term" data-selected={selected} href="#" onClick={this.handleClick} data-term={term.key}>
@@ -526,7 +526,7 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
         let facetSearch = null;
         if (searchType === 'basic') {
             facetSearch = (
-                <div className="text-small p-2">
+                <div className="fs-6 p-2">
                     <input className="form-control" autoComplete="off" type="search" placeholder="Search"
                         name="q" onChange={onBasicTermSearch} value={searchText} key="facet-search-input" />
                 </div>);
@@ -535,7 +535,7 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
             itemType = typeof itemType === 'string' && (itemType.length > 0) ? itemType : 'Item';
             const baseHref = "/search/?type=" + itemType;
             facetSearch = (
-                <div className="d-flex flex-wrap text-small p-2">
+                <div className="d-flex flex-wrap fs-6 p-2">
                     <SearchAsYouTypeAjax baseHref={baseHref} showTips={true} onChange={onSaytTermSearch} key={itemType} />
                 </div>
             );

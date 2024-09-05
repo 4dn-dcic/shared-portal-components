@@ -585,7 +585,7 @@ export class EditableField extends React.Component {
         if (style === 'row') {
             return (
                 <div className={"row editable-field-entry " + labelID}>
-                    <div className="col col-md-3 text-left text-md-right">
+                    <div className="col col-md-3 text-start text-md-end">
                         <label htmlFor={labelID}>{label}</label>
                     </div>
                     {this.renderSavedValue()}
@@ -612,7 +612,7 @@ export class EditableField extends React.Component {
         } else if (style === 'minimal-row') {
             return (
                 <div className={"row editable-field-entry " + labelID}>
-                    <div className="col col-md-2 text-left text-md-right">
+                    <div className="col col-md-2 text-start text-md-end">
                         <label htmlFor={labelID}>{label}</label>
                     </div>
                     {this.renderSavedValue()}
@@ -693,7 +693,7 @@ export class EditableField extends React.Component {
         if (style == 'row' ) {
             return (
                 <div className={outerBaseClass + labelID + ' row'}>
-                    <div className="col col-md-3 text-left text-md-right">
+                    <div className="col col-md-3 text-start text-md-end">
                         <label htmlFor={labelID }>{ label }</label>
                     </div>
                     <div className="col col-md-9 value editing d-flex">

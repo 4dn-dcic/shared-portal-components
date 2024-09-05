@@ -34,11 +34,11 @@ export var AboveSearchViewTableControls = /*#__PURE__*/React.memo(function (prop
     });
     if (addAction && typeof addAction.href === 'string') {
       addButton = /*#__PURE__*/React.createElement("a", {
-        className: "btn btn-primary btn-xs" + (total ? " ml-1" : ""),
+        className: "btn btn-primary btn-xs" + (total ? " ms-1" : ""),
         href: addAction.href,
         "data-skiprequest": "true"
       }, /*#__PURE__*/React.createElement("i", {
-        className: "icon icon-fw icon-plus fas mr-03 fas"
+        className: "icon icon-fw icon-plus fas me-03 fas"
       }), "Create New \xA0");
     }
   }

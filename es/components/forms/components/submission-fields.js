@@ -151,7 +151,7 @@ export var BuildField = /*#__PURE__*/function (_React$PureComponent) {
             inputMode: "latin",
             rows: 8,
             wrap: "off",
-            className: "form-control text-small mb-08 mt-08",
+            className: "form-control fs-6 mb-08 mt-08",
             style: {
               'fontFamily': "Source Code Pro, monospace",
               'fontSize': 'small'
@@ -419,7 +419,7 @@ export var BuildField = /*#__PURE__*/function (_React$PureComponent) {
       }, /*#__PURE__*/React.createElement("h5", {
         className: "submission-field-title text-truncate"
       }, this.labelTypeDescriptor(), fieldTip ? /*#__PURE__*/React.createElement(InfoIcon, {
-        className: "mr-07",
+        className: "me-07",
         title: title,
         fieldType: fieldType,
         schema: schema
@@ -1385,7 +1385,7 @@ export var AliasInputField = /*#__PURE__*/function (_React$Component4) {
         onChange: this.onAliasSecondPartChange,
         className: "form-control" + (errorMessage ? " is-invalid" : isValid ? " is-valid" : "")
       })), showErrorMsg && errorMessage ? /*#__PURE__*/React.createElement("div", {
-        className: "invalid-feedback d-block text-right"
+        className: "invalid-feedback d-block text-end"
       }, errorMessage) : null);
     }
   }], [{

@@ -606,7 +606,7 @@ export class LinkedObj extends React.PureComponent {
                     return(
                         <div>
                             <a href={keyComplete[intKey]} target="_blank" rel="noopener noreferrer">{ thisDisplay }</a>
-                            <i className="icon icon-fw icon-external-link-alt ml-05 fas"/>
+                            <i className="icon icon-fw icon-external-link-alt ms-05 fas"/>
                         </div>
                     );
                 } else {

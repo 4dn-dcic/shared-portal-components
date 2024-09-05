@@ -250,7 +250,7 @@ export var Term = /*#__PURE__*/function (_React$PureComponent) {
         return subTermComponents;
       }
       return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("li", {
-        className: "facet-list-element" + statusClassName + (groupingTermKey && !facetSearchActive ? " pl-3" : ""),
+        className: "facet-list-element" + statusClassName + (groupingTermKey && !facetSearchActive ? " ps-3" : ""),
         key: term.key,
         "data-key": term.key,
         "data-is-grouping": isGroupingTerm,
@@ -733,7 +733,7 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
     var facetSearch = null;
     if (searchType === 'basic') {
       facetSearch = /*#__PURE__*/React.createElement("div", {
-        className: "text-small p-2"
+        className: "fs-6 p-2"
       }, /*#__PURE__*/React.createElement("input", {
         className: "form-control",
         autoComplete: "off",
@@ -750,7 +750,7 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
       itemType = typeof itemType === 'string' && itemType.length > 0 ? itemType : 'Item';
       var baseHref = "/search/?type=" + itemType;
       facetSearch = /*#__PURE__*/React.createElement("div", {
-        className: "d-flex flex-wrap text-small p-2"
+        className: "d-flex flex-wrap fs-6 p-2"
       }, /*#__PURE__*/React.createElement(SearchAsYouTypeAjax, {
         baseHref: baseHref,
         showTips: true,

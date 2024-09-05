@@ -188,7 +188,7 @@ var TableEntry = /*#__PURE__*/function (_React$Component) {
         title = /*#__PURE__*/React.createElement("div", {
           className: "title-link-wrapper"
         }, collapsibleButton, /*#__PURE__*/React.createElement("a", {
-          className: depth === 0 ? 'text-500' : 'text-400',
+          className: "link-underline link-underline-opacity-0 ",
           href: (link.charAt(0) === '/' ? '' : '#') + link,
           onClick: function onClick(e) {
             e.preventDefault();
@@ -514,13 +514,13 @@ export var TableOfContents = /*#__PURE__*/function (_React$Component3) {
         key: "parent-link",
         className: "col col-xs-" + (windowInnerWidth && windowInnerWidth >= 1600 ? '9' : '12')
       }, /*#__PURE__*/React.createElement("a", {
-        className: "text-500",
+        className: "link-underline link-underline-opacity-0",
         href: context.parent['@id']
       }, context.parent['display_title'])));
       if (windowInnerWidth && windowInnerWidth >= 1600) {
         cols.push( /*#__PURE__*/React.createElement("div", {
           key: "expand-btn",
-          className: "col col-xs-3 text-right expand-button-container"
+          className: "col col-xs-3 text-end expand-button-container"
         }, /*#__PURE__*/React.createElement("button", {
           type: "button",
           className: "btn btn-xs btn-outline-dark",
@@ -836,7 +836,7 @@ export var NextPreviousPageSection = /*#__PURE__*/React.memo(function (props) {
   }, /*#__PURE__*/React.createElement("div", {
     className: "row"
   }, previous ? /*#__PURE__*/React.createElement("div", {
-    className: "previous-section text-right col-" + colSize
+    className: "previous-section text-end col-" + colSize
   }, /*#__PURE__*/React.createElement("h6", {
     className: "text-400 mb-02 mt-12"
   }, /*#__PURE__*/React.createElement("i", {
@@ -844,7 +844,8 @@ export var NextPreviousPageSection = /*#__PURE__*/React.memo(function (props) {
   }), " ", previousTitle), /*#__PURE__*/React.createElement("h6", {
     className: "text-500 mt-0"
   }, /*#__PURE__*/React.createElement("a", {
-    href: previous['@id'] || '/' + (previous.name || previous.identifier)
+    href: previous['@id'] || '/' + (previous.name || previous.identifier),
+    className: "link-underline link-underline-opacity-0 link-underline-opacity-100-hover"
   }, previous.display_title))) : null, next ? /*#__PURE__*/React.createElement("div", {
     className: "next-section col-" + colSize
   }, /*#__PURE__*/React.createElement("h6", {
@@ -854,7 +855,8 @@ export var NextPreviousPageSection = /*#__PURE__*/React.memo(function (props) {
   })), /*#__PURE__*/React.createElement("h6", {
     className: "text-500 mt-0"
   }, /*#__PURE__*/React.createElement("a", {
-    href: next['@id'] || '/' + (next.name || previous.identifier)
+    href: next['@id'] || '/' + (next.name || previous.identifier),
+    className: "link-underline link-underline-opacity-0 link-underline-opacity-100-hover"
   }, next.display_title))) : null));
 });
 

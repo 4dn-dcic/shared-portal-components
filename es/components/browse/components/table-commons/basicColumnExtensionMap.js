@@ -72,7 +72,7 @@ export var basicColumnExtensionMap = {
       return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
         className: "icon-container"
       }, /*#__PURE__*/React.createElement("i", {
-        className: "icon icon-fw fas icon-filter clickable mr-08",
+        className: "icon icon-fw fas icon-filter clickable me-08",
         onClick: function onClick(e) {
           // Preserve search query, if any, but remove filters (which are usually per-type).
           if (!href || href.indexOf('/search/') === -1) return;
@@ -107,7 +107,7 @@ export var basicColumnExtensionMap = {
         date_created = _result$date_created === void 0 ? null : _result$date_created;
       if (!date_created) return null;
       return /*#__PURE__*/React.createElement("span", {
-        className: "value text-right"
+        className: "value text-end"
       }, /*#__PURE__*/React.createElement(LocalizedTime, {
         timestamp: date_created,
         formatType: "date-sm"
@@ -130,7 +130,7 @@ export var basicColumnExtensionMap = {
         date_modified = _result$last_modified3 === void 0 ? null : _result$last_modified3;
       if (!date_modified) return null;
       return /*#__PURE__*/React.createElement("span", {
-        className: "value text-right"
+        className: "value text-end"
       }, /*#__PURE__*/React.createElement(LocalizedTime, {
         timestamp: date_modified,
         formatType: "date-sm"
@@ -203,12 +203,13 @@ export var DisplayTitleColumnDefault = /*#__PURE__*/React.memo(function (props) 
       link = "".concat(propLink, "#").concat(targetTabKey);
     }
     title = /*#__PURE__*/React.createElement("a", {
+      className: "link-underline link-underline-opacity-0 link-underline-opacity-100-hover",
       key: "title",
       href: link || '#',
       onClick: onClick
     }, title);
   }
-  var cls = "title-block text-truncate" + (shouldMonospace ? " text-monospace text-small" : "") + (className ? " " + className : "");
+  var cls = "title-block text-truncate" + (shouldMonospace ? " font-monospace fs-6" : "") + (className ? " " + className : "");
   return /*#__PURE__*/React.createElement("div", {
     key: "title-container",
     className: cls,

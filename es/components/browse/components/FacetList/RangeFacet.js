@@ -473,7 +473,7 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
         }, /*#__PURE__*/React.createElement("div", {
           className: "range-drop col-12 col-sm-6"
         }, /*#__PURE__*/React.createElement("label", {
-          className: "mb-0 small mr-07"
+          className: "mb-0 small me-07"
         }, "From:"), /*#__PURE__*/React.createElement(RangeDropdown, {
           title: fromTitle,
           value: fromVal,
@@ -490,7 +490,7 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
         })), /*#__PURE__*/React.createElement("div", {
           className: "range-drop col-12 col-sm-6"
         }, /*#__PURE__*/React.createElement("label", {
-          className: "mb-0 small ml-05 mr-07"
+          className: "mb-0 small ms-05 me-07"
         }, "To:"), /*#__PURE__*/React.createElement(RangeDropdown, {
           title: toTitle,
           value: toVal,

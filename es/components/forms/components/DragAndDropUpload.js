@@ -669,7 +669,7 @@ function RequestVerification(props) {
     checked: isVerified,
     onChange: toggleVerification
   }), /*#__PURE__*/React.createElement("label", {
-    className: "d-inline ml-05",
+    className: "d-inline ms-05",
     htmlFor: "file-verification"
   }, requestVerificationMsg, " "));
 }
@@ -797,7 +797,7 @@ export var DragAndDropZone = /*#__PURE__*/function (_React$Component5) {
           alignSelf: "center"
         }
       }, files.length === 0 ? "Click or drag a file here to upload" : null), /*#__PURE__*/React.createElement("ul", {
-        className: "d-flex flex-wrap m-0 pt-1 pl-0 justify-content-center"
+        className: "d-flex flex-wrap m-0 pt-1 ps-0 justify-content-center"
       }, files.map(function (file) {
         return /*#__PURE__*/React.createElement("li", {
           key: file.download,

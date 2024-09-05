@@ -13,7 +13,7 @@ export var Checkbox = /*#__PURE__*/React.memo(function (props) {
     labelClassName = _props$labelClassName === void 0 ? "mb-0" : _props$labelClassName,
     title = props.title,
     _props$inputClassName = props.inputClassName,
-    inputClassName = _props$inputClassName === void 0 ? "mr-08 align-middle" : _props$inputClassName,
+    inputClassName = _props$inputClassName === void 0 ? "me-08 align-middle" : _props$inputClassName,
     _props$indeterminate = props.indeterminate,
     indeterminate = _props$indeterminate === void 0 ? false : _props$indeterminate,
     passProps = _objectWithoutProperties(props, _excluded);
