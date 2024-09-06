@@ -78,6 +78,8 @@ export const shortenString = memoize(function(originalText, maxChars = 28, addEl
  * in src/encoded/static/scss/bootstrap/_variables.scss.
  *
  * 2019-07-10 -- updated to Bootstrap v4 breakpoints, added 'xl'.
+ * 
+ * 2024-09-06 -- updated to Bootstrap v5 breakpoints, added 'xxl'.
  *
  * @deprecated
  * Will be replaced by portal-specific versions soon/eventually.
@@ -90,8 +92,9 @@ export const responsiveGridState = memoize(function(width = null){
     if (typeof width !== 'number') {
         // Assumed to be null or undefined which should mean we are
         // server-side or not yet mounted.
-        return 'xl';
+        return 'xxl';
     }
+    if (width >= 1400) return 'xxl';
     if (width >= 1200) return 'xl';
     if (width >= 992) return 'lg';
     if (width >= 768) return 'md';
@@ -118,6 +121,7 @@ export const responsiveGridState = memoize(function(width = null){
 export function gridContainerWidth(windowWidth = null){
     // Subtract 20 for padding/margins.
     switch(responsiveGridState(windowWidth)){
+        case 'xxl': return 1320;
         case 'xl': return 1120;
         case 'lg': return 940;
         case 'md': return 700;
