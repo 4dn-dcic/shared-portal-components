@@ -169,7 +169,7 @@ export function sanitizeOutputValue(value){
             if (typeof value.display_title !== 'undefined'){
                 const atId = itemUtil.atId(value);
                 if (atId){
-                    return <a href={atId}>{ value.display_title }</a>;
+                    return <a href={atId} className="link-offset-2 link-underline link-underline-opacity-0 link-underline-opacity-100-hover">{ value.display_title }</a>;
                 } else {
                     return value.display_title;
                 }

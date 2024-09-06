@@ -845,7 +845,7 @@ export var NextPreviousPageSection = /*#__PURE__*/React.memo(function (props) {
     className: "text-500 mt-0"
   }, /*#__PURE__*/React.createElement("a", {
     href: previous['@id'] || '/' + (previous.name || previous.identifier),
-    className: "link-underline link-underline-opacity-0 link-underline-opacity-100-hover"
+    className: "link-offset-2 link-underline link-underline-opacity-0 link-underline-opacity-100-hover"
   }, previous.display_title))) : null, next ? /*#__PURE__*/React.createElement("div", {
     className: "next-section col-" + colSize
   }, /*#__PURE__*/React.createElement("h6", {
@@ -856,7 +856,7 @@ export var NextPreviousPageSection = /*#__PURE__*/React.memo(function (props) {
     className: "text-500 mt-0"
   }, /*#__PURE__*/React.createElement("a", {
     href: next['@id'] || '/' + (next.name || previous.identifier),
-    className: "link-underline link-underline-opacity-0 link-underline-opacity-100-hover"
+    className: "link-offset-2 link-underline link-underline-opacity-0 link-underline-opacity-100-hover"
   }, next.display_title))) : null));
 });
 

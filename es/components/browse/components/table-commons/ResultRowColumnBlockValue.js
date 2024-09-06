@@ -201,7 +201,8 @@ export function sanitizeOutputValue(value) {
         var atId = itemUtil.atId(value);
         if (atId) {
           return /*#__PURE__*/React.createElement("a", {
-            href: atId
+            href: atId,
+            className: "link-offset-2 link-underline link-underline-opacity-0 link-underline-opacity-100-hover"
           }, value.display_title);
         } else {
           return value.display_title;

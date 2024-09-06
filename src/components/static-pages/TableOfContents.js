@@ -691,13 +691,13 @@ export const NextPreviousPageSection = React.memo(function NextPreviousPageSecti
                 { previous ?
                     <div className={"previous-section text-end col-" + colSize}>
                         <h6 className="text-400 mb-02 mt-12"><i className="icon icon-fw fas icon-angle-left"/> { previousTitle }</h6>
-                        <h6 className="text-500 mt-0"><a href={previous['@id'] || '/' + (previous.name || previous.identifier)} className="link-underline link-underline-opacity-0 link-underline-opacity-100-hover">{ previous.display_title }</a></h6>
+                        <h6 className="text-500 mt-0"><a href={previous['@id'] || '/' + (previous.name || previous.identifier)} className="link-offset-2 link-underline link-underline-opacity-0 link-underline-opacity-100-hover">{ previous.display_title }</a></h6>
                     </div>
                     : null }
                 { next ?
                     <div className={"next-section col-" + colSize}>
                         <h6 className="text-400 mb-02 mt-12">{ nextTitle } <i className="icon fas icon-fw icon-angle-right"/></h6>
-                        <h6 className="text-500 mt-0"><a href={next['@id'] || '/' + (next.name || previous.identifier)} className="link-underline link-underline-opacity-0 link-underline-opacity-100-hover">{ next.display_title }</a></h6>
+                        <h6 className="text-500 mt-0"><a href={next['@id'] || '/' + (next.name || previous.identifier)} className="link-offset-2 link-underline link-underline-opacity-0 link-underline-opacity-100-hover">{ next.display_title }</a></h6>
                     </div>
                     : null }
             </div>
