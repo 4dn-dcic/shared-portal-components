@@ -572,7 +572,7 @@ export class TableOfContents extends React.Component {
         const {
             context, maxHeaderDepth, includeTop, fixedGridWidth, includeNextPreviousPages, listStyleTypes,
             windowWidth, windowHeight, maxHeight, navigate: propNavigate, defaultExpanded,
-            fixedPositionBreakpoint = 1200
+            fixedPositionBreakpoint = 1400
         } = this.props;
         const { mounted, scrollTop, widthBound } = this.state;
         const contents = [];

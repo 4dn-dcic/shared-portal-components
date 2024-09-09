@@ -558,7 +558,7 @@ export var TableOfContents = /*#__PURE__*/function (_React$Component3) {
         propNavigate = _this$props5.navigate,
         defaultExpanded = _this$props5.defaultExpanded,
         _this$props5$fixedPos = _this$props5.fixedPositionBreakpoint,
-        fixedPositionBreakpoint = _this$props5$fixedPos === void 0 ? 1200 : _this$props5$fixedPos;
+        fixedPositionBreakpoint = _this$props5$fixedPos === void 0 ? 1400 : _this$props5$fixedPos;
       var _this$state = this.state,
         mounted = _this$state.mounted,
         scrollTop = _this$state.scrollTop,
