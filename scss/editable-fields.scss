@@ -128,11 +128,11 @@ div.fieldset.editable-fields {
 		}
 
 		.cancel-button {
-			color : theme-color("danger");
+			color : $danger;
 		}
 
 		.save-button {
-			color : theme-color("success");
+			color : $success;
 		}
 
 		.field-loading-icon {
