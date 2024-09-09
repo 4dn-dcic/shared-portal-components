@@ -302,13 +302,13 @@ export var SelectStickyFooter = /*#__PURE__*/React.memo(function (props) {
   }, /*#__PURE__*/React.createElement("h3", {
     className: "mt-0 mb-0 col-auto text-600"
   }, selectedItems.size), /*#__PURE__*/React.createElement("h4", {
-    className: "mt-0 mb-0 text-muted col-auto text-400 px-0"
+    className: "mt-0 mb-0 text-body-secondary col-auto text-400 px-0"
   }, itemTypeFriendlyName + (selectedItems.size === 1 ? '' : 's'), " selected")) : /*#__PURE__*/React.createElement("div", {
     className: "row"
   }, /*#__PURE__*/React.createElement("h4", {
     className: "mt-0 mb-0 col-auto text-400"
   }, selectedItemDisplayTitle), /*#__PURE__*/React.createElement("h4", {
-    className: "mt-0 mb-0 text-muted col-auto text-400 px-0"
+    className: "mt-0 mb-0 text-body-secondary col-auto text-400 px-0"
   }, "selected"))), /*#__PURE__*/React.createElement("div", {
     className: "col-12 col-md-auto"
   }, /*#__PURE__*/React.createElement("button", {
