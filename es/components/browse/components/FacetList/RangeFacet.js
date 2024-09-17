@@ -1120,7 +1120,7 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent3) {
         })), /*#__PURE__*/React.createElement("button", {
           type: "submit",
           disabled: !updateAble,
-          className: "btn"
+          className: "btn border-0"
         }, /*#__PURE__*/React.createElement("i", {
           className: "icon icon-fw icon-check fas"
         }))));
@@ -1177,7 +1177,7 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent3) {
         })), /*#__PURE__*/React.createElement("button", {
           type: "submit",
           disabled: !updateAble,
-          className: "btn"
+          className: "btn border-0"
         }, /*#__PURE__*/React.createElement("i", {
           className: "icon icon-fw icon-check fas"
         }))), menuOptions);

@@ -953,7 +953,7 @@ class RangeDropdown extends React.PureComponent {
                             <input type="date" className="form-control" value={value === null ? "" : value} data-value={value}
                                 onKeyDown={this.onTextInputKeyDown} onChange={this.onTextInputChange} />
                         </div>
-                        <button type="submit" disabled={!updateAble} className="btn">
+                        <button type="submit" disabled={!updateAble} className="btn border-0">
                             <i className="icon icon-fw icon-check fas"/>
                         </button>
                     </form>
@@ -1004,7 +1004,7 @@ class RangeDropdown extends React.PureComponent {
                                 onKeyDown={this.onTextInputKeyDown} onChange={this.onTextInputChange}
                                 value={value === null ? "" : value}/>
                         </div>
-                        <button type="submit" disabled={!updateAble} className="btn">
+                        <button type="submit" disabled={!updateAble} className="btn border-0">
                             <i className="icon icon-fw icon-check fas"/>
                         </button>
                     </form>
