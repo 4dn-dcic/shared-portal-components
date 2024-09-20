@@ -275,7 +275,7 @@ class AlertItem extends React.PureComponent {
                 <div className={"alert alert-dismissable alert-" + (bsStyle || 'danger') + (noCloseButton === true ? ' no-close-button' : '')}>
                     { noCloseButton !== true ?
                         <button type="button" className="btn-close float-end" onClick={this.dismiss}>
-                            <span className="sr-only">Close alert</span>
+                            <span className="visually-hidden">Close alert</span>
                         </button>
                         : null }
                     <h4 className={"alert-heading mt-0" + (hasMessage ? " mb-05" : " mb-0")}>{ title }</h4>

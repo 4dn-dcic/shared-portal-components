@@ -356,7 +356,7 @@ var AlertItem = /*#__PURE__*/function (_React$PureComponent) {
         className: "btn-close float-end",
         onClick: this.dismiss
       }, /*#__PURE__*/React.createElement("span", {
-        className: "sr-only"
+        className: "visually-hidden"
       }, "Close alert")) : null, /*#__PURE__*/React.createElement("h4", {
         className: "alert-heading mt-0" + (hasMessage ? " mb-05" : " mb-0")
       }, title), hasMessage ? /*#__PURE__*/React.createElement("div", {

@@ -121,7 +121,7 @@ export const responsiveGridState = memoize(function(width = null){
 export function gridContainerWidth(windowWidth = null){
     // Subtract 20 for padding/margins.
     switch(responsiveGridState(windowWidth)){
-        case 'xxl': return 1320;
+        case 'xxl': return 1300;
         case 'xl': return 1120;
         case 'lg': return 940;
         case 'md': return 700;
