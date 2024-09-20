@@ -233,7 +233,7 @@ var TableEntry = /*#__PURE__*/function (_React$Component) {
 }(React.Component);
 _defineProperty(TableEntry, "getChildHeaders", memoize(function (content, maxHeaderDepth, currentDepth) {
   if (!TableOfContents.isContentJSX(content) || !content.props || !content.props.children) return [];
-  return content.props.children.filter(function (child) {
+  return React.Children.toArray(content.props.children).filter(function (child) {
     return TableOfContents.isHeaderComponent(child, maxHeaderDepth || 6) && child.props.type === 'h' + (currentDepth + 1);
   });
 }));

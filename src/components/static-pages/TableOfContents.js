@@ -13,7 +13,7 @@ class TableEntry extends React.Component {
 
     static getChildHeaders = memoize(function(content, maxHeaderDepth, currentDepth){
         if (!TableOfContents.isContentJSX(content) || !content.props || !content.props.children) return [];
-        return content.props.children.filter(function(child,i,a){
+        return React.Children.toArray(content.props.children).filter(function(child,i,a){
             return TableOfContents.isHeaderComponent(child, maxHeaderDepth || 6) && (child.props.type === 'h' + (currentDepth + 1));
         });
     });
