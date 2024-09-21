@@ -157,19 +157,23 @@ export var SearchSelectionMenu = /*#__PURE__*/function (_React$PureComponent) {
         show: dropOpen
       }, "onTextInputChange", onTextInputChange), "toggleOpen", this.onToggleOpen), "ref", this.dropdown), "onKeyDown", this.onKeyDown), options.map(function (option, idx) {
         var renderedOption = typeof optionRenderFunction === "function" ? optionRenderFunction(option) : option;
+        var onClick = function (evt) {
+          evt.preventDefault();
+          evt.stopPropagation();
+          onDropdownSelect(option);
+          this.setState({
+            dropOpen: false
+          });
+        }.bind(this);
         return /*#__PURE__*/React.createElement(Dropdown.Item, {
           "data-index": idx,
-          onClick: function (evt) {
-            evt.preventDefault();
-            evt.stopPropagation();
-            onDropdownSelect(option);
-          },
+          onClick: onClick,
           key: idx,
           eventKey: idx,
           className: "text-truncate",
           tabIndex: "3"
         }, renderedOption);
-      })));
+      }, this)));
     }
   }]);
 }(React.PureComponent);

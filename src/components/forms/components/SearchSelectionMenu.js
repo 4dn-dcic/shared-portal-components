@@ -111,18 +111,18 @@ export class SearchSelectionMenu extends React.PureComponent {
                         options.map(function(option, idx){
                             const renderedOption = typeof optionRenderFunction === "function" ?
                                 optionRenderFunction(option) : option;
-                            function onClick(evt){
+                            const onClick = function (evt){
                                 evt.preventDefault();
                                 evt.stopPropagation();
                                 onDropdownSelect(option);
-                            }
+                                this.setState({ dropOpen: false });
+                            }.bind(this);
                             return (
                                 <Dropdown.Item data-index={idx} onClick={onClick} key={idx} eventKey={idx} className="text-truncate" tabIndex="3">
                                     { renderedOption }
                                 </Dropdown.Item>
                             );
-                        })
-                    }
+                        }, this)}
                 </Dropdown.Menu>
             </Dropdown>
         );
