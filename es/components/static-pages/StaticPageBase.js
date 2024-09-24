@@ -316,5 +316,5 @@ _defineProperty(StaticPageBase, "propTypes", {
   'entryRenderFxn': PropTypes.func,
   'contentParseFxn': PropTypes.func.isRequired,
   'href': PropTypes.string,
-  'CustomWrapper': PropTypes.element
+  'CustomWrapper': PropTypes.elementType
 });
