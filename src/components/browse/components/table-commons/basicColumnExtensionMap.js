@@ -156,7 +156,7 @@ export const DisplayTitleColumnDefault = React.memo(function DisplayTitleColumnD
         if (targetTabKey && typeof targetTabKey === 'string'){
             link = `${propLink}#${targetTabKey}`;
         }
-        title = <a className="link-offset-2 link-underline link-underline-opacity-0 link-underline-opacity-100-hover" key="title" href={link || '#'} onClick={onClick}>{title}</a>;
+        title = <a className="link-underline-hover" key="title" href={link || '#'} onClick={onClick}>{title}</a>;
     }
 
     const cls = (

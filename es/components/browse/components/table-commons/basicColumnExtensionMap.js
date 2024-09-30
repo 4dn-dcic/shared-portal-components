@@ -203,7 +203,7 @@ export var DisplayTitleColumnDefault = /*#__PURE__*/React.memo(function (props) 
       link = "".concat(propLink, "#").concat(targetTabKey);
     }
     title = /*#__PURE__*/React.createElement("a", {
-      className: "link-offset-2 link-underline link-underline-opacity-0 link-underline-opacity-100-hover",
+      className: "link-underline-hover",
       key: "title",
       href: link || '#',
       onClick: onClick

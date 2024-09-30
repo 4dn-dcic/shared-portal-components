@@ -188,7 +188,6 @@ var TableEntry = /*#__PURE__*/function (_React$Component) {
         title = /*#__PURE__*/React.createElement("div", {
           className: "title-link-wrapper"
         }, collapsibleButton, /*#__PURE__*/React.createElement("a", {
-          className: "link-underline link-underline-opacity-0 ",
           href: (link.charAt(0) === '/' ? '' : '#') + link,
           onClick: function onClick(e) {
             e.preventDefault();
@@ -514,7 +513,6 @@ export var TableOfContents = /*#__PURE__*/function (_React$Component3) {
         key: "parent-link",
         className: "col col-xs-" + (windowInnerWidth && windowInnerWidth >= 1600 ? '9' : '12')
       }, /*#__PURE__*/React.createElement("a", {
-        className: "link-underline link-underline-opacity-0",
         href: context.parent['@id']
       }, context.parent['display_title'])));
       if (windowInnerWidth && windowInnerWidth >= 1600) {
@@ -845,7 +843,7 @@ export var NextPreviousPageSection = /*#__PURE__*/React.memo(function (props) {
     className: "text-500 mt-0"
   }, /*#__PURE__*/React.createElement("a", {
     href: previous['@id'] || '/' + (previous.name || previous.identifier),
-    className: "link-offset-2 link-underline link-underline-opacity-0 link-underline-opacity-100-hover"
+    className: "link-underline-hover"
   }, previous.display_title))) : null, next ? /*#__PURE__*/React.createElement("div", {
     className: "next-section col-" + colSize
   }, /*#__PURE__*/React.createElement("h6", {
@@ -856,7 +854,7 @@ export var NextPreviousPageSection = /*#__PURE__*/React.memo(function (props) {
     className: "text-500 mt-0"
   }, /*#__PURE__*/React.createElement("a", {
     href: next['@id'] || '/' + (next.name || previous.identifier),
-    className: "link-offset-2 link-underline link-underline-opacity-0 link-underline-opacity-100-hover"
+    className: "link-underline-hover"
   }, next.display_title))) : null));
 });
 

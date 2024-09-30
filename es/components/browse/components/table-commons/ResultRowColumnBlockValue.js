@@ -202,7 +202,7 @@ export function sanitizeOutputValue(value) {
         if (atId) {
           return /*#__PURE__*/React.createElement("a", {
             href: atId,
-            className: "link-offset-2 link-underline link-underline-opacity-0 link-underline-opacity-100-hover"
+            className: "link-underline-hover"
           }, value.display_title);
         } else {
           return value.display_title;
