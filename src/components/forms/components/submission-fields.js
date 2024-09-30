@@ -133,7 +133,7 @@ export class BuildField extends React.PureComponent {
                 return <textarea {...inputProps} type="text" inputMode="latin" rows={4} className="form-control mb-08 mt-08" />;
             case 'html':
             case 'code':
-                return <textarea {...inputProps} type="text" inputMode="latin" rows={8} wrap="off" className="form-control fs-6 mb-08 mt-08" style={{ 'fontFamily' : "Source Code Pro, monospace", 'fontSize' : 'small' }} />;
+                return <textarea {...inputProps} type="text" inputMode="latin" rows={8} wrap="off" className="form-control text-small mb-08 mt-08" style={{ 'fontFamily' : "Source Code Pro, monospace", 'fontSize' : 'small' }} />;
             case 'integer'          : return <FormControl type="number" {...inputProps} step={1} />;
             case 'number'           : return <FormControl type="number" {...inputProps} />;
             case 'boolean'          : return (

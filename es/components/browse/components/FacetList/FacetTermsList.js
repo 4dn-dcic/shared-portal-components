@@ -733,7 +733,7 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
     var facetSearch = null;
     if (searchType === 'basic') {
       facetSearch = /*#__PURE__*/React.createElement("div", {
-        className: "fs-6 p-2"
+        className: "text-small p-2"
       }, /*#__PURE__*/React.createElement("input", {
         className: "form-control",
         autoComplete: "off",
@@ -750,7 +750,7 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
       itemType = typeof itemType === 'string' && itemType.length > 0 ? itemType : 'Item';
       var baseHref = "/search/?type=" + itemType;
       facetSearch = /*#__PURE__*/React.createElement("div", {
-        className: "d-flex flex-wrap fs-6 p-2"
+        className: "d-flex flex-wrap text-small p-2"
       }, /*#__PURE__*/React.createElement(SearchAsYouTypeAjax, {
         baseHref: baseHref,
         showTips: true,

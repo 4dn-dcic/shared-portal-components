@@ -151,7 +151,7 @@ export var BuildField = /*#__PURE__*/function (_React$PureComponent) {
             inputMode: "latin",
             rows: 8,
             wrap: "off",
-            className: "form-control fs-6 mb-08 mt-08",
+            className: "form-control text-small mb-08 mt-08",
             style: {
               'fontFamily': "Source Code Pro, monospace",
               'fontSize': 'small'

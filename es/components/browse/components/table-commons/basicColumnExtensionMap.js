@@ -209,7 +209,7 @@ export var DisplayTitleColumnDefault = /*#__PURE__*/React.memo(function (props) 
       onClick: onClick
     }, title);
   }
-  var cls = "title-block text-truncate" + (shouldMonospace ? " font-monospace fs-6" : "") + (className ? " " + className : "");
+  var cls = "title-block text-truncate" + (shouldMonospace ? " font-monospace text-small" : "") + (className ? " " + className : "");
   return /*#__PURE__*/React.createElement("div", {
     key: "title-container",
     className: cls,

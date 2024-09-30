@@ -161,7 +161,7 @@ export const DisplayTitleColumnDefault = React.memo(function DisplayTitleColumnD
 
     const cls = (
         "title-block text-truncate"
-        + (shouldMonospace ? " font-monospace fs-6" : "")
+        + (shouldMonospace ? " font-monospace text-small" : "")
         + (className ? " " + className : "")
     );
 
