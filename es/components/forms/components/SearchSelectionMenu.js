@@ -34,6 +34,7 @@ export var SearchSelectionMenu = /*#__PURE__*/function (_React$PureComponent) {
     _this2.dropdown = /*#__PURE__*/React.createRef();
     _this2.onToggleOpen = _this2.onToggleOpen.bind(_this2);
     _this2.onKeyDown = _this2.onKeyDown.bind(_this2);
+    _this2.handleDropdownSelect = _this2.handleDropdownSelect.bind(_this2);
     return _this2;
   }
   _inherits(SearchSelectionMenu, _React$PureComponent);
@@ -107,6 +108,17 @@ export var SearchSelectionMenu = /*#__PURE__*/function (_React$PureComponent) {
       // otherwise handle as default
     }
   }, {
+    key: "handleDropdownSelect",
+    value: function handleDropdownSelect(evt, option) {
+      var onDropdownSelect = this.props.onDropdownSelect;
+      evt.preventDefault();
+      evt.stopPropagation();
+      onDropdownSelect(option);
+      this.setState({
+        dropOpen: false
+      });
+    }
+  }, {
     key: "render",
     value: function render() {
       var _this$props2 = this.props,
@@ -119,7 +131,6 @@ export var SearchSelectionMenu = /*#__PURE__*/function (_React$PureComponent) {
         _this$props2$optionRe = _this$props2.optionRenderFunction,
         optionRenderFunction = _this$props2$optionRe === void 0 ? null : _this$props2$optionRe,
         titleRenderFunction = _this$props2.titleRenderFunction,
-        onDropdownSelect = _this$props2.onDropdownSelect,
         onTextInputChange = _this$props2.onTextInputChange,
         optionsHeader = _this$props2.optionsHeader,
         optionsFooter = _this$props2.optionsFooter,
@@ -156,18 +167,13 @@ export var SearchSelectionMenu = /*#__PURE__*/function (_React$PureComponent) {
         flip: true,
         show: dropOpen
       }, "onTextInputChange", onTextInputChange), "toggleOpen", this.onToggleOpen), "ref", this.dropdown), "onKeyDown", this.onKeyDown), options.map(function (option, idx) {
+        var _this4 = this;
         var renderedOption = typeof optionRenderFunction === "function" ? optionRenderFunction(option) : option;
-        var onClick = function (evt) {
-          evt.preventDefault();
-          evt.stopPropagation();
-          onDropdownSelect(option);
-          this.setState({
-            dropOpen: false
-          });
-        }.bind(this);
         return /*#__PURE__*/React.createElement(Dropdown.Item, {
           "data-index": idx,
-          onClick: onClick,
+          onClick: function onClick(event) {
+            return _this4.handleDropdownSelect(event, option);
+          },
           key: idx,
           eventKey: idx,
           className: "text-truncate",
