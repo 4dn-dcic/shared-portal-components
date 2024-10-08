@@ -188,6 +188,7 @@ var TableEntry = /*#__PURE__*/function (_React$Component) {
         title = /*#__PURE__*/React.createElement("div", {
           className: "title-link-wrapper"
         }, collapsibleButton, /*#__PURE__*/React.createElement("a", {
+          className: depth === 0 ? 'text-500' : 'text-400',
           href: (link.charAt(0) === '/' ? '' : '#') + link,
           onClick: function onClick(e) {
             e.preventDefault();

@@ -170,7 +170,7 @@ class TableEntry extends React.Component {
             title = (
                 <div className="title-link-wrapper">
                     { collapsibleButton }
-                    <a href={(link.charAt(0) === '/' ? '' : '#') + link} onClick={(e)=>{ e.preventDefault(); this.handleClick(); }}>{ title }</a>
+                    <a className={depth === 0 ? 'text-500' : 'text-400'} href={(link.charAt(0) === '/' ? '' : '#') + link} onClick={(e)=>{ e.preventDefault(); this.handleClick(); }}>{ title }</a>
                 </div>
             );
         }
