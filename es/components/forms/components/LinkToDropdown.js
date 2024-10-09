@@ -197,9 +197,9 @@ export var LinkToDropdown = /*#__PURE__*/function (_React$PureComponent) {
             }, display_title)), /*#__PURE__*/React.createElement("div", {
               className: "col-auto d-none d-md-inline-block"
             }, /*#__PURE__*/React.createElement("i", {
-              className: "icon icon-fw icon-link fas small mr-05"
+              className: "icon icon-fw icon-link fas small me-05"
             }), /*#__PURE__*/React.createElement("span", {
-              className: "text-monospace small"
+              className: "font-monospace small"
             }, itemID))));
           });
         }

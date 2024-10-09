@@ -195,9 +195,9 @@ const ColumnOption = React.memo(function ColumnOption(props){
 
     if (sameTitleColExists){
         if (!description){
-            showDescription = '<i class="icon icon-fw fas icon-code mr-07"></i><span class="text-300 text-monospace">' + field + '</span>';
+            showDescription = '<i class="icon icon-fw fas icon-code me-07"></i><span class="text-300 font-monospace">' + field + '</span>';
         } else {
-            showDescription += '<br/><i class="icon icon-fw fas icon-code mr-07"></i><span class="text-300 text-monospace">' + field + '</span>';
+            showDescription += '<br/><i class="icon icon-fw fas icon-code me-07"></i><span class="text-300 font-monospace">' + field + '</span>';
         }
     }
 

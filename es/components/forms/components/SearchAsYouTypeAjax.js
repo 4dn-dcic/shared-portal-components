@@ -735,7 +735,7 @@ export var LinkedObj = /*#__PURE__*/function (_React$PureComponent2) {
               target: "_blank",
               rel: "noopener noreferrer"
             }, thisDisplay), /*#__PURE__*/React.createElement("i", {
-              className: "icon icon-fw icon-external-link-alt ml-05 fas"
+              className: "icon icon-fw icon-external-link-alt ms-05 fas"
             }));
           } else {
             return /*#__PURE__*/React.createElement("div", {

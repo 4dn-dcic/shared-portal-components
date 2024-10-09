@@ -352,7 +352,7 @@ var MultiColumnSortOption = /*#__PURE__*/React.memo(function (props) {
       title = foundSortDefinition.title;
     } else {
       title = /*#__PURE__*/React.createElement("span", {
-        className: "text-monospace small"
+        className: "font-monospace small"
       }, useCol);
     }
   }
@@ -377,7 +377,7 @@ var MultiColumnSortOption = /*#__PURE__*/React.memo(function (props) {
   }, /*#__PURE__*/React.createElement(DropdownButton, {
     title: title,
     size: size,
-    variant: (variant ? variant + " " : "") + "btn-block text-left",
+    variant: (variant ? variant + " " : "") + "w-100 text-start",
     onSelect: handleSortColumnSelection
   }, allSortFields.map(function (col, idx) {
     var field = col.field,
@@ -391,10 +391,10 @@ var MultiColumnSortOption = /*#__PURE__*/React.memo(function (props) {
       disabled: !!noSort
     }, title) : null;
   }))), /*#__PURE__*/React.createElement("div", {
-    className: "col-3 pl-0"
+    className: "col-3 ps-0"
   }, /*#__PURE__*/React.createElement(DropdownButton, {
     title: sortOrderTitle,
-    variant: (variant ? variant + " " : "") + "btn-block text-left",
+    variant: (variant ? variant + " " : "") + "w-100 text-start",
     size: size,
     onSelect: handleSortOrderSelection
   }, /*#__PURE__*/React.createElement(DropdownItem, {
@@ -404,20 +404,24 @@ var MultiColumnSortOption = /*#__PURE__*/React.memo(function (props) {
     key: "sort-direction-desc",
     eventKey: index + "|desc"
   }, "Descending"))), /*#__PURE__*/React.createElement("div", {
-    className: "col-lg-1 col-2 pl-0"
-  }, !(rowCount - 1 === index) ? /*#__PURE__*/React.createElement("button", {
+    className: "col-lg-1 col-2 ps-0"
+  }, !(rowCount - 1 === index) ? /*#__PURE__*/React.createElement("div", {
+    className: "d-grid gap-1"
+  }, /*#__PURE__*/React.createElement("button", {
     type: "button",
-    className: "btn btn-".concat(variant, " btn-").concat(size, " btn-block"),
+    className: "btn btn-".concat(variant, " btn-").concat(size),
     onClick: onRemoveClick,
     "data-tip": "Remove sort column"
   }, /*#__PURE__*/React.createElement("i", {
     className: "icon icon-fw fas icon-minus w-100"
-  })) : /*#__PURE__*/React.createElement("button", {
+  }))) : /*#__PURE__*/React.createElement("div", {
+    className: "d-grid gap-1"
+  }, /*#__PURE__*/React.createElement("button", {
     type: "button",
-    className: "btn btn-primary btn-".concat(size, " btn-block"),
+    className: "btn btn-primary btn-".concat(size),
     onClick: handleSettingsApply,
     "data-tip": "Re-sort columns"
   }, /*#__PURE__*/React.createElement("i", {
     className: "icon icon-fw fas icon-check w-100"
-  }))));
+  })))));
 });

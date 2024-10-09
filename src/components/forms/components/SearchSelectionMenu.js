@@ -21,6 +21,7 @@ export class SearchSelectionMenu extends React.PureComponent {
         this.dropdown = React.createRef();
         this.onToggleOpen = this.onToggleOpen.bind(this);
         this.onKeyDown = this.onKeyDown.bind(this);
+        this.handleDropdownSelect = this.handleDropdownSelect.bind(this);
     }
 
     componentDidUpdate(prevProps) {
@@ -83,6 +84,15 @@ export class SearchSelectionMenu extends React.PureComponent {
         // otherwise handle as default
     }
 
+    handleDropdownSelect(evt, option) {
+        const { onDropdownSelect } = this.props;
+
+        evt.preventDefault();
+        evt.stopPropagation();
+        onDropdownSelect(option);
+        this.setState({ dropOpen: false });
+    };
+
     render(){
         const {
             currentTextValue = "", // Temporary text value
@@ -90,7 +100,6 @@ export class SearchSelectionMenu extends React.PureComponent {
             options = [],
             optionRenderFunction = null,
             titleRenderFunction,
-            onDropdownSelect,
             onTextInputChange,
             optionsHeader,
             optionsFooter,
@@ -104,25 +113,19 @@ export class SearchSelectionMenu extends React.PureComponent {
         return (
             <Dropdown flip="true" onToggle={this.onToggleOpen} show={dropOpen} className={cls}>
                 <Dropdown.Toggle {...{ variant }} data-tip={showTips ? value : null}>{ showValue }</Dropdown.Toggle>
-                <Dropdown.Menu key={refreshKey} as={SearchSelectionMenuBody} {...{ onTextInputChange, optionsHeader, optionsFooter, currentTextValue }}
-                    style={{ margin: 0 } /* Style margin:0 is short term workaround to popperJS warning, see: https://github.com/react-bootstrap/react-bootstrap/issues/6017 */}
-                    flip show={dropOpen} onTextInputChange={onTextInputChange} toggleOpen={this.onToggleOpen} ref={this.dropdown} onKeyDown={this.onKeyDown}>
-                    {
+                    <Dropdown.Menu key={refreshKey} as={SearchSelectionMenuBody} {...{ onTextInputChange, optionsHeader, optionsFooter, currentTextValue }}
+                        style={{ margin: 0 } /* Style margin:0 is short term workaround to popperJS warning, see: https://github.com/react-bootstrap/react-bootstrap/issues/6017 */}
+                        flip show={dropOpen} onTextInputChange={onTextInputChange} toggleOpen={this.onToggleOpen} ref={this.dropdown} onKeyDown={this.onKeyDown}>
+                        {
                         options.map(function(option, idx){
                             const renderedOption = typeof optionRenderFunction === "function" ?
                                 optionRenderFunction(option) : option;
-                            function onClick(evt){
-                                evt.preventDefault();
-                                evt.stopPropagation();
-                                onDropdownSelect(option);
-                            }
                             return (
-                                <Dropdown.Item data-index={idx} onClick={onClick} key={idx} eventKey={idx} className="text-truncate" tabIndex="3">
+                                <Dropdown.Item data-index={idx} onClick={(event) => this.handleDropdownSelect(event, option)} key={idx} eventKey={idx} className="text-truncate" tabIndex="3">
                                     { renderedOption }
                                 </Dropdown.Item>
                             );
-                        })
-                    }
+                        }, this)}
                 </Dropdown.Menu>
             </Dropdown>
         );

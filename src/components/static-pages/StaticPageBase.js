@@ -245,7 +245,7 @@ export class StaticPageBase extends React.PureComponent {
         'entryRenderFxn' : PropTypes.func,
         'contentParseFxn' : PropTypes.func.isRequired,
         'href' : PropTypes.string,
-        'CustomWrapper': PropTypes.element
+        'CustomWrapper': PropTypes.elementType
     };
 
     render() {

@@ -222,7 +222,8 @@ var SubItemTable = /*#__PURE__*/function (_React$Component) {
                 return /*#__PURE__*/React.createElement("span", {
                   key: i
                 }, /*#__PURE__*/React.createElement("a", {
-                  href: itemUtil.atId(link)
+                  href: itemUtil.atId(link),
+                  className: "link-underline-hover"
                 }, link.display_title));
               });
               return {
@@ -243,7 +244,7 @@ var SubItemTable = /*#__PURE__*/function (_React$Component) {
                     style: {
                       whiteSpace: "nowrap"
                     },
-                    className: "text-left child-list-row",
+                    className: "text-start child-list-row",
                     key: colKey + '--row-' + i
                   }, /*#__PURE__*/React.createElement("div", {
                     className: "d-inline-block child-list-row-number"
@@ -259,7 +260,8 @@ var SubItemTable = /*#__PURE__*/function (_React$Component) {
                     }
                     if (!renderedSubVal) {
                       renderedSubVal = isAnItem(embeddedRow[k]) ? /*#__PURE__*/React.createElement("a", {
-                        href: itemUtil.atId(embeddedRow[k])
+                        href: itemUtil.atId(embeddedRow[k]),
+                        className: "link-underline-hover"
                       }, itemUtil.getTitleStringFromContext(embeddedRow[k])) : termTransformFxn(k, embeddedRow[k]);
                     }
                     return /*#__PURE__*/React.createElement("div", {
@@ -279,7 +281,8 @@ var SubItemTable = /*#__PURE__*/function (_React$Component) {
           if (isAnItem(value)) {
             return {
               'value': /*#__PURE__*/React.createElement("a", {
-                href: itemUtil.atId(value)
+                href: itemUtil.atId(value),
+                className: "link-underline-hover"
               }, value.display_title),
               'key': colKey
             };
@@ -374,19 +377,22 @@ var SubItemTable = /*#__PURE__*/function (_React$Component) {
           }
           if (colVal.key === '@id' && val.slice(0, 1) === '/') {
             val = /*#__PURE__*/React.createElement("a", {
-              href: val
+              href: val,
+              className: "link-underline-hover"
             }, val);
           }
           if (val && _typeof(val) === 'object' && ! /*#__PURE__*/React.isValidElement(val) && !Array.isArray(val)) {
             if (isAnItem(val)) {
               val = /*#__PURE__*/React.createElement("a", {
-                href: itemUtil.atId(val)
+                href: itemUtil.atId(val),
+                className: "link-underline-hover"
               }, val.display_title);
             } else if (isAnAttachment(val) && (val.href.charAt(0) === '/' || rowAtIdValue)) {
               var attachmentTitle = SubItemTable.getAttachmentTitle(val.href, 'attached_file');
               var attachmentHref = val.href.charAt(0) === '/' ? val.href : rowAtIdValue + val.href;
               val = /*#__PURE__*/React.createElement("a", {
                 href: attachmentHref,
+                className: "link-underline-hover",
                 target: "_blank",
                 rel: "noreferrer noopener"
               }, attachmentTitle);
@@ -400,13 +406,15 @@ var SubItemTable = /*#__PURE__*/function (_React$Component) {
               var item = null;
               if (isAnItem(v)) {
                 item = /*#__PURE__*/React.createElement("a", {
-                  href: itemUtil.atId(v)
+                  href: itemUtil.atId(v),
+                  className: "link-underline-hover"
                 }, v.display_title);
               } else if (isAnAttachment(v) && (val.href.charAt(0) === '/' || rowAtIdValue)) {
                 var _attachmentTitle = SubItemTable.getAttachmentTitle(v.href, 'attached_file');
                 var _attachmentHref = val.href.charAt(0) === '/' ? val.href : rowAtIdValue + val.href;
                 val = /*#__PURE__*/React.createElement("a", {
                   href: _attachmentHref,
+                  className: "link-underline-hover",
                   target: "_blank",
                   rel: "noreferrer noopener"
                 }, _attachmentTitle);
@@ -419,7 +427,7 @@ var SubItemTable = /*#__PURE__*/function (_React$Component) {
             });
             if (renderAsList) {
               val = /*#__PURE__*/React.createElement("ol", null, val);
-              className += ' text-left';
+              className += ' text-start';
             }
           }
           return /*#__PURE__*/React.createElement("td", {
@@ -1005,6 +1013,7 @@ export var Detail = /*#__PURE__*/function (_React$PureComponent2) {
           return /*#__PURE__*/React.createElement("a", {
             key: item,
             href: item,
+            className: "link-underline-hover",
             target: popLink ? "_blank" : null,
             rel: "noreferrer noopener"
           }, item);
@@ -1015,6 +1024,7 @@ export var Detail = /*#__PURE__*/function (_React$PureComponent2) {
           return /*#__PURE__*/React.createElement("a", {
             key: item,
             href: item,
+            className: "link-underline-hover",
             target: "_blank",
             download: true,
             rel: "noreferrer noopener"
@@ -1023,11 +1033,13 @@ export var Detail = /*#__PURE__*/function (_React$PureComponent2) {
           if (popLink) return /*#__PURE__*/React.createElement("a", {
             key: item,
             href: item,
+            className: "link-underline-hover",
             target: "_blank",
             rel: "noreferrer noopener"
           }, item);else return /*#__PURE__*/React.createElement("a", {
             key: item,
-            href: item
+            href: item,
+            className: "link-underline-hover"
           }, item);
         } else {
           // TODO: more comprehensive regexp url validator needed, look at: https://stackoverflow.com/a/5717133
@@ -1038,6 +1050,7 @@ export var Detail = /*#__PURE__*/function (_React$PureComponent2) {
             return /*#__PURE__*/React.createElement("a", {
               key: item,
               href: item,
+              className: "link-underline-hover",
               target: "_blank",
               rel: "noreferrer noopener"
             }, item);
@@ -1124,7 +1137,8 @@ _defineProperty(Detail, "defaultProps", {
     'subscriptions.url': {
       'render': function render(value) {
         return /*#__PURE__*/React.createElement("a", {
-          href: '/search/' + value
+          href: '/search/' + value,
+          className: "link-underline-hover"
         }, "View Results");
       },
       'title': "Link",
@@ -1152,7 +1166,8 @@ _defineProperty(Detail, "defaultProps", {
       'render': function render(value) {
         if (typeof value === 'string' && value.indexOf('@') > -1) {
           return /*#__PURE__*/React.createElement("a", {
-            href: 'mailto:' + value
+            href: 'mailto:' + value,
+            className: "link-underline-hover"
           }, value);
         }
         return value;
@@ -1167,25 +1182,29 @@ var ToggleJSONButton = /*#__PURE__*/React.memo(function (_ref3) {
   var onClick = _ref3.onClick,
     showingJSON = _ref3.showingJSON,
     className = _ref3.className;
-  return /*#__PURE__*/React.createElement("button", {
+  return /*#__PURE__*/React.createElement("div", {
+    className: "d-grid gap-1"
+  }, /*#__PURE__*/React.createElement("button", {
     type: "button",
-    className: "btn btn-block btn-outline-secondary",
+    className: "btn btn-outline-secondary",
     onClick: onClick
   }, showingJSON ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("i", {
     className: "icon fas icon-fw icon-list"
   }), " View as List") : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("i", {
     className: "icon fas icon-fw icon-code"
-  }), " View as JSON"));
+  }), " View as JSON")));
 });
 var SeeMoreRowsButton = /*#__PURE__*/React.memo(function (_ref4) {
   var onClick = _ref4.onClick,
     collapsed = _ref4.collapsed,
     className = _ref4.className;
-  return /*#__PURE__*/React.createElement("button", {
+  return /*#__PURE__*/React.createElement("div", {
+    className: "d-grid gap-1"
+  }, /*#__PURE__*/React.createElement("button", {
     type: "button",
-    className: "btn btn-block btn-outline-secondary",
+    className: "btn btn-outline-secondary",
     onClick: onClick
-  }, collapsed ? "See advanced information" : "Hide");
+  }, collapsed ? "See advanced information" : "Hide"));
 });
 
 /**

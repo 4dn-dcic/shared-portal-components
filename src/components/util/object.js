@@ -53,6 +53,7 @@ export function linkFromItem(item, addDescriptionTip = true, propertyForTitle = 
         propsToInclude.key = href;
     }
 
+    propsToInclude.className = (propsToInclude.className || '') + " link-underline-hover";
     if (addDescriptionTip && typeof propsToInclude['data-tip'] === 'undefined' && item.description){
         propsToInclude['data-tip'] = item.description;
         propsToInclude.className = (propsToInclude.className || '') + ' d-inline-block';

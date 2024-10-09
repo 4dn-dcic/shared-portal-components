@@ -9,7 +9,7 @@ export const Checkbox = React.memo(function Checkbox(props){
         children,
         labelClassName = "mb-0",
         title,
-        inputClassName = "mr-08 align-middle",
+        inputClassName = "me-08 align-middle",
         indeterminate = false,
         ...passProps
     } = props;

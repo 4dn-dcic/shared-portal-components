@@ -353,12 +353,10 @@ var AlertItem = /*#__PURE__*/function (_React$PureComponent) {
         className: "alert alert-dismissable alert-" + (bsStyle || 'danger') + (noCloseButton === true ? ' no-close-button' : '')
       }, noCloseButton !== true ? /*#__PURE__*/React.createElement("button", {
         type: "button",
-        className: "close",
+        className: "btn-close float-end",
         onClick: this.dismiss
       }, /*#__PURE__*/React.createElement("span", {
-        "aria-hidden": "true"
-      }, "\xD7"), /*#__PURE__*/React.createElement("span", {
-        className: "sr-only"
+        className: "visually-hidden"
       }, "Close alert")) : null, /*#__PURE__*/React.createElement("h4", {
         className: "alert-heading mt-0" + (hasMessage ? " mb-05" : " mb-0")
       }, title), hasMessage ? /*#__PURE__*/React.createElement("div", {

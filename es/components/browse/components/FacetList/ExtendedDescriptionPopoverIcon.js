@@ -71,7 +71,7 @@ export var ExtendedDescriptionPopoverIcon = /*#__PURE__*/React.memo(function (pr
           id: idToUse,
           ref: target,
           // By time icon is clicked, this will be mounted.
-          popover: /*#__PURE__*/React.createElement(Popover, null, /*#__PURE__*/React.createElement(Popover.Title, {
+          popover: /*#__PURE__*/React.createElement(Popover, null, /*#__PURE__*/React.createElement(Popover.Header, {
             as: "div"
           }, /*#__PURE__*/React.createElement("div", {
             className: "row align-items-center"
@@ -84,7 +84,7 @@ export var ExtendedDescriptionPopoverIcon = /*#__PURE__*/React.memo(function (pr
             onClick: dismissPopover
           }, /*#__PURE__*/React.createElement("i", {
             className: "icon icon-times fas"
-          })))), /*#__PURE__*/React.createElement(Popover.Content, null, /*#__PURE__*/React.createElement("div", {
+          })))), /*#__PURE__*/React.createElement(Popover.Body, null, /*#__PURE__*/React.createElement("div", {
             className: "popover-content-inner",
             dangerouslySetInnerHTML: {
               __html: extendedDescription

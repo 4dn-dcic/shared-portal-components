@@ -58,7 +58,7 @@ export const basicColumnExtensionMap = {
             return (
                 <React.Fragment>
                     <div className="icon-container">
-                        <i className="icon icon-fw fas icon-filter clickable mr-08" onClick={onClick} data-tip={"Filter down to only " + itemTypeTitle}/>
+                        <i className="icon icon-fw fas icon-filter clickable me-08" onClick={onClick} data-tip={"Filter down to only " + itemTypeTitle}/>
                     </div>
                     <span className="item-type-title value">{ itemTypeTitle }</span>
                 </React.Fragment>
@@ -73,7 +73,7 @@ export const basicColumnExtensionMap = {
             const { date_created = null } = result;
             if (!date_created) return null;
             return (
-                <span className="value text-right">
+                <span className="value text-end">
                     <LocalizedTime timestamp={date_created} formatType="date-sm" />
                 </span>
             );
@@ -88,7 +88,7 @@ export const basicColumnExtensionMap = {
             const { last_modified : { date_modified = null } = {} } = result;
             if (!date_modified) return null;
             return (
-                <span className="value text-right">
+                <span className="value text-end">
                     <LocalizedTime timestamp={date_modified} formatType="date-sm" />
                 </span>
             );
@@ -156,12 +156,12 @@ export const DisplayTitleColumnDefault = React.memo(function DisplayTitleColumnD
         if (targetTabKey && typeof targetTabKey === 'string'){
             link = `${propLink}#${targetTabKey}`;
         }
-        title = <a key="title" href={link || '#'} onClick={onClick}>{title}</a>;
+        title = <a className="link-underline-hover" key="title" href={link || '#'} onClick={onClick}>{title}</a>;
     }
 
     const cls = (
         "title-block text-truncate"
-        + (shouldMonospace ? " text-monospace text-small" : "")
+        + (shouldMonospace ? " font-monospace text-small" : "")
         + (className ? " " + className : "")
     );
 

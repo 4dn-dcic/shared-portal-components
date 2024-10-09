@@ -208,7 +208,7 @@ export class Term extends React.PureComponent {
         }
         return (
             <React.Fragment>
-                <li className={"facet-list-element" + statusClassName + (groupingTermKey && !facetSearchActive ? " pl-3" : "")}
+                <li className={"facet-list-element" + statusClassName + (groupingTermKey && !facetSearchActive ? " ps-3" : "")}
                     key={term.key} data-key={term.key}
                     data-is-grouping={isGroupingTerm} data-grouping-key={groupingTermKey}>
                     <a className="term" data-selected={selected} href="#" onClick={this.handleClick} data-term={term.key}>

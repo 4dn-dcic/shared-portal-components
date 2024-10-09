@@ -251,5 +251,6 @@ export function getColumnWidthFromDefinition(columnDefinition, mounted=true, win
     else responsiveGridSize = responsiveGridState(windowWidth);
     if (responsiveGridSize === 'xs') responsiveGridSize = 'sm';
     if (responsiveGridSize === 'xl') responsiveGridSize = 'lg';
+    if (responsiveGridSize === 'xxl') responsiveGridSize = 'lg';
     return widthMap[responsiveGridSize || 'lg'];
 }

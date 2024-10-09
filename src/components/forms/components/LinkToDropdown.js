@@ -160,8 +160,8 @@ export class LinkToDropdown extends React.PureComponent {
                                     <span className="text-600 d-block">{ display_title }</span>
                                 </div>
                                 <div className="col-auto d-none d-md-inline-block">
-                                    <i className="icon icon-fw icon-link fas small mr-05"/>
-                                    <span className="text-monospace small">{ itemID }</span>
+                                    <i className="icon icon-fw icon-link fas small me-05"/>
+                                    <span className="font-monospace small">{ itemID }</span>
                                 </div>
                             </div>
                         </DropdownItem>

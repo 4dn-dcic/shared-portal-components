@@ -13,7 +13,7 @@ import { event as trackEvent } from './../util/analytics';
 export function FileDownloadButton(props){
     const {
         href,
-        className = "btn-block btn-primary",
+        className = "w-100 btn-primary",
         disabled = false,
         title = "Download",
         filename,
@@ -30,7 +30,7 @@ export function FileDownloadButton(props){
     );
 
     return (disabled && tooltip) ? (
-        <span data-tip={tooltip} className="w-100">
+        <span data-tip={tooltip}>
             {button}
         </span>
     ) : button;

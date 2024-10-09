@@ -506,7 +506,7 @@ function RequestVerification(props) {
     return (
         <div className="mb-1 mt-2 text-center">
             <input name="file-verification" type="checkbox" checked={isVerified} onChange={toggleVerification} />
-            <label className="d-inline ml-05" htmlFor="file-verification">{ requestVerificationMsg } </label>
+            <label className="d-inline ms-05" htmlFor="file-verification">{ requestVerificationMsg } </label>
         </div>
     );
 }
@@ -629,7 +629,7 @@ export class DragAndDropZone extends React.Component {
                 {/* TODO: Consider making the file list a separate component...
                 think about potential future features like listing files without icons/in rows
                 or even sorting... would be best to have this be separate if implementing those */}
-                <ul className="d-flex flex-wrap m-0 pt-1 pl-0 justify-content-center">
+                <ul className="d-flex flex-wrap m-0 pt-1 ps-0 justify-content-center">
                     { files.map((file) => (
                         <li key={file.download} className="m-1">
                             <FileIcon fileName={file.download} fileSize={file.size}

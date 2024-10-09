@@ -501,7 +501,7 @@ export class RangeFacet extends React.PureComponent {
                         collapsible={[
                             <div className="range-drop-group row" key={0}>
                                 <div className="range-drop col-12 col-sm-6">
-                                    <label className="mb-0 small mr-07">
+                                    <label className="mb-0 small me-07">
                                         From:
                                     </label>
                                     <RangeDropdown
@@ -517,7 +517,7 @@ export class RangeFacet extends React.PureComponent {
                                     */}
                                 </div>
                                 <div className="range-drop col-12 col-sm-6">
-                                    <label className="mb-0 small ml-05 mr-07">
+                                    <label className="mb-0 small ms-05 me-07">
                                         To:
                                     </label>
                                     <RangeDropdown
@@ -953,7 +953,7 @@ class RangeDropdown extends React.PureComponent {
                             <input type="date" className="form-control" value={value === null ? "" : value} data-value={value}
                                 onKeyDown={this.onTextInputKeyDown} onChange={this.onTextInputChange} />
                         </div>
-                        <button type="submit" disabled={!updateAble} className="btn">
+                        <button type="submit" disabled={!updateAble} className="btn border-0">
                             <i className="icon icon-fw icon-check fas"/>
                         </button>
                     </form>
@@ -1004,7 +1004,7 @@ class RangeDropdown extends React.PureComponent {
                                 onKeyDown={this.onTextInputKeyDown} onChange={this.onTextInputChange}
                                 value={value === null ? "" : value}/>
                         </div>
-                        <button type="submit" disabled={!updateAble} className="btn">
+                        <button type="submit" disabled={!updateAble} className="btn border-0">
                             <i className="icon icon-fw icon-check fas"/>
                         </button>
                     </form>

@@ -630,7 +630,7 @@ export var EditableField = /*#__PURE__*/function (_React$Component) {
         return /*#__PURE__*/React.createElement("div", {
           className: "row editable-field-entry " + labelID
         }, /*#__PURE__*/React.createElement("div", {
-          className: "col col-md-3 text-left text-md-right"
+          className: "col col-md-3 text-start text-md-end"
         }, /*#__PURE__*/React.createElement("label", {
           htmlFor: labelID
         }, label)), this.renderSavedValue());
@@ -650,7 +650,7 @@ export var EditableField = /*#__PURE__*/function (_React$Component) {
         return /*#__PURE__*/React.createElement("div", {
           className: "row editable-field-entry " + labelID
         }, /*#__PURE__*/React.createElement("div", {
-          className: "col col-md-2 text-left text-md-right"
+          className: "col col-md-2 text-start text-md-end"
         }, /*#__PURE__*/React.createElement("label", {
           htmlFor: labelID
         }, label)), this.renderSavedValue());
@@ -751,7 +751,7 @@ export var EditableField = /*#__PURE__*/function (_React$Component) {
         return /*#__PURE__*/React.createElement("div", {
           className: outerBaseClass + labelID + ' row'
         }, /*#__PURE__*/React.createElement("div", {
-          className: "col col-md-3 text-left text-md-right"
+          className: "col col-md-3 text-start text-md-end"
         }, /*#__PURE__*/React.createElement("label", {
           htmlFor: labelID
         }, label)), /*#__PURE__*/React.createElement("div", {

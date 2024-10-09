@@ -105,7 +105,7 @@ export class StackedBlockListViewMoreButton extends React.PureComponent {
             // Show information label instead of button.
             return (
                 <div className="view-more-button">
-                    <i className="icon fas icon-plus mr-1 ml-02 small"/>
+                    <i className="icon fas icon-plus me-1 ms-02 small"/>
                     { collapsibleChildrenLen + " More" + (title ? ' ' + title : '') }
                     { showMoreExtTitle ? <span className="ext text-400"> { showMoreExtTitle }</span> : null }
                 </div>
@@ -121,7 +121,7 @@ export class StackedBlockListViewMoreButton extends React.PureComponent {
 
         return (
             <div className={cls} onClick={preventExpand ? null : handleCollapseToggle}>
-                <i className={"mr-1 icon fas icon-" + (collapsed ? 'plus': 'minus')}/>
+                <i className={"me-1 icon fas icon-" + (collapsed ? 'plus': 'minus')}/>
                 { titleStr }
                 { showMoreExtTitle ? <span className="ext text-400"> { showMoreExtTitle }</span> : null }
             </div>
@@ -244,7 +244,7 @@ export class StackedBlockList extends React.PureComponent {
             }
             viewMoreButton = (
                 <div className="view-more-button clickable" onClick={this.handleIncrementalExpandClick.bind(this, nextCount)}>
-                    <i className={"mr-1 icon fas icon-" + (nextCount >= incrementalExpandVisibleCount ? "plus" : "minus")} />
+                    <i className={"me-1 icon fas icon-" + (nextCount >= incrementalExpandVisibleCount ? "plus" : "minus")} />
                     {<span> {titleStr} </span>}
                 </div>);
         } else {
@@ -411,8 +411,8 @@ export class StackedBlockTable extends React.PureComponent {
 
     static defaultProps = {
         'columnHeaders' : [
-            { columnClass: 'biosample',     className: 'text-left',     title: 'Biosample',     initialWidth: 115   },
-            { columnClass: 'experiment',    className: 'text-left',     title: 'Experiment',    initialWidth: 145   },
+            { columnClass: 'biosample',     className: 'text-start',     title: 'Biosample',     initialWidth: 115   },
+            { columnClass: 'experiment',    className: 'text-start',     title: 'Experiment',    initialWidth: 145   },
             { columnClass: 'file-group',                                title: 'File Group',    initialWidth: 40,   visibleTitle : <i className="icon fas icon-download"></i> },
             { columnClass: 'file',                                      title: 'File',          initialWidth: 125   }
         ],
