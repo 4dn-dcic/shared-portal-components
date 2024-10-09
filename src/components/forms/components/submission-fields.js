@@ -1101,11 +1101,9 @@ export class AliasInputField extends React.Component {
             );
         } else { // Only 1 submits_for lab or 0 submits_for -- fallback to staticy thingy
             firstPartSelect = (
-                <div className="input-group-prepend">
-                    <span className="input-group-text">
-                        { currFirstPartValue }
-                    </span>
-                </div>
+                <span className="input-group-text">
+                    { currFirstPartValue }
+                </span>
             );
         }
 
@@ -1114,9 +1112,7 @@ export class AliasInputField extends React.Component {
             <div className={outerClassName}>
                 <div className="input-group">
                     { firstPartSelect }
-                    <div className="input-group-prepend input-group-append input-group-addon colon-separator">
-                        <span className="input-group-text">:</span>
-                    </div>
+                    <span className="input-group-text">:</span>
                     <input type="text" id="aliasInput" inputMode="latin" value={parts[1] || ''}
                         autoFocus={withinModal && !parts[1] ? true : false} placeholder="Type in a new identifier"
                         onChange={this.onAliasSecondPartChange} className={"form-control" + (errorMessage ? " is-invalid" : isValid ? " is-valid" : "")} />

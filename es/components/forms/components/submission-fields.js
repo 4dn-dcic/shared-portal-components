@@ -1360,22 +1360,18 @@ export var AliasInputField = /*#__PURE__*/function (_React$Component4) {
         }));
       } else {
         // Only 1 submits_for lab or 0 submits_for -- fallback to staticy thingy
-        firstPartSelect = /*#__PURE__*/React.createElement("div", {
-          className: "input-group-prepend"
-        }, /*#__PURE__*/React.createElement("span", {
+        firstPartSelect = /*#__PURE__*/React.createElement("span", {
           className: "input-group-text"
-        }, currFirstPartValue));
+        }, currFirstPartValue);
       }
       var outerClassName = "mb-0 alias-input-field form-group has-feedback" + (errorMessage ? " is-invalid has-error" : isValid ? " is-valid" : "");
       return /*#__PURE__*/React.createElement("div", {
         className: outerClassName
       }, /*#__PURE__*/React.createElement("div", {
         className: "input-group"
-      }, firstPartSelect, /*#__PURE__*/React.createElement("div", {
-        className: "input-group-prepend input-group-append input-group-addon colon-separator"
-      }, /*#__PURE__*/React.createElement("span", {
+      }, firstPartSelect, /*#__PURE__*/React.createElement("span", {
         className: "input-group-text"
-      }, ":")), /*#__PURE__*/React.createElement("input", {
+      }, ":"), /*#__PURE__*/React.createElement("input", {
         type: "text",
         id: "aliasInput",
         inputMode: "latin",
