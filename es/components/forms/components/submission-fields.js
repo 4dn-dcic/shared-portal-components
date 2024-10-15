@@ -1369,9 +1369,11 @@ export var AliasInputField = /*#__PURE__*/function (_React$Component4) {
         className: outerClassName
       }, /*#__PURE__*/React.createElement("div", {
         className: "input-group"
-      }, firstPartSelect, /*#__PURE__*/React.createElement("span", {
+      }, firstPartSelect, /*#__PURE__*/React.createElement("div", {
+        className: "colon-separator"
+      }, /*#__PURE__*/React.createElement("span", {
         className: "input-group-text"
-      }, ":"), /*#__PURE__*/React.createElement("input", {
+      }, ":")), /*#__PURE__*/React.createElement("input", {
         type: "text",
         id: "aliasInput",
         inputMode: "latin",

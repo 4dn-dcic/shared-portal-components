@@ -1112,7 +1112,9 @@ export class AliasInputField extends React.Component {
             <div className={outerClassName}>
                 <div className="input-group">
                     { firstPartSelect }
-                    <span className="input-group-text">:</span>
+                    <div className="colon-separator">
+                        <span className="input-group-text">:</span>
+                    </div>
                     <input type="text" id="aliasInput" inputMode="latin" value={parts[1] || ''}
                         autoFocus={withinModal && !parts[1] ? true : false} placeholder="Type in a new identifier"
                         onChange={this.onAliasSecondPartChange} className={"form-control" + (errorMessage ? " is-invalid" : isValid ? " is-valid" : "")} />
