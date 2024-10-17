@@ -250,7 +250,7 @@ export var Term = /*#__PURE__*/function (_React$PureComponent) {
         return subTermComponents;
       }
       return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("li", {
-        className: "facet-list-element" + statusClassName + (groupingTermKey && !facetSearchActive ? " pl-3" : ""),
+        className: "facet-list-element" + statusClassName + (groupingTermKey && !facetSearchActive ? " ps-3" : ""),
         key: term.key,
         "data-key": term.key,
         "data-is-grouping": isGroupingTerm,

@@ -544,12 +544,12 @@ export class TableOfContents extends React.Component {
         const cols = [];
         cols.push(
             <div key="parent-link" className={"col col-xs-" + (windowInnerWidth && windowInnerWidth >= 1600 ? '9' : '12')}>
-                <a className="text-500" href={context.parent['@id']}>{ context.parent['display_title'] }</a>
+                <a href={context.parent['@id']}>{ context.parent['display_title'] }</a>
             </div>
         );
         if (windowInnerWidth && windowInnerWidth >= 1600){
             cols.push(
-                <div key="expand-btn" className="col col-xs-3 text-right expand-button-container">
+                <div key="expand-btn" className="col col-xs-3 text-end expand-button-container">
                     <button type="button" className="btn btn-xs btn-outline-dark" onClick={this.onToggleWidthBound}>
                         { widthBound ?
                             <span><i className="icon icon-fw fas icon-angle-left"/></span> :
@@ -572,7 +572,7 @@ export class TableOfContents extends React.Component {
         const {
             context, maxHeaderDepth, includeTop, fixedGridWidth, includeNextPreviousPages, listStyleTypes,
             windowWidth, windowHeight, maxHeight, navigate: propNavigate, defaultExpanded,
-            fixedPositionBreakpoint = 1200
+            fixedPositionBreakpoint = 1400
         } = this.props;
         const { mounted, scrollTop, widthBound } = this.state;
         const contents = [];
@@ -689,15 +689,15 @@ export const NextPreviousPageSection = React.memo(function NextPreviousPageSecti
         <div className={"next-previous-pages-section" + ((className && ' ' + className) || '')}>
             <div className="row">
                 { previous ?
-                    <div className={"previous-section text-right col-" + colSize}>
+                    <div className={"previous-section text-end col-" + colSize}>
                         <h6 className="text-400 mb-02 mt-12"><i className="icon icon-fw fas icon-angle-left"/> { previousTitle }</h6>
-                        <h6 className="text-500 mt-0"><a href={previous['@id'] || '/' + (previous.name || previous.identifier)}>{ previous.display_title }</a></h6>
+                        <h6 className="text-500 mt-0"><a href={previous['@id'] || '/' + (previous.name || previous.identifier)} className="link-underline-hover">{ previous.display_title }</a></h6>
                     </div>
                     : null }
                 { next ?
                     <div className={"next-section col-" + colSize}>
                         <h6 className="text-400 mb-02 mt-12">{ nextTitle } <i className="icon fas icon-fw icon-angle-right"/></h6>
-                        <h6 className="text-500 mt-0"><a href={next['@id'] || '/' + (next.name || previous.identifier)}>{ next.display_title }</a></h6>
+                        <h6 className="text-500 mt-0"><a href={next['@id'] || '/' + (next.name || previous.identifier)} className="link-underline-hover">{ next.display_title }</a></h6>
                     </div>
                     : null }
             </div>

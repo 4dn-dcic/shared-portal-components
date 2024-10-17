@@ -479,8 +479,7 @@ var SubmissionView = /*#__PURE__*/function (_React$PureComponent) {
       return /*#__PURE__*/React.createElement(DropdownItem, {
         key: val,
         title: val || '',
-        eventKey: val,
-        onSelect: this.handleTypeSelection
+        eventKey: val
       }, val || '');
     }
 
@@ -1690,7 +1689,7 @@ var SubmissionView = /*#__PURE__*/function (_React$PureComponent) {
         id: "content"
       }, /*#__PURE__*/React.createElement(TypeSelectModal, _extends({
         show: showAmbiguousModal
-      }, _.pick(this.state, 'ambiguousIdx', 'ambiguousType', 'ambiguousSelected', 'currKey', 'creatingIdx'), _.pick(this, 'buildAmbiguousEnumEntry', 'submitAmbiguousType', 'cancelCreateNewObject', 'cancelCreatePrimaryObject'), {
+      }, _.pick(this.state, 'ambiguousIdx', 'ambiguousType', 'ambiguousSelected', 'currKey', 'creatingIdx'), _.pick(this, 'buildAmbiguousEnumEntry', 'handleTypeSelection', 'submitAmbiguousType', 'cancelCreateNewObject', 'cancelCreatePrimaryObject'), {
         schemas: schemas
       })), /*#__PURE__*/React.createElement(AliasSelectModal, _extends({
         show: !showAmbiguousModal && creatingIdx !== null && creatingType !== null
@@ -1937,7 +1936,7 @@ var WarningBanner = /*#__PURE__*/React.memo(function (props) {
   }, "Please note: your work will be lost if you navigate away from, refresh or close this page while submitting. The submission process is under active development and features may change."), /*#__PURE__*/React.createElement("div", {
     className: "col-md-auto"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "action-buttons-container text-right"
+    className: "action-buttons-container text-end"
   }, children))));
 });
 var DetailTitleBanner = /*#__PURE__*/function (_React$PureComponent2) {
@@ -2150,7 +2149,8 @@ var TypeSelectModal = /*#__PURE__*/function (_React$Component) {
         ambiguousSelected = _this$props10.ambiguousSelected,
         buildAmbiguousEnumEntry = _this$props10.buildAmbiguousEnumEntry,
         submitAmbiguousType = _this$props10.submitAmbiguousType,
-        schemas = _this$props10.schemas;
+        schemas = _this$props10.schemas,
+        handleTypeSelection = _this$props10.handleTypeSelection;
       if (!show) return null;
       var itemTypeHierarchy = schemaTransforms.schemasToItemTypeHierarchy(schemas);
       var specificItemTypeOptions = null;
@@ -2177,7 +2177,8 @@ var TypeSelectModal = /*#__PURE__*/function (_React$Component) {
         className: "input-wrapper mb-15"
       }, /*#__PURE__*/React.createElement(DropdownButton, {
         id: "dropdown-type-select",
-        title: ambiguousSelected || "No value"
+        title: ambiguousSelected || "No value",
+        onSelect: handleTypeSelection
       }, specificItemTypeOptions.map(buildAmbiguousEnumEntry))), ambiguousDescrip ? /*#__PURE__*/React.createElement("div", {
         className: "mb-15 mt-15"
       }, /*#__PURE__*/React.createElement("h5", {
@@ -2236,7 +2237,7 @@ var AliasSelectModal = /*#__PURE__*/function (_TypeSelectModal) {
           'fontSize': '1.2em'
         }
       }, creatingAliasMessage) : null, /*#__PURE__*/React.createElement("div", {
-        className: "text-right"
+        className: "text-end"
       }, /*#__PURE__*/React.createElement("button", {
         type: "button",
         className: "btn btn-primary",

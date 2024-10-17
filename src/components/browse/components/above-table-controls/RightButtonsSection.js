@@ -24,7 +24,7 @@ export const ConfigureVisibleColumnsButton = React.memo(function ConfigureVisibl
         <button type="button" key="toggle-visible-columns" data-tip="Configure visible columns" data-event-off="click"
             active={open.toString()} onClick={onClick} className={(className || "") + (open ? " active" : "")}>
             <i className="icon icon-fw icon-table fas" />
-            <i className="icon icon-fw icon-angle-down ml-03 fas"/>
+            <i className="icon icon-fw icon-angle-down ms-03 fas"/>
         </button>
     );
 });
@@ -34,7 +34,7 @@ export const MultiColumnSortButton = React.memo(function MultiColumnSortButton({
         <button type="button" key="toggle-visible-columns" data-tip="Sort multiple columns" data-event-off="click"
             active={open.toString()} onClick={onClick} className={(className || "") + (open ? " active" : "")}>
             <i className="icon icon-fw icon-sort fas" />
-            <i className="icon icon-fw icon-angle-down ml-03 fas"/>
+            <i className="icon icon-fw icon-angle-down ms-03 fas"/>
         </button>
     );
 });
@@ -64,7 +64,7 @@ export class ToggleLayoutButton extends React.PureComponent {
             <button type="button" className={cls}
                 onClick={this.handleLayoutToggle} data-tip={(!isFullscreen ? 'Expand' : 'Collapse') + " table width"}>
                 <i className={"icon icon-fw fas icon-" + (!isFullscreen ? 'arrows-alt-h icon-expand' : 'compress')}/>
-                <span className="ml-05 d-none d-xl-inline">
+                <span className="ms-05 d-none d-xl-inline">
                     { !isFullscreen ? "Full Screen" : "Collapse Table Width" }
                 </span>
             </button>

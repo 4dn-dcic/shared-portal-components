@@ -73,25 +73,27 @@
 			padding-right: calc(1.475em + 0.75rem);
 		}
 
-		> .input-group-prepend.alias-lab-single-option {
-			& + .input-group-prepend.colon-separator > .input-group-text {
-				border-left: none;
-			}
+		.alias-lab-single-option + .colon-separator > .input-group-text {
+			border-left: none;
 		}
-
-		> .input-group-prepend.colon-separator {
+	
+		.colon-separator {
 			font-weight: 700;
 			border-left: none;
 			border-right: none;
 			background-color: #fff;
-			& + input{
+			+ input{
 				border-left: none;
 				padding-left: 8px;
 				&:focus {
 					border-color: #aaa;
-					box-shadow: inset -2px 1px 1px rgba(0,0,0,0.075), 3px 0 8px rgba(0,0,0,0.1);
+					box-shadow: inset -2px 1px 1px rgba(0, 0, 0, 0.075), 3px 0 8px rgba(0, 0, 0, 0.1);
 				}
 			}
+		}
+		
+		.input-group-text {
+			background-color: #e9ecef;
 		}
 	}
 }

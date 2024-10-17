@@ -59,7 +59,7 @@ export var ConfigureVisibleColumnsButton = /*#__PURE__*/React.memo(function (_re
   }, /*#__PURE__*/React.createElement("i", {
     className: "icon icon-fw icon-table fas"
   }), /*#__PURE__*/React.createElement("i", {
-    className: "icon icon-fw icon-angle-down ml-03 fas"
+    className: "icon icon-fw icon-angle-down ms-03 fas"
   }));
 });
 export var MultiColumnSortButton = /*#__PURE__*/React.memo(function (_ref2) {
@@ -78,7 +78,7 @@ export var MultiColumnSortButton = /*#__PURE__*/React.memo(function (_ref2) {
   }, /*#__PURE__*/React.createElement("i", {
     className: "icon icon-fw icon-sort fas"
   }), /*#__PURE__*/React.createElement("i", {
-    className: "icon icon-fw icon-angle-down ml-03 fas"
+    className: "icon icon-fw icon-angle-down ms-03 fas"
   }));
 });
 
@@ -121,7 +121,7 @@ export var ToggleLayoutButton = /*#__PURE__*/function (_React$PureComponent) {
       }, /*#__PURE__*/React.createElement("i", {
         className: "icon icon-fw fas icon-" + (!isFullscreen ? 'arrows-alt-h icon-expand' : 'compress')
       }), /*#__PURE__*/React.createElement("span", {
-        className: "ml-05 d-none d-xl-inline"
+        className: "ms-05 d-none d-xl-inline"
       }, !isFullscreen ? "Full Screen" : "Collapse Table Width"));
     }
   }]);

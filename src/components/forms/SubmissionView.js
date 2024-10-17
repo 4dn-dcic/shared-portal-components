@@ -438,7 +438,7 @@ export default class SubmissionView extends React.PureComponent{
     /** Simple function to generate enum entries for ambiguous types */
     buildAmbiguousEnumEntry(val, idx, all){
         return(
-            <DropdownItem key={val} title={val || ''} eventKey={val} onSelect={this.handleTypeSelection}>
+            <DropdownItem key={val} title={val || ''} eventKey={val}>
                 {val || ''}
             </DropdownItem>
         );
@@ -1490,7 +1490,7 @@ export default class SubmissionView extends React.PureComponent{
         return (
             <div className="submission-view-page-container container" id="content">
                 <TypeSelectModal show={showAmbiguousModal} {..._.pick(this.state, 'ambiguousIdx', 'ambiguousType', 'ambiguousSelected', 'currKey', 'creatingIdx')}
-                    {..._.pick(this, 'buildAmbiguousEnumEntry', 'submitAmbiguousType', 'cancelCreateNewObject', 'cancelCreatePrimaryObject')} schemas={schemas}
+                    {..._.pick(this, 'buildAmbiguousEnumEntry', 'handleTypeSelection', 'submitAmbiguousType', 'cancelCreateNewObject', 'cancelCreatePrimaryObject')} schemas={schemas}
                 />
                 <AliasSelectModal
                     show={showAliasModal} {..._.pick(this.state, 'creatingAlias', 'creatingType', 'creatingAliasMessage', 'currKey', 'creatingIdx', 'currentSubmittingUser')}
@@ -1635,7 +1635,7 @@ const WarningBanner = React.memo(function WarningBanner(props){
                     Please note: your work will be lost if you navigate away from, refresh or close this page while submitting. The submission process is under active development and features may change.
                 </div>
                 <div className="col-md-auto">
-                    <div className="action-buttons-container text-right">{ children }</div>
+                    <div className="action-buttons-container text-end">{ children }</div>
                 </div>
             </div>
         </div>
@@ -1805,7 +1805,7 @@ class TypeSelectModal extends React.Component {
     }
 
     render(){
-        const { show, ambiguousType, ambiguousSelected, buildAmbiguousEnumEntry, submitAmbiguousType, schemas } = this.props;
+        const { show, ambiguousType, ambiguousSelected, buildAmbiguousEnumEntry, submitAmbiguousType, schemas, handleTypeSelection } = this.props;
         if (!show) return null;
 
         const itemTypeHierarchy = schemaTransforms.schemasToItemTypeHierarchy(schemas);
@@ -1835,7 +1835,7 @@ class TypeSelectModal extends React.Component {
                     <div onKeyDown={this.onContainerKeyDown.bind(this, submitAmbiguousType)}>
                         <p>Please select a specific Item type from the menu below.</p>
                         <div className="input-wrapper mb-15">
-                            <DropdownButton id="dropdown-type-select" title={ambiguousSelected || "No value"}>
+                            <DropdownButton id="dropdown-type-select" title={ambiguousSelected || "No value"} onSelect={handleTypeSelection}>
                                 { specificItemTypeOptions.map(buildAmbiguousEnumEntry) }
                             </DropdownButton>
                         </div>
@@ -1881,7 +1881,7 @@ class AliasSelectModal extends TypeSelectModal {
                                 { creatingAliasMessage }
                             </div>
                             : null }
-                        <div className="text-right">
+                        <div className="text-end">
                             {/*
                             <Button type="button" bsStyle="danger" onClick={this.onHide}>Cancel / Exit</Button>
                             {' '}

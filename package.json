@@ -1,6 +1,6 @@
 {
     "name": "@hms-dbmi-bgm/shared-portal-components",
-    "version": "0.1.90",
+    "version": "0.1.91",
     "description": "Shared components used for DBMI/BGM portal(s).",
     "repository": {
         "type": "git",
@@ -42,7 +42,7 @@
         "webpack": "^4.46.0",
         "webpack-bundle-analyzer": "^4.5.0",
         "webpack-deadcode-plugin": "^0.1.12",
-        "auth0-lock": "^11.33.0",
+        "auth0-lock": "^12.5.1",
         "d3": ">=5.9.0",
         "form-serialize": ">=0.6.0",
         "markdown-to-jsx": ">=6.9.3",
@@ -51,7 +51,7 @@
         "query-string": ">=4.3.0",
         "react": "^17.0.1",
         "react-dom": "^17.0.1",
-        "react-bootstrap": "1.6.4",
+        "react-bootstrap": "2.10.4",
         "react-tooltip": ">=3.11.6",
         "react-transition-group": ">=4.4.1",
         "underscore": ">=1.9.1",
@@ -83,7 +83,7 @@
         "query-string": ">=4.3.0",
         "react": ">=16.14.0",
         "react-dom": ">=16.14.0",
-        "react-bootstrap": "1.6.4",
+        "react-bootstrap": "2.10.4",
         "react-tooltip": ">=3.11.6",
         "react-transition-group": ">=4.4.2",
         "underscore": ">=1.9.1"

@@ -64,8 +64,8 @@ export class BuildField extends React.PureComponent {
     constructor(props){
         super(props);
         _.bindAll(this,
-            'displayField', 'handleDropdownButtonToggle', 'handleAliasChange',
-            'handleEnumChange', 'buildSuggestedEnumEntry', 'submitSuggestedEnumVal',
+            'displayField', 'handleDropdownButtonToggle',
+            'handleEnumChange', 'submitSuggestedEnumVal',
             'handleChange', 'handleAliasChange', 'deleteField', 'pushArrayValue',
             'commonRowProps', 'labelTypeDescriptor', 'wrapWithLabel', 'wrapWithNoLabel'
         );
@@ -168,14 +168,6 @@ export class BuildField extends React.PureComponent {
         }
         // Fallback
         return <div>No field for this case yet.</div>;
-    }
-
-    buildSuggestedEnumEntry(val) {
-        return (
-            <DropdownItem key={val} title={val || ''} eventKey={val} onSelect={this.submitSuggestedEnumVal}>
-                {val || ''}
-            </DropdownItem>
-        );
     }
 
     submitSuggestedEnumVal(eventKey) {
@@ -317,7 +309,7 @@ export class BuildField extends React.PureComponent {
                         <h5 className="submission-field-title text-truncate">
                             { this.labelTypeDescriptor() }
                             { fieldTip ?
-                                <InfoIcon className="mr-07" title={title} fieldType={fieldType} schema={schema}>{ fieldTip }</InfoIcon>
+                                <InfoIcon className="me-07" title={title} fieldType={fieldType} schema={schema}>{ fieldTip }</InfoIcon>
                                 : null}
                             <span>{ title }</span>
                         </h5>
@@ -1109,11 +1101,9 @@ export class AliasInputField extends React.Component {
             );
         } else { // Only 1 submits_for lab or 0 submits_for -- fallback to staticy thingy
             firstPartSelect = (
-                <div className="input-group-prepend">
-                    <span className="input-group-text">
-                        { currFirstPartValue }
-                    </span>
-                </div>
+                <span className="input-group-text">
+                    { currFirstPartValue }
+                </span>
             );
         }
 
@@ -1122,14 +1112,14 @@ export class AliasInputField extends React.Component {
             <div className={outerClassName}>
                 <div className="input-group">
                     { firstPartSelect }
-                    <div className="input-group-prepend input-group-append input-group-addon colon-separator">
+                    <div className="colon-separator">
                         <span className="input-group-text">:</span>
                     </div>
                     <input type="text" id="aliasInput" inputMode="latin" value={parts[1] || ''}
                         autoFocus={withinModal && !parts[1] ? true : false} placeholder="Type in a new identifier"
                         onChange={this.onAliasSecondPartChange} className={"form-control" + (errorMessage ? " is-invalid" : isValid ? " is-valid" : "")} />
                 </div>
-                { showErrorMsg && errorMessage ? <div className="invalid-feedback d-block text-right">{ errorMessage }</div> : null }
+                { showErrorMsg && errorMessage ? <div className="invalid-feedback d-block text-end">{ errorMessage }</div> : null }
             </div>
         );
     }

@@ -274,9 +274,8 @@ class AlertItem extends React.PureComponent {
             <Fade timeout={500} in={ _.findIndex(dismissing, alert) === -1 } onExited={this.finishDismiss} unmountOnExit={true}>
                 <div className={"alert alert-dismissable alert-" + (bsStyle || 'danger') + (noCloseButton === true ? ' no-close-button' : '')}>
                     { noCloseButton !== true ?
-                        <button type="button" className="close" onClick={this.dismiss}>
-                            <span aria-hidden="true">×</span>
-                            <span className="sr-only">Close alert</span>
+                        <button type="button" className="btn-close float-end" onClick={this.dismiss}>
+                            <span className="visually-hidden">Close alert</span>
                         </button>
                         : null }
                     <h4 className={"alert-heading mt-0" + (hasMessage ? " mb-05" : " mb-0")}>{ title }</h4>

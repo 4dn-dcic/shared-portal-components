@@ -601,7 +601,7 @@ const SortOptionsMenu = React.memo(function SortOptionsMenu({
         return (
             <div className={cls} key={field} onClick={onClick}>
                 { title || field }
-                { !isActive ? null : <i className={`small icon fas ml-12 icon-arrow-${descend ? "down" : "up"}`}/> }
+                { !isActive ? null : <i className={`small icon fas ms-12 icon-arrow-${descend ? "down" : "up"}`}/> }
             </div>
         );
     });

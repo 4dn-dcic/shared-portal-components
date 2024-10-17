@@ -779,7 +779,7 @@ var SortOptionsMenu = /*#__PURE__*/React.memo(function (_ref16) {
       key: field,
       onClick: onClick
     }, title || field, !isActive ? null : /*#__PURE__*/React.createElement("i", {
-      className: "small icon fas ml-12 icon-arrow-".concat(descend ? "down" : "up")
+      className: "small icon fas ms-12 icon-arrow-".concat(descend ? "down" : "up")
     }));
   });
   return /*#__PURE__*/React.createElement("div", {

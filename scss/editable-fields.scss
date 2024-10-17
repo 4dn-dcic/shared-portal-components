@@ -39,7 +39,7 @@ div.fieldset.editable-fields {
 
 	// large text inputBorder
 	.input-lg {
-		@include font-size(1.42rem, true);
+		@include font-size(1.42rem);
 		font-weight: normal;
 		height: 36px !important;
 		line-height: 30px !important;
@@ -48,7 +48,7 @@ div.fieldset.editable-fields {
 
 	// medium text inputBorder
 	.input-md {
-		@include font-size(1.21rem, true);
+		@include font-size(1.21rem);
 		font-weight: normal;
 		height: 28px !important;
 		line-height: 22px !important;
@@ -128,11 +128,11 @@ div.fieldset.editable-fields {
 		}
 
 		.cancel-button {
-			color : theme-color("danger");
+			color : $danger;
 		}
 
 		.save-button {
-			color : theme-color("success");
+			color : $success;
 		}
 
 		.field-loading-icon {

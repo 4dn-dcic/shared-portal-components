@@ -514,13 +514,12 @@ export var TableOfContents = /*#__PURE__*/function (_React$Component3) {
         key: "parent-link",
         className: "col col-xs-" + (windowInnerWidth && windowInnerWidth >= 1600 ? '9' : '12')
       }, /*#__PURE__*/React.createElement("a", {
-        className: "text-500",
         href: context.parent['@id']
       }, context.parent['display_title'])));
       if (windowInnerWidth && windowInnerWidth >= 1600) {
         cols.push( /*#__PURE__*/React.createElement("div", {
           key: "expand-btn",
-          className: "col col-xs-3 text-right expand-button-container"
+          className: "col col-xs-3 text-end expand-button-container"
         }, /*#__PURE__*/React.createElement("button", {
           type: "button",
           className: "btn btn-xs btn-outline-dark",
@@ -558,7 +557,7 @@ export var TableOfContents = /*#__PURE__*/function (_React$Component3) {
         propNavigate = _this$props5.navigate,
         defaultExpanded = _this$props5.defaultExpanded,
         _this$props5$fixedPos = _this$props5.fixedPositionBreakpoint,
-        fixedPositionBreakpoint = _this$props5$fixedPos === void 0 ? 1200 : _this$props5$fixedPos;
+        fixedPositionBreakpoint = _this$props5$fixedPos === void 0 ? 1400 : _this$props5$fixedPos;
       var _this$state = this.state,
         mounted = _this$state.mounted,
         scrollTop = _this$state.scrollTop,
@@ -836,7 +835,7 @@ export var NextPreviousPageSection = /*#__PURE__*/React.memo(function (props) {
   }, /*#__PURE__*/React.createElement("div", {
     className: "row"
   }, previous ? /*#__PURE__*/React.createElement("div", {
-    className: "previous-section text-right col-" + colSize
+    className: "previous-section text-end col-" + colSize
   }, /*#__PURE__*/React.createElement("h6", {
     className: "text-400 mb-02 mt-12"
   }, /*#__PURE__*/React.createElement("i", {
@@ -844,7 +843,8 @@ export var NextPreviousPageSection = /*#__PURE__*/React.memo(function (props) {
   }), " ", previousTitle), /*#__PURE__*/React.createElement("h6", {
     className: "text-500 mt-0"
   }, /*#__PURE__*/React.createElement("a", {
-    href: previous['@id'] || '/' + (previous.name || previous.identifier)
+    href: previous['@id'] || '/' + (previous.name || previous.identifier),
+    className: "link-underline-hover"
   }, previous.display_title))) : null, next ? /*#__PURE__*/React.createElement("div", {
     className: "next-section col-" + colSize
   }, /*#__PURE__*/React.createElement("h6", {
@@ -854,7 +854,8 @@ export var NextPreviousPageSection = /*#__PURE__*/React.memo(function (props) {
   })), /*#__PURE__*/React.createElement("h6", {
     className: "text-500 mt-0"
   }, /*#__PURE__*/React.createElement("a", {
-    href: next['@id'] || '/' + (next.name || previous.identifier)
+    href: next['@id'] || '/' + (next.name || previous.identifier),
+    className: "link-underline-hover"
   }, next.display_title))) : null));
 });
 

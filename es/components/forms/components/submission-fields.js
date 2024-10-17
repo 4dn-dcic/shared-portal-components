@@ -48,7 +48,7 @@ export var BuildField = /*#__PURE__*/function (_React$PureComponent) {
     var _this2;
     _classCallCheck(this, BuildField);
     _this2 = _callSuper(this, BuildField, [props]);
-    _.bindAll(_this2, 'displayField', 'handleDropdownButtonToggle', 'handleAliasChange', 'handleEnumChange', 'buildSuggestedEnumEntry', 'submitSuggestedEnumVal', 'handleChange', 'handleAliasChange', 'deleteField', 'pushArrayValue', 'commonRowProps', 'labelTypeDescriptor', 'wrapWithLabel', 'wrapWithNoLabel');
+    _.bindAll(_this2, 'displayField', 'handleDropdownButtonToggle', 'handleEnumChange', 'submitSuggestedEnumVal', 'handleChange', 'handleAliasChange', 'deleteField', 'pushArrayValue', 'commonRowProps', 'labelTypeDescriptor', 'wrapWithLabel', 'wrapWithNoLabel');
     _this2.state = {
       'dropdownOpen': false
     };
@@ -226,16 +226,6 @@ export var BuildField = /*#__PURE__*/function (_React$PureComponent) {
       }
       // Fallback
       return /*#__PURE__*/React.createElement("div", null, "No field for this case yet.");
-    }
-  }, {
-    key: "buildSuggestedEnumEntry",
-    value: function buildSuggestedEnumEntry(val) {
-      return /*#__PURE__*/React.createElement(DropdownItem, {
-        key: val,
-        title: val || '',
-        eventKey: val,
-        onSelect: this.submitSuggestedEnumVal
-      }, val || '');
     }
   }, {
     key: "submitSuggestedEnumVal",
@@ -429,7 +419,7 @@ export var BuildField = /*#__PURE__*/function (_React$PureComponent) {
       }, /*#__PURE__*/React.createElement("h5", {
         className: "submission-field-title text-truncate"
       }, this.labelTypeDescriptor(), fieldTip ? /*#__PURE__*/React.createElement(InfoIcon, {
-        className: "mr-07",
+        className: "me-07",
         title: title,
         fieldType: fieldType,
         schema: schema
@@ -1370,11 +1360,9 @@ export var AliasInputField = /*#__PURE__*/function (_React$Component4) {
         }));
       } else {
         // Only 1 submits_for lab or 0 submits_for -- fallback to staticy thingy
-        firstPartSelect = /*#__PURE__*/React.createElement("div", {
-          className: "input-group-prepend"
-        }, /*#__PURE__*/React.createElement("span", {
+        firstPartSelect = /*#__PURE__*/React.createElement("span", {
           className: "input-group-text"
-        }, currFirstPartValue));
+        }, currFirstPartValue);
       }
       var outerClassName = "mb-0 alias-input-field form-group has-feedback" + (errorMessage ? " is-invalid has-error" : isValid ? " is-valid" : "");
       return /*#__PURE__*/React.createElement("div", {
@@ -1382,7 +1370,7 @@ export var AliasInputField = /*#__PURE__*/function (_React$Component4) {
       }, /*#__PURE__*/React.createElement("div", {
         className: "input-group"
       }, firstPartSelect, /*#__PURE__*/React.createElement("div", {
-        className: "input-group-prepend input-group-append input-group-addon colon-separator"
+        className: "colon-separator"
       }, /*#__PURE__*/React.createElement("span", {
         className: "input-group-text"
       }, ":")), /*#__PURE__*/React.createElement("input", {
@@ -1395,7 +1383,7 @@ export var AliasInputField = /*#__PURE__*/function (_React$Component4) {
         onChange: this.onAliasSecondPartChange,
         className: "form-control" + (errorMessage ? " is-invalid" : isValid ? " is-valid" : "")
       })), showErrorMsg && errorMessage ? /*#__PURE__*/React.createElement("div", {
-        className: "invalid-feedback d-block text-right"
+        className: "invalid-feedback d-block text-end"
       }, errorMessage) : null);
     }
   }], [{

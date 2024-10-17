@@ -265,7 +265,7 @@ const MultiColumnSortOption = React.memo(function MultiColumnSortOption(props){
             // eslint-disable-next-line prefer-destructuring
             title = foundSortDefinition.title;
         } else {
-            title = <span className="text-monospace small">{ useCol }</span>;
+            title = <span className="font-monospace small">{ useCol }</span>;
         }
     }
 
@@ -284,7 +284,7 @@ const MultiColumnSortOption = React.memo(function MultiColumnSortOption(props){
     return (
         <div className="row mt-1 multi-column-sort">
             <div className="col-lg-8 col-7">
-                <DropdownButton {...{ title, size }} variant={(variant ? variant + " " : "") + "btn-block text-left"}
+                <DropdownButton {...{ title, size }} variant={(variant ? variant + " " : "") + "w-100 text-start"}
                     onSelect={handleSortColumnSelection}>
                     {
                         allSortFields.map(function (col, idx) {
@@ -300,21 +300,25 @@ const MultiColumnSortOption = React.memo(function MultiColumnSortOption(props){
                     }
                 </DropdownButton>
             </div>
-            <div className="col-3 pl-0">
-                <DropdownButton title={sortOrderTitle} variant={(variant ? variant + " " : "") + "btn-block text-left"}
+            <div className="col-3 ps-0">
+                <DropdownButton title={sortOrderTitle} variant={(variant ? variant + " " : "") + "w-100 text-start"}
                     size={size} onSelect={handleSortOrderSelection}>
                     <DropdownItem key="sort-direction-asc" eventKey={index + "|asc"}>Ascending</DropdownItem>
                     <DropdownItem key="sort-direction-desc" eventKey={index + "|desc"}>Descending</DropdownItem>
                 </DropdownButton>
             </div>
-            <div className="col-lg-1 col-2 pl-0">
+            <div className="col-lg-1 col-2 ps-0">
                 {!isLastRow ?
-                    <button type="button" className={`btn btn-${variant} btn-${size} btn-block`} onClick={onRemoveClick} data-tip="Remove sort column">
-                        <i className="icon icon-fw fas icon-minus w-100" />
-                    </button> :
-                    <button type="button" className={`btn btn-primary btn-${size} btn-block`} onClick={handleSettingsApply} data-tip="Re-sort columns">
-                        <i className="icon icon-fw fas icon-check w-100" />
-                    </button>}
+                    <div className="d-grid gap-1">
+                        <button type="button" className={`btn btn-${variant} btn-${size}`} onClick={onRemoveClick} data-tip="Remove sort column">
+                            <i className="icon icon-fw fas icon-minus w-100" />
+                        </button>
+                    </div> :
+                    <div className="d-grid gap-1">
+                        <button type="button" className={`btn btn-primary btn-${size}`} onClick={handleSettingsApply} data-tip="Re-sort columns">
+                            <i className="icon icon-fw fas icon-check w-100" />
+                        </button>
+                    </div>}
             </div>
         </div>
     );

@@ -127,7 +127,7 @@ export var StackedBlockListViewMoreButton = /*#__PURE__*/function (_React$PureCo
         return /*#__PURE__*/React.createElement("div", {
           className: "view-more-button"
         }, /*#__PURE__*/React.createElement("i", {
-          className: "icon fas icon-plus mr-1 ml-02 small"
+          className: "icon fas icon-plus me-1 ms-02 small"
         }), collapsibleChildrenLen + " More" + (title ? ' ' + title : ''), showMoreExtTitle ? /*#__PURE__*/React.createElement("span", {
           className: "ext text-400"
         }, " ", showMoreExtTitle) : null);
@@ -138,7 +138,7 @@ export var StackedBlockListViewMoreButton = /*#__PURE__*/function (_React$PureCo
         className: cls,
         onClick: preventExpand ? null : handleCollapseToggle
       }, /*#__PURE__*/React.createElement("i", {
-        className: "mr-1 icon fas icon-" + (collapsed ? 'plus' : 'minus')
+        className: "me-1 icon fas icon-" + (collapsed ? 'plus' : 'minus')
       }), titleStr, showMoreExtTitle ? /*#__PURE__*/React.createElement("span", {
         className: "ext text-400"
       }, " ", showMoreExtTitle) : null);
@@ -293,7 +293,7 @@ export var StackedBlockList = /*#__PURE__*/function (_React$PureComponent3) {
           className: "view-more-button clickable",
           onClick: this.handleIncrementalExpandClick.bind(this, nextCount)
         }, /*#__PURE__*/React.createElement("i", {
-          className: "mr-1 icon fas icon-" + (nextCount >= incrementalExpandVisibleCount ? "plus" : "minus")
+          className: "me-1 icon fas icon-" + (nextCount >= incrementalExpandVisibleCount ? "plus" : "minus")
         }), /*#__PURE__*/React.createElement("span", null, " ", titleStr, " "));
       } else {
         viewMoreButton = /*#__PURE__*/React.createElement(StackedBlockListViewMoreButton, _extends({}, this.props, {
@@ -555,12 +555,12 @@ _defineProperty(StackedBlockTable, "propTypes", {
 _defineProperty(StackedBlockTable, "defaultProps", {
   'columnHeaders': [{
     columnClass: 'biosample',
-    className: 'text-left',
+    className: 'text-start',
     title: 'Biosample',
     initialWidth: 115
   }, {
     columnClass: 'experiment',
-    className: 'text-left',
+    className: 'text-start',
     title: 'Experiment',
     initialWidth: 145
   }, {

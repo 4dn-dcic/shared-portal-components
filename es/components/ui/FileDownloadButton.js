@@ -20,7 +20,7 @@ import { event as trackEvent } from './../util/analytics';
 export function FileDownloadButton(props) {
   var href = props.href,
     _props$className = props.className,
-    className = _props$className === void 0 ? "btn-block btn-primary" : _props$className,
+    className = _props$className === void 0 ? "w-100 btn-primary" : _props$className,
     _props$disabled = props.disabled,
     disabled = _props$disabled === void 0 ? false : _props$disabled,
     _props$title = props.title,
@@ -41,8 +41,7 @@ export function FileDownloadButton(props) {
     className: "icon icon-fw icon-cloud-download-alt fas"
   }), title ? /*#__PURE__*/React.createElement("span", null, "\xA0 ", title) : null);
   return disabled && tooltip ? /*#__PURE__*/React.createElement("span", {
-    "data-tip": tooltip,
-    className: "w-100"
+    "data-tip": tooltip
   }, button) : button;
 }
 var canDownloadFile = memoize(function (file, validStatuses) {
