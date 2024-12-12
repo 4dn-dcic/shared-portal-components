@@ -23,7 +23,7 @@ import _ from 'underscore';
 import ReactTooltip from 'react-tooltip';
 import Collapse from 'react-bootstrap/esm/Collapse';
 import { AboveTablePanelWrapper } from './AboveTablePanelWrapper';
-import { RightButtonsSection } from './RightButtonsSection';
+import { ColumnCustomizationButtons } from './ColumnCustomizationButtons';
 import { CustomColumnSelector } from './../CustomColumnController';
 import { MultiColumnSortSelector } from './../SortController';
 
@@ -105,7 +105,9 @@ export var AboveTableControlsBase = /*#__PURE__*/function (_React$PureComponent)
       var _this$props = this.props,
         children = _this$props.children,
         _this$props$panelMap = _this$props.panelMap,
-        panelMap = _this$props$panelMap === void 0 ? {} : _this$props$panelMap;
+        panelMap = _this$props$panelMap === void 0 ? {} : _this$props$panelMap,
+        topLeftChildren = _this$props.topLeftChildren,
+        useSmahtLayout = _this$props.useSmahtLayout;
       var _this$state = this.state,
         open = _this$state.open,
         reallyOpen = _this$state.reallyOpen;
@@ -125,11 +127,37 @@ export var AboveTableControlsBase = /*#__PURE__*/function (_React$PureComponent)
       var _ref2 = panelDefinition || {},
         panelTitle = _ref2.title,
         panelBody = _ref2.body;
+
+      // Slightly different layout for SMaHT Browse View
+      if (useSmahtLayout) {
+        return /*#__PURE__*/React.createElement("div", {
+          className: "above-results-table-row"
+        }, /*#__PURE__*/React.createElement("div", {
+          className: "row align-items-center"
+        }, /*#__PURE__*/React.createElement("div", {
+          className: "col box results-count flex-grow-1 d-flex align-items-end"
+        }, topLeftChildren, /*#__PURE__*/React.createElement(ColumnCustomizationButtons, _extends({
+          noWrapper: true,
+          btnClassName: "btn btn-sm btn-outline-secondary me-05"
+        }, _.pick(this.props, 'isFullscreen', 'windowWidth', 'toggleFullScreen', 'showMultiColumnSort'), {
+          currentOpenPanel: open || reallyOpen,
+          onColumnsBtnClick: this.panelToggleFxns.customColumns,
+          onMultiColumnSortBtnClick: this.panelToggleFxns.multiColumnSort
+        }))), /*#__PURE__*/React.createElement("div", {
+          className: "right-buttons col-auto"
+        }, extendedChildren)), panelDefinition ? /*#__PURE__*/React.createElement(Collapse, {
+          "in": !!open,
+          appear: true
+        }, /*#__PURE__*/React.createElement(AboveTablePanelWrapper, {
+          onClose: this.handleClose,
+          title: panelTitle
+        }, panelBody)) : null);
+      }
       return /*#__PURE__*/React.createElement("div", {
         className: "above-results-table-row"
       }, /*#__PURE__*/React.createElement("div", {
         className: "row align-items-center"
-      }, extendedChildren, /*#__PURE__*/React.createElement(RightButtonsSection, _extends({}, _.pick(this.props, 'isFullscreen', 'windowWidth', 'toggleFullScreen', 'showMultiColumnSort'), {
+      }, extendedChildren, /*#__PURE__*/React.createElement(ColumnCustomizationButtons, _extends({}, _.pick(this.props, 'isFullscreen', 'windowWidth', 'toggleFullScreen', 'showMultiColumnSort'), {
         currentOpenPanel: open || reallyOpen,
         onColumnsBtnClick: this.panelToggleFxns.customColumns,
         onMultiColumnSortBtnClick: this.panelToggleFxns.multiColumnSort
