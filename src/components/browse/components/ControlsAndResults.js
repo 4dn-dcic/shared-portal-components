@@ -67,6 +67,7 @@ export class ControlsAndResults extends React.PureComponent {
             defaultOpenIndices = null,
             detailPane = null,
             stickyFirstColumn = false,
+            hideStickyFooter = false,
 
             // From WindowNavigationController or VirtualHrefController (or similar) (possibly from Redux store re: href)
             context, href, requestedCompoundFilterSet,
@@ -172,7 +173,7 @@ export class ControlsAndResults extends React.PureComponent {
                 <div className={tableColumnClassName}>
                     { extendedAboveTableComponent }
                     <SearchResultTable {...searchResultTableProps} ref={this.searchResultTableRef} renderDetailPane={this.renderSearchDetailPane} />
-                    { isSelectAction(currentAction) && selectedItems !== null ?
+                    { isSelectAction(currentAction) && selectedItems !== null && !hideStickyFooter ?
                         <SelectStickyFooter {...{ context, schemas, selectedItems, currentAction }} />
                         : null}
                 </div>

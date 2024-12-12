@@ -5,7 +5,7 @@ import _possibleConstructorReturn from "@babel/runtime/helpers/possibleConstruct
 import _getPrototypeOf from "@babel/runtime/helpers/getPrototypeOf";
 import _inherits from "@babel/runtime/helpers/inherits";
 import _defineProperty from "@babel/runtime/helpers/defineProperty";
-var _excluded = ["href", "context", "showClearFiltersButton", "schemas", "currentAction", "facets", "navigate", "columns", "columnExtensionMap", "placeholderReplacementFxn", "keepSelectionInStorage", "searchViewHeader", "windowWidth", "hideFacets"];
+var _excluded = ["href", "context", "showClearFiltersButton", "schemas", "currentAction", "facets", "navigate", "columns", "columnExtensionMap", "placeholderReplacementFxn", "keepSelectionInStorage", "searchViewHeader", "windowWidth", "hideFacets", "hideStickyFooter", "useCustomSelectionController"];
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 function _callSuper(_this, derived, args) {
@@ -100,6 +100,8 @@ export var SearchView = /*#__PURE__*/function (_React$PureComponent) {
         searchViewHeader = _this$props$searchVie === void 0 ? null : _this$props$searchVie,
         windowWidth = _this$props.windowWidth,
         hideFacets = _this$props.hideFacets,
+        hideStickyFooter = _this$props.hideStickyFooter,
+        useCustomSelectionController = _this$props.useCustomSelectionController,
         passProps = _objectWithoutProperties(_this$props, _excluded);
       var contextFacets = context.facets;
 
@@ -115,7 +117,8 @@ export var SearchView = /*#__PURE__*/function (_React$PureComponent) {
         href: href,
         windowWidth: windowWidth,
         isOwnPage: true,
-        facets: propFacets || contextFacets
+        facets: propFacets || contextFacets,
+        hideStickyFooter: hideStickyFooter
       });
       var controllersAndView = /*#__PURE__*/React.createElement(WindowNavigationController, {
         filterFacetFxn: this.filterFacetFxn,
@@ -128,7 +131,7 @@ export var SearchView = /*#__PURE__*/function (_React$PureComponent) {
         columns: columns,
         columnExtensionMap: columnExtensionMap
       }, /*#__PURE__*/React.createElement(CustomColumnController, null, /*#__PURE__*/React.createElement(SortController, null, searchViewHeader, /*#__PURE__*/React.createElement(ControlsAndResults, childViewProps)))));
-      if (isSelectAction(currentAction)) {
+      if (isSelectAction(currentAction) && !useCustomSelectionController) {
         // We don't allow "SelectionMode" unless is own page.
         // Could consider changing later once a use case exists.
         controllersAndView =

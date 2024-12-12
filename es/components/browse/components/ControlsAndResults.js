@@ -117,6 +117,8 @@ export var ControlsAndResults = /*#__PURE__*/function (_React$PureComponent) {
         detailPane = _this$props2$detailPa === void 0 ? null : _this$props2$detailPa,
         _this$props2$stickyFi = _this$props2.stickyFirstColumn,
         stickyFirstColumn = _this$props2$stickyFi === void 0 ? false : _this$props2$stickyFi,
+        _this$props2$hideStic = _this$props2.hideStickyFooter,
+        hideStickyFooter = _this$props2$hideStic === void 0 ? false : _this$props2$hideStic,
         context = _this$props2.context,
         href = _this$props2.href,
         requestedCompoundFilterSet = _this$props2.requestedCompoundFilterSet,
@@ -250,7 +252,7 @@ export var ControlsAndResults = /*#__PURE__*/function (_React$PureComponent) {
       }, {
         ref: this.searchResultTableRef,
         renderDetailPane: this.renderSearchDetailPane
-      })), isSelectAction(currentAction) && selectedItems !== null ? /*#__PURE__*/React.createElement(SelectStickyFooter, {
+      })), isSelectAction(currentAction) && selectedItems !== null && !hideStickyFooter ? /*#__PURE__*/React.createElement(SelectStickyFooter, {
         context: context,
         schemas: schemas,
         selectedItems: selectedItems,
