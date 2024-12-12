@@ -24,6 +24,22 @@ export function bytesToLargerUnit(bytes, level = 0){
     }
 }
 
+export function bytesToLargerUnitNoUnits(bytes, level = 0){
+    if (bytes >= 1024 && level < byteLevels.length) {
+        return bytesToLargerUnitNoUnits(bytes / 1024, level + 1);
+    } else {
+        return (Math.round(bytes * 100) / 100); // only render the appropriate value
+    }
+}
+
+export function bytesToLargerUnitOnly(bytes, level = 0){
+    if (bytes >= 1024 && level < byteLevels.length) {
+        return bytesToLargerUnitOnly(bytes / 1024, level + 1);
+    } else {
+        return byteLevels[level]; // only render the appropriate unit
+    }
+}
+
 export function roundLargeNumber(num, decimalPlaces = 2, level = 0){
     if (num >= 1000 && level < numberLevels.length) {
         return roundLargeNumber(num / 1000, decimalPlaces, level + 1);

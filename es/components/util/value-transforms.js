@@ -17,6 +17,24 @@ export function bytesToLargerUnit(bytes) {
     return Math.round(bytes * 100) / 100 + ' ' + byteLevels[level];
   }
 }
+export function bytesToLargerUnitNoUnits(bytes) {
+  var level = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+  if (bytes >= 1024 && level < byteLevels.length) {
+    return bytesToLargerUnitNoUnits(bytes / 1024, level + 1);
+  } else {
+    return Math.round(bytes * 100) / 100; // only render the appropriate value
+  }
+}
+
+export function bytesToLargerUnitOnly(bytes) {
+  var level = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+  if (bytes >= 1024 && level < byteLevels.length) {
+    return bytesToLargerUnitOnly(bytes / 1024, level + 1);
+  } else {
+    return byteLevels[level]; // only render the appropriate unit
+  }
+}
+
 export function roundLargeNumber(num) {
   var decimalPlaces = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 2;
   var level = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
