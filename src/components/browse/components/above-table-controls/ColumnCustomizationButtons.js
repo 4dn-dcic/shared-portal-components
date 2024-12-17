@@ -6,7 +6,7 @@ import { SearchResultTable } from './../SearchResultTable';
 
 
 export const ColumnCustomizationButtons = React.memo(function ColumnCustomizationButtons(props){
-    const { noWrapper, btnClassName, currentOpenPanel, onColumnsBtnClick, onMultiColumnSortBtnClick, windowWidth, isFullscreen, toggleFullScreen, showMultiColumnSort = true } = props;
+    const { noWrapper, btnClassName = "", currentOpenPanel, onColumnsBtnClick, onMultiColumnSortBtnClick, windowWidth, isFullscreen, toggleFullScreen, showMultiColumnSort = true } = props;
     const showToggleLayoutBtn = (typeof windowWidth === 'number' && typeof isFullscreen === 'boolean' && typeof toggleFullScreen === 'function');
 
     if (noWrapper) {
