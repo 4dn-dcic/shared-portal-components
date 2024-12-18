@@ -11,30 +11,22 @@ export var byteLevels = ['Bytes', 'kB', 'MB', 'GB', 'TB', 'PB', 'Exabytes', 'Zet
 export var numberLevels = ['', 'k', 'm', ' billion', ' trillion', ' quadrillion', ' quintillion'];
 export function bytesToLargerUnit(bytes) {
   var level = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+  var showOnlyUnits = arguments.length > 2 ? arguments[2] : undefined;
   if (bytes >= 1024 && level < byteLevels.length) {
     return bytesToLargerUnit(bytes / 1024, level + 1);
   } else {
-    return Math.round(bytes * 100) / 100 + ' ' + byteLevels[level];
+    if (showOnlyUnits === undefined) {
+      // by default show units and value
+      return Math.round(bytes * 100) / 100 + ' ' + byteLevels[level];
+    } else if (showOnlyUnits) {
+      // if false, show only units
+      return byteLevels[level];
+    } else {
+      // if true, show only the value
+      return Math.round(bytes * 100) / 100;
+    }
   }
 }
-export function bytesToLargerUnitNoUnits(bytes) {
-  var level = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
-  if (bytes >= 1024 && level < byteLevels.length) {
-    return bytesToLargerUnitNoUnits(bytes / 1024, level + 1);
-  } else {
-    return Math.round(bytes * 100) / 100; // only render the appropriate value
-  }
-}
-
-export function bytesToLargerUnitOnly(bytes) {
-  var level = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
-  if (bytes >= 1024 && level < byteLevels.length) {
-    return bytesToLargerUnitOnly(bytes / 1024, level + 1);
-  } else {
-    return byteLevels[level]; // only render the appropriate unit
-  }
-}
-
 export function roundLargeNumber(num) {
   var decimalPlaces = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 2;
   var level = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
