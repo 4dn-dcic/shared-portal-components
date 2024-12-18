@@ -22,7 +22,8 @@ import _ from 'underscore';
 import { SearchResultTable } from './../SearchResultTable';
 export var ColumnCustomizationButtons = /*#__PURE__*/React.memo(function (props) {
   var noWrapper = props.noWrapper,
-    btnClassName = props.btnClassName,
+    _props$btnClassName = props.btnClassName,
+    btnClassName = _props$btnClassName === void 0 ? "" : _props$btnClassName,
     currentOpenPanel = props.currentOpenPanel,
     onColumnsBtnClick = props.onColumnsBtnClick,
     onMultiColumnSortBtnClick = props.onMultiColumnSortBtnClick,
