@@ -16,19 +16,21 @@ export const byteLevels = ['Bytes', 'kB', 'MB', 'GB', 'TB', 'PB', 'Exabytes', 'Z
 
 export const numberLevels = ['', 'k', 'm', ' billion', ' trillion', ' quadrillion', ' quintillion'];
 
-export function bytesToLargerUnit(bytes, level = 0, showOnlyUnits){
+export function bytesToLargerUnit(bytes, level = 0, showOnlyUnits, showOnlyValue){
     if (bytes >= 1024 && level < byteLevels.length) {
         return bytesToLargerUnit(bytes / 1024, level + 1);
     } else {
-        if (showOnlyUnits === undefined) {
+        if (showOnlyUnits && showOnlyValue) {
+            throw new Error("showOnlyUnits and showOnlyValue cannot both be true");
+        } else if (showOnlyUnits) {
+            // show only units
+            return byteLevels[level];
+        } else if (showOnlyValue) {
+            // show only the value
+            return (Math.round(bytes * 100) / 100);
+        } else {
             // by default show units and value
             return (Math.round(bytes * 100) / 100) + ' ' + byteLevels[level];
-        } else if (showOnlyUnits) {
-            // if false, show only units
-            return byteLevels[level];
-        } else {
-            // if true, show only the value
-            return (Math.round(bytes * 100) / 100);
         }
     }
 }
