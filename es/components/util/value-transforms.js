@@ -14,7 +14,7 @@ export function bytesToLargerUnit(bytes) {
   var showOnlyUnits = arguments.length > 2 ? arguments[2] : undefined;
   var showOnlyValue = arguments.length > 3 ? arguments[3] : undefined;
   if (bytes >= 1024 && level < byteLevels.length) {
-    return bytesToLargerUnit(bytes / 1024, level + 1);
+    return bytesToLargerUnit(bytes / 1024, level + 1, showOnlyUnits, showOnlyValue);
   } else {
     if (showOnlyUnits && showOnlyValue) {
       throw new Error("showOnlyUnits and showOnlyValue cannot both be true");
