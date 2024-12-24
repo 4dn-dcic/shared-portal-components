@@ -32,39 +32,28 @@ export var ColumnCustomizationButtons = /*#__PURE__*/React.memo(function (props)
     toggleFullScreen = props.toggleFullScreen,
     _props$showMultiColum = props.showMultiColumnSort,
     showMultiColumnSort = _props$showMultiColum === void 0 ? true : _props$showMultiColum;
-  var showToggleLayoutBtn = typeof windowWidth === 'number' && typeof isFullscreen === 'boolean' && typeof toggleFullScreen === 'function';
-  if (noWrapper) {
+  var renderButtons = function () {
     return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(ConfigureVisibleColumnsButton, {
       onClick: onColumnsBtnClick,
       open: currentOpenPanel === "customColumns",
       className: btnClassName
-    }), showMultiColumnSort ? /*#__PURE__*/React.createElement(MultiColumnSortButton, {
+    }), showMultiColumnSort && /*#__PURE__*/React.createElement(MultiColumnSortButton, {
       onClick: onMultiColumnSortBtnClick,
       open: currentOpenPanel === "multiColumnSort",
       className: btnClassName
-    }) : null, showToggleLayoutBtn ? /*#__PURE__*/React.createElement(ToggleLayoutButton, {
+    }), typeof windowWidth === 'number' && typeof isFullscreen === 'boolean' && typeof toggleFullScreen === 'function' && /*#__PURE__*/React.createElement(ToggleLayoutButton, {
       windowWidth: windowWidth,
       isFullscreen: isFullscreen,
       toggleFullScreen: toggleFullScreen,
       className: btnClassName
-    }) : null);
+    }));
+  };
+  if (noWrapper) {
+    return renderButtons();
   }
   return /*#__PURE__*/React.createElement("div", {
     className: "right-buttons col-auto"
-  }, /*#__PURE__*/React.createElement(ConfigureVisibleColumnsButton, {
-    onClick: onColumnsBtnClick,
-    open: currentOpenPanel === "customColumns",
-    className: btnClassName
-  }), showMultiColumnSort ? /*#__PURE__*/React.createElement(MultiColumnSortButton, {
-    onClick: onMultiColumnSortBtnClick,
-    open: currentOpenPanel === "multiColumnSort",
-    className: btnClassName
-  }) : null, showToggleLayoutBtn ? /*#__PURE__*/React.createElement(ToggleLayoutButton, {
-    windowWidth: windowWidth,
-    isFullscreen: isFullscreen,
-    toggleFullScreen: toggleFullScreen,
-    className: btnClassName
-  }) : null);
+  }, renderButtons());
 });
 export var ConfigureVisibleColumnsButton = /*#__PURE__*/React.memo(function (_ref) {
   var open = _ref.open,

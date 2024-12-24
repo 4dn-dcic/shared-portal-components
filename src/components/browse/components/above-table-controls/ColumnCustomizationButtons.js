@@ -9,21 +9,21 @@ export const ColumnCustomizationButtons = React.memo(function ColumnCustomizatio
     const { noWrapper, btnClassName = "", currentOpenPanel, onColumnsBtnClick, onMultiColumnSortBtnClick, windowWidth, isFullscreen, toggleFullScreen, showMultiColumnSort = true } = props;
     const showToggleLayoutBtn = (typeof windowWidth === 'number' && typeof isFullscreen === 'boolean' && typeof toggleFullScreen === 'function');
 
+    const renderButtons = () => (
+        <>
+            <ConfigureVisibleColumnsButton onClick={onColumnsBtnClick} open={currentOpenPanel === "customColumns"} className={btnClassName}/>
+            { showMultiColumnSort && <MultiColumnSortButton onClick={onMultiColumnSortBtnClick} open={currentOpenPanel === "multiColumnSort"} className={btnClassName}/> }
+            { showToggleLayoutBtn && <ToggleLayoutButton {...{ windowWidth, isFullscreen, toggleFullScreen }} className={btnClassName}/> }
+        </>
+    );
+
     if (noWrapper) {
-        return (
-            <>
-                <ConfigureVisibleColumnsButton onClick={onColumnsBtnClick} open={currentOpenPanel === "customColumns"} className={btnClassName}/>
-                { showMultiColumnSort ? <MultiColumnSortButton onClick={onMultiColumnSortBtnClick} open={currentOpenPanel === "multiColumnSort"} className={btnClassName}/> : null}
-                { showToggleLayoutBtn ? <ToggleLayoutButton {...{ windowWidth, isFullscreen, toggleFullScreen }} className={btnClassName}/> : null }
-            </>
-        );
+        return renderButtons();
     }
 
     return (
         <div className="right-buttons col-auto">
-            <ConfigureVisibleColumnsButton onClick={onColumnsBtnClick} open={currentOpenPanel === "customColumns"} className={btnClassName}/>
-            { showMultiColumnSort ? <MultiColumnSortButton onClick={onMultiColumnSortBtnClick} open={currentOpenPanel === "multiColumnSort"} className={btnClassName}/> : null}
-            { showToggleLayoutBtn ? <ToggleLayoutButton {...{ windowWidth, isFullscreen, toggleFullScreen }} className={btnClassName}/> : null }
+            {renderButtons()}
         </div>
     );
 });
