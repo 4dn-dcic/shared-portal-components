@@ -159,7 +159,7 @@ export class AboveTableControlsBase extends React.PureComponent {
             <div className="above-results-table-row">
                 <div className="row align-items-center">
                     { extendedChildren }
-                    <ColumnCustomizationButtons {..._.pick(this.props, 'isFullscreen', 'windowWidth', 'toggleFullScreen', 'showMultiColumnSort')}
+                    <ColumnCustomizationButtons btnClassName="btn btn-outline-primary" {..._.pick(this.props, 'isFullscreen', 'windowWidth', 'toggleFullScreen', 'showMultiColumnSort')}
                         currentOpenPanel={open || reallyOpen} onColumnsBtnClick={this.panelToggleFxns.customColumns} onMultiColumnSortBtnClick={this.panelToggleFxns.multiColumnSort} />
                 </div>
                 { panelDefinition ?
