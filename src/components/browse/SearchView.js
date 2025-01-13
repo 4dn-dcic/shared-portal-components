@@ -118,6 +118,8 @@ export class SearchView extends React.PureComponent {
             //isOwnPage = true,
             windowWidth,
             hideFacets,
+            hideStickyFooter,
+            useCustomSelectionController,
             ...passProps
         } = this.props;
 
@@ -135,7 +137,8 @@ export class SearchView extends React.PureComponent {
             href,
             windowWidth,
             isOwnPage: true,
-            facets: propFacets || contextFacets
+            facets: propFacets || contextFacets,
+            hideStickyFooter,
         };
 
         let controllersAndView = (
@@ -151,7 +154,7 @@ export class SearchView extends React.PureComponent {
             </WindowNavigationController>
         );
 
-        if (isSelectAction(currentAction)){
+        if (isSelectAction(currentAction) && !useCustomSelectionController){
             // We don't allow "SelectionMode" unless is own page.
             // Could consider changing later once a use case exists.
             controllersAndView = (

@@ -5,14 +5,25 @@ import { SearchResultTable } from './../SearchResultTable';
 
 
 
-export const RightButtonsSection = React.memo(function RightButtonsSection(props){
-    const { currentOpenPanel, onColumnsBtnClick, onMultiColumnSortBtnClick, windowWidth, isFullscreen, toggleFullScreen, showMultiColumnSort = true } = props;
+export const ColumnCustomizationButtons = React.memo(function ColumnCustomizationButtons(props){
+    const { noWrapper, btnClassName = "", currentOpenPanel, onColumnsBtnClick, onMultiColumnSortBtnClick, windowWidth, isFullscreen, toggleFullScreen, showMultiColumnSort = true } = props;
     const showToggleLayoutBtn = (typeof windowWidth === 'number' && typeof isFullscreen === 'boolean' && typeof toggleFullScreen === 'function');
+
+    const renderButtons = () => (
+        <>
+            <ConfigureVisibleColumnsButton onClick={onColumnsBtnClick} open={currentOpenPanel === "customColumns"} className={btnClassName}/>
+            { showMultiColumnSort && <MultiColumnSortButton onClick={onMultiColumnSortBtnClick} open={currentOpenPanel === "multiColumnSort"} className={btnClassName}/> }
+            { showToggleLayoutBtn && <ToggleLayoutButton {...{ windowWidth, isFullscreen, toggleFullScreen }} className={btnClassName}/> }
+        </>
+    );
+
+    if (noWrapper) {
+        return renderButtons();
+    }
+
     return (
         <div className="right-buttons col-auto">
-            <ConfigureVisibleColumnsButton onClick={onColumnsBtnClick} open={currentOpenPanel === "customColumns"} />
-            { showMultiColumnSort ? <MultiColumnSortButton onClick={onMultiColumnSortBtnClick} open={currentOpenPanel === "multiColumnSort"} /> : null}
-            { showToggleLayoutBtn ? <ToggleLayoutButton {...{ windowWidth, isFullscreen, toggleFullScreen }} /> : null }
+            {renderButtons()}
         </div>
     );
 });

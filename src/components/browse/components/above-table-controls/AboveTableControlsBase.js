@@ -4,7 +4,7 @@ import _ from 'underscore';
 import ReactTooltip from 'react-tooltip';
 import Collapse from 'react-bootstrap/esm/Collapse';
 import { AboveTablePanelWrapper } from './AboveTablePanelWrapper';
-import { RightButtonsSection } from './RightButtonsSection';
+import { ColumnCustomizationButtons } from './ColumnCustomizationButtons';
 import { CustomColumnSelector } from './../CustomColumnController';
 import { MultiColumnSortSelector } from './../SortController';
 
@@ -112,7 +112,7 @@ export class AboveTableControlsBase extends React.PureComponent {
     }
 
     render(){
-        const { children, panelMap = {} } = this.props;
+        const { children, panelMap = {}, topLeftChildren, useSmahtLayout } = this.props;
         const { open, reallyOpen } = this.state;
         const extendedChildren = React.Children.map(children, (child) => {
             if (React.isValidElement(child)) {
@@ -130,11 +130,36 @@ export class AboveTableControlsBase extends React.PureComponent {
         const panelDefinition = panelMap[open] || panelMap[reallyOpen] || null;
         const { title: panelTitle, body: panelBody } = panelDefinition || {};
 
+        // Slightly different layout for SMaHT Browse View
+        if (useSmahtLayout) {
+            return (
+                <div className="above-results-table-row">
+                    <div className="row align-items-center">
+                        <div className="col box results-count flex-grow-1 d-flex align-items-end">
+                            { topLeftChildren }
+                            <ColumnCustomizationButtons noWrapper btnClassName="btn btn-sm btn-outline-secondary me-05" {..._.pick(this.props, 'isFullscreen', 'windowWidth', 'toggleFullScreen', 'showMultiColumnSort')}
+                                currentOpenPanel={open || reallyOpen} onColumnsBtnClick={this.panelToggleFxns.customColumns} onMultiColumnSortBtnClick={this.panelToggleFxns.multiColumnSort} />
+                        </div>
+                        <div className="right-buttons col-auto">
+                            {extendedChildren}
+                        </div>
+                    </div>
+                    { panelDefinition ?
+                        <Collapse in={!!(open)} appear>
+                            <AboveTablePanelWrapper onClose={this.handleClose} title={panelTitle}>
+                                { panelBody }
+                            </AboveTablePanelWrapper>
+                        </Collapse>
+                        : null }
+                </div>
+            );
+        }
+
         return (
             <div className="above-results-table-row">
                 <div className="row align-items-center">
                     { extendedChildren }
-                    <RightButtonsSection {..._.pick(this.props, 'isFullscreen', 'windowWidth', 'toggleFullScreen', 'showMultiColumnSort')}
+                    <ColumnCustomizationButtons btnClassName="btn btn-outline-primary" {..._.pick(this.props, 'isFullscreen', 'windowWidth', 'toggleFullScreen', 'showMultiColumnSort')}
                         currentOpenPanel={open || reallyOpen} onColumnsBtnClick={this.panelToggleFxns.customColumns} onMultiColumnSortBtnClick={this.panelToggleFxns.multiColumnSort} />
                 </div>
                 { panelDefinition ?
