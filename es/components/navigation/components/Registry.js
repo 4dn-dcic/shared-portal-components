@@ -47,13 +47,14 @@ var Registry = /*#__PURE__*/function () {
         return this.fallback(obj, name);
       }
       var provided = this.providedBy(obj);
+      var bestMatch = null;
       for (var i = 0, len = provided.length; i < len; i++) {
         var view = views[provided[i]];
         if (view) {
-          return view;
+          bestMatch = view;
         }
       }
-      return this.fallback(obj, name);
+      return bestMatch || this.fallback(obj, name);
     }
   }, {
     key: "getAll",

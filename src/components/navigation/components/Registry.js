@@ -20,7 +20,7 @@ export default class Registry {
 
     register(view, for_, name) {
         name = name || '';
-        var views = this.views[name];
+        let views = this.views[name];
         if (!views) {
             this.views[name] = views = {};
         }
@@ -28,7 +28,7 @@ export default class Registry {
     }
 
     unregister(for_, name) {
-        var views = this.views[name || ''];
+        const views = this.views[name || ''];
         if (!views) {
             return;
         }
@@ -36,23 +36,24 @@ export default class Registry {
     }
 
     lookup(obj, name) {
-        var views = this.views[name || ''];
+        const views = this.views[name || ''];
         if (!views) {
             return this.fallback(obj, name);
         }
 
-        var provided = this.providedBy(obj);
-        for (var i = 0, len = provided.length; i < len; i++) {
-            var view = views[provided[i]];
+        const provided = this.providedBy(obj);
+        let bestMatch = null;
+        for (let i = 0, len = provided.length; i < len; i++) {
+            const view = views[provided[i]];
             if (view) {
-                return view;
+                bestMatch = view;
             }
         }
-        return this.fallback(obj, name);
+        return bestMatch || this.fallback(obj, name);
     }
 
     getAll(name) {
-        var views = this.views[name || ''];
+        const views = this.views[name || ''];
         return views || {};
     }
 
