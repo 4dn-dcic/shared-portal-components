@@ -10,7 +10,8 @@ export var AboveSearchViewTableControls = /*#__PURE__*/React.memo(function (prop
     isFullscreen = props.isFullscreen,
     windowWidth = props.windowWidth,
     toggleFullScreen = props.toggleFullScreen,
-    sortBy = props.sortBy;
+    sortBy = props.sortBy,
+    customizationButtonClassName = props.customizationButtonClassName;
   var _ref$total = (context || {}).total,
     showTotalResults = _ref$total === void 0 ? 0 : _ref$total;
 
@@ -50,6 +51,7 @@ export var AboveSearchViewTableControls = /*#__PURE__*/React.memo(function (prop
       windowWidth: windowWidth,
       toggleFullScreen: toggleFullScreen,
       sortBy: sortBy,
+      customizationButtonClassName: customizationButtonClassName,
       panelMap: AboveTableControlsBase.getCustomColumnSelectorPanelMapDefinition(props)
     }, /*#__PURE__*/React.createElement(LeftSectionControls, {
       total: total,

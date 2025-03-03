@@ -4,6 +4,7 @@ import _createClass from "@babel/runtime/helpers/createClass";
 import _possibleConstructorReturn from "@babel/runtime/helpers/possibleConstructorReturn";
 import _getPrototypeOf from "@babel/runtime/helpers/getPrototypeOf";
 import _inherits from "@babel/runtime/helpers/inherits";
+import _defineProperty from "@babel/runtime/helpers/defineProperty";
 function _callSuper(_this, derived, args) {
   derived = _getPrototypeOf(derived);
   return _possibleConstructorReturn(_this, function () {
@@ -107,7 +108,8 @@ export var AboveTableControlsBase = /*#__PURE__*/function (_React$PureComponent)
         _this$props$panelMap = _this$props.panelMap,
         panelMap = _this$props$panelMap === void 0 ? {} : _this$props$panelMap,
         topLeftChildren = _this$props.topLeftChildren,
-        useSmahtLayout = _this$props.useSmahtLayout;
+        useSmahtLayout = _this$props.useSmahtLayout,
+        customizationButtonClassName = _this$props.customizationButtonClassName;
       var _this$state = this.state,
         open = _this$state.open,
         reallyOpen = _this$state.reallyOpen;
@@ -138,7 +140,7 @@ export var AboveTableControlsBase = /*#__PURE__*/function (_React$PureComponent)
           className: "col box results-count flex-grow-1 d-flex align-items-end"
         }, topLeftChildren, /*#__PURE__*/React.createElement(ColumnCustomizationButtons, _extends({
           noWrapper: true,
-          btnClassName: "btn btn-sm btn-outline-secondary me-05"
+          btnClassName: customizationButtonClassName
         }, _.pick(this.props, 'isFullscreen', 'windowWidth', 'toggleFullScreen', 'showMultiColumnSort'), {
           currentOpenPanel: open || reallyOpen,
           onColumnsBtnClick: this.panelToggleFxns.customColumns,
@@ -158,7 +160,7 @@ export var AboveTableControlsBase = /*#__PURE__*/function (_React$PureComponent)
       }, /*#__PURE__*/React.createElement("div", {
         className: "row align-items-center"
       }, extendedChildren, /*#__PURE__*/React.createElement(ColumnCustomizationButtons, _extends({
-        btnClassName: "btn btn-outline-primary"
+        btnClassName: customizationButtonClassName
       }, _.pick(this.props, 'isFullscreen', 'windowWidth', 'toggleFullScreen', 'showMultiColumnSort'), {
         currentOpenPanel: open || reallyOpen,
         onColumnsBtnClick: this.panelToggleFxns.customColumns,
@@ -229,6 +231,9 @@ export var AboveTableControlsBase = /*#__PURE__*/function (_React$PureComponent)
     }
   }]);
 }(React.PureComponent);
+_defineProperty(AboveTableControlsBase, "defaultProps", {
+  "customizationButtonClassName": "btn btn-outline-primary"
+});
 AboveTableControlsBase.defaultProps = {
   "panelMap": {
     // Fake -- form correct component and pass down from `getCustomColumnSelectorPanelMapDefinition`

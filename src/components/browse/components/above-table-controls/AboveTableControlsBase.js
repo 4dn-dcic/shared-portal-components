@@ -16,6 +16,10 @@ import { MultiColumnSortSelector } from './../SortController';
  */
 export class AboveTableControlsBase extends React.PureComponent {
 
+    static defaultProps = {
+        "customizationButtonClassName" : "btn btn-outline-primary"
+    };
+
     // TODO: Refactor out this panelMap stuff, leave as just hardcoded col selection maybe.
     static getCustomColumnSelectorPanelMapDefinition(props){
         const {
@@ -112,7 +116,7 @@ export class AboveTableControlsBase extends React.PureComponent {
     }
 
     render(){
-        const { children, panelMap = {}, topLeftChildren, useSmahtLayout } = this.props;
+        const { children, panelMap = {}, topLeftChildren, useSmahtLayout, customizationButtonClassName } = this.props;
         const { open, reallyOpen } = this.state;
         const extendedChildren = React.Children.map(children, (child) => {
             if (React.isValidElement(child)) {
@@ -137,7 +141,7 @@ export class AboveTableControlsBase extends React.PureComponent {
                     <div className="row align-items-center">
                         <div className="col box results-count flex-grow-1 d-flex align-items-end">
                             { topLeftChildren }
-                            <ColumnCustomizationButtons noWrapper btnClassName="btn btn-sm btn-outline-secondary me-05" {..._.pick(this.props, 'isFullscreen', 'windowWidth', 'toggleFullScreen', 'showMultiColumnSort')}
+                            <ColumnCustomizationButtons noWrapper btnClassName={customizationButtonClassName} {..._.pick(this.props, 'isFullscreen', 'windowWidth', 'toggleFullScreen', 'showMultiColumnSort')}
                                 currentOpenPanel={open || reallyOpen} onColumnsBtnClick={this.panelToggleFxns.customColumns} onMultiColumnSortBtnClick={this.panelToggleFxns.multiColumnSort} />
                         </div>
                         <div className="right-buttons col-auto">
@@ -159,7 +163,7 @@ export class AboveTableControlsBase extends React.PureComponent {
             <div className="above-results-table-row">
                 <div className="row align-items-center">
                     { extendedChildren }
-                    <ColumnCustomizationButtons btnClassName="btn btn-outline-primary" {..._.pick(this.props, 'isFullscreen', 'windowWidth', 'toggleFullScreen', 'showMultiColumnSort')}
+                    <ColumnCustomizationButtons btnClassName={customizationButtonClassName} {..._.pick(this.props, 'isFullscreen', 'windowWidth', 'toggleFullScreen', 'showMultiColumnSort')}
                         currentOpenPanel={open || reallyOpen} onColumnsBtnClick={this.panelToggleFxns.customColumns} onMultiColumnSortBtnClick={this.panelToggleFxns.multiColumnSort} />
                 </div>
                 { panelDefinition ?
