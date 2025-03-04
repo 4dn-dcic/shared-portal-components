@@ -16,10 +16,6 @@ import { MultiColumnSortSelector } from './../SortController';
  */
 export class AboveTableControlsBase extends React.PureComponent {
 
-    static defaultProps = {
-        "customizationButtonClassName" : "btn btn-outline-primary"
-    };
-
     // TODO: Refactor out this panelMap stuff, leave as just hardcoded col selection maybe.
     static getCustomColumnSelectorPanelMapDefinition(props){
         const {
@@ -185,5 +181,6 @@ AboveTableControlsBase.defaultProps = {
             "body" : "Hello World",
             "className" : "visible-columns-selector-panel"
         }
-    }
+    },
+    "customizationButtonClassName" : "btn btn-outline-primary"
 };

@@ -4,7 +4,6 @@ import _createClass from "@babel/runtime/helpers/createClass";
 import _possibleConstructorReturn from "@babel/runtime/helpers/possibleConstructorReturn";
 import _getPrototypeOf from "@babel/runtime/helpers/getPrototypeOf";
 import _inherits from "@babel/runtime/helpers/inherits";
-import _defineProperty from "@babel/runtime/helpers/defineProperty";
 function _callSuper(_this, derived, args) {
   derived = _getPrototypeOf(derived);
   return _possibleConstructorReturn(_this, function () {
@@ -231,9 +230,6 @@ export var AboveTableControlsBase = /*#__PURE__*/function (_React$PureComponent)
     }
   }]);
 }(React.PureComponent);
-_defineProperty(AboveTableControlsBase, "defaultProps", {
-  "customizationButtonClassName": "btn btn-outline-primary"
-});
 AboveTableControlsBase.defaultProps = {
   "panelMap": {
     // Fake -- form correct component and pass down from `getCustomColumnSelectorPanelMapDefinition`
@@ -244,5 +240,6 @@ AboveTableControlsBase.defaultProps = {
       "body": "Hello World",
       "className": "visible-columns-selector-panel"
     }
-  }
+  },
+  "customizationButtonClassName": "btn btn-outline-primary"
 };
