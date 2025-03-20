@@ -118,6 +118,9 @@ export function preset() {
       case 'date-sm':
         // Nov 3rd, 2016
         return "MMM do, yyyy";
+      case 'date-sm-compact':
+        // Nov 3, 2016
+        return "MMM d, yyyy";
       case 'date-md':
         // November 3rd, 2016   (default)
         return "MMMM do, yyyy";
