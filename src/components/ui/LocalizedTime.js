@@ -8,14 +8,25 @@ import { isServerSide } from './../util/misc';
 
 export class LocalizedTime extends React.Component {
 
+    // Function to check if the date string contains timezone information
+    static isZoned(dateString) {
+        // Checks if the string ends with "Z" or an offset (+HH:mm or -HH:mm)
+        return /Z$|[+-]\d{2}:\d{2}$/.test(dateString);
+    }
+
     constructor(props){
         super(props);
         this.memoized = {
-            getDateFns: memoize(function(dateFnsDate, timestamp) {
-                const parsedTime = zonedTimeToUtc(timestamp);
-                // console.log("parsedTime", parsedTime);
+            getDateFns: memoize(function(dateFnsDate, timestamp, localize) {
                 if (dateFnsDate) return dateFnsDate;
-                if (timestamp) return parsedTime;
+                if (timestamp) {
+                    let d = zonedTimeToUtc(timestamp);
+                    // shift the date to the local timezone if it is not zoned
+                    if (!LocalizedTime.isZoned(timestamp) && !localize) {
+                        d = new Date(d.getTime() + d.getTimezoneOffset() * 60000);
+                    }
+                    return d;
+                }
                 return new Date();
             })
         };
@@ -37,7 +48,7 @@ export class LocalizedTime extends React.Component {
             timestamp
         } = this.props;
         const { mounted } = this.state;
-        const selfDateFns = this.memoized.getDateFns(dateFnsDate, timestamp);
+        const selfDateFns = this.memoized.getDateFns(dateFnsDate, timestamp, localize);
         if (!mounted || isServerSide()) {
             return (
                 <span className={className + ' utc'} suppressHydrationWarning={true}>

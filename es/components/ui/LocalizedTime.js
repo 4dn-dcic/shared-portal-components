@@ -29,11 +29,16 @@ export var LocalizedTime = /*#__PURE__*/function (_React$Component) {
     _classCallCheck(this, LocalizedTime);
     _this2 = _callSuper(this, LocalizedTime, [props]);
     _this2.memoized = {
-      getDateFns: memoize(function (dateFnsDate, timestamp) {
-        var parsedTime = zonedTimeToUtc(timestamp);
-        // console.log("parsedTime", parsedTime);
+      getDateFns: memoize(function (dateFnsDate, timestamp, localize) {
         if (dateFnsDate) return dateFnsDate;
-        if (timestamp) return parsedTime;
+        if (timestamp) {
+          var d = zonedTimeToUtc(timestamp);
+          // shift the date to the local timezone if it is not zoned
+          if (!LocalizedTime.isZoned(timestamp) && !localize) {
+            d = new Date(d.getTime() + d.getTimezoneOffset() * 60000);
+          }
+          return d;
+        }
         return new Date();
       })
     };
@@ -62,7 +67,7 @@ export var LocalizedTime = /*#__PURE__*/function (_React$Component) {
         dateFnsDate = _this$props.dateFnsDate,
         timestamp = _this$props.timestamp;
       var mounted = this.state.mounted;
-      var selfDateFns = this.memoized.getDateFns(dateFnsDate, timestamp);
+      var selfDateFns = this.memoized.getDateFns(dateFnsDate, timestamp, localize);
       if (!mounted || isServerSide()) {
         return /*#__PURE__*/React.createElement("span", {
           className: className + ' utc',
@@ -74,6 +79,14 @@ export var LocalizedTime = /*#__PURE__*/function (_React$Component) {
           suppressHydrationWarning: true
         }, display(selfDateFns, formatType, dateTimeSeparator, localize, customOutputFormat));
       }
+    }
+  }], [{
+    key: "isZoned",
+    value:
+    // Function to check if the date string contains timezone information
+    function isZoned(dateString) {
+      // Checks if the string ends with "Z" or an offset (+HH:mm or -HH:mm)
+      return /Z$|[+-]\d{2}:\d{2}$/.test(dateString);
     }
   }]);
 }(React.Component);
