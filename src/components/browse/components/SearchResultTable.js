@@ -29,7 +29,7 @@ import { basicColumnExtensionMap } from './table-commons/basicColumnExtensionMap
 
 
 const ResultRowColumnBlock = React.memo(function ResultRowColumnBlock(props){
-    const { columnDefinition, columnNumber, width, defaultColAlignment } = props;
+    const { columnDefinition, columnNumber, width, defaultColAlignment, fetchedProps } = props;
     const { field } = columnDefinition;
     return ( // props includes result
         <div className="search-result-column-block" style={{ width }}
@@ -98,7 +98,6 @@ class ResultDetail extends React.PureComponent{
         // Ideally, those things could hook into `setDetailHeight` maybe...
         this.lastFoundHeight = null;
     }
-
     /**
      * @todo Call this function in ExperimentSetDetailPane to keep heights up-to-date
      * when Processed Files or Raw Files sections are expanded/collapsed as well as just row itself.
@@ -146,8 +145,10 @@ class ResultDetail extends React.PureComponent{
             open, rowNumber, result, isOwnPage = true,
             tableContainerWidth,
             detailPane: propDetailPane,
-            renderDetailPane, toggleDetailOpen, setDetailHeight, detailPaneHeight
+            renderDetailPane, toggleDetailOpen, setDetailHeight, detailPaneHeight,
+            detailPaneType
         } = this.props;
+        
         const { closing } = this.state;
 
         // Account for vertical scrollbar decreasing width of container.
@@ -155,7 +156,8 @@ class ResultDetail extends React.PureComponent{
 
         const propsFromTable = {
             open, toggleDetailOpen,
-            setDetailHeight, detailPaneHeight, setDetailHeightFromPane : this.setDetailHeightFromPane
+            setDetailHeight, detailPaneHeight, setDetailHeightFromPane : this.setDetailHeightFromPane,
+            detailPaneType
         };
 
         const detailPane = React.isValidElement(propDetailPane) ? React.cloneElement(propDetailPane, { result, rowNumber, containerWidth, propsFromTable })
@@ -164,7 +166,10 @@ class ResultDetail extends React.PureComponent{
 
 
         return (
-            <div className={"result-table-detail-container detail-" + (open || closing ? 'open' : 'closed')} style={{ "minHeight": detailPaneHeight }}>
+            <div 
+                className={"result-table-detail-container detail-" + (open || closing ? 'open' : 'closed')} 
+                style={{ "minHeight": detailPaneHeight }}
+            >
                 { open ?
                     <div className="result-table-detail" ref={this.detailRef} style={{ "width": containerWidth }}>
                         <div className="close-button-container text-center" onClick={toggleDetailOpen} data-tip="Collapse Details">
@@ -180,6 +185,8 @@ class ResultDetail extends React.PureComponent{
 
 
 class ResultRow extends React.PureComponent {
+
+    static hasFetched = false;
 
     static areWidthsEqual(arr1, arr2){
         if (arr1.length !== arr2.length) return false;
@@ -224,18 +231,46 @@ class ResultRow extends React.PureComponent {
         this.toggleDetailOpen = _.throttle(this.toggleDetailOpen.bind(this), 250);
         this.setDetailHeight = this.setDetailHeight.bind(this);
         this.handleDragStart = this.handleDragStart.bind(this);
+        this.handleCellClick = this.handleCellClick.bind(this);
         this.memoized = {
             getStyles: memoize(ResultRow.getStyles)
         };
+        this.state = {
+            data: null,
+            loading: true,
+            error: null,
+            detailPaneType: null // Can be set by child column renderers to change detail pane type
+        }
+        this._fetch_started = false; // Used to prevent multiple fetches for same data.
     }
 
-    // componentDidUpdate(pastProps){
-    //     _.keys(this.props).forEach((k)=>{
-    //         if (pastProps[k] !== this.props[k]){
-    //             console.log(k, this.props[k], pastProps[k]);
-    //         }
-    //     });
-    // }
+    // fetch additional metadata for the result item
+    componentDidMount() {
+        const { result, fetchProps } = this.props;
+
+        if (this._fetch_started) return
+        this._fetch_started = true;
+
+        if (this.state.data === null) {
+            load(
+            '/peek-metadata/?additional_facet=file_size&status=released&type=File&donors.display_title=' +
+                result?.display_title,
+            (resp) => {
+                this.setState({
+                    loading: false,
+                    data: resp
+                });
+            },
+            'GET',
+            (error) => {
+                this.setState({
+                    loading: false,
+                    error: error
+                });
+            }
+        );
+        }
+    }
 
     setDetailHeight(){
         const { id, setDetailHeight : parentSetDetailHeight } = this.props;
@@ -287,20 +322,28 @@ class ResultRow extends React.PureComponent {
         }, 10);
     }
 
+    handleCellClick(cellKey) {
+        this.setState({ detailPaneType: cellKey });
+    }
+
     renderColumns(){
         // TODO (?) prop func to do this to control which columns get which props.
         const { columnDefinitions, mounted, columnWidths, windowWidth, defaultColAlignment, ...remainingProps } = this.props;
         // Contains required 'result', 'rowNumber', 'href', 'schemas', 'currentAction', 'detailOpen'
-        const commonProps = _.omit(remainingProps, 'tableContainerWidth', 'renderDetailPane', 'detailPane', 'id', 'toggleDetailPaneOpen');
+        const commonProps = _.omit(remainingProps, 'tableContainerWidth', 'detailPane', 'id', 'toggleDetailPaneOpen', 'renderDetailPane');
+
         return columnDefinitions.map((columnDefinition, columnNumber) => { // todo: rename columnNumber to columnIndex
+
             const { field } = columnDefinition;
             const passedProps = {
                 ...commonProps,
+                detailPaneType: this.state.detailPaneType,
+                handleCellClick: this.handleCellClick,
                 columnDefinition,
                 columnNumber,
                 defaultColAlignment,
-                // Only needed on first column (contains title, checkbox)
-                'toggleDetailOpen' : columnNumber === 0 ? this.toggleDetailOpen : null
+                fetchedProps: this.state,
+                'toggleDetailOpen' : this.toggleDetailOpen
             };
 
             let width;
@@ -332,6 +375,7 @@ class ResultRow extends React.PureComponent {
             "search-result-row"
             + " detail-" + (detailOpen ? 'open' : 'closed')
             + (isDraggable ? ' is-draggable' : '')
+            + (this.state.detailPaneType ? ` detail-${this.state.detailPaneType}` : '')
         );
 
         return (
@@ -347,8 +391,14 @@ class ResultRow extends React.PureComponent {
                     onDragStart={isDraggable ? this.handleDragStart : null}>
                     { this.renderColumns() }
                 </div>
-                <ResultDetail {...detailProps} open={!!(detailOpen)} detailPaneHeight={typeof detailOpen === "number" ? detailOpen : undefined}
-                    toggleDetailOpen={this.toggleDetailOpen} setDetailHeight={this.setDetailHeight} />
+                <ResultDetail
+                    fetchedData={this.state.data} 
+                    {...detailProps}
+                    detailPaneType={this.state.detailPaneType}
+                    open={!!(detailOpen)} 
+                    detailPaneHeight={typeof detailOpen === "number" ? detailOpen : undefined}
+                    toggleDetailOpen={this.toggleDetailOpen} 
+                    setDetailHeight={this.setDetailHeight} />
             </div>
         );
     }
@@ -1008,7 +1058,8 @@ class DimensioningContainer extends React.PureComponent {
                 'mounted' : mounted || false,
                 'rowWidth' : fullRowWidth,
                 'toggleDetailPaneOpen' : this.toggleDetailPaneOpen,
-                'setDetailHeight' : this.setDetailHeight
+                'setDetailHeight' : this.setDetailHeight,
+                fetchProps: this.props.fetchProps || {}, // For ResultRow
             };
             headersRow = <HeadersRow {...headerRowCommonProps} />;
             shadowBorderLayer = (

@@ -39,7 +39,6 @@ export class SearchResultDetailPane extends React.PureComponent {
                     <div className="flex-description-container">
                         <h5><i className="icon icon-fw icon-align-left fas"/>&nbsp; Description</h5>
                         <FlexibleDescriptionBox
-                            //windowWidth={this.props.windowWidth}
                             description={result.description}
                             fitTo="self"
                             textClassName="text-normal"

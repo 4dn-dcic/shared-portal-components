@@ -1,7 +1,7 @@
 import _defineProperty from "@babel/runtime/helpers/defineProperty";
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import url from 'url';
 import queryString from 'querystring';
 import { navigate as globalPageNavigate } from './../../../util/navigate';
@@ -300,3 +300,42 @@ export var TableRowToggleOpenButton = /*#__PURE__*/React.memo(function (_ref4) {
     className: "icon icon-fw fas icon-" + (open ? 'minus' : 'plus')
   }))));
 });
+
+/** Custom button shown in a table entry to open/close detail pane. */
+export var CustomTableRowToggleOpenButton = function (props) {
+  var toggleDetailOpen = props.toggleDetailOpen,
+    _props$customToggleDe = props.customToggleDetailOpen,
+    customToggleDetailOpen = _props$customToggleDe === void 0 ? null : _props$customToggleDe,
+    _props$customToggleDe2 = props.customToggleDetailClose,
+    customToggleDetailClose = _props$customToggleDe2 === void 0 ? null : _props$customToggleDe2,
+    isActive = props.isActive,
+    detailOpen = props.detailOpen,
+    toggleOpenIcon = props.toggleOpenIcon,
+    toggleCloseIcon = props.toggleCloseIcon;
+  var handleClick = function (e, props) {
+    if (detailOpen && customToggleDetailClose) {
+      customToggleDetailClose(props);
+    } else if (customToggleDetailOpen) {
+      customToggleDetailOpen(props);
+    } else {
+      toggleDetailOpen(e, props);
+    }
+  };
+  var closeIcon = toggleCloseIcon || /*#__PURE__*/React.createElement("i", {
+    className: "icon icon-fw fas icon-minus"
+  });
+  var openIcon = toggleOpenIcon || /*#__PURE__*/React.createElement("i", {
+    className: "icon icon-fw fas icon-plus"
+  });
+  return /*#__PURE__*/React.createElement("div", {
+    className: "toggle-detail-button-container"
+  }, /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    className: "toggle-detail-button",
+    onClick: function onClick(e) {
+      return handleClick(e, props);
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "icon-container"
+  }, isActive ? closeIcon : openIcon)));
+};

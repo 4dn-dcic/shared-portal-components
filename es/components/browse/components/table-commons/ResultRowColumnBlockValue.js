@@ -53,6 +53,16 @@ export var ResultRowColumnBlockValue = /*#__PURE__*/function (_React$Component) 
       nextProps.columnDefinition.field !== columnDefinition.field || nextProps.columnDefinition.render !== columnDefinition.render || nextProps.schemas !== schemas || nextProps.result !== result && itemUtil.atId(nextProps.result) !== itemUtil.atId(result) || nextProps.className !== className || typeof nextProps.shouldComponentUpdateExt === 'function' && nextProps.shouldComponentUpdateExt(nextProps, nextState, this.props, this.state)) {
         return true;
       }
+
+      // Rerender if fetchedProps change, e.g. when fetching data for ResultRow
+      if (nextProps.fetchedProps && nextProps.fetchedProps !== this.props.fetchedProps) {
+        return true;
+      }
+
+      // Rerender if detailOpen prop changes (used to control detail pane open/close state)
+      if (this.props.detailOpen !== nextProps.detailOpen) {
+        return true;
+      }
       return false;
     }
   }, {
@@ -65,7 +75,8 @@ export var ResultRowColumnBlockValue = /*#__PURE__*/function (_React$Component) 
         className = _this$props2.className,
         termTransformFxn = _this$props2.termTransformFxn,
         _this$props2$defaultA = _this$props2.defaultAlignment,
-        defaultAlignment = _this$props2$defaultA === void 0 ? "text-center" : _this$props2$defaultA;
+        defaultAlignment = _this$props2$defaultA === void 0 ? "text-center" : _this$props2$defaultA,
+        fetchedProps = _this$props2.fetchedProps;
       var field = columnDefinition.field,
         _columnDefinition$ren = columnDefinition.render,
         renderFxn = _columnDefinition$ren === void 0 ? null : _columnDefinition$ren,

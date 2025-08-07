@@ -145,7 +145,9 @@ export var ControlsAndResults = /*#__PURE__*/function (_React$PureComponent) {
         _this$props2$selected = _this$props2.selectedItems,
         selectedItems = _this$props2$selected === void 0 ? null : _this$props2$selected,
         sortBy = _this$props2.sortBy,
-        sortColumns = _this$props2.sortColumns;
+        sortColumns = _this$props2.sortColumns,
+        _this$props2$fetchPro = _this$props2.fetchProps,
+        fetchProps = _this$props2$fetchPro === void 0 ? null : _this$props2$fetchPro;
 
       // Initial results. Will get cloned to SearchResultTable state and added onto during load-as-you-scroll.
       var _ref = context || {},
@@ -248,6 +250,7 @@ export var ControlsAndResults = /*#__PURE__*/function (_React$PureComponent) {
         maxHeight: maxHeight,
         maxResultsBodyHeight: maxResultsBodyHeight,
         targetTabKey: targetTabKey,
+        fetchProps: fetchProps,
         isContextLoading: isContextLoading // <- Only applicable for EmbeddedSearchView, else is false always
       }, {
         ref: this.searchResultTableRef,

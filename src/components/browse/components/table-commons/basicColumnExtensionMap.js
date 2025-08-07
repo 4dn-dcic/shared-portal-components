@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import url from 'url';
 import queryString from 'querystring';
 import { navigate as globalPageNavigate } from './../../../util/navigate';
@@ -244,6 +244,7 @@ export const DisplayTitleColumnWrapper = React.memo(function(props){
 
 /** Button shown in first column (display_title) to open/close detail pane. */
 export const TableRowToggleOpenButton = React.memo(function TableRowToggleOpenButton({ onClick, toggleDetailOpen, open }){
+
     return (
         <div className="toggle-detail-button-container">
             <button type="button" className="toggle-detail-button" onClick={onClick || toggleDetailOpen}>
@@ -254,4 +255,43 @@ export const TableRowToggleOpenButton = React.memo(function TableRowToggleOpenBu
         </div>
     );
 });
+
+/** Custom button shown in a table entry to open/close detail pane. */
+export const CustomTableRowToggleOpenButton = (props) => {
+    const { 
+        toggleDetailOpen, 
+        customToggleDetailOpen=null, 
+        customToggleDetailClose=null, 
+        isActive, 
+        detailOpen, 
+        toggleOpenIcon, 
+        toggleCloseIcon
+    } = props;
+
+    const handleClick = (e, props) => {
+        if (detailOpen && customToggleDetailClose) {
+            customToggleDetailClose(props);
+        }
+        else if (customToggleDetailOpen) {
+            customToggleDetailOpen(props);
+        } else {
+            toggleDetailOpen(e, props);
+        }
+    }
+
+    const closeIcon = toggleCloseIcon || <i className={"icon icon-fw fas icon-minus"} />;
+    const openIcon = toggleOpenIcon || <i className={"icon icon-fw fas icon-plus"} />;
+
+    return (
+        <div className="toggle-detail-button-container">
+            <button type="button" className="toggle-detail-button" onClick={(e) => handleClick(e, props)}>
+                <div className="icon-container">
+                    {
+                        isActive ? closeIcon : openIcon
+                    }
+                </div>
+            </button>
+        </div>
+    );
+};
 

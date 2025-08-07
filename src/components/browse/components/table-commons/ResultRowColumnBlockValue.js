@@ -94,6 +94,17 @@ export class ResultRowColumnBlockValue extends React.Component {
         ){
             return true;
         }
+
+        // Rerender if fetchedProps change, e.g. when fetching data for ResultRow
+        if (nextProps.fetchedProps && nextProps.fetchedProps !== this.props.fetchedProps) {
+            return true;
+        }
+
+        // Rerender if detailOpen prop changes (used to control detail pane open/close state)
+        if (this.props.detailOpen !== nextProps.detailOpen) {
+            return true;
+        }
+
         return false;
     }
 
@@ -104,13 +115,15 @@ export class ResultRowColumnBlockValue extends React.Component {
             tooltip : propTooltip,
             className,
             termTransformFxn,
-            defaultAlignment = "text-center"
+            defaultAlignment = "text-center",
+            fetchedProps
         } = this.props;
         const {
             field,
             render: renderFxn = null,
             tooltip: colDefTooltip
         } = columnDefinition;
+
 
         const showTooltip = propTooltip === true || colDefTooltip === true;
 
