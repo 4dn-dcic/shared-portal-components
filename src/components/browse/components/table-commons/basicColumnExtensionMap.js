@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import url from 'url';
 import queryString from 'querystring';
 import { navigate as globalPageNavigate } from './../../../util/navigate';
