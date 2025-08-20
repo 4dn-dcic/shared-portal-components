@@ -146,7 +146,9 @@ class ResultDetail extends React.PureComponent{
             tableContainerWidth,
             detailPane: propDetailPane,
             renderDetailPane, toggleDetailOpen, setDetailHeight, detailPaneHeight,
-            detailPaneType
+            detailPaneType,
+            searchRequest, // function for executing search request
+            searchCache // cached search results from parent ResultRow
         } = this.props;
         
         const { closing } = this.state;
@@ -157,7 +159,8 @@ class ResultDetail extends React.PureComponent{
         const propsFromTable = {
             open, toggleDetailOpen,
             setDetailHeight, detailPaneHeight, setDetailHeightFromPane : this.setDetailHeightFromPane,
-            detailPaneType
+            detailPaneType,
+            searchRequest, searchCache
         };
 
         const detailPane = React.isValidElement(propDetailPane) ? React.cloneElement(propDetailPane, { result, rowNumber, containerWidth, propsFromTable })
@@ -186,6 +189,7 @@ class ResultDetail extends React.PureComponent{
 
 class ResultRow extends React.PureComponent {
 
+    // Prevent mutiple search requests
     static hasFetched = false;
 
     static areWidthsEqual(arr1, arr2){
@@ -229,6 +233,7 @@ class ResultRow extends React.PureComponent {
     constructor(props){
         super(props);
         this.toggleDetailOpen = _.throttle(this.toggleDetailOpen.bind(this), 250);
+        this.searchRequest = this.searchRequest.bind(this);
         this.setDetailHeight = this.setDetailHeight.bind(this);
         this.handleDragStart = this.handleDragStart.bind(this);
         this.handleCellClick = this.handleCellClick.bind(this);
@@ -239,11 +244,12 @@ class ResultRow extends React.PureComponent {
             data: null,
             loading: true,
             error: null,
-            detailPaneType: null // Can be set by child column renderers to change detail pane type
+            detailPaneType: null, // Can be set by child column renderers to change detail pane type
+            searchCache: null // Create a cache for search data fetched in ResultDetail components
         }
         this._fetch_started = false; // Used to prevent multiple fetches for same data.
     }
-
+    
     // fetch additional metadata for the result item
     componentDidMount() {
         const { result, fetchProps } = this.props;
@@ -271,6 +277,31 @@ class ResultRow extends React.PureComponent {
         );
         }
     }
+
+    // Make a search request and add to the ResultRow component's state
+    /**
+     * Make a search request and add to the ResultRow component's state. Then
+     * it is made available to the DetailPane(s) to prevent duplicate requests.
+     * @param {*} searchURL 
+     */
+    searchRequest(searchURL) {
+        load(
+            searchURL,
+            (resp) => {
+                this.setState({
+                    ...this.state,
+                    searchCache: resp
+                });
+            },
+            'GET',
+            (err) => {
+                if (err.notification !== 'No results found') {
+                    console.log('ERROR in Result Row searchRequest', err);
+                }
+            }
+        );
+    }
+
 
     setDetailHeight(){
         const { id, setDetailHeight : parentSetDetailHeight } = this.props;
@@ -343,6 +374,7 @@ class ResultRow extends React.PureComponent {
                 columnNumber,
                 defaultColAlignment,
                 fetchedProps: this.state,
+                searchRequest: this.searchRequest,
                 'toggleDetailOpen' : this.toggleDetailOpen
             };
 
@@ -392,7 +424,9 @@ class ResultRow extends React.PureComponent {
                     { this.renderColumns() }
                 </div>
                 <ResultDetail
-                    fetchedData={this.state.data} 
+                    fetchedData={this.state.data}
+                    searchRequest={this.searchRequest}
+                    searchCache={this.state.searchCache}
                     {...detailProps}
                     detailPaneType={this.state.detailPaneType}
                     open={!!(detailOpen)} 

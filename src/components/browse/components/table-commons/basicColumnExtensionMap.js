@@ -269,6 +269,7 @@ export const CustomTableRowToggleOpenButton = (props) => {
     } = props;
 
     const handleClick = (e, props) => {
+        // Run custom functions for toggling if provided
         if (detailOpen && customToggleDetailClose) {
             customToggleDetailClose(props);
         }

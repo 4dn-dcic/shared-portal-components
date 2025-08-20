@@ -182,7 +182,9 @@ var ResultDetail = /*#__PURE__*/function (_React$PureComponent) {
         toggleDetailOpen = _this$props2.toggleDetailOpen,
         setDetailHeight = _this$props2.setDetailHeight,
         detailPaneHeight = _this$props2.detailPaneHeight,
-        detailPaneType = _this$props2.detailPaneType;
+        detailPaneType = _this$props2.detailPaneType,
+        searchRequest = _this$props2.searchRequest,
+        searchCache = _this$props2.searchCache;
       var closing = this.state.closing;
 
       // Account for vertical scrollbar decreasing width of container.
@@ -193,7 +195,9 @@ var ResultDetail = /*#__PURE__*/function (_React$PureComponent) {
         setDetailHeight: setDetailHeight,
         detailPaneHeight: detailPaneHeight,
         setDetailHeightFromPane: this.setDetailHeightFromPane,
-        detailPaneType: detailPaneType
+        detailPaneType: detailPaneType,
+        searchRequest: searchRequest,
+        searchCache: searchCache
       };
       var detailPane = /*#__PURE__*/React.isValidElement(propDetailPane) ? /*#__PURE__*/React.cloneElement(propDetailPane, {
         result: result,
@@ -243,6 +247,7 @@ var ResultRow = /*#__PURE__*/function (_React$PureComponent2) {
     _classCallCheck(this, ResultRow);
     _this3 = _callSuper(this, ResultRow, [props]);
     _this3.toggleDetailOpen = _.throttle(_this3.toggleDetailOpen.bind(_this3), 250);
+    _this3.searchRequest = _this3.searchRequest.bind(_this3);
     _this3.setDetailHeight = _this3.setDetailHeight.bind(_this3);
     _this3.handleDragStart = _this3.handleDragStart.bind(_this3);
     _this3.handleCellClick = _this3.handleCellClick.bind(_this3);
@@ -253,7 +258,9 @@ var ResultRow = /*#__PURE__*/function (_React$PureComponent2) {
       data: null,
       loading: true,
       error: null,
-      detailPaneType: null // Can be set by child column renderers to change detail pane type
+      detailPaneType: null,
+      // Can be set by child column renderers to change detail pane type
+      searchCache: null // Create a cache for search data fetched in ResultDetail components
     };
 
     _this3._fetch_started = false; // Used to prevent multiple fetches for same data.
@@ -284,6 +291,27 @@ var ResultRow = /*#__PURE__*/function (_React$PureComponent2) {
           });
         });
       }
+    }
+
+    // Make a search request and add to the ResultRow component's state
+    /**
+     * Make a search request and add to the ResultRow component's state. Then
+     * it is made available to the DetailPane(s) to prevent duplicate requests.
+     * @param {*} searchURL 
+     */
+  }, {
+    key: "searchRequest",
+    value: function searchRequest(searchURL) {
+      var _this5 = this;
+      load(searchURL, function (resp) {
+        _this5.setState(_objectSpread(_objectSpread({}, _this5.state), {}, {
+          searchCache: resp
+        }));
+      }, 'GET', function (err) {
+        if (err.notification !== 'No results found') {
+          console.log('ERROR in Result Row searchRequest', err);
+        }
+      });
     }
   }, {
     key: "setDetailHeight",
@@ -352,7 +380,7 @@ var ResultRow = /*#__PURE__*/function (_React$PureComponent2) {
   }, {
     key: "renderColumns",
     value: function renderColumns() {
-      var _this5 = this;
+      var _this6 = this;
       // TODO (?) prop func to do this to control which columns get which props.
       var _this$props7 = this.props,
         columnDefinitions = _this$props7.columnDefinitions,
@@ -368,13 +396,14 @@ var ResultRow = /*#__PURE__*/function (_React$PureComponent2) {
 
         var field = columnDefinition.field;
         var passedProps = _objectSpread(_objectSpread({}, commonProps), {}, {
-          detailPaneType: _this5.state.detailPaneType,
-          handleCellClick: _this5.handleCellClick,
+          detailPaneType: _this6.state.detailPaneType,
+          handleCellClick: _this6.handleCellClick,
           columnDefinition: columnDefinition,
           columnNumber: columnNumber,
           defaultColAlignment: defaultColAlignment,
-          fetchedProps: _this5.state,
-          'toggleDetailOpen': _this5.toggleDetailOpen
+          fetchedProps: _this6.state,
+          searchRequest: _this6.searchRequest,
+          'toggleDetailOpen': _this6.toggleDetailOpen
         });
         var width;
         if (mounted) {
@@ -423,7 +452,9 @@ var ResultRow = /*#__PURE__*/function (_React$PureComponent2) {
         ,
         onDragStart: isDraggable ? this.handleDragStart : null
       }, this.renderColumns()), /*#__PURE__*/React.createElement(ResultDetail, _extends({
-        fetchedData: this.state.data
+        fetchedData: this.state.data,
+        searchRequest: this.searchRequest,
+        searchCache: this.state.searchCache
       }, detailProps, {
         detailPaneType: this.state.detailPaneType,
         open: !!detailOpen,
@@ -455,6 +486,7 @@ var ResultRow = /*#__PURE__*/function (_React$PureComponent2) {
     }
   }]);
 }(React.PureComponent);
+// Prevent mutiple search requests
 _defineProperty(ResultRow, "hasFetched", false);
 _defineProperty(ResultRow, "propTypes", {
   'result': PropTypes.shape({
@@ -480,24 +512,24 @@ _defineProperty(ResultRow, "propTypes", {
 });
 var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$Component) {
   function LoadMoreAsYouScroll(props) {
-    var _this6;
+    var _this7;
     _classCallCheck(this, LoadMoreAsYouScroll);
-    _this6 = _callSuper(this, LoadMoreAsYouScroll, [props]);
-    _this6.handleLoad = _.throttle(_this6.handleLoad.bind(_this6), 3000);
-    _this6.state = {
+    _this7 = _callSuper(this, LoadMoreAsYouScroll, [props]);
+    _this7.handleLoad = _.throttle(_this7.handleLoad.bind(_this7), 3000);
+    _this7.state = {
       'isLoading': false
     };
     if (typeof props.mounted === 'undefined') {
-      _this6.state.mounted = false;
+      _this7.state.mounted = false;
     }
-    _this6.memoized = {
+    _this7.memoized = {
       getStyles: memoize(LoadMoreAsYouScroll.getStyles),
       getElementHeight: memoize(LoadMoreAsYouScroll.getElementHeight)
     };
-    _this6.lastIsScrolling = false;
-    _this6.infiniteComponentRef = /*#__PURE__*/React.createRef();
-    _this6.currRequest = null;
-    return _this6;
+    _this7.lastIsScrolling = false;
+    _this7.infiniteComponentRef = /*#__PURE__*/React.createRef();
+    _this7.currRequest = null;
+    return _this7;
   }
   _inherits(LoadMoreAsYouScroll, _React$Component);
   return _createClass(LoadMoreAsYouScroll, [{
@@ -512,7 +544,7 @@ var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$Component) {
   }, {
     key: "handleLoad",
     value: function handleLoad() {
-      var _this7 = this;
+      var _this8 = this;
       var _this$props9 = this.props,
         origHref = _this$props9.href,
         _this$props9$requeste = _this$props9.requestedCompoundFilterSet,
@@ -545,7 +577,7 @@ var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$Component) {
         this.currRequest.abort();
       }
       var loadCallback = function (resp) {
-        if (requestInThisScope !== _this7.currRequest) {
+        if (requestInThisScope !== _this8.currRequest) {
           // Shouldn't occur - extra redundancy
           console.warn("Throwing out outdated load-more-as-you-scroll request.");
           return false;
@@ -561,7 +593,7 @@ var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$Component) {
           if (keyIntersection.length > 0) {
             logger.error("FOUND ALREADY-PRESENT RESULT IN NEW RESULTS.'", keyIntersection, newKeys);
             // We can refresh current page to get newest results.
-            _this7.setState({
+            _this8.setState({
               'isLoading': false
             }, function () {
               if (origCompoundFilterSet) {
@@ -577,7 +609,7 @@ var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$Component) {
               }
             });
           } else {
-            _this7.setState({
+            _this8.setState({
               'isLoading': false
             }, function () {
               var impressionedItems = analytics.impressionListOfItems(nextResults, nextHref || window.location.href, isOwnPage ? analytics.hrefToListName(nextHref) : "Embedded Search View");
@@ -590,16 +622,16 @@ var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$Component) {
             });
           }
         } else {
-          _this7.setState({
+          _this8.setState({
             'isLoading': false
           });
         }
-        _this7.currRequest = null;
+        _this8.currRequest = null;
       };
       this.setState({
         'isLoading': true
       }, function () {
-        _this7.currRequest = requestInThisScope = load(nextCompoundFilterSetRequest ? "/compound_search" : nextHref, loadCallback, nextCompoundFilterSetRequest ? "POST" : "GET", loadCallback, nextCompoundFilterSetRequest ? JSON.stringify(nextCompoundFilterSetRequest) : null);
+        _this8.currRequest = requestInThisScope = load(nextCompoundFilterSetRequest ? "/compound_search" : nextHref, loadCallback, nextCompoundFilterSetRequest ? "POST" : "GET", loadCallback, nextCompoundFilterSetRequest ? JSON.stringify(nextCompoundFilterSetRequest) : null);
       });
     }
   }, {
@@ -741,18 +773,18 @@ var LoadingSpinner = /*#__PURE__*/React.memo(function (_ref3) {
 });
 var ShadowBorderLayer = /*#__PURE__*/function (_React$Component2) {
   function ShadowBorderLayer(props) {
-    var _this8;
+    var _this9;
     _classCallCheck(this, ShadowBorderLayer);
-    _this8 = _callSuper(this, ShadowBorderLayer, [props]);
-    _this8.scrolling = false;
-    _this8.performScrollAction = _this8.performScrollAction.bind(_this8);
-    _this8.handleLeftScrollButtonMouseDown = _this8.handleScrollButtonMouseDown.bind(_this8, 'left');
-    _this8.handleRightScrollButtonMouseDown = _this8.handleScrollButtonMouseDown.bind(_this8, 'right');
-    _this8.handleScrollButtonUp = _this8.handleScrollButtonUp.bind(_this8);
-    _this8.memoized = {
+    _this9 = _callSuper(this, ShadowBorderLayer, [props]);
+    _this9.scrolling = false;
+    _this9.performScrollAction = _this9.performScrollAction.bind(_this9);
+    _this9.handleLeftScrollButtonMouseDown = _this9.handleScrollButtonMouseDown.bind(_this9, 'left');
+    _this9.handleRightScrollButtonMouseDown = _this9.handleScrollButtonMouseDown.bind(_this9, 'right');
+    _this9.handleScrollButtonUp = _this9.handleScrollButtonUp.bind(_this9);
+    _this9.memoized = {
       edgeHiddenContentWidths: memoize(ShadowBorderLayer.edgeHiddenContentWidths)
     };
-    return _this8;
+    return _this9;
   }
   _inherits(ShadowBorderLayer, _React$Component2);
   return _createClass(ShadowBorderLayer, [{
@@ -785,7 +817,7 @@ var ShadowBorderLayer = /*#__PURE__*/function (_React$Component2) {
   }, {
     key: "performScrollAction",
     value: function performScrollAction() {
-      var _this9 = this;
+      var _this10 = this;
       var direction = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "right";
       var _this$props12 = this.props,
         horizontalScrollRateOnEdgeButton = _this$props12.horizontalScrollRateOnEdgeButton,
@@ -805,7 +837,7 @@ var ShadowBorderLayer = /*#__PURE__*/function (_React$Component2) {
           logger.error("Reached depth 10k on a recursive function 'performScrollAction.'");
           return;
         }
-        if (_this9.scrolling) {
+        if (_this10.scrolling) {
           raf(function () {
             scrollAction(depth + 1);
           });
@@ -883,22 +915,22 @@ _defineProperty(ShadowBorderLayer, "defaultProps", {
 });
 var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
   function DimensioningContainer(props) {
-    var _this10;
+    var _this11;
     _classCallCheck(this, DimensioningContainer);
-    _this10 = _callSuper(this, DimensioningContainer, [props]);
-    _this10.getScrollContainer = _this10.getScrollContainer.bind(_this10);
-    _this10.getScrollableElement = _this10.getScrollableElement.bind(_this10);
-    _this10.throttledUpdate = _.debounce(_this10.forceUpdate.bind(_this10), 500);
-    _this10.toggleDetailPaneOpen = _.throttle(_this10.toggleDetailPaneOpen.bind(_this10), 500);
-    _this10.setDetailHeight = _this10.setDetailHeight.bind(_this10);
+    _this11 = _callSuper(this, DimensioningContainer, [props]);
+    _this11.getScrollContainer = _this11.getScrollContainer.bind(_this11);
+    _this11.getScrollableElement = _this11.getScrollableElement.bind(_this11);
+    _this11.throttledUpdate = _.debounce(_this11.forceUpdate.bind(_this11), 500);
+    _this11.toggleDetailPaneOpen = _.throttle(_this11.toggleDetailPaneOpen.bind(_this11), 500);
+    _this11.setDetailHeight = _this11.setDetailHeight.bind(_this11);
     //this.setContainerScrollLeft = this.setContainerScrollLeft.bind(this);
-    _this10.setContainerScrollLeft = _.throttle(_this10.setContainerScrollLeft.bind(_this10), 250);
-    _this10.onHorizontalScroll = _this10.onHorizontalScroll.bind(_this10);
-    _this10.setResults = _this10.setResults.bind(_this10);
-    _this10.canLoadMore = _this10.canLoadMore.bind(_this10);
+    _this11.setContainerScrollLeft = _.throttle(_this11.setContainerScrollLeft.bind(_this11), 250);
+    _this11.onHorizontalScroll = _this11.onHorizontalScroll.bind(_this11);
+    _this11.setResults = _this11.setResults.bind(_this11);
+    _this11.canLoadMore = _this11.canLoadMore.bind(_this11);
     var _props$results = props.results,
       originalResults = _props$results === void 0 ? [] : _props$results;
-    _this10.state = {
+    _this11.state = {
       'mounted': false,
       'results': originalResults.slice(0),
       // { row key : detail pane height } used for determining if detail pane is open + height for Infinite listview
@@ -908,16 +940,16 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
       originalResults: originalResults // Reference to original results in order to utilize getDerivedStateFromProps.
     };
 
-    if (_this10.state.results.length > 0 && Array.isArray(props.defaultOpenIndices) && props.defaultOpenIndices.length > 0) {
-      _this10.state.openDetailPanes[itemUtil.atId(_this10.state.results[0])] = true;
+    if (_this11.state.results.length > 0 && Array.isArray(props.defaultOpenIndices) && props.defaultOpenIndices.length > 0) {
+      _this11.state.openDetailPanes[itemUtil.atId(_this11.state.results[0])] = true;
     }
-    _this10.outerRef = /*#__PURE__*/React.createRef();
-    _this10.outerContainerSizeInterval = null;
-    _this10.scrollHandlerUnsubscribeFxn = null;
-    _this10.memoized = {
+    _this11.outerRef = /*#__PURE__*/React.createRef();
+    _this11.outerContainerSizeInterval = null;
+    _this11.scrollHandlerUnsubscribeFxn = null;
+    _this11.memoized = {
       fullRowWidth: memoize(DimensioningContainer.fullRowWidth)
     };
-    return _this10;
+    return _this11;
   }
   _inherits(DimensioningContainer, _React$PureComponent3);
   return _createClass(DimensioningContainer, [{
@@ -945,7 +977,7 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
   }, {
     key: "componentDidMount",
     value: function componentDidMount() {
-      var _this11 = this;
+      var _this12 = this;
       // Maybe todo: play with 'experimental technology' for controlling columing widths (& compare performance),
       // see https://developer.mozilla.org/en-US/docs/Web/API/DocumentOrShadowRoot/styleSheets
       // and https://developer.mozilla.org/en-US/docs/Web/API/CSSStylesheet.
@@ -964,10 +996,10 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
       // and element might change width independent of window (e.g. open/hide
       // facetlist in future, expand table to fullscreen, etc.)
       this.outerContainerSizeInterval = setInterval(function () {
-        _this11.setState(function (_ref4, _ref5) {
+        _this12.setState(function (_ref4, _ref5) {
           var pastWidth = _ref4.tableContainerWidth;
           var windowWidth = _ref5.windowWidth;
-          var currDims = DimensioningContainer.getTableDims(_this11.getScrollContainer(), windowWidth);
+          var currDims = DimensioningContainer.getTableDims(_this12.getScrollContainer(), windowWidth);
           if (pastWidth !== currDims.tableContainerWidth) {
             return currDims;
           }
@@ -1059,7 +1091,7 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
   }, {
     key: "onHorizontalScroll",
     value: function onHorizontalScroll(e) {
-      var _this12 = this;
+      var _this13 = this;
       var innerElem = e.target;
 
       // ( Shouldn't need to do commented out stuff if layout is within width )
@@ -1075,7 +1107,7 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
         caf(this.horizScrollRAF);
       }
       this.horizScrollRAF = raf(function () {
-        var tableContainerScrollLeft = _this12.state.tableContainerScrollLeft;
+        var tableContainerScrollLeft = _this13.state.tableContainerScrollLeft;
         var nextScrollLeft = innerElem.scrollLeft;
         if (nextScrollLeft < 0) {
           nextScrollLeft = 0; // Might occur right after changing column widths or something.
@@ -1085,9 +1117,9 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
         columnsWrapperElement.style.left = "-".concat(nextScrollLeft, "px");
         if (nextScrollLeft !== tableContainerScrollLeft) {
           // Shouldn't occur or matter but presence of this seems to improve smoothness (?)
-          _this12.setContainerScrollLeft(nextScrollLeft);
+          _this13.setContainerScrollLeft(nextScrollLeft);
         }
-        delete _this12.horizScrollRAF;
+        delete _this13.horizScrollRAF;
       });
       return false;
     }

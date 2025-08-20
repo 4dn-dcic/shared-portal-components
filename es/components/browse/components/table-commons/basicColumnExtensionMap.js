@@ -313,6 +313,7 @@ export var CustomTableRowToggleOpenButton = function (props) {
     toggleOpenIcon = props.toggleOpenIcon,
     toggleCloseIcon = props.toggleCloseIcon;
   var handleClick = function (e, props) {
+    // Run custom functions for toggling if provided
     if (detailOpen && customToggleDetailClose) {
       customToggleDetailClose(props);
     } else if (customToggleDetailOpen) {
