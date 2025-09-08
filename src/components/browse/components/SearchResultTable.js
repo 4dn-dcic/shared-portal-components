@@ -259,7 +259,7 @@ class ResultRow extends React.PureComponent {
 
         if (this.state.data === null) {
             load(
-            '/peek-metadata/?additional_facet=file_size&status=released&type=File&donors.display_title=' +
+            '/peek-metadata/?additional_facet=file_size&status=released&status=public&status=public-restricted&type=File&donors.display_title=' +
                 result?.display_title,
             (resp) => {
                 this.setState({

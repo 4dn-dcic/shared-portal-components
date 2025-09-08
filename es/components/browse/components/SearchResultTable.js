@@ -279,7 +279,7 @@ var ResultRow = /*#__PURE__*/function (_React$PureComponent2) {
       if (this._fetch_started) return;
       this._fetch_started = true;
       if (this.state.data === null) {
-        load('/peek-metadata/?additional_facet=file_size&status=released&type=File&donors.display_title=' + (result === null || result === void 0 ? void 0 : result.display_title), function (resp) {
+        load('/peek-metadata/?additional_facet=file_size&status=released&status=public&status=public-restricted&type=File&donors.display_title=' + (result === null || result === void 0 ? void 0 : result.display_title), function (resp) {
           _this4.setState({
             loading: false,
             data: resp
