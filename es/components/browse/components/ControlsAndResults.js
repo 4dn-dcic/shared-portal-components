@@ -146,8 +146,12 @@ export var ControlsAndResults = /*#__PURE__*/function (_React$PureComponent) {
         selectedItems = _this$props2$selected === void 0 ? null : _this$props2$selected,
         sortBy = _this$props2.sortBy,
         sortColumns = _this$props2.sortColumns,
+        _this$props2$isConsor = _this$props2.isConsortiumMember,
+        isConsortiumMember = _this$props2$isConsor === void 0 ? false : _this$props2$isConsor,
         _this$props2$fetchPro = _this$props2.fetchProps,
-        fetchProps = _this$props2$fetchPro === void 0 ? null : _this$props2$fetchPro;
+        fetchProps = _this$props2$fetchPro === void 0 ? null : _this$props2$fetchPro,
+        _this$props2$customCo = _this$props2.customColumnSearchHref,
+        customColumnSearchHref = _this$props2$customCo === void 0 ? null : _this$props2$customCo;
 
       // Initial results. Will get cloned to SearchResultTable state and added onto during load-as-you-scroll.
       var _ref = context || {},
@@ -251,6 +255,9 @@ export var ControlsAndResults = /*#__PURE__*/function (_React$PureComponent) {
         maxResultsBodyHeight: maxResultsBodyHeight,
         targetTabKey: targetTabKey,
         fetchProps: fetchProps,
+        isConsortiumMember: isConsortiumMember,
+        customColumnSearchHref: customColumnSearchHref,
+        // Used by ResultRow to request data for custom columns
         isContextLoading: isContextLoading // <- Only applicable for EmbeddedSearchView, else is false always
       }, {
         ref: this.searchResultTableRef,

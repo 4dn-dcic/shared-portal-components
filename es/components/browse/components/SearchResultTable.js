@@ -183,6 +183,7 @@ var ResultDetail = /*#__PURE__*/function (_React$PureComponent) {
         setDetailHeight = _this$props2.setDetailHeight,
         detailPaneHeight = _this$props2.detailPaneHeight,
         detailPaneType = _this$props2.detailPaneType,
+        customColumnsSearchHref = _this$props2.customColumnsSearchHref,
         searchRequest = _this$props2.searchRequest,
         searchCache = _this$props2.searchCache;
       var closing = this.state.closing;
@@ -275,21 +276,24 @@ var ResultRow = /*#__PURE__*/function (_React$PureComponent2) {
       var _this4 = this;
       var _this$props3 = this.props,
         result = _this$props3.result,
-        fetchProps = _this$props3.fetchProps;
-      if (this._fetch_started) return;
-      this._fetch_started = true;
-      if (this.state.data === null) {
-        load('/peek-metadata/?additional_facet=file_size&status=released&status=public&status=public-restricted&type=File&donors.display_title=' + (result === null || result === void 0 ? void 0 : result.display_title), function (resp) {
-          _this4.setState({
-            loading: false,
-            data: resp
+        fetchProps = _this$props3.fetchProps,
+        customColumnSearchHref = _this$props3.customColumnSearchHref;
+      if (customColumnSearchHref !== null) {
+        if (this._fetch_started) return;
+        this._fetch_started = true;
+        if (this.state.data === null) {
+          load(customColumnSearchHref(result), function (resp) {
+            _this4.setState({
+              loading: false,
+              data: resp
+            });
+          }, 'GET', function (error) {
+            _this4.setState({
+              loading: false,
+              error: error
+            });
           });
-        }, 'GET', function (error) {
-          _this4.setState({
-            loading: false,
-            error: error
-          });
-        });
+        }
       }
     }
 
@@ -1223,9 +1227,11 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
           'rowWidth': fullRowWidth,
           'toggleDetailPaneOpen': this.toggleDetailPaneOpen,
           'setDetailHeight': this.setDetailHeight,
-          fetchProps: this.props.fetchProps || {} // For ResultRow
+          fetchProps: this.props.fetchProps || {},
+          // For ResultRow
+          customColumnSearchHref: this.props.customColumnSearchHref || null,
+          isConsortiumMember: this.props.isConsortiumMember || false
         });
-
         headersRow = /*#__PURE__*/React.createElement(HeadersRow, headerRowCommonProps);
         shadowBorderLayer = /*#__PURE__*/React.createElement(ShadowBorderLayer, {
           tableContainerScrollLeft: tableContainerScrollLeft,

@@ -90,9 +90,12 @@ export class ControlsAndResults extends React.PureComponent {
             selectedItems = null,
             // From SortController:
             sortBy, sortColumns,
-
+            // Passing through to determine result links
+            isConsortiumMember = false,
             // function for fetching data for column values
-            fetchProps = null
+            fetchProps = null,
+            // Custom column search href
+            customColumnSearchHref = null
         } = this.props;
 
         // Initial results. Will get cloned to SearchResultTable state and added onto during load-as-you-scroll.
@@ -106,6 +109,7 @@ export class ControlsAndResults extends React.PureComponent {
             setColumnWidths, columnWidths, detailPane, stickyFirstColumn,
             isOwnPage, sortBy, sortColumns, termTransformFxn, windowWidth, registerWindowOnScrollHandler, rowHeight,
             defaultOpenIndices, maxHeight, maxResultsBodyHeight, targetTabKey, fetchProps,
+            isConsortiumMember, customColumnSearchHref, // Used by ResultRow to request data for custom columns
             isContextLoading // <- Only applicable for EmbeddedSearchView, else is false always
         };
 

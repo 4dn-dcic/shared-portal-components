@@ -147,6 +147,7 @@ class ResultDetail extends React.PureComponent{
             detailPane: propDetailPane,
             renderDetailPane, toggleDetailOpen, setDetailHeight, detailPaneHeight,
             detailPaneType,
+            customColumnsSearchHref,
             searchRequest, // function for executing search request
             searchCache // cached search results from parent ResultRow
         } = this.props;
@@ -252,30 +253,32 @@ class ResultRow extends React.PureComponent {
     
     // fetch additional metadata for the result item
     componentDidMount() {
-        const { result, fetchProps } = this.props;
+        const { result, fetchProps, customColumnSearchHref } = this.props;
 
-        if (this._fetch_started) return
-        this._fetch_started = true;
+        if (customColumnSearchHref !== null) {
 
-        if (this.state.data === null) {
-            load(
-            '/peek-metadata/?additional_facet=file_size&status=released&status=public&status=public-restricted&type=File&donors.display_title=' +
-                result?.display_title,
-            (resp) => {
-                this.setState({
-                    loading: false,
-                    data: resp
-                });
-            },
-            'GET',
-            (error) => {
-                this.setState({
-                    loading: false,
-                    error: error
-                });
+            if (this._fetch_started) return
+            this._fetch_started = true;
+    
+            if (this.state.data === null) {
+                load(customColumnSearchHref(result),
+                    (resp) => {
+                        this.setState({
+                            loading: false,
+                            data: resp
+                        });
+                    },
+                    'GET',
+                    (error) => {
+                        this.setState({
+                            loading: false,
+                            error: error
+                        });
+                    }
+                );
             }
-        );
         }
+
     }
 
     // Make a search request and add to the ResultRow component's state
@@ -1094,6 +1097,8 @@ class DimensioningContainer extends React.PureComponent {
                 'toggleDetailPaneOpen' : this.toggleDetailPaneOpen,
                 'setDetailHeight' : this.setDetailHeight,
                 fetchProps: this.props.fetchProps || {}, // For ResultRow
+                customColumnSearchHref: this.props.customColumnSearchHref || null,
+                isConsortiumMember: this.props.isConsortiumMember || false
             };
             headersRow = <HeadersRow {...headerRowCommonProps} />;
             shadowBorderLayer = (
