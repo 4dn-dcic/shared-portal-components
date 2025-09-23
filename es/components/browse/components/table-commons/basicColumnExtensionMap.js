@@ -338,5 +338,5 @@ export var CustomTableRowToggleOpenButton = function (props) {
     }
   }, /*#__PURE__*/React.createElement("div", {
     className: "icon-container"
-  }, isActive ? closeIcon : openIcon)));
+  }, isActive && detailOpen ? closeIcon : openIcon)));
 };

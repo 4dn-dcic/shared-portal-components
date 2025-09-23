@@ -288,7 +288,7 @@ export const CustomTableRowToggleOpenButton = (props) => {
             <button type="button" className="toggle-detail-button" onClick={(e) => handleClick(e, props)}>
                 <div className="icon-container">
                     {
-                        isActive ? closeIcon : openIcon
+                        (isActive && detailOpen) ? closeIcon : openIcon
                     }
                 </div>
             </button>
