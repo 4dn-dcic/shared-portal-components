@@ -91,7 +91,7 @@ export class ControlsAndResults extends React.PureComponent {
             // From SortController:
             sortBy, sortColumns,
             // Passing through to determine result links
-            isConsortiumMember = false,
+            userDownloadAccess = {},
             // function for fetching data for column values
             fetchProps = null,
             // Custom column search href
@@ -109,7 +109,7 @@ export class ControlsAndResults extends React.PureComponent {
             setColumnWidths, columnWidths, detailPane, stickyFirstColumn,
             isOwnPage, sortBy, sortColumns, termTransformFxn, windowWidth, registerWindowOnScrollHandler, rowHeight,
             defaultOpenIndices, maxHeight, maxResultsBodyHeight, targetTabKey, fetchProps,
-            isConsortiumMember, customColumnSearchHref, // Used by ResultRow to request data for custom columns
+            userDownloadAccess, customColumnSearchHref, // Used by ResultRow to request data for custom columns
             isContextLoading // <- Only applicable for EmbeddedSearchView, else is false always
         };
 

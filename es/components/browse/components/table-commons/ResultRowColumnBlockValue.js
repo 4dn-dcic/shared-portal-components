@@ -75,12 +75,13 @@ export var ResultRowColumnBlockValue = /*#__PURE__*/function (_React$Component) 
         className = _this$props2.className,
         termTransformFxn = _this$props2.termTransformFxn,
         _this$props2$defaultA = _this$props2.defaultAlignment,
-        defaultAlignment = _this$props2$defaultA === void 0 ? "text-center" : _this$props2$defaultA,
-        fetchedProps = _this$props2.fetchedProps;
+        defaultAlignment = _this$props2$defaultA === void 0 ? "text-center" : _this$props2$defaultA;
       var field = columnDefinition.field,
         _columnDefinition$ren = columnDefinition.render,
         renderFxn = _columnDefinition$ren === void 0 ? null : _columnDefinition$ren,
-        colDefTooltip = columnDefinition.tooltip;
+        colDefTooltip = columnDefinition.tooltip,
+        _columnDefinition$col = columnDefinition.colAlignment,
+        colAlignment = _columnDefinition$col === void 0 ? "text-center" : _columnDefinition$col;
       var value = renderFxn ? renderFxn(result, _.omit(this.props, 'result')) : this.memoized.transformIfNeeded(result, field, termTransformFxn); // Simple fallback transformation to unique arrays
 
       // Wrap `value` in a span (provides ellipsis, etc) if is primitive (not custom render fxn output)
@@ -89,30 +90,30 @@ export var ResultRowColumnBlockValue = /*#__PURE__*/function (_React$Component) 
       var tooltip;
       if (typeof value === 'number') {
         value = /*#__PURE__*/React.createElement("span", {
-          className: "value"
+          className: "value " + colAlignment
         }, value);
       } else if (typeof value === 'string') {
         if ((propTooltip === true || colDefTooltip === true) && value.length > 25) tooltip = value;
         value = /*#__PURE__*/React.createElement("span", {
-          className: "value " + defaultAlignment
+          className: "value " + colAlignment
         }, value);
       } else if (value === null) {
         value = /*#__PURE__*/React.createElement("small", {
-          className: "value text-center"
+          className: "value " + colAlignment
         }, "-");
       } else if ( /*#__PURE__*/React.isValidElement(value) && value.type === "a" || Array.isArray(value) && /*#__PURE__*/React.isValidElement(value[0]) && (value[0].type === "a" || value[0].props.className === "link-wrapper")) {
         // We let other columnRender funcs define their `value` container (if any)
         // But if is link, e.g. from termTransformFxn, then wrap it to center it.
         value = /*#__PURE__*/React.createElement("span", {
-          className: "value " + defaultAlignment
+          className: "value " + colAlignment
         }, value);
       } else if (typeof value === "boolean") {
         value = /*#__PURE__*/React.createElement("span", {
-          className: "value " + defaultAlignment
+          className: "value " + colAlignment
         }, value);
       } else if (!renderFxn) {
         value = /*#__PURE__*/React.createElement("span", {
-          className: "value"
+          className: "value " + colAlignment
         }, value); // JSX from termTransformFxn - assume doesn't take table cell layouting into account.
       } // else is likely JSX from custom render function -- leave as-is
 

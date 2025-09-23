@@ -50,8 +50,7 @@ var ResultRowColumnBlock = /*#__PURE__*/React.memo(function (props) {
   var columnDefinition = props.columnDefinition,
     columnNumber = props.columnNumber,
     width = props.width,
-    defaultColAlignment = props.defaultColAlignment,
-    fetchedProps = props.fetchedProps;
+    defaultColAlignment = props.defaultColAlignment;
   var field = columnDefinition.field;
   return (
     /*#__PURE__*/
@@ -183,7 +182,6 @@ var ResultDetail = /*#__PURE__*/function (_React$PureComponent) {
         setDetailHeight = _this$props2.setDetailHeight,
         detailPaneHeight = _this$props2.detailPaneHeight,
         detailPaneType = _this$props2.detailPaneType,
-        customColumnsSearchHref = _this$props2.customColumnsSearchHref,
         searchRequest = _this$props2.searchRequest,
         searchCache = _this$props2.searchCache;
       var closing = this.state.closing;
@@ -1230,7 +1228,7 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
           fetchProps: this.props.fetchProps || {},
           // For ResultRow
           customColumnSearchHref: this.props.customColumnSearchHref || null,
-          isConsortiumMember: this.props.isConsortiumMember || false
+          userDownloadAccess: this.props.userDownloadAccess || {}
         });
         headersRow = /*#__PURE__*/React.createElement(HeadersRow, headerRowCommonProps);
         shadowBorderLayer = /*#__PURE__*/React.createElement(ShadowBorderLayer, {

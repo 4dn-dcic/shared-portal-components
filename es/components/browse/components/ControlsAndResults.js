@@ -146,8 +146,8 @@ export var ControlsAndResults = /*#__PURE__*/function (_React$PureComponent) {
         selectedItems = _this$props2$selected === void 0 ? null : _this$props2$selected,
         sortBy = _this$props2.sortBy,
         sortColumns = _this$props2.sortColumns,
-        _this$props2$isConsor = _this$props2.isConsortiumMember,
-        isConsortiumMember = _this$props2$isConsor === void 0 ? false : _this$props2$isConsor,
+        _this$props2$userDown = _this$props2.userDownloadAccess,
+        userDownloadAccess = _this$props2$userDown === void 0 ? {} : _this$props2$userDown,
         _this$props2$fetchPro = _this$props2.fetchProps,
         fetchProps = _this$props2$fetchPro === void 0 ? null : _this$props2$fetchPro,
         _this$props2$customCo = _this$props2.customColumnSearchHref,
@@ -255,7 +255,7 @@ export var ControlsAndResults = /*#__PURE__*/function (_React$PureComponent) {
         maxResultsBodyHeight: maxResultsBodyHeight,
         targetTabKey: targetTabKey,
         fetchProps: fetchProps,
-        isConsortiumMember: isConsortiumMember,
+        userDownloadAccess: userDownloadAccess,
         customColumnSearchHref: customColumnSearchHref,
         // Used by ResultRow to request data for custom columns
         isContextLoading: isContextLoading // <- Only applicable for EmbeddedSearchView, else is false always

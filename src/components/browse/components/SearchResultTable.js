@@ -26,11 +26,10 @@ import { HeadersRow } from './table-commons/HeadersRow';
 import { basicColumnExtensionMap } from './table-commons/basicColumnExtensionMap';
 
 
-
-
 const ResultRowColumnBlock = React.memo(function ResultRowColumnBlock(props){
-    const { columnDefinition, columnNumber, width, defaultColAlignment, fetchedProps } = props;
+    const { columnDefinition, columnNumber, width, defaultColAlignment } = props;
     const { field } = columnDefinition;
+
     return ( // props includes result
         <div className="search-result-column-block" style={{ width }}
             data-field={field} data-first-visible-column={columnNumber === 0 ? true : undefined}
@@ -147,7 +146,6 @@ class ResultDetail extends React.PureComponent{
             detailPane: propDetailPane,
             renderDetailPane, toggleDetailOpen, setDetailHeight, detailPaneHeight,
             detailPaneType,
-            customColumnsSearchHref,
             searchRequest, // function for executing search request
             searchCache // cached search results from parent ResultRow
         } = this.props;
@@ -1098,7 +1096,7 @@ class DimensioningContainer extends React.PureComponent {
                 'setDetailHeight' : this.setDetailHeight,
                 fetchProps: this.props.fetchProps || {}, // For ResultRow
                 customColumnSearchHref: this.props.customColumnSearchHref || null,
-                isConsortiumMember: this.props.isConsortiumMember || false
+                userDownloadAccess: this.props.userDownloadAccess || {}
             };
             headersRow = <HeadersRow {...headerRowCommonProps} />;
             shadowBorderLayer = (
