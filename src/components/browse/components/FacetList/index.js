@@ -302,7 +302,8 @@ export class FacetList extends React.PureComponent {
                 const termsSelectedCount = activeTermCountByField[cleanField] || 0; // countTermsSelected(facet.terms, facet, filters);
                 const anySelected = termsSelectedCount !== 0;
                 const isStatic = !anySelected && facet.terms.length === 1;
-                return <TermsFacet {...props} facet={cleanFacet} {...{ isStatic, grouping, termsSelectedCount, including }} key={facetField} anyTermsSelected={anySelected} />;
+
+                return <TermsFacet {...props} facet={cleanFacet} sortFxn={props?.facetListSortFxns[cleanField]} {...{ isStatic, grouping, termsSelectedCount, including }} key={facetField} anyTermsSelected={anySelected} />;
             }
 
             throw new Error("Unknown aggregation_type");
@@ -425,7 +426,6 @@ export class FacetList extends React.PureComponent {
     constructor(props){
         super(props);
 
-        console.log("FacetList props,", props);
         this.onFilterExtended = this.onFilterExtended.bind(this);
         this.onFilterMultipleExtended = this.onFilterMultipleExtended.bind(this);
         this.getTermStatus = this.getTermStatus.bind(this);
@@ -690,6 +690,7 @@ export class FacetList extends React.PureComponent {
     renderFacetComponents(){
         const {
             facets = null,
+            facetListSortFxns = null,
             separateSingleTermFacets = false,
             context,
             href, schemas, itemTypeForSchemas, termTransformFxn, persistentCount,
@@ -697,8 +698,10 @@ export class FacetList extends React.PureComponent {
         } = this.props;
         const { filters } = context;
         const { openFacets, openPopover, filteringFieldTerm, including } = this.state;
+
         const facetComponentProps = {
             href, schemas, context, itemTypeForSchemas, termTransformFxn, persistentCount, separateSingleTermFacets,
+            facetListSortFxns,
             openPopover, including,
             filteringFieldTerm,
             useRadioIcon, persistSelectedTerms,

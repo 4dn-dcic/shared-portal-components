@@ -136,7 +136,6 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
     var _this2;
     _classCallCheck(this, FacetList);
     _this2 = _callSuper(this, FacetList, [props]);
-    console.log("FacetList props,", props);
     _this2.onFilterExtended = _this2.onFilterExtended.bind(_this2);
     _this2.onFilterMultipleExtended = _this2.onFilterMultipleExtended.bind(_this2);
     _this2.getTermStatus = _this2.getTermStatus.bind(_this2);
@@ -441,6 +440,8 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
       var _this$props5 = this.props,
         _this$props5$facets = _this$props5.facets,
         facets = _this$props5$facets === void 0 ? null : _this$props5$facets,
+        _this$props5$facetLis = _this$props5.facetListSortFxns,
+        facetListSortFxns = _this$props5$facetLis === void 0 ? null : _this$props5$facetLis,
         _this$props5$separate = _this$props5.separateSingleTermFacets,
         separateSingleTermFacets = _this$props5$separate === void 0 ? false : _this$props5$separate,
         context = _this$props5.context,
@@ -465,6 +466,7 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
         termTransformFxn: termTransformFxn,
         persistentCount: persistentCount,
         separateSingleTermFacets: separateSingleTermFacets,
+        facetListSortFxns: facetListSortFxns,
         openPopover: openPopover,
         including: including,
         filteringFieldTerm: filteringFieldTerm,
@@ -677,6 +679,7 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
           var _isStatic = !_anySelected && facet.terms.length === 1;
           return /*#__PURE__*/React.createElement(TermsFacet, _extends({}, props, {
             facet: cleanFacet,
+            sortFxn: props === null || props === void 0 ? void 0 : props.facetListSortFxns[cleanField],
             isStatic: _isStatic,
             grouping: grouping,
             termsSelectedCount: termsSelectedCount,
