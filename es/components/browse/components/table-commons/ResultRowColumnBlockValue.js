@@ -53,6 +53,16 @@ export var ResultRowColumnBlockValue = /*#__PURE__*/function (_React$Component) 
       nextProps.columnDefinition.field !== columnDefinition.field || nextProps.columnDefinition.render !== columnDefinition.render || nextProps.schemas !== schemas || nextProps.result !== result && itemUtil.atId(nextProps.result) !== itemUtil.atId(result) || nextProps.className !== className || typeof nextProps.shouldComponentUpdateExt === 'function' && nextProps.shouldComponentUpdateExt(nextProps, nextState, this.props, this.state)) {
         return true;
       }
+
+      // Rerender if fetchedProps change, e.g. when fetching data for ResultRow
+      if (nextProps.fetchedProps && nextProps.fetchedProps !== this.props.fetchedProps) {
+        return true;
+      }
+
+      // Rerender if detailOpen prop changes (used to control detail pane open/close state)
+      if (this.props.detailOpen !== nextProps.detailOpen) {
+        return true;
+      }
       return false;
     }
   }, {
@@ -69,7 +79,9 @@ export var ResultRowColumnBlockValue = /*#__PURE__*/function (_React$Component) 
       var field = columnDefinition.field,
         _columnDefinition$ren = columnDefinition.render,
         renderFxn = _columnDefinition$ren === void 0 ? null : _columnDefinition$ren,
-        colDefTooltip = columnDefinition.tooltip;
+        colDefTooltip = columnDefinition.tooltip,
+        _columnDefinition$col = columnDefinition.colAlignment,
+        colAlignment = _columnDefinition$col === void 0 ? "text-center" : _columnDefinition$col;
       var value = renderFxn ? renderFxn(result, _.omit(this.props, 'result')) : this.memoized.transformIfNeeded(result, field, termTransformFxn); // Simple fallback transformation to unique arrays
 
       // Wrap `value` in a span (provides ellipsis, etc) if is primitive (not custom render fxn output)
@@ -78,30 +90,30 @@ export var ResultRowColumnBlockValue = /*#__PURE__*/function (_React$Component) 
       var tooltip;
       if (typeof value === 'number') {
         value = /*#__PURE__*/React.createElement("span", {
-          className: "value"
+          className: "value " + colAlignment
         }, value);
       } else if (typeof value === 'string') {
         if ((propTooltip === true || colDefTooltip === true) && value.length > 25) tooltip = value;
         value = /*#__PURE__*/React.createElement("span", {
-          className: "value " + defaultAlignment
+          className: "value " + colAlignment
         }, value);
       } else if (value === null) {
         value = /*#__PURE__*/React.createElement("small", {
-          className: "value text-center"
+          className: "value " + colAlignment
         }, "-");
       } else if ( /*#__PURE__*/React.isValidElement(value) && value.type === "a" || Array.isArray(value) && /*#__PURE__*/React.isValidElement(value[0]) && (value[0].type === "a" || value[0].props.className === "link-wrapper")) {
         // We let other columnRender funcs define their `value` container (if any)
         // But if is link, e.g. from termTransformFxn, then wrap it to center it.
         value = /*#__PURE__*/React.createElement("span", {
-          className: "value " + defaultAlignment
+          className: "value " + colAlignment
         }, value);
       } else if (typeof value === "boolean") {
         value = /*#__PURE__*/React.createElement("span", {
-          className: "value " + defaultAlignment
+          className: "value " + colAlignment
         }, value);
       } else if (!renderFxn) {
         value = /*#__PURE__*/React.createElement("span", {
-          className: "value"
+          className: "value " + colAlignment
         }, value); // JSX from termTransformFxn - assume doesn't take table cell layouting into account.
       } // else is likely JSX from custom render function -- leave as-is
 

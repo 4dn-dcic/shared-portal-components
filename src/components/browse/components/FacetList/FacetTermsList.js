@@ -319,7 +319,8 @@ export class FacetTermsList extends React.PureComponent {
             context,
             schemas,
             searchText,
-            handleBasicTermSearch
+            handleBasicTermSearch,
+            sortFxn=null,
         } = this.props;
         const { description: facetSchemaDescription = null, field, title: facetTitle, terms = [], persist_selected_terms: facetPersistSelectedTerms } = facet;
         // if it's defined within facet, override global persis selected terms
@@ -368,7 +369,7 @@ export class FacetTermsList extends React.PureComponent {
                     { indicator }
                 </h5>
                 <ListOfTerms
-                    {...{ facet, facetOpen, terms, onTermClick, expanded, getTermStatus, termTransformFxn, searchText, schemas, persistentCount, basicSearchAutoDisplayLimit, useRadioIcon, persistSelectedTerms, filteringFieldTerm }}
+                    {...{ facet, facetOpen, terms, onTermClick, expanded, getTermStatus, termTransformFxn, searchText, schemas, persistentCount, basicSearchAutoDisplayLimit, sortFxn, useRadioIcon, persistSelectedTerms, filteringFieldTerm }}
                     onSaytTermSearch={this.handleSaytTermSearch} onBasicTermSearch={handleBasicTermSearch} onToggleExpanded={this.handleExpandListToggleClick} />
             </div>
         );
@@ -387,7 +388,8 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
         getTermStatus,
         termTransformFxn,
         searchText, onBasicTermSearch, onSaytTermSearch,
-        basicSearchAutoDisplayLimit, useRadioIcon, persistSelectedTerms: propPersistSelectedTerms = true
+        basicSearchAutoDisplayLimit, useRadioIcon, persistSelectedTerms: propPersistSelectedTerms = true,
+        sortFxn = null // custom sorting function for unselected terms
     } = props;
     let { search_type: searchType = 'none' } = facet;
     const { persist_selected_terms: facetPersistSelectedTerms, has_group_by: facetHasGroupBy = false } = facet;
@@ -413,7 +415,7 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
         persistentTerms = null,
         collapsibleTerms = null,
         collapsibleTermsCount = 0,
-        collapsibleTermsItemCount = 0
+        collapsibleTermsItemCount = 0,
     } = useMemo(function(){
         const { field } = facet;
 
@@ -463,6 +465,11 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
             unselectedTermComponents = _.filter(unselectedTermComponents, function (term) { return textFilteredTerms[term.key] === true || textFilteredTerms[term.key] === 'hidden'; });
         } else if (searchType === 'sayt_without_terms') {
             unselectedTermComponents = [];
+        }
+        
+        // sort unselected terms if custom sort function provided
+        if (sortFxn && typeof sortFxn === 'function') {
+            unselectedTermComponents = unselectedTermComponents.sort(sortFxn);
         }
 
         const selectedLen = selectedTermComponents.length;

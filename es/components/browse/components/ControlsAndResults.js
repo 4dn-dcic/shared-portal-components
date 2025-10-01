@@ -95,6 +95,7 @@ export var ControlsAndResults = /*#__PURE__*/function (_React$PureComponent) {
         facets = _this$props2.facets,
         termTransformFxn = _this$props2.termTransformFxn,
         rowHeight = _this$props2.rowHeight,
+        facetListSortFxns = _this$props2.facetListSortFxns,
         separateSingleTermFacets = _this$props2.separateSingleTermFacets,
         navigate = _this$props2.navigate,
         _this$props2$facetCol = _this$props2.facetColumnClassName,
@@ -145,7 +146,13 @@ export var ControlsAndResults = /*#__PURE__*/function (_React$PureComponent) {
         _this$props2$selected = _this$props2.selectedItems,
         selectedItems = _this$props2$selected === void 0 ? null : _this$props2$selected,
         sortBy = _this$props2.sortBy,
-        sortColumns = _this$props2.sortColumns;
+        sortColumns = _this$props2.sortColumns,
+        _this$props2$userDown = _this$props2.userDownloadAccess,
+        userDownloadAccess = _this$props2$userDown === void 0 ? {} : _this$props2$userDown,
+        _this$props2$fetchPro = _this$props2.fetchProps,
+        fetchProps = _this$props2$fetchPro === void 0 ? null : _this$props2$fetchPro,
+        _this$props2$customCo = _this$props2.customColumnSearchHref,
+        customColumnSearchHref = _this$props2$customCo === void 0 ? null : _this$props2$customCo;
 
       // Initial results. Will get cloned to SearchResultTable state and added onto during load-as-you-scroll.
       var _ref = context || {},
@@ -172,6 +179,7 @@ export var ControlsAndResults = /*#__PURE__*/function (_React$PureComponent) {
         href: href,
         columnDefinitions: columnDefinitions,
         facets: facets,
+        facetListSortFxns: facetListSortFxns,
         hiddenColumns: hiddenColumns,
         addHiddenColumn: addHiddenColumn,
         removeHiddenColumn: removeHiddenColumn,
@@ -248,6 +256,10 @@ export var ControlsAndResults = /*#__PURE__*/function (_React$PureComponent) {
         maxHeight: maxHeight,
         maxResultsBodyHeight: maxResultsBodyHeight,
         targetTabKey: targetTabKey,
+        fetchProps: fetchProps,
+        userDownloadAccess: userDownloadAccess,
+        customColumnSearchHref: customColumnSearchHref,
+        // Used by ResultRow to request data for custom columns
         isContextLoading: isContextLoading // <- Only applicable for EmbeddedSearchView, else is false always
       }, {
         ref: this.searchResultTableRef,

@@ -300,3 +300,43 @@ export var TableRowToggleOpenButton = /*#__PURE__*/React.memo(function (_ref4) {
     className: "icon icon-fw fas icon-" + (open ? 'minus' : 'plus')
   }))));
 });
+
+/** Custom button shown in a table entry to open/close detail pane. */
+export var CustomTableRowToggleOpenButton = function (props) {
+  var toggleDetailOpen = props.toggleDetailOpen,
+    _props$customToggleDe = props.customToggleDetailOpen,
+    customToggleDetailOpen = _props$customToggleDe === void 0 ? null : _props$customToggleDe,
+    _props$customToggleDe2 = props.customToggleDetailClose,
+    customToggleDetailClose = _props$customToggleDe2 === void 0 ? null : _props$customToggleDe2,
+    isActive = props.isActive,
+    detailOpen = props.detailOpen,
+    toggleOpenIcon = props.toggleOpenIcon,
+    toggleCloseIcon = props.toggleCloseIcon;
+  var handleClick = function (e, props) {
+    // Run custom functions for toggling if provided
+    if (detailOpen && customToggleDetailClose) {
+      customToggleDetailClose(props);
+    } else if (customToggleDetailOpen) {
+      customToggleDetailOpen(props);
+    } else {
+      toggleDetailOpen(e, props);
+    }
+  };
+  var closeIcon = toggleCloseIcon || /*#__PURE__*/React.createElement("i", {
+    className: "icon icon-fw fas icon-minus"
+  });
+  var openIcon = toggleOpenIcon || /*#__PURE__*/React.createElement("i", {
+    className: "icon icon-fw fas icon-plus"
+  });
+  return /*#__PURE__*/React.createElement("div", {
+    className: "toggle-detail-button-container"
+  }, /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    className: "toggle-detail-button",
+    onClick: function onClick(e) {
+      return handleClick(e, props);
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "icon-container"
+  }, isActive && detailOpen ? closeIcon : openIcon)));
+};

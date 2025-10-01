@@ -423,7 +423,9 @@ export var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
         context = _this$props6.context,
         schemas = _this$props6.schemas,
         searchText = _this$props6.searchText,
-        handleBasicTermSearch = _this$props6.handleBasicTermSearch;
+        handleBasicTermSearch = _this$props6.handleBasicTermSearch,
+        _this$props6$sortFxn = _this$props6.sortFxn,
+        sortFxn = _this$props6$sortFxn === void 0 ? null : _this$props6$sortFxn;
       var _facet$description = facet.description,
         facetSchemaDescription = _facet$description === void 0 ? null : _facet$description,
         field = facet.field,
@@ -508,6 +510,7 @@ export var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
         schemas: schemas,
         persistentCount: persistentCount,
         basicSearchAutoDisplayLimit: basicSearchAutoDisplayLimit,
+        sortFxn: sortFxn,
         useRadioIcon: useRadioIcon,
         persistSelectedTerms: persistSelectedTerms,
         filteringFieldTerm: filteringFieldTerm,
@@ -539,7 +542,9 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
     basicSearchAutoDisplayLimit = props.basicSearchAutoDisplayLimit,
     useRadioIcon = props.useRadioIcon,
     _props$persistSelecte = props.persistSelectedTerms,
-    propPersistSelectedTerms = _props$persistSelecte === void 0 ? true : _props$persistSelecte;
+    propPersistSelectedTerms = _props$persistSelecte === void 0 ? true : _props$persistSelecte,
+    _props$sortFxn = props.sortFxn,
+    sortFxn = _props$sortFxn === void 0 ? null : _props$sortFxn;
   var _facet$search_type = facet.search_type,
     searchType = _facet$search_type === void 0 ? 'none' : _facet$search_type;
   var facetPersistSelectedTerms = facet.persist_selected_terms,
@@ -654,6 +659,11 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
         });
       } else if (searchType === 'sayt_without_terms') {
         unselectedTermComponents = [];
+      }
+
+      // sort unselected terms if custom sort function provided
+      if (sortFxn && typeof sortFxn === 'function') {
+        unselectedTermComponents = unselectedTermComponents.sort(sortFxn);
       }
       var selectedLen = selectedTermComponents.length;
       var omittedLen = omittedTermComponents.length;

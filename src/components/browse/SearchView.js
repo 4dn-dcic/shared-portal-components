@@ -120,6 +120,7 @@ export class SearchView extends React.PureComponent {
             hideFacets,
             hideStickyFooter,
             useCustomSelectionController,
+            facetListSortFxns = null,
             ...passProps
         } = this.props;
 
@@ -138,6 +139,7 @@ export class SearchView extends React.PureComponent {
             windowWidth,
             isOwnPage: true,
             facets: propFacets || contextFacets,
+            facetListSortFxns,
             hideStickyFooter,
         };
 

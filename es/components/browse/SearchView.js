@@ -5,7 +5,7 @@ import _possibleConstructorReturn from "@babel/runtime/helpers/possibleConstruct
 import _getPrototypeOf from "@babel/runtime/helpers/getPrototypeOf";
 import _inherits from "@babel/runtime/helpers/inherits";
 import _defineProperty from "@babel/runtime/helpers/defineProperty";
-var _excluded = ["href", "context", "showClearFiltersButton", "schemas", "currentAction", "facets", "navigate", "columns", "columnExtensionMap", "placeholderReplacementFxn", "keepSelectionInStorage", "searchViewHeader", "windowWidth", "hideFacets", "hideStickyFooter", "useCustomSelectionController"];
+var _excluded = ["href", "context", "showClearFiltersButton", "schemas", "currentAction", "facets", "navigate", "columns", "columnExtensionMap", "placeholderReplacementFxn", "keepSelectionInStorage", "searchViewHeader", "windowWidth", "hideFacets", "hideStickyFooter", "useCustomSelectionController", "facetListSortFxns"];
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 function _callSuper(_this, derived, args) {
@@ -102,6 +102,8 @@ export var SearchView = /*#__PURE__*/function (_React$PureComponent) {
         hideFacets = _this$props.hideFacets,
         hideStickyFooter = _this$props.hideStickyFooter,
         useCustomSelectionController = _this$props.useCustomSelectionController,
+        _this$props$facetList = _this$props.facetListSortFxns,
+        facetListSortFxns = _this$props$facetList === void 0 ? null : _this$props$facetList,
         passProps = _objectWithoutProperties(_this$props, _excluded);
       var contextFacets = context.facets;
 
@@ -118,6 +120,7 @@ export var SearchView = /*#__PURE__*/function (_React$PureComponent) {
         windowWidth: windowWidth,
         isOwnPage: true,
         facets: propFacets || contextFacets,
+        facetListSortFxns: facetListSortFxns,
         hideStickyFooter: hideStickyFooter
       });
       var controllersAndView = /*#__PURE__*/React.createElement(WindowNavigationController, {

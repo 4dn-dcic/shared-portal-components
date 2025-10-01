@@ -94,6 +94,17 @@ export class ResultRowColumnBlockValue extends React.Component {
         ){
             return true;
         }
+
+        // Rerender if fetchedProps change, e.g. when fetching data for ResultRow
+        if (nextProps.fetchedProps && nextProps.fetchedProps !== this.props.fetchedProps) {
+            return true;
+        }
+
+        // Rerender if detailOpen prop changes (used to control detail pane open/close state)
+        if (this.props.detailOpen !== nextProps.detailOpen) {
+            return true;
+        }
+
         return false;
     }
 
@@ -104,13 +115,15 @@ export class ResultRowColumnBlockValue extends React.Component {
             tooltip : propTooltip,
             className,
             termTransformFxn,
-            defaultAlignment = "text-center"
+            defaultAlignment = "text-center",
         } = this.props;
         const {
             field,
             render: renderFxn = null,
-            tooltip: colDefTooltip
+            tooltip: colDefTooltip,
+            colAlignment = "text-center",
         } = columnDefinition;
+
 
         const showTooltip = propTooltip === true || colDefTooltip === true;
 
@@ -123,23 +136,23 @@ export class ResultRowColumnBlockValue extends React.Component {
 
         let tooltip;
         if (typeof value === 'number'){
-            value = <span className="value">{ value }</span>;
+            value = <span className={"value " + colAlignment}>{ value }</span>;
         } else if (typeof value === 'string') {
             if (showTooltip && value.length > 25) tooltip = value;
-            value = <span className={"value " + defaultAlignment}>{ value }</span>;
+            value = <span className={"value " + colAlignment}>{ value }</span>;
         } else if (value === null){
-            value = <small className="value text-center">-</small>;
+            value = <small className={"value " + colAlignment}>-</small>;
         } else if (
             (React.isValidElement(value) && value.type === "a") ||
             (Array.isArray(value) && React.isValidElement(value[0]) && (value[0].type === "a" || value[0].props.className === "link-wrapper"))
         ) {
             // We let other columnRender funcs define their `value` container (if any)
             // But if is link, e.g. from termTransformFxn, then wrap it to center it.
-            value = <span className={"value " + defaultAlignment}>{ value }</span>;
+            value = <span className={"value " + colAlignment}>{ value }</span>;
         } else if (typeof value === "boolean") {
-            value = <span className={"value " + defaultAlignment}>{ value }</span>;
+            value = <span className={"value " + colAlignment}>{ value }</span>;
         } else if (!renderFxn){
-            value = <span className="value">{ value }</span>; // JSX from termTransformFxn - assume doesn't take table cell layouting into account.
+            value = <span className={"value " + colAlignment}>{ value }</span>; // JSX from termTransformFxn - assume doesn't take table cell layouting into account.
         } // else is likely JSX from custom render function -- leave as-is
 
         let cls = "inner";

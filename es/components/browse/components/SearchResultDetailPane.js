@@ -55,9 +55,7 @@ export var SearchResultDetailPane = /*#__PURE__*/function (_React$PureComponent)
         className: "flex-description-container"
       }, /*#__PURE__*/React.createElement("h5", null, /*#__PURE__*/React.createElement("i", {
         className: "icon icon-fw icon-align-left fas"
-      }), "\xA0 Description"), /*#__PURE__*/React.createElement(FlexibleDescriptionBox
-      //windowWidth={this.props.windowWidth}
-      , {
+      }), "\xA0 Description"), /*#__PURE__*/React.createElement(FlexibleDescriptionBox, {
         description: result.description,
         fitTo: "self",
         textClassName: "text-normal",

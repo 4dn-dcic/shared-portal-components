@@ -54,6 +54,7 @@ export class ControlsAndResults extends React.PureComponent {
 
             // From SearchView or similar portal-specific HOCs (e.g. BrowseView, ...):
             facets, termTransformFxn, rowHeight,
+            facetListSortFxns,
             separateSingleTermFacets, navigate,
             facetColumnClassName = "col-12 col-md-5 col-lg-4 col-xl-3",
             tableColumnClassName = "col-12 col-md-7 col-lg-8 col-xl-9",
@@ -89,7 +90,13 @@ export class ControlsAndResults extends React.PureComponent {
             // From SelectedItemsController:
             selectedItems = null,
             // From SortController:
-            sortBy, sortColumns
+            sortBy, sortColumns,
+            // Passing through to determine result links
+            userDownloadAccess = {},
+            // function for fetching data for column values
+            fetchProps = null,
+            // Custom column search href
+            customColumnSearchHref = null
         } = this.props;
 
         // Initial results. Will get cloned to SearchResultTable state and added onto during load-as-you-scroll.
@@ -102,7 +109,8 @@ export class ControlsAndResults extends React.PureComponent {
             columnDefinitions, visibleColumnDefinitions, defaultColAlignment,
             setColumnWidths, columnWidths, detailPane, stickyFirstColumn,
             isOwnPage, sortBy, sortColumns, termTransformFxn, windowWidth, registerWindowOnScrollHandler, rowHeight,
-            defaultOpenIndices, maxHeight, maxResultsBodyHeight, targetTabKey,
+            defaultOpenIndices, maxHeight, maxResultsBodyHeight, targetTabKey, fetchProps,
+            userDownloadAccess, customColumnSearchHref, // Used by ResultRow to request data for custom columns
             isContextLoading // <- Only applicable for EmbeddedSearchView, else is false always
         };
 
@@ -119,7 +127,7 @@ export class ControlsAndResults extends React.PureComponent {
             // Props which don't change too frequently and/or are useful to many components -
             context, navigate, // <- search response context, prop navigate (could be virtual or global)
             schemas, session, href,
-            columnDefinitions, facets,
+            columnDefinitions, facets, facetListSortFxns,
             hiddenColumns, addHiddenColumn, removeHiddenColumn,
             currentAction, windowWidth, windowHeight,
             isContextLoading,
