@@ -669,6 +669,7 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
           }));
         }
         if (aggregation_type === "terms") {
+          var _props$facetListSortF;
           // Account for omitted fields; ensure a facet with the cleaned field is passed in
           var cleanFacet = _objectSpread({}, facet);
           var lastCharIdx = facetField.length - 1;
@@ -679,7 +680,7 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
           var _isStatic = !_anySelected && facet.terms.length === 1;
           return /*#__PURE__*/React.createElement(TermsFacet, _extends({}, props, {
             facet: cleanFacet,
-            sortFxn: props === null || props === void 0 ? void 0 : props.facetListSortFxns[cleanField],
+            sortFxn: props === null || props === void 0 || (_props$facetListSortF = props.facetListSortFxns) === null || _props$facetListSortF === void 0 ? void 0 : _props$facetListSortF[cleanField],
             isStatic: _isStatic,
             grouping: grouping,
             termsSelectedCount: termsSelectedCount,

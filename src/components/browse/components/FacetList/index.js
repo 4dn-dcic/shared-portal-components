@@ -303,7 +303,7 @@ export class FacetList extends React.PureComponent {
                 const anySelected = termsSelectedCount !== 0;
                 const isStatic = !anySelected && facet.terms.length === 1;
 
-                return <TermsFacet {...props} facet={cleanFacet} sortFxn={props?.facetListSortFxns[cleanField]} {...{ isStatic, grouping, termsSelectedCount, including }} key={facetField} anyTermsSelected={anySelected} />;
+                return <TermsFacet {...props} facet={cleanFacet} sortFxn={props?.facetListSortFxns?.[cleanField]} {...{ isStatic, grouping, termsSelectedCount, including }} key={facetField} anyTermsSelected={anySelected} />;
             }
 
             throw new Error("Unknown aggregation_type");
