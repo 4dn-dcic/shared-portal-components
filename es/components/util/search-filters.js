@@ -1,6 +1,6 @@
-import _typeof from "@babel/runtime/helpers/typeof";
 import _toConsumableArray from "@babel/runtime/helpers/toConsumableArray";
 import _slicedToArray from "@babel/runtime/helpers/slicedToArray";
+import _typeof from "@babel/runtime/helpers/typeof";
 function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
 function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
 function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
@@ -11,6 +11,18 @@ import url from 'url';
 import queryString from 'query-string';
 import { navigate } from './navigate';
 import { isServerSide } from './misc';
+function normalizeQueryValueToArray(value) {
+  if (Array.isArray(value)) {
+    return value;
+  }
+  if (typeof value === 'string') {
+    return [value];
+  }
+  if (value && _typeof(value) === 'object') {
+    return _.values(value);
+  }
+  return [];
+}
 
 /**
  * @deprecated
@@ -253,8 +265,8 @@ export function buildSearchHref(field, term, searchBase) {
   if (term.terms && Array.isArray(term.terms)) {
     if (!(field in query)) {
       query[field] = [];
-    } else if (typeof query[field] === 'string') {
-      query[field] = [query[field]];
+    } else {
+      query[field] = normalizeQueryValueToArray(query[field]);
     }
     var fieldClear = null;
     if (field.endsWith('!')) {
@@ -271,8 +283,8 @@ export function buildSearchHref(field, term, searchBase) {
       }
     }
     //convert query param to array
-    if (fieldClear && typeof query[fieldClear] === 'string') {
-      query[fieldClear] = [query[fieldClear]];
+    if (fieldClear) {
+      query[fieldClear] = normalizeQueryValueToArray(query[fieldClear]);
     }
     term.terms.forEach(function (t) {
       //add all sub terms into query
@@ -290,11 +302,7 @@ export function buildSearchHref(field, term, searchBase) {
   } else {
     //term is a regular term, has no sub terms
     if (field in query) {
-      if (Array.isArray(query[field])) {
-        query[field] = query[field].concat(term.key);
-      } else {
-        query[field] = [query[field]].concat(term.key);
-      }
+      query[field] = normalizeQueryValueToArray(query[field]).concat(term.key);
     } else {
       query[field] = term.key;
     }

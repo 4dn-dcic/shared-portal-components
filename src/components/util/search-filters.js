@@ -8,6 +8,20 @@ import { navigate } from './navigate';
 import { isServerSide } from './misc';
 
 
+function normalizeQueryValueToArray(value){
+    if (Array.isArray(value)) {
+        return value;
+    }
+    if (typeof value === 'string') {
+        return [value];
+    }
+    if (value && typeof value === 'object') {
+        return _.values(value);
+    }
+    return [];
+}
+
+
 /**
  * @deprecated
  * If the given term is selected, return the href for the term from context.filters.
@@ -212,8 +226,8 @@ export function buildSearchHref(field, term, searchBase){
     if (term.terms && Array.isArray(term.terms)) {
         if (!(field in query)) {
             query[field] = [];
-        } else if (typeof query[field] === 'string') {
-            query[field] = [query[field]];
+        } else {
+            query[field] = normalizeQueryValueToArray(query[field]);
         }
 
         let fieldClear = null;
@@ -231,8 +245,8 @@ export function buildSearchHref(field, term, searchBase){
             }
         }
         //convert query param to array
-        if (fieldClear && typeof query[fieldClear] === 'string') {
-            query[fieldClear] = [query[fieldClear]];
+        if (fieldClear) {
+            query[fieldClear] = normalizeQueryValueToArray(query[fieldClear]);
         }
 
         term.terms.forEach((t) => {
@@ -251,11 +265,7 @@ export function buildSearchHref(field, term, searchBase){
     } else {
         //term is a regular term, has no sub terms
         if (field in query) {
-            if (Array.isArray(query[field])) {
-                query[field] = query[field].concat(term.key);
-            } else {
-                query[field] = [query[field]].concat(term.key);
-            }
+            query[field] = normalizeQueryValueToArray(query[field]).concat(term.key);
         } else {
             query[field] = term.key;
         }
@@ -730,4 +740,3 @@ export function getSearchItemType(context){
     }
     return null;
 }
-
