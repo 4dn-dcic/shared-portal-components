@@ -11,6 +11,10 @@ import url from 'url';
 import queryString from 'query-string';
 import { navigate } from './navigate';
 import { isServerSide } from './misc';
+
+// Browserified `url.parse(..., true)` can return object-shaped values for repeated
+// query params once `qs` array limits are exceeded. Normalize them before any
+// facet mutation logic that expects arrays of selected terms.
 function normalizeQueryValueToArray(value) {
   if (Array.isArray(value)) {
     return value;
@@ -22,6 +26,18 @@ function normalizeQueryValueToArray(value) {
     return _.values(value);
   }
   return [];
+}
+
+// `query-string.stringify` will serialize object values as `[object Object]`.
+// Convert any object-shaped repeated params back into arrays before stringifying.
+function normalizeQueryValuesForStringify() {
+  var query = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+  return _.mapObject(query, function (value) {
+    if (value && _typeof(value) === 'object' && !Array.isArray(value)) {
+      return _.values(value);
+    }
+    return value;
+  });
 }
 
 /**
@@ -107,7 +123,7 @@ export function getUnselectHrefIfSelectedFromResponseFilters(term, facet, filter
           }
         }
       });
-      retHref = '?' + queryString.stringify(commonQs);
+      retHref = '?' + queryString.stringify(normalizeQueryValuesForStringify(commonQs));
       if (includePathName) {
         retHref += partsFrom.pathname;
       }
@@ -234,7 +250,7 @@ export function getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters(t
           return t.key === v;
         });
       });
-      retHref += '?' + queryString.stringify(cloned);
+      retHref += '?' + queryString.stringify(normalizeQueryValuesForStringify(cloned));
     } else {
       retHref += parts.search;
     }
@@ -302,12 +318,17 @@ export function buildSearchHref(field, term, searchBase) {
   } else {
     //term is a regular term, has no sub terms
     if (field in query) {
+      // Preserve repeated params as arrays even if the parser materialized
+      // them as an object due to the `qs` array limit behavior.
       query[field] = normalizeQueryValueToArray(query[field]).concat(term.key);
     } else {
       query[field] = term.key;
     }
   }
-  var queryStr = queryString.stringify(query);
+
+  // Normalize untouched repeated params from other fields as well before
+  // serializing, otherwise they can become `[object Object]` in the URL.
+  var queryStr = queryString.stringify(normalizeQueryValuesForStringify(query));
   parts.search = queryStr && queryStr.length > 0 ? '?' + queryStr : '';
   return url.format(parts);
 }
@@ -712,7 +733,7 @@ function getBaseHref() {
       hrefQuery.type = 'Item';
     }
   }
-  return baseHref + (_.keys(hrefQuery).length > 0 ? '?' + queryString.stringify(hrefQuery) : '');
+  return baseHref + (_.keys(hrefQuery).length > 0 ? '?' + queryString.stringify(normalizeQueryValuesForStringify(hrefQuery)) : '');
 }
 export function searchQueryStringFromHref(href) {
   if (!href) return null;
