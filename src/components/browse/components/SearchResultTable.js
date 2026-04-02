@@ -26,6 +26,21 @@ import { HeadersRow } from './table-commons/HeadersRow';
 import { basicColumnExtensionMap } from './table-commons/basicColumnExtensionMap';
 
 
+function normalizeQueryValuesForStringify(query = {}){
+    return _.mapObject(query, function(value){
+        if (
+            value &&
+            typeof value === 'object' &&
+            !Array.isArray(value) &&
+            !(value instanceof Date)
+        ) {
+            return _.values(value);
+        }
+        return value;
+    });
+}
+
+
 const ResultRowColumnBlock = React.memo(function ResultRowColumnBlock(props){
     const { columnDefinition, columnNumber, width, defaultColAlignment } = props;
     const { field } = columnDefinition;
@@ -542,7 +557,7 @@ class LoadMoreAsYouScroll extends React.Component {
         let nextCompoundFilterSetRequest = null;
         if (!origCompoundFilterSet) { // Assumed href/string request
             const parts = url.parse(origHref, true); // memoizedUrlParse not used in case is EmbeddedSearchView.
-            const { query } = parts;
+            const query = normalizeQueryValuesForStringify(parts.query);
             query.from = nextFromValue;
             parts.search = '?' + queryString.stringify(query);
             nextHref = url.format(parts);
