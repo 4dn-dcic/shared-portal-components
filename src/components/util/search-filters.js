@@ -8,6 +8,34 @@ import { navigate } from './navigate';
 import { isServerSide } from './misc';
 
 
+// Browserified `url.parse(..., true)` can return object-shaped values for repeated
+// query params once `qs` array limits are exceeded. Normalize them before any
+// facet mutation logic that expects arrays of selected terms.
+function normalizeQueryValueToArray(value){
+    if (Array.isArray(value)) {
+        return value;
+    }
+    if (typeof value === 'string') {
+        return [value];
+    }
+    if (value && typeof value === 'object') {
+        return _.values(value);
+    }
+    return [];
+}
+
+// `query-string.stringify` will serialize object values as `[object Object]`.
+// Convert any object-shaped repeated params back into arrays before stringifying.
+function normalizeQueryValuesForStringify(query = {}){
+    return _.mapObject(query, function(value){
+        if (value && typeof value === 'object' && !Array.isArray(value)) {
+            return _.values(value);
+        }
+        return value;
+    });
+}
+
+
 /**
  * @deprecated
  * If the given term is selected, return the href for the term from context.filters.
@@ -85,7 +113,7 @@ export function getUnselectHrefIfSelectedFromResponseFilters(term, facet, filter
                 }
             });
 
-            retHref = '?' + queryString.stringify(commonQs);
+            retHref = '?' + queryString.stringify(normalizeQueryValuesForStringify(commonQs));
             if (includePathName) {
                 retHref += partsFrom.pathname;
             }
@@ -186,7 +214,7 @@ export function getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters(t
             const tmp = Array.isArray(parts.query[facetField]) ? parts.query[facetField] : [parts.query[facetField]];
             const cloned = _.clone(parts.query);
             cloned[facetField] = _.filter(tmp, function (v) { return !_.any(term.terms, function (t) { return t.key === v; });});
-            retHref += '?' + queryString.stringify(cloned);
+            retHref += '?' + queryString.stringify(normalizeQueryValuesForStringify(cloned));
         } else {
             retHref += parts.search;
         }
@@ -212,8 +240,8 @@ export function buildSearchHref(field, term, searchBase){
     if (term.terms && Array.isArray(term.terms)) {
         if (!(field in query)) {
             query[field] = [];
-        } else if (typeof query[field] === 'string') {
-            query[field] = [query[field]];
+        } else {
+            query[field] = normalizeQueryValueToArray(query[field]);
         }
 
         let fieldClear = null;
@@ -231,8 +259,8 @@ export function buildSearchHref(field, term, searchBase){
             }
         }
         //convert query param to array
-        if (fieldClear && typeof query[fieldClear] === 'string') {
-            query[fieldClear] = [query[fieldClear]];
+        if (fieldClear) {
+            query[fieldClear] = normalizeQueryValueToArray(query[fieldClear]);
         }
 
         term.terms.forEach((t) => {
@@ -251,17 +279,17 @@ export function buildSearchHref(field, term, searchBase){
     } else {
         //term is a regular term, has no sub terms
         if (field in query) {
-            if (Array.isArray(query[field])) {
-                query[field] = query[field].concat(term.key);
-            } else {
-                query[field] = [query[field]].concat(term.key);
-            }
+            // Preserve repeated params as arrays even if the parser materialized
+            // them as an object due to the `qs` array limit behavior.
+            query[field] = normalizeQueryValueToArray(query[field]).concat(term.key);
         } else {
             query[field] = term.key;
         }
     }
 
-    const queryStr = queryString.stringify(query);
+    // Normalize untouched repeated params from other fields as well before
+    // serializing, otherwise they can become `[object Object]` in the URL.
+    const queryStr = queryString.stringify(normalizeQueryValuesForStringify(query));
     parts.search = queryStr && queryStr.length > 0 ? ('?' + queryStr) : '';
 
     return url.format(parts);
@@ -688,7 +716,7 @@ function getBaseHref(currentHref = '/browse/', hrefPath = null, requiredQs = {})
         }
     }
 
-    return baseHref + (_.keys(hrefQuery).length > 0 ? '?' + queryString.stringify(hrefQuery) : '');
+    return baseHref + (_.keys(hrefQuery).length > 0 ? '?' + queryString.stringify(normalizeQueryValuesForStringify(hrefQuery)) : '');
 }
 
 export function searchQueryStringFromHref(href){
@@ -730,4 +758,3 @@ export function getSearchItemType(context){
     }
     return null;
 }
-
