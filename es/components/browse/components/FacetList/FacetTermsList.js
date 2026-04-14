@@ -167,7 +167,9 @@ export var Term = /*#__PURE__*/function (_React$PureComponent) {
         _this$props2$hideActi = _this$props2.hideActiveSubTerms,
         hideActiveSubTerms = _this$props2$hideActi === void 0 ? false : _this$props2$hideActi,
         _this$props2$hideUnse = _this$props2.hideUnselectedSubTerms,
-        hideUnselectedSubTerms = _this$props2$hideUnse === void 0 ? false : _this$props2$hideUnse;
+        hideUnselectedSubTerms = _this$props2$hideUnse === void 0 ? false : _this$props2$hideUnse,
+        _this$props2$sortFxn = _this$props2.sortFxn,
+        sortFxn = _this$props2$sortFxn === void 0 ? null : _this$props2$sortFxn;
       var _this$props3 = this.props,
         _this$props3$facetSea = _this$props3.facetSearchActive,
         facetSearchActive = _this$props3$facetSea === void 0 ? false : _this$props3$facetSea,
@@ -216,13 +218,29 @@ export var Term = /*#__PURE__*/function (_React$PureComponent) {
           onClick: onClick,
           useRadioIcon: useRadioIcon,
           groupingTermKey: term.key,
-          facetSearchActive: facetSearchActive
+          facetSearchActive: facetSearchActive,
+          sortFxn: sortFxn
         };
         var filteredTerms = term.terms;
         //filter out the terms not matching
         if (textFilteredSubTerms) {
           filteredTerms = _.filter(filteredTerms, function (t) {
             return textFilteredSubTerms[t.key];
+          });
+        }
+        if (sortFxn && typeof sortFxn === 'function') {
+          filteredTerms = filteredTerms.slice().sort(function (termA, termB) {
+            return sortFxn({
+              key: termA.key,
+              props: {
+                term: termA
+              }
+            }, {
+              key: termB.key,
+              props: {
+                term: termB
+              }
+            });
           });
         }
         subTermComponents = filteredTerms.map(function (t) {
@@ -309,7 +327,8 @@ _defineProperty(Term, "propTypes", {
   'textFilteredSubTerms': PropTypes.object,
   'tooltip': PropTypes.string,
   'hideActiveSubTerms': PropTypes.bool,
-  'hideUnselectedSubTerms': PropTypes.bool
+  'hideUnselectedSubTerms': PropTypes.bool,
+  'sortFxn': PropTypes.func
 });
 _defineProperty(Term, "defaultProps", {
   'useRadioIcon': false
