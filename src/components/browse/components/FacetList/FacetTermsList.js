@@ -132,6 +132,7 @@ export class Term extends React.PureComponent {
         'tooltip'           : PropTypes.string,
         'hideActiveSubTerms': PropTypes.bool,
         'hideUnselectedSubTerms': PropTypes.bool,
+        'sortFxn'           : PropTypes.func,
     };
 
     static defaultProps = {
@@ -152,7 +153,8 @@ export class Term extends React.PureComponent {
     render() {
         const {
             term, facet, status, getTermStatus, termTransformFxn, isFiltering, onClick, useRadioIcon = false,
-            groupingTermKey, tooltip, hideActiveSubTerms = false, hideUnselectedSubTerms = false
+            groupingTermKey, tooltip, hideActiveSubTerms = false, hideUnselectedSubTerms = false,
+            sortFxn = null
         } = this.props;
         let { facetSearchActive = false, textFilteredTerms, textFilteredSubTerms } = this.props;
 
@@ -187,11 +189,19 @@ export class Term extends React.PureComponent {
         // if the term is a grouping term, then create sub term components
         let subTermComponents = null;
         if (isGroupingTerm && term.terms.length > 0){
-            const childProps = { facet, getTermStatus, termTransformFxn, isFiltering, onClick, useRadioIcon, groupingTermKey: term.key, facetSearchActive };
+            const childProps = { facet, getTermStatus, termTransformFxn, isFiltering, onClick, useRadioIcon, groupingTermKey: term.key, facetSearchActive, sortFxn };
             let filteredTerms = term.terms;
             //filter out the terms not matching
             if (textFilteredSubTerms) {
                 filteredTerms = _.filter(filteredTerms, function (t) { return textFilteredSubTerms[t.key]; });
+            }
+            if (sortFxn && typeof sortFxn === 'function') {
+                filteredTerms = filteredTerms.slice().sort(function(termA, termB) {
+                    return sortFxn(
+                        { key: termA.key, props: { term: termA } },
+                        { key: termB.key, props: { term: termB } }
+                    );
+                });
             }
             subTermComponents = filteredTerms.map(function (t) { return (<Term key={t.key} term={t} {...childProps} status={status === 'selected' ? 'selected' : getTermStatus(t, facet)} />); });
             //filter out selected/omitted sub term components
@@ -445,9 +455,9 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
                 }
             }
             if (status !== 'partial') {
-                return <Term {...{ facet, term, termTransformFxn, isFiltering, useRadioIcon, getTermStatus, textFilteredTerms, textFilteredSubTerms, facetSearchActive, tooltip, status }} onClick={onTermClick} key={term.key} />;
+                return <Term {...{ facet, term, termTransformFxn, isFiltering, useRadioIcon, getTermStatus, textFilteredTerms, textFilteredSubTerms, facetSearchActive, tooltip, status, sortFxn }} onClick={onTermClick} key={term.key} />;
             } else {
-                const commonProps = { facet, term, termTransformFxn, isFiltering, useRadioIcon, getTermStatus, onClick: onTermClick };
+                const commonProps = { facet, term, termTransformFxn, isFiltering, useRadioIcon, getTermStatus, onClick: onTermClick, sortFxn };
                 //duplicate terms to show parent-children tree in active and unselected sections
                 return [
                     <Term {...commonProps} {...{ textFilteredTerms: {}, status }} key={term.key} hideUnselectedSubTerms />,
