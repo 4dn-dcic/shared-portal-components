@@ -34,6 +34,7 @@ import queryString from 'querystring';
 import memoize from 'memoize-one';
 import _ from 'underscore';
 import { navigate as _navigate } from './../../util/navigate';
+import { normalizeQueryValuesForStringify } from './../../util/search-filters';
 import { flattenColumnsDefinitionsSortFields, HeadersRow } from './table-commons';
 export var SortController = /*#__PURE__*/function (_React$PureComponent) {
   function SortController(props) {
@@ -94,7 +95,7 @@ export var SortController = /*#__PURE__*/function (_React$PureComponent) {
             direction = _ref.direction;
           return (direction === 'desc' ? '-' : '') + column;
         });
-        var stringifiedNextQuery = queryString.stringify(query);
+        var stringifiedNextQuery = queryString.stringify(normalizeQueryValuesForStringify(query));
         var navTarget = null;
         if (currSearchHref) {
           // Using search href

@@ -26,9 +26,9 @@ function normalizeQueryValueToArray(value){
 
 // `query-string.stringify` will serialize object values as `[object Object]`.
 // Convert any object-shaped repeated params back into arrays before stringifying.
-function normalizeQueryValuesForStringify(query = {}){
+export function normalizeQueryValuesForStringify(query = {}){
     return _.mapObject(query, function(value){
-        if (value && typeof value === 'object' && !Array.isArray(value)) {
+        if (value && typeof value === 'object' && !Array.isArray(value) && !(value instanceof Date)) {
             return _.values(value);
         }
         return value;
