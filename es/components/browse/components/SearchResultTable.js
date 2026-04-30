@@ -6,7 +6,6 @@ import _getPrototypeOf from "@babel/runtime/helpers/getPrototypeOf";
 import _inherits from "@babel/runtime/helpers/inherits";
 import _defineProperty from "@babel/runtime/helpers/defineProperty";
 import _extends from "@babel/runtime/helpers/extends";
-import _typeof from "@babel/runtime/helpers/typeof";
 var _excluded = ["columnDefinitions", "mounted", "columnWidths", "windowWidth", "defaultColAlignment"];
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
@@ -41,21 +40,13 @@ import { itemUtil } from './../../util/object';
 import { load } from './../../util/ajax';
 import { getPageVerticalScrollPosition, getElementOffset, responsiveGridState } from './../../util/layout';
 import { getItemTypeTitle } from './../../util/schema-transforms';
+import { normalizeQueryValuesForStringify } from './../../util/search-filters';
 import { requestAnimationFrame as raf, cancelAnimationFrame as caf, style as vizStyle } from './../../viz/utilities';
 import { Alerts } from './../../ui/Alerts';
 import { ResultRowColumnBlockValue } from './table-commons/ResultRowColumnBlockValue';
 import { columnsToColumnDefinitions, getColumnWidthFromDefinition } from './table-commons/ColumnCombiner';
 import { HeadersRow } from './table-commons/HeadersRow';
 import { basicColumnExtensionMap } from './table-commons/basicColumnExtensionMap';
-function normalizeQueryValuesForStringify() {
-  var query = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-  return _.mapObject(query, function (value) {
-    if (value && _typeof(value) === 'object' && !Array.isArray(value) && !(value instanceof Date)) {
-      return _.values(value);
-    }
-    return value;
-  });
-}
 var ResultRowColumnBlock = /*#__PURE__*/React.memo(function (props) {
   var columnDefinition = props.columnDefinition,
     columnNumber = props.columnNumber,
