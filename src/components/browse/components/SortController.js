@@ -7,6 +7,7 @@ import queryString from 'querystring';
 import memoize from 'memoize-one';
 import _ from 'underscore';
 import { navigate } from './../../util/navigate';
+import { normalizeQueryValuesForStringify } from './../../util/search-filters';
 import { flattenColumnsDefinitionsSortFields, HeadersRow } from './table-commons';
 
 
@@ -76,7 +77,7 @@ export class SortController extends React.PureComponent {
                 return (direction === 'desc' ? '-' : '') + column;
             });
 
-            const stringifiedNextQuery = queryString.stringify(query);
+            const stringifiedNextQuery = queryString.stringify(normalizeQueryValuesForStringify(query));
             let navTarget = null;
             if (currSearchHref) {
                 // Using search href

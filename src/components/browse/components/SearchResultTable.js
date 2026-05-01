@@ -17,6 +17,7 @@ import { itemUtil } from './../../util/object';
 import { load } from './../../util/ajax';
 import { getPageVerticalScrollPosition, getElementOffset, responsiveGridState } from './../../util/layout';
 import { getItemTypeTitle } from './../../util/schema-transforms';
+import { normalizeQueryValuesForStringify } from './../../util/search-filters';
 import { requestAnimationFrame as raf, cancelAnimationFrame as caf, style as vizStyle } from './../../viz/utilities';
 import { Alerts } from './../../ui/Alerts';
 
@@ -24,21 +25,6 @@ import { ResultRowColumnBlockValue } from './table-commons/ResultRowColumnBlockV
 import { columnsToColumnDefinitions, getColumnWidthFromDefinition } from './table-commons/ColumnCombiner';
 import { HeadersRow } from './table-commons/HeadersRow';
 import { basicColumnExtensionMap } from './table-commons/basicColumnExtensionMap';
-
-
-function normalizeQueryValuesForStringify(query = {}){
-    return _.mapObject(query, function(value){
-        if (
-            value &&
-            typeof value === 'object' &&
-            !Array.isArray(value) &&
-            !(value instanceof Date)
-        ) {
-            return _.values(value);
-        }
-        return value;
-    });
-}
 
 
 const ResultRowColumnBlock = React.memo(function ResultRowColumnBlock(props){
