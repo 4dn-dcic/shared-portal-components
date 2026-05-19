@@ -115,13 +115,39 @@ export var SelectedItemsController = /*#__PURE__*/function (_React$PureComponent
           throw new Error("Can only supply list if multiselect is also enabled");
         }
         if (isList) {
-          // Add/overwrite only.
+          // Bulk-select should produce deterministic selection from provided list.
+          // Also report invalid or duplicate IDs to aid debugging.
+          var rebuiltItems = new Map();
+          var missingAtIdCount = 0;
+          var duplicateAtIdCount = 0;
+          var seenAtIds = new Set();
           result.forEach(function (resultItem) {
-            nextItems.set(itemUtil.atId(resultItem), resultItem);
+            var atId = itemUtil.atId(resultItem);
+            if (!atId) {
+              missingAtIdCount++;
+              return;
+            }
+            if (seenAtIds.has(atId)) {
+              duplicateAtIdCount++;
+            }
+            seenAtIds.add(atId);
+            rebuiltItems.set(atId, resultItem);
           });
+          nextItems = rebuiltItems;
+          if (missingAtIdCount > 0 || duplicateAtIdCount > 0) {
+            console.warn("Bulk-select skipped/collided some items.", {
+              requestedCount: result.length,
+              selectedCount: nextItems.size,
+              missingAtIdCount: missingAtIdCount,
+              duplicateAtIdCount: duplicateAtIdCount
+            });
+          }
         } else {
           // Toggle on/off.
           var resultAtID = itemUtil.atId(result);
+          if (!resultAtID) {
+            return null;
+          }
           if (nextItems.has(resultAtID)) {
             nextItems["delete"](resultAtID);
           } else {
@@ -147,7 +173,9 @@ export var SelectedItemsController = /*#__PURE__*/function (_React$PureComponent
       if (Array.isArray(initialResults)) {
         initialResults.forEach(function (result) {
           var atId = itemUtil.atId(result);
-          selectedItems.set(atId, result);
+          if (atId) {
+            selectedItems.set(atId, result);
+          }
         });
       }
       this.setState({

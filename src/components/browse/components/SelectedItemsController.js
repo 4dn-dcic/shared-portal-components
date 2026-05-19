@@ -72,7 +72,7 @@ export class SelectedItemsController extends React.PureComponent {
         const { keepSelectionInStorage } = this.props;
 
         this.setState(function({ selectedItems: prevItems }){
-            const nextItems = new Map(prevItems);
+            let nextItems = new Map(prevItems);
 
             const isList = Array.isArray(result);
 
@@ -81,13 +81,39 @@ export class SelectedItemsController extends React.PureComponent {
             }
 
             if (isList) {
-                // Add/overwrite only.
+                // Bulk-select should produce deterministic selection from provided list.
+                // Also report invalid or duplicate IDs to aid debugging.
+                const rebuiltItems = new Map();
+                let missingAtIdCount = 0;
+                let duplicateAtIdCount = 0;
+                const seenAtIds = new Set();
                 result.forEach(function(resultItem){
-                    nextItems.set(itemUtil.atId(resultItem), resultItem);
+                    const atId = itemUtil.atId(resultItem);
+                    if (!atId) {
+                        missingAtIdCount++;
+                        return;
+                    }
+                    if (seenAtIds.has(atId)) {
+                        duplicateAtIdCount++;
+                    }
+                    seenAtIds.add(atId);
+                    rebuiltItems.set(atId, resultItem);
                 });
+                nextItems = rebuiltItems;
+                if (missingAtIdCount > 0 || duplicateAtIdCount > 0) {
+                    console.warn("Bulk-select skipped/collided some items.", {
+                        requestedCount: result.length,
+                        selectedCount: nextItems.size,
+                        missingAtIdCount,
+                        duplicateAtIdCount
+                    });
+                }
             } else {
                 // Toggle on/off.
                 const resultAtID = itemUtil.atId(result);
+                if (!resultAtID) {
+                    return null;
+                }
                 if (nextItems.has(resultAtID)) {
                     nextItems.delete(resultAtID);
                 } else {
@@ -111,7 +137,9 @@ export class SelectedItemsController extends React.PureComponent {
         if (Array.isArray(initialResults)) {
             initialResults.forEach(function(result){
                 const atId = itemUtil.atId(result);
-                selectedItems.set(atId, result);
+                if (atId) {
+                    selectedItems.set(atId, result);
+                }
             });
         }
         this.setState({ selectedItems });
