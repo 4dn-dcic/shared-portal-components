@@ -36,7 +36,7 @@ export class FacetOfFacets extends React.PureComponent {
     }
 
     render() {
-        const { title, children: renderedFacets, tooltip: propTip, facetOpen, openFacets = {} } = this.props;
+        const { title, children: renderedFacets, tooltip: propTip, facetOpen, openFacets = {}, toggleIcons = null } = this.props;
         const anySelections = this.memoized.anyFacetsHaveSelection(renderedFacets);
 
         let tooltip = propTip || "Group of facets containing "; // We'll append to this in .map loop below if !propTip.
@@ -55,7 +55,15 @@ export class FacetOfFacets extends React.PureComponent {
             <div className={"facet" + (facetOpen || anySelections ? ' open' : ' closed')} data-group={title}>
                 <h5 className="facet-title" onClick={this.handleOpenToggleClick}>
                     <span className="expand-toggle col-auto px-0">
-                        <i className={"icon icon-fw icon-" + (anySelections ? "dot-circle far" : (facetOpen ? "minus fas" : "plus fas"))}/>
+                        { (() => {
+                            const { open: openIcon, closed: closedIcon, allSelected: allSelectedIcon } = toggleIcons || {};
+                            if (anySelections) {
+                                return allSelectedIcon ?? <i className="icon icon-fw icon-dot-circle far"/>;
+                            }
+                            return facetOpen
+                                ? (openIcon ?? <i className="icon icon-fw icon-minus fas"/>)
+                                : (closedIcon ?? <i className="icon icon-fw icon-plus fas"/>);
+                        })() }
                     </span>
                     <div className="col px-0 line-height-1">
                         <span data-tip={tooltip} data-place="right">{ title }</span>

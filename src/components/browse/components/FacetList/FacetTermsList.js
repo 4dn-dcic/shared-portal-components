@@ -331,6 +331,7 @@ export class FacetTermsList extends React.PureComponent {
             searchText,
             handleBasicTermSearch,
             sortFxn=null,
+            toggleIcons = null,
         } = this.props;
         const { description: facetSchemaDescription = null, field, title: facetTitle, terms = [], persist_selected_terms: facetPersistSelectedTerms } = facet;
         // if it's defined within facet, override global persis selected terms
@@ -370,7 +371,15 @@ export class FacetTermsList extends React.PureComponent {
             <div className={"facet" + (facetOpen || allTermsSelected ? ' open' : ' closed')} data-field={facet.field}>
                 <h5 className="facet-title" onClick={this.handleOpenToggleClick}>
                     <span className="expand-toggle col-auto px-0">
-                        <i className={"icon icon-fw icon-" + (allTermsSelected && useRadioIcon === false ? "dot-circle far" : (facetOpen ? "minus" : "plus") + " fas")}/>
+                        { (() => {
+                            const { open: openIcon, closed: closedIcon, allSelected: allSelectedIcon } = toggleIcons || {};
+                            if (allTermsSelected && useRadioIcon === false) {
+                                return allSelectedIcon ?? <i className="icon icon-fw icon-dot-circle far"/>;
+                            }
+                            return facetOpen
+                                ? (openIcon ?? <i className="icon icon-fw icon-minus fas"/>)
+                                : (closedIcon ?? <i className="icon icon-fw icon-plus fas"/>);
+                        })() }
                     </span>
                     <div className="col px-0 line-height-1">
                         <span data-tip={facetSchemaDescription || fieldSchemaDescription} data-html data-place="right">{ title }</span>
