@@ -44,6 +44,13 @@ export class SearchView extends React.PureComponent {
         'keepSelectionInStorage': PropTypes.bool,
         'searchViewHeader': PropTypes.element,
         'hideFacets' : PropTypes.arrayOf(PropTypes.string),
+        /** When true, renders result rows but omits the sort/column header row. */
+        'hideHeaderRow' : PropTypes.bool,
+        'hideFacetHeader' : PropTypes.bool,
+        /** When true, all facets start collapsed regardless of viewport height. */
+        'defaultClosedFacets' : PropTypes.bool,
+        /** Override the expand/collapse icons on individual facets: { open, closed, allSelected }. Each key is optional. */
+        'toggleIcons' : PropTypes.shape({ open: PropTypes.node, closed: PropTypes.node, allSelected: PropTypes.node }),
     };
 
     /**
@@ -64,6 +71,7 @@ export class SearchView extends React.PureComponent {
         'isOwnPage'     : true,
         'keepSelectionInStorage': false,
         'hideFacets': [],
+        'hideFacetHeader': false,
     };
 
 
@@ -118,6 +126,7 @@ export class SearchView extends React.PureComponent {
             //isOwnPage = true,
             windowWidth,
             hideFacets,
+            hideFacetHeader,
             hideStickyFooter,
             useCustomSelectionController,
             facetListSortFxns = null,
@@ -141,6 +150,7 @@ export class SearchView extends React.PureComponent {
             facets: propFacets || contextFacets,
             facetListSortFxns,
             hideStickyFooter,
+            hideFacetHeader,
         };
 
         let controllersAndView = (
@@ -177,4 +187,3 @@ export class SearchView extends React.PureComponent {
         );
     }
 }
-
