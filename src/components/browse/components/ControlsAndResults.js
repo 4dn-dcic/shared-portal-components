@@ -212,7 +212,7 @@ export class ControlsAndResults extends React.PureComponent {
  * Paramaterized into own component to allow to swap in different `props.facetListComponent`.
  */
 function DefaultFacetListComponent(props){
-    const { facets, isContextLoading, requestedCompoundFilterSet, context } = props;
+    const { facets, isContextLoading, requestedCompoundFilterSet, context, hideFacetHeader = false } = props;
     const { "@id" : ctxHref = null } = context || {};
     // If we have an explicit "@id" (ctxHref) then we had a single filter block requested.
     if (Array.isArray(facets) && facets.length > 0) {
@@ -231,6 +231,7 @@ function DefaultFacetListComponent(props){
         );
     }
     if (isContextLoading) {
+        if (hideFacetHeader) return null;
         return (
             <div className="facets-container with-header-bg">
                 <FacetListHeader />
