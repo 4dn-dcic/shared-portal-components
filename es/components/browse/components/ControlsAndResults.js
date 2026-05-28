@@ -131,6 +131,16 @@ export var ControlsAndResults = /*#__PURE__*/function (_React$PureComponent) {
         isOwnPage = _this$props2$isOwnPag === void 0 ? true : _this$props2$isOwnPag,
         _this$props2$isContex = _this$props2.isContextLoading,
         isContextLoading = _this$props2$isContex === void 0 ? false : _this$props2$isContex,
+        _this$props2$hideHead = _this$props2.hideHeaderRow,
+        hideHeaderRow = _this$props2$hideHead === void 0 ? false : _this$props2$hideHead,
+        _this$props2$renderRe = _this$props2.renderResultRow,
+        renderResultRow = _this$props2$renderRe === void 0 ? null : _this$props2$renderRe,
+        _this$props2$hideFace = _this$props2.hideFacetHeader,
+        hideFacetHeader = _this$props2$hideFace === void 0 ? false : _this$props2$hideFace,
+        _this$props2$defaultC = _this$props2.defaultClosedFacets,
+        defaultClosedFacets = _this$props2$defaultC === void 0 ? false : _this$props2$defaultC,
+        _this$props2$toggleIc = _this$props2.toggleIcons,
+        toggleIcons = _this$props2$toggleIc === void 0 ? null : _this$props2$toggleIc,
         maxHeight = _this$props2.maxHeight,
         _this$props2$maxFacet = _this$props2.maxFacetsBodyHeight,
         maxFacetsBodyHeight = _this$props2$maxFacet === void 0 ? SearchResultTable.defaultProps.maxResultsBodyHeight : _this$props2$maxFacet,
@@ -217,6 +227,9 @@ export var ControlsAndResults = /*#__PURE__*/function (_React$PureComponent) {
           showClearFiltersButton: showClearFiltersButton,
           separateSingleTermFacets: separateSingleTermFacets,
           requestedCompoundFilterSet: requestedCompoundFilterSet,
+          hideFacetHeader: hideFacetHeader,
+          defaultClosedFacets: defaultClosedFacets,
+          toggleIcons: toggleIcons,
           // Default to maxHeight when provided
           maxFacetsBodyHeight: !isOwnPage && (maxHeight !== null && maxHeight !== void 0 ? maxHeight : maxFacetsBodyHeight) || null
         });
@@ -260,7 +273,10 @@ export var ControlsAndResults = /*#__PURE__*/function (_React$PureComponent) {
         userDownloadAccess: userDownloadAccess,
         customColumnSearchHref: customColumnSearchHref,
         // Used by ResultRow to request data for custom columns
-        isContextLoading: isContextLoading // <- Only applicable for EmbeddedSearchView, else is false always
+        isContextLoading: isContextLoading,
+        // <- Only applicable for EmbeddedSearchView, else is false always
+        hideHeaderRow: hideHeaderRow,
+        renderResultRow: renderResultRow
       }, {
         ref: this.searchResultTableRef,
         renderDetailPane: this.renderSearchDetailPane
@@ -282,7 +298,9 @@ function DefaultFacetListComponent(props) {
   var facets = props.facets,
     isContextLoading = props.isContextLoading,
     requestedCompoundFilterSet = props.requestedCompoundFilterSet,
-    context = props.context;
+    context = props.context,
+    _props$hideFacetHeade = props.hideFacetHeader,
+    hideFacetHeader = _props$hideFacetHeade === void 0 ? false : _props$hideFacetHeade;
   var _ref2$Id = (context || {})["@id"],
     ctxHref = _ref2$Id === void 0 ? null : _ref2$Id;
   // If we have an explicit "@id" (ctxHref) then we had a single filter block requested.
@@ -302,6 +320,7 @@ function DefaultFacetListComponent(props) {
     }, "Compound Filter"), /*#__PURE__*/React.createElement("p", null, "Select a single filter block to edit its properties")));
   }
   if (isContextLoading) {
+    if (hideFacetHeader) return null;
     return /*#__PURE__*/React.createElement("div", {
       className: "facets-container with-header-bg"
     }, /*#__PURE__*/React.createElement(FacetListHeader, null), /*#__PURE__*/React.createElement("div", {

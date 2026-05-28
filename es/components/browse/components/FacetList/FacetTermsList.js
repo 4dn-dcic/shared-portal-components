@@ -444,7 +444,9 @@ export var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
         searchText = _this$props6.searchText,
         handleBasicTermSearch = _this$props6.handleBasicTermSearch,
         _this$props6$sortFxn = _this$props6.sortFxn,
-        sortFxn = _this$props6$sortFxn === void 0 ? null : _this$props6$sortFxn;
+        sortFxn = _this$props6$sortFxn === void 0 ? null : _this$props6$sortFxn,
+        _this$props6$toggleIc = _this$props6.toggleIcons,
+        toggleIcons = _this$props6$toggleIc === void 0 ? null : _this$props6$toggleIc;
       var _facet$description = facet.description,
         facetSchemaDescription = _facet$description === void 0 ? null : _facet$description,
         field = facet.field,
@@ -504,9 +506,22 @@ export var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
         onClick: this.handleOpenToggleClick
       }, /*#__PURE__*/React.createElement("span", {
         className: "expand-toggle col-auto px-0"
-      }, /*#__PURE__*/React.createElement("i", {
-        className: "icon icon-fw icon-" + (allTermsSelected && useRadioIcon === false ? "dot-circle far" : (facetOpen ? "minus" : "plus") + " fas")
-      })), /*#__PURE__*/React.createElement("div", {
+      }, function () {
+        var _ref7 = toggleIcons || {},
+          openIcon = _ref7.open,
+          closedIcon = _ref7.closed,
+          allSelectedIcon = _ref7.allSelected;
+        if (allTermsSelected && useRadioIcon === false) {
+          return allSelectedIcon !== null && allSelectedIcon !== void 0 ? allSelectedIcon : /*#__PURE__*/React.createElement("i", {
+            className: "icon icon-fw icon-dot-circle far"
+          });
+        }
+        return facetOpen ? openIcon !== null && openIcon !== void 0 ? openIcon : /*#__PURE__*/React.createElement("i", {
+          className: "icon icon-fw icon-minus fas"
+        }) : closedIcon !== null && closedIcon !== void 0 ? closedIcon : /*#__PURE__*/React.createElement("i", {
+          className: "icon icon-fw icon-plus fas"
+        });
+      }()), /*#__PURE__*/React.createElement("div", {
         className: "col px-0 line-height-1"
       }, /*#__PURE__*/React.createElement("span", {
         "data-tip": facetSchemaDescription || fieldSchemaDescription,
@@ -590,15 +605,15 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
   var _useMemo = useMemo(function () {
       var field = facet.field;
       var facetSearchActive = searchType === 'basic' && typeof searchText === 'string' && searchText.length > 0;
-      var _ref7 = facetSearchActive ? getFilteredTerms(terms, searchText, facetHasGroupBy) : {},
-        _ref7$filteredTerms = _ref7.filteredTerms,
-        textFilteredTerms = _ref7$filteredTerms === void 0 ? {} : _ref7$filteredTerms,
-        _ref7$filteredSubTerm = _ref7.filteredSubTerms,
-        textFilteredSubTerms = _ref7$filteredSubTerm === void 0 ? null : _ref7$filteredSubTerm;
+      var _ref8 = facetSearchActive ? getFilteredTerms(terms, searchText, facetHasGroupBy) : {},
+        _ref8$filteredTerms = _ref8.filteredTerms,
+        textFilteredTerms = _ref8$filteredTerms === void 0 ? {} : _ref8$filteredTerms,
+        _ref8$filteredSubTerm = _ref8.filteredSubTerms,
+        textFilteredSubTerms = _ref8$filteredSubTerm === void 0 ? null : _ref8$filteredSubTerm;
       var allTermComponents = _.flatten(terms.map(function (term) {
-        var _ref8 = filteringFieldTerm || {},
-          currFilteringField = _ref8.field,
-          currFilteringTerm = _ref8.term;
+        var _ref9 = filteringFieldTerm || {},
+          currFilteringField = _ref9.field,
+          currFilteringTerm = _ref9.term;
         var isFiltering = field === currFilteringField && term.key === currFilteringTerm;
         var status = getTermStatus(term, facet);
         var active = status === 'omitted' || status === 'selected';
@@ -776,8 +791,8 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
         key: "facet-search-input"
       }));
     } else if (searchType === 'sayt' || searchType === 'sayt_without_terms') {
-      var _ref9$sayt_item_type = (facet || {}).sayt_item_type,
-        itemType = _ref9$sayt_item_type === void 0 ? '' : _ref9$sayt_item_type;
+      var _ref10$sayt_item_type = (facet || {}).sayt_item_type,
+        itemType = _ref10$sayt_item_type === void 0 ? '' : _ref10$sayt_item_type;
       itemType = typeof itemType === 'string' && itemType.length > 0 ? itemType : 'Item';
       var baseHref = "/search/?type=" + itemType;
       facetSearch = /*#__PURE__*/React.createElement("div", {
@@ -845,10 +860,10 @@ export var CountIndicator = /*#__PURE__*/React.memo(function (props) {
   var dotCountToShow = Math.min(count, 21);
   var dotCoords = stackDotsInContainer(dotCountToShow, height, 4, 2, false);
   var currColCounter = new Set();
-  var dots = dotCoords.map(function (_ref10, idx) {
-    var _ref11 = _slicedToArray(_ref10, 2),
-      x = _ref11[0],
-      y = _ref11[1];
+  var dots = dotCoords.map(function (_ref11, idx) {
+    var _ref12 = _slicedToArray(_ref11, 2),
+      x = _ref12[0],
+      y = _ref12[1];
     currColCounter.add(x);
     var colIdx = currColCounter.size - 1;
     // Flip both axes so going bottom right to top left.

@@ -940,6 +940,8 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
       'openDetailPanes': {},
       'tableContainerScrollLeft': 0,
       'tableContainerWidth': 0,
+      'measuredCustomRowHeight': null,
+      // Set after first custom row mounts; corrects react-infinite elementHeight
       originalResults: originalResults // Reference to original results in order to utilize getDerivedStateFromProps.
     };
 
@@ -949,6 +951,18 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
     _this11.outerRef = /*#__PURE__*/React.createRef();
     _this11.outerContainerSizeInterval = null;
     _this11.scrollHandlerUnsubscribeFxn = null;
+
+    // Stable ref callback that measures the first custom row after it mounts so
+    // react-infinite receives an accurate elementHeight for load-trigger calculations.
+    _this11.customRowMeasureRef = function (el) {
+      if (!el) return;
+      var h = el.offsetHeight;
+      if (h > 0 && h !== _this11.state.measuredCustomRowHeight) {
+        _this11.setState({
+          measuredCustomRowHeight: h
+        });
+      }
+    };
     _this11.memoized = {
       fullRowWidth: memoize(DimensioningContainer.fullRowWidth)
     };
@@ -1168,13 +1182,18 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
         setColumnWidths = _this$props15.setColumnWidths,
         columnWidths = _this$props15.columnWidths,
         _this$props15$stickyF = _this$props15.stickyFirstColumn,
-        stickyFirstColumn = _this$props15$stickyF === void 0 ? false : _this$props15$stickyF;
+        stickyFirstColumn = _this$props15$stickyF === void 0 ? false : _this$props15$stickyF,
+        _this$props15$hideHea = _this$props15.hideHeaderRow,
+        hideHeaderRow = _this$props15$hideHea === void 0 ? false : _this$props15$hideHea,
+        _this$props15$renderR = _this$props15.renderResultRow,
+        renderResultRow = _this$props15$renderR === void 0 ? null : _this$props15$renderR;
       var _this$state3 = this.state,
         results = _this$state3.results,
         tableContainerWidth = _this$state3.tableContainerWidth,
         tableContainerScrollLeft = _this$state3.tableContainerScrollLeft,
         mounted = _this$state3.mounted,
-        openDetailPanes = _this$state3.openDetailPanes;
+        openDetailPanes = _this$state3.openDetailPanes,
+        measuredCustomRowHeight = _this$state3.measuredCustomRowHeight;
       var fullRowWidth = this.memoized.fullRowWidth(columnDefinitions, mounted, columnWidths, windowWidth);
       if (!isOwnPage) {
         // Add some padding to end of rows so that scrollbars don't hide last columns' content.
@@ -1182,10 +1201,14 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
       }
       var canLoadMore = this.canLoadMore();
       var anyResults = results.length > 0;
+
+      // When using a custom row renderer, use the measured height of the first rendered row so
+      // react-infinite's elementHeight and load-trigger threshold stay in sync with actual DOM.
+      var effectiveRowHeight = renderResultRow ? measuredCustomRowHeight || rowHeight : rowHeight;
       var loadMoreAsYouScrollProps = _objectSpread(_objectSpread({}, _.pick(this.props, 'href', 'onDuplicateResultsFoundCallback', 'schemas', 'requestedCompoundFilterSet')), {}, {
         context: context,
         navigate: navigate,
-        rowHeight: rowHeight,
+        rowHeight: effectiveRowHeight,
         openRowHeight: openRowHeight,
         results: results,
         openDetailPanes: openDetailPanes,
@@ -1231,7 +1254,9 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
           customColumnSearchHref: this.props.customColumnSearchHref || null,
           userDownloadAccess: this.props.userDownloadAccess || {}
         });
-        headersRow = /*#__PURE__*/React.createElement(HeadersRow, headerRowCommonProps);
+        if (!hideHeaderRow) {
+          headersRow = /*#__PURE__*/React.createElement(HeadersRow, headerRowCommonProps);
+        }
         shadowBorderLayer = /*#__PURE__*/React.createElement(ShadowBorderLayer, {
           tableContainerScrollLeft: tableContainerScrollLeft,
           tableContainerWidth: tableContainerWidth,
@@ -1240,9 +1265,20 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
           fixedPositionArrows: isOwnPage,
           getScrollContainer: this.getScrollContainer
         });
+        var customRowMeasureRef = renderResultRow ? this.customRowMeasureRef : null;
         childrenToShow = results.map(function (result, idx) {
           var id = itemUtil.atId(result);
           var detailOpen = openDetailPanes[id] || false;
+          if (renderResultRow) {
+            return /*#__PURE__*/React.createElement("div", {
+              key: id,
+              ref: idx === 0 ? customRowMeasureRef : null,
+              className: "search-result-row-custom"
+            }, renderResultRow(result, idx, _objectSpread(_objectSpread({}, resultRowCommonProps), {}, {
+              id: id,
+              detailOpen: detailOpen
+            })));
+          }
           // We can skip passing tableContainerScrollLeft unless detail pane open to improve performance
           // else all rows get re-rendered (in virtual DOM atleast) on horizontal scroll due to prop value
           // changing. Alternatively could've made a shouldComponentUpdate in ResultRow (but need to keep track of more).
@@ -1472,6 +1508,12 @@ _defineProperty(SearchResultTable, "propTypes", {
   })),
   'termTransformFxn': PropTypes.func.isRequired,
   'isOwnPage': PropTypes.bool,
+  /**
+   * Optional custom row renderer: (result, rowNumber, rowProps) => ReactElement.
+   * Replaces the default tabular ResultRow. Set `rowHeight` to match your panel height
+   * so that infinite scroll calculates offsets correctly.
+   */
+  'renderResultRow': PropTypes.func,
   // Used only if isOwnPage is false
   'maxHeight': PropTypes.number,
   //PropTypes.oneOfType([PropTypes.number, PropTypes.string])
