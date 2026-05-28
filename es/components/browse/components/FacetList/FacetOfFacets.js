@@ -57,7 +57,9 @@ export var FacetOfFacets = /*#__PURE__*/function (_React$PureComponent) {
         propTip = _this$props2.tooltip,
         facetOpen = _this$props2.facetOpen,
         _this$props2$openFace = _this$props2.openFacets,
-        openFacets = _this$props2$openFace === void 0 ? {} : _this$props2$openFace;
+        openFacets = _this$props2$openFace === void 0 ? {} : _this$props2$openFace,
+        _this$props2$toggleIc = _this$props2.toggleIcons,
+        toggleIcons = _this$props2$toggleIc === void 0 ? null : _this$props2$toggleIc;
       var anySelections = this.memoized.anyFacetsHaveSelection(renderedFacets);
       var tooltip = propTip || "Group of facets containing "; // We'll append to this in .map loop below if !propTip.
 
@@ -83,9 +85,22 @@ export var FacetOfFacets = /*#__PURE__*/function (_React$PureComponent) {
         onClick: this.handleOpenToggleClick
       }, /*#__PURE__*/React.createElement("span", {
         className: "expand-toggle col-auto px-0"
-      }, /*#__PURE__*/React.createElement("i", {
-        className: "icon icon-fw icon-" + (anySelections ? "dot-circle far" : facetOpen ? "minus fas" : "plus fas")
-      })), /*#__PURE__*/React.createElement("div", {
+      }, function () {
+        var _ref = toggleIcons || {},
+          openIcon = _ref.open,
+          closedIcon = _ref.closed,
+          allSelectedIcon = _ref.allSelected;
+        if (anySelections) {
+          return allSelectedIcon !== null && allSelectedIcon !== void 0 ? allSelectedIcon : /*#__PURE__*/React.createElement("i", {
+            className: "icon icon-fw icon-dot-circle far"
+          });
+        }
+        return facetOpen ? openIcon !== null && openIcon !== void 0 ? openIcon : /*#__PURE__*/React.createElement("i", {
+          className: "icon icon-fw icon-minus fas"
+        }) : closedIcon !== null && closedIcon !== void 0 ? closedIcon : /*#__PURE__*/React.createElement("i", {
+          className: "icon icon-fw icon-plus fas"
+        });
+      }()), /*#__PURE__*/React.createElement("div", {
         className: "col px-0 line-height-1"
       }, /*#__PURE__*/React.createElement("span", {
         "data-tip": tooltip,

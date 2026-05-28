@@ -6,7 +6,7 @@ import _possibleConstructorReturn from "@babel/runtime/helpers/possibleConstruct
 import _getPrototypeOf from "@babel/runtime/helpers/getPrototypeOf";
 import _inherits from "@babel/runtime/helpers/inherits";
 import _defineProperty from "@babel/runtime/helpers/defineProperty";
-var _excluded = ["href", "context", "navigate", "currentAction", "searchHref", "renderSearchResultTable", "columns", "hideColumns", "facets", "aboveTableComponent", "aboveFacetListComponent", "facetListComponent", "columnExtensionMap", "onLoad", "filterFacetFxn", "filterColumnFxn", "windowWidth", "embeddedTableHeader", "embeddedTableFooter", "onClearFiltersVirtual", "isClearFiltersBtnVisible", "facetColumnClassName", "tableColumnClassName", "allowPostRequest", "clearSelectedItemsOnFilter", "selectedItems", "onSelectItem", "onResetSelectedItems"];
+var _excluded = ["href", "context", "navigate", "currentAction", "searchHref", "renderSearchResultTable", "columns", "hideColumns", "facets", "aboveTableComponent", "aboveFacetListComponent", "facetListComponent", "columnExtensionMap", "onLoad", "filterFacetFxn", "filterColumnFxn", "windowWidth", "embeddedTableHeader", "embeddedTableFooter", "onClearFiltersVirtual", "isClearFiltersBtnVisible", "facetColumnClassName", "tableColumnClassName", "allowPostRequest", "clearSelectedItemsOnFilter", "selectedItems", "onSelectItem", "onResetSelectedItems", "isOwnPage"];
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 function _callSuper(_this, derived, args) {
@@ -123,6 +123,8 @@ export var EmbeddedSearchView = /*#__PURE__*/function (_React$PureComponent) {
         selectedItems = _this$props.selectedItems,
         onSelectItem = _this$props.onSelectItem,
         onResetSelectedItems = _this$props.onResetSelectedItems,
+        _this$props$isOwnPage = _this$props.isOwnPage,
+        isOwnPage = _this$props$isOwnPage === void 0 ? false : _this$props$isOwnPage,
         passProps = _objectWithoutProperties(_this$props, _excluded);
 
       // If facets are null (hidden/excluded) and no props.tableColumnClassName set table col to be full width of container instead of the default set by ControlsAndResults.
@@ -163,7 +165,7 @@ export var EmbeddedSearchView = /*#__PURE__*/function (_React$PureComponent) {
         filterColumnFxn: filterColumnFxn,
         hiddenColumns: hideColumns
       }, /*#__PURE__*/React.createElement(SortController, null, embeddedTableHeader, renderSearchResultTable ? /*#__PURE__*/React.createElement(ControlsAndResults, _extends({}, viewProps, {
-        isOwnPage: false
+        isOwnPage: isOwnPage
       })) : null, embeddedTableFooter)))));
     }
   }], [{
@@ -222,7 +224,21 @@ _defineProperty(EmbeddedSearchView, "propTypes", {
   'clearSelectedItemsOnFilter': PropTypes.bool,
   'selectedItems': PropTypes.object,
   'onSelectItem': PropTypes.func,
-  'onResetSelectedItems': PropTypes.func
+  'onResetSelectedItems': PropTypes.func,
+  /** When true, omits the FacetListHeader (title row + controls row). */
+  'hideFacetHeader': PropTypes.bool,
+  /** When true, all facets start collapsed regardless of viewport height. */
+  'defaultClosedFacets': PropTypes.bool,
+  /** When true, renders result rows but omits the sort/column header row. */
+  'hideHeaderRow': PropTypes.bool,
+  /** Override the expand/collapse icons on individual facets: { open, closed, allSelected }. Each key is optional. */
+  'toggleIcons': PropTypes.shape({
+    open: PropTypes.node,
+    closed: PropTypes.node,
+    allSelected: PropTypes.node
+  }),
+  /** Custom row renderer: (result, rowNumber, rowProps) => ReactElement. Set rowHeight to match panel height. */
+  'renderResultRow': PropTypes.func
 });
 _defineProperty(EmbeddedSearchView, "defaultProps", {
   'columnExtensionMap': basicColumnExtensionMap,

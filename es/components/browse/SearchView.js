@@ -5,7 +5,7 @@ import _possibleConstructorReturn from "@babel/runtime/helpers/possibleConstruct
 import _getPrototypeOf from "@babel/runtime/helpers/getPrototypeOf";
 import _inherits from "@babel/runtime/helpers/inherits";
 import _defineProperty from "@babel/runtime/helpers/defineProperty";
-var _excluded = ["href", "context", "showClearFiltersButton", "schemas", "currentAction", "facets", "navigate", "columns", "columnExtensionMap", "placeholderReplacementFxn", "keepSelectionInStorage", "searchViewHeader", "windowWidth", "hideFacets", "hideStickyFooter", "useCustomSelectionController", "facetListSortFxns"];
+var _excluded = ["href", "context", "showClearFiltersButton", "schemas", "currentAction", "facets", "navigate", "columns", "columnExtensionMap", "placeholderReplacementFxn", "keepSelectionInStorage", "searchViewHeader", "windowWidth", "hideFacets", "hideFacetHeader", "hideStickyFooter", "useCustomSelectionController", "facetListSortFxns"];
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 function _callSuper(_this, derived, args) {
@@ -100,6 +100,7 @@ export var SearchView = /*#__PURE__*/function (_React$PureComponent) {
         searchViewHeader = _this$props$searchVie === void 0 ? null : _this$props$searchVie,
         windowWidth = _this$props.windowWidth,
         hideFacets = _this$props.hideFacets,
+        hideFacetHeader = _this$props.hideFacetHeader,
         hideStickyFooter = _this$props.hideStickyFooter,
         useCustomSelectionController = _this$props.useCustomSelectionController,
         _this$props$facetList = _this$props.facetListSortFxns,
@@ -121,7 +122,8 @@ export var SearchView = /*#__PURE__*/function (_React$PureComponent) {
         isOwnPage: true,
         facets: propFacets || contextFacets,
         facetListSortFxns: facetListSortFxns,
-        hideStickyFooter: hideStickyFooter
+        hideStickyFooter: hideStickyFooter,
+        hideFacetHeader: hideFacetHeader
       });
       var controllersAndView = /*#__PURE__*/React.createElement(WindowNavigationController, {
         filterFacetFxn: this.filterFacetFxn,
@@ -190,7 +192,18 @@ _defineProperty(SearchView, "propTypes", {
   // Passed down to AboveSearchTablePanel StaticSection
   'keepSelectionInStorage': PropTypes.bool,
   'searchViewHeader': PropTypes.element,
-  'hideFacets': PropTypes.arrayOf(PropTypes.string)
+  'hideFacets': PropTypes.arrayOf(PropTypes.string),
+  /** When true, renders result rows but omits the sort/column header row. */
+  'hideHeaderRow': PropTypes.bool,
+  'hideFacetHeader': PropTypes.bool,
+  /** When true, all facets start collapsed regardless of viewport height. */
+  'defaultClosedFacets': PropTypes.bool,
+  /** Override the expand/collapse icons on individual facets: { open, closed, allSelected }. Each key is optional. */
+  'toggleIcons': PropTypes.shape({
+    open: PropTypes.node,
+    closed: PropTypes.node,
+    allSelected: PropTypes.node
+  })
 });
 /**
  * @property {string} href - Current URI.
@@ -209,5 +222,6 @@ _defineProperty(SearchView, "defaultProps", {
   'separateSingleTermFacets': true,
   'isOwnPage': true,
   'keepSelectionInStorage': false,
-  'hideFacets': []
+  'hideFacets': [],
+  'hideFacetHeader': false
 });

@@ -77,6 +77,17 @@ export class ControlsAndResults extends React.PureComponent {
             isOwnPage = true,         // <- False when rendered by EmbeddedSearchView, else is true when from a SearchView
             isContextLoading = false, // <- Only applicable for EmbeddedSearchView, passed in by VirtualHrefController only, else is false always since we initialize immediately over search-response context that already has first 25 results
 
+            // When true, renders result rows but omits the sort/column header row.
+            hideHeaderRow = false,
+            // Optional custom row renderer: (result, rowNumber, rowProps) => ReactElement
+            renderResultRow = null,
+            // When true, omits the FacetListHeader (title row + controls row) from the facet list.
+            hideFacetHeader = false,
+            // When true, all facets start collapsed regardless of viewport height.
+            defaultClosedFacets = false,
+            // Override include/exclude toggle icons: [includeIconNode, excludeIconNode].
+            toggleIcons = null,
+
             // From EmbeddedSearchView/manual-entry, used if isOwnPage is true,
             maxHeight,
             maxFacetsBodyHeight = SearchResultTable.defaultProps.maxResultsBodyHeight,
@@ -111,7 +122,9 @@ export class ControlsAndResults extends React.PureComponent {
             isOwnPage, sortBy, sortColumns, termTransformFxn, windowWidth, registerWindowOnScrollHandler, rowHeight,
             defaultOpenIndices, maxHeight, maxResultsBodyHeight, targetTabKey, fetchProps,
             userDownloadAccess, customColumnSearchHref, // Used by ResultRow to request data for custom columns
-            isContextLoading // <- Only applicable for EmbeddedSearchView, else is false always
+            isContextLoading, // <- Only applicable for EmbeddedSearchView, else is false always
+            hideHeaderRow,
+            renderResultRow
         };
 
         /**
@@ -164,6 +177,9 @@ export class ControlsAndResults extends React.PureComponent {
                 showClearFiltersButton,
                 separateSingleTermFacets,
                 requestedCompoundFilterSet,
+                hideFacetHeader,
+                defaultClosedFacets,
+                toggleIcons,
                 // Default to maxHeight when provided
                 maxFacetsBodyHeight: (!isOwnPage && (maxHeight ?? maxFacetsBodyHeight)) || null,
             };
@@ -196,7 +212,7 @@ export class ControlsAndResults extends React.PureComponent {
  * Paramaterized into own component to allow to swap in different `props.facetListComponent`.
  */
 function DefaultFacetListComponent(props){
-    const { facets, isContextLoading, requestedCompoundFilterSet, context } = props;
+    const { facets, isContextLoading, requestedCompoundFilterSet, context, hideFacetHeader = false } = props;
     const { "@id" : ctxHref = null } = context || {};
     // If we have an explicit "@id" (ctxHref) then we had a single filter block requested.
     if (Array.isArray(facets) && facets.length > 0) {
@@ -215,6 +231,7 @@ function DefaultFacetListComponent(props){
         );
     }
     if (isContextLoading) {
+        if (hideFacetHeader) return null;
         return (
             <div className="facets-container with-header-bg">
                 <FacetListHeader />

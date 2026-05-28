@@ -859,6 +859,7 @@ class DimensioningContainer extends React.PureComponent {
             'openDetailPanes' : {},
             'tableContainerScrollLeft' : 0,
             'tableContainerWidth' : 0,
+            'measuredCustomRowHeight' : null, // Set after first custom row mounts; corrects react-infinite elementHeight
             originalResults // Reference to original results in order to utilize getDerivedStateFromProps.
         };
 
@@ -869,6 +870,16 @@ class DimensioningContainer extends React.PureComponent {
         this.outerRef = React.createRef();
         this.outerContainerSizeInterval = null;
         this.scrollHandlerUnsubscribeFxn = null;
+
+        // Stable ref callback that measures the first custom row after it mounts so
+        // react-infinite receives an accurate elementHeight for load-trigger calculations.
+        this.customRowMeasureRef = (el) => {
+            if (!el) return;
+            const h = el.offsetHeight;
+            if (h > 0 && h !== this.state.measuredCustomRowHeight) {
+                this.setState({ measuredCustomRowHeight: h });
+            }
+        };
 
         this.memoized = {
             fullRowWidth: memoize(DimensioningContainer.fullRowWidth)
@@ -1056,9 +1067,11 @@ class DimensioningContainer extends React.PureComponent {
             isContextLoading = false,
             setColumnWidths,
             columnWidths,
-            stickyFirstColumn = false
+            stickyFirstColumn = false,
+            hideHeaderRow = false,
+            renderResultRow = null
         } = this.props;
-        const { results, tableContainerWidth, tableContainerScrollLeft, mounted, openDetailPanes } = this.state;
+        const { results, tableContainerWidth, tableContainerScrollLeft, mounted, openDetailPanes, measuredCustomRowHeight } = this.state;
 
         let fullRowWidth = this.memoized.fullRowWidth(columnDefinitions, mounted, columnWidths, windowWidth);
         if (!isOwnPage) {
@@ -1068,9 +1081,13 @@ class DimensioningContainer extends React.PureComponent {
         const canLoadMore = this.canLoadMore();
         const anyResults = results.length > 0;
 
+        // When using a custom row renderer, use the measured height of the first rendered row so
+        // react-infinite's elementHeight and load-trigger threshold stay in sync with actual DOM.
+        const effectiveRowHeight = renderResultRow ? (measuredCustomRowHeight || rowHeight) : rowHeight;
+
         const loadMoreAsYouScrollProps = {
             ..._.pick(this.props, 'href', 'onDuplicateResultsFoundCallback', 'schemas', 'requestedCompoundFilterSet'),
-            context, navigate, rowHeight, openRowHeight,
+            context, navigate, rowHeight: effectiveRowHeight, openRowHeight,
             results, openDetailPanes, maxResultsBodyHeight: maxHeight ?? maxResultsBodyHeight, isOwnPage, fullRowWidth, canLoadMore, anyResults,
             tableContainerWidth, tableContainerScrollLeft, windowWidth, mounted,
             setResults: this.setResults
@@ -1099,15 +1116,25 @@ class DimensioningContainer extends React.PureComponent {
                 customColumnSearchHref: this.props.customColumnSearchHref || null,
                 userDownloadAccess: this.props.userDownloadAccess || {}
             };
-            headersRow = <HeadersRow {...headerRowCommonProps} />;
+            if (!hideHeaderRow) {
+                headersRow = <HeadersRow {...headerRowCommonProps} />;
+            }
             shadowBorderLayer = (
                 <ShadowBorderLayer {...{ tableContainerScrollLeft, tableContainerWidth, fullRowWidth }}
                     setContainerScrollLeft={this.setContainerScrollLeft} fixedPositionArrows={isOwnPage}
                     getScrollContainer={this.getScrollContainer} />
             );
+            const customRowMeasureRef = renderResultRow ? this.customRowMeasureRef : null;
             childrenToShow = results.map(function(result, idx){
                 const id = itemUtil.atId(result);
                 const detailOpen = openDetailPanes[id] || false;
+                if (renderResultRow) {
+                    return (
+                        <div key={id} ref={idx === 0 ? customRowMeasureRef : null} className="search-result-row-custom">
+                            { renderResultRow(result, idx, { ...resultRowCommonProps, id, detailOpen }) }
+                        </div>
+                    );
+                }
                 // We can skip passing tableContainerScrollLeft unless detail pane open to improve performance
                 // else all rows get re-rendered (in virtual DOM atleast) on horizontal scroll due to prop value
                 // changing. Alternatively could've made a shouldComponentUpdate in ResultRow (but need to keep track of more).
@@ -1213,6 +1240,12 @@ export class SearchResultTable extends React.Component {
         })),
         'termTransformFxn' : PropTypes.func.isRequired,
         'isOwnPage' : PropTypes.bool,
+        /**
+         * Optional custom row renderer: (result, rowNumber, rowProps) => ReactElement.
+         * Replaces the default tabular ResultRow. Set `rowHeight` to match your panel height
+         * so that infinite scroll calculates offsets correctly.
+         */
+        'renderResultRow' : PropTypes.func,
         // Used only if isOwnPage is false
         'maxHeight' : PropTypes.number, //PropTypes.oneOfType([PropTypes.number, PropTypes.string])
         'maxResultsBodyHeight' : PropTypes.number,

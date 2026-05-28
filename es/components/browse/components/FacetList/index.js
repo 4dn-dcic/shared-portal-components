@@ -199,7 +199,13 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
         persistSelectedTerms = _this$props$persistSe === void 0 ? true : _this$props$persistSe,
         _this$props$context = _this$props.context,
         _this$props$context2 = _this$props$context === void 0 ? {} : _this$props$context,
-        filters = _this$props$context2.filters;
+        filters = _this$props$context2.filters,
+        _this$props$defaultCl = _this$props.defaultClosedFacets,
+        defaultClosedFacets = _this$props$defaultCl === void 0 ? false : _this$props$defaultCl;
+      if (defaultClosedFacets) {
+        ReactTooltip.rebuild();
+        return;
+      }
       var rgs = responsiveGridState(windowWidth || null);
       var _this$renderFacetComp = this.renderFacetComponents(),
         selectableFacetElements = _this$renderFacetComp.selectableFacetElements; // Internally memoized - should be performant.
@@ -451,7 +457,9 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
         termTransformFxn = _this$props5.termTransformFxn,
         persistentCount = _this$props5.persistentCount,
         useRadioIcon = _this$props5.useRadioIcon,
-        persistSelectedTerms = _this$props5.persistSelectedTerms;
+        persistSelectedTerms = _this$props5.persistSelectedTerms,
+        _this$props5$toggleIc = _this$props5.toggleIcons,
+        toggleIcons = _this$props5$toggleIc === void 0 ? null : _this$props5$toggleIc;
       var filters = context.filters;
       var _this$state2 = this.state,
         openFacets = _this$state2.openFacets,
@@ -472,6 +480,7 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
         filteringFieldTerm: filteringFieldTerm,
         useRadioIcon: useRadioIcon,
         persistSelectedTerms: persistSelectedTerms,
+        toggleIcons: toggleIcons,
         onFilter: this.onFilterExtended,
         onFilterMultiple: this.onFilterMultipleExtended,
         getTermStatus: this.getTermStatus,
@@ -505,7 +514,11 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
         _this$props6$isContex = _this$props6.isContextLoading,
         isContextLoading = _this$props6$isContex === void 0 ? false : _this$props6$isContex,
         _this$props6$hideHead = _this$props6.hideHeaderToggle,
-        hideHeaderToggle = _this$props6$hideHead === void 0 ? false : _this$props6$hideHead;
+        hideHeaderToggle = _this$props6$hideHead === void 0 ? false : _this$props6$hideHead,
+        _this$props6$hideFace = _this$props6.hideFacetHeader,
+        hideFacetHeader = _this$props6$hideFace === void 0 ? false : _this$props6$hideFace,
+        _this$props6$toggleIc = _this$props6.toggleIcons,
+        toggleIcons = _this$props6$toggleIc === void 0 ? null : _this$props6$toggleIc;
       var _this$state3 = this.state,
         openFacets = _this$state3.openFacets,
         openPopover = _this$state3.openPopover,
@@ -533,7 +546,7 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
       return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
         className: "facets-container facets with-header-bg",
         "data-context-loading": isContextLoading
-      }, /*#__PURE__*/React.createElement(FacetListHeader, {
+      }, !hideFacetHeader && /*#__PURE__*/React.createElement(FacetListHeader, {
         openFacets: openFacets,
         title: title,
         onClearFilters: onClearFilters,
@@ -869,7 +882,16 @@ _defineProperty(FacetList, "propTypes", {
   'persistSelectedTerms': PropTypes.bool.isRequired,
   // if True selected/omitted terms are escalated to top, otherwise each term is rendered in regular order. Moreover, inline search options are not displayed if it is False.
   'isContextLoading': PropTypes.bool,
-  'hideHeaderToggle': PropTypes.bool.isRequired // if True hide Include/Exclude Properties toggle on Facet List header
+  'hideHeaderToggle': PropTypes.bool.isRequired,
+  // if True hide Include/Exclude Properties toggle on Facet List header
+  /** When true, omits the entire FacetListHeader (title row + controls row). */
+  'hideFacetHeader': PropTypes.bool,
+  /** Override the expand/collapse icons per state: { open, closed, allSelected }. Each key is optional and falls back to the default icon. */
+  'toggleIcons': PropTypes.shape({
+    open: PropTypes.node,
+    closed: PropTypes.node,
+    allSelected: PropTypes.node
+  })
 });
 _defineProperty(FacetList, "defaultProps", {
   /**
