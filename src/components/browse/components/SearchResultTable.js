@@ -1130,7 +1130,7 @@ class DimensioningContainer extends React.PureComponent {
                 const detailOpen = openDetailPanes[id] || false;
                 if (renderResultRow) {
                     return (
-                        <div key={id} ref={idx === 0 ? customRowMeasureRef : null} className="search-result-row-custom">
+                        <div key={id} id={id} ref={idx === 0 ? customRowMeasureRef : null} className="search-result-row-custom">
                             { renderResultRow(result, idx, { ...resultRowCommonProps, id, detailOpen }) }
                         </div>
                     );
