@@ -231,9 +231,10 @@ function DefaultFacetListComponent(props){
         );
     }
     if (isContextLoading) {
+        if (hideFacetHeader) return null;
         return (
             <div className="facets-container with-header-bg">
-                { !hideFacetHeader && <FacetListHeader /> }
+                <FacetListHeader />
                 <div className="text-center py-4 text-secondary">
                     <i className="icon icon-spin icon-circle-notch fas icon-2x" />
                 </div>
