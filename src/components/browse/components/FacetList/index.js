@@ -147,7 +147,9 @@ export class FacetList extends React.PureComponent {
         /** When true, omits the entire FacetListHeader (title row + controls row). */
         'hideFacetHeader': PropTypes.bool,
         /** Override the expand/collapse icons per state: { open, closed, allSelected }. Each key is optional and falls back to the default icon. */
-        'toggleIcons': PropTypes.shape({ open: PropTypes.node, closed: PropTypes.node, allSelected: PropTypes.node })
+        'toggleIcons': PropTypes.shape({ open: PropTypes.node, closed: PropTypes.node, allSelected: PropTypes.node }),
+        /** When true, all facets start collapsed on mount regardless of viewport height. */
+        'defaultClosedFacets': PropTypes.bool
     };
 
     static defaultProps = {
@@ -464,7 +466,15 @@ export class FacetList extends React.PureComponent {
                 return true;
             }),
             extendComponentsWithFacetOpen: memoize(FacetList.extendComponentsWithFacetOpen),
-            getInitialOpenFacetsAfterMount: memoize(FacetList.getInitialOpenFacetsAfterMount)
+            getInitialOpenFacetsAfterMount: memoize(FacetList.getInitialOpenFacetsAfterMount),
+            // Returns a stable `toggleIcons` reference as long as its `open`/`closed`/`allSelected` values
+            // are unchanged, so consumers passing a fresh `{ open, closed, allSelected }` object literal each
+            // render don't defeat `createFacetComponents`' memoization below.
+            stabilizeToggleIcons: memoize(function(toggleIcons){ return toggleIcons; }, function([a], [b]){
+                if (a === b) return true;
+                if (!a || !b) return false;
+                return a.open === b.open && a.closed === b.closed && a.allSelected === b.allSelected;
+            })
         };
 
         this.state = {
@@ -709,6 +719,7 @@ export class FacetList extends React.PureComponent {
         } = this.props;
         const { filters } = context;
         const { openFacets, openPopover, filteringFieldTerm, including } = this.state;
+        const stableToggleIcons = this.memoized.stabilizeToggleIcons(toggleIcons);
 
         const facetComponentProps = {
             href, schemas, context, itemTypeForSchemas, termTransformFxn, persistentCount, separateSingleTermFacets,
@@ -716,7 +727,7 @@ export class FacetList extends React.PureComponent {
             openPopover, including,
             filteringFieldTerm,
             useRadioIcon, persistSelectedTerms,
-            toggleIcons,
+            toggleIcons: stableToggleIcons,
             onFilter:       this.onFilterExtended,
             onFilterMultiple: this.onFilterMultipleExtended,
             getTermStatus:  this.getTermStatus,

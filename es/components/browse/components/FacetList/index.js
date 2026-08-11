@@ -1,6 +1,6 @@
-import _slicedToArray from "@babel/runtime/helpers/slicedToArray";
 import _extends from "@babel/runtime/helpers/extends";
 import _toConsumableArray from "@babel/runtime/helpers/toConsumableArray";
+import _slicedToArray from "@babel/runtime/helpers/slicedToArray";
 import _toArray from "@babel/runtime/helpers/toArray";
 import _classCallCheck from "@babel/runtime/helpers/classCallCheck";
 import _createClass from "@babel/runtime/helpers/createClass";
@@ -172,7 +172,21 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
         return true;
       }),
       extendComponentsWithFacetOpen: memoize(FacetList.extendComponentsWithFacetOpen),
-      getInitialOpenFacetsAfterMount: memoize(FacetList.getInitialOpenFacetsAfterMount)
+      getInitialOpenFacetsAfterMount: memoize(FacetList.getInitialOpenFacetsAfterMount),
+      // Returns a stable `toggleIcons` reference as long as its `open`/`closed`/`allSelected` values
+      // are unchanged, so consumers passing a fresh `{ open, closed, allSelected }` object literal each
+      // render don't defeat `createFacetComponents`' memoization below.
+      stabilizeToggleIcons: memoize(function (toggleIcons) {
+        return toggleIcons;
+      }, function (_ref, _ref2) {
+        var _ref3 = _slicedToArray(_ref, 1),
+          a = _ref3[0];
+        var _ref4 = _slicedToArray(_ref2, 1),
+          b = _ref4[0];
+        if (a === b) return true;
+        if (!a || !b) return false;
+        return a.open === b.open && a.closed === b.closed && a.allSelected === b.allSelected;
+      })
     };
     _this2.state = {
       including: true,
@@ -357,8 +371,8 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
       if (facetFieldNames.size === 1) {
         // 2 values being set of same field
         // (this is only use-case currently for onFilterMultipleExtended, via RangeFacet, but could change in future)
-        var _ref = _toConsumableArray(facetFieldNames),
-          facetFieldName = _ref[0];
+        var _ref5 = _toConsumableArray(facetFieldNames),
+          facetFieldName = _ref5[0];
         if (facetFieldName !== null) {
           this.setState({
             "filteringFieldTerm": {
@@ -383,8 +397,8 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
     key: "handleToggleFacetOpen",
     value: function handleToggleFacetOpen(facetField) {
       var nextOpen = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-      this.setState(function (_ref2) {
-        var prevOpenFacets = _ref2.openFacets;
+      this.setState(function (_ref6) {
+        var prevOpenFacets = _ref6.openFacets;
         var openFacets = _.clone(prevOpenFacets);
         if (typeof nextOpen !== "boolean") {
           nextOpen = openFacets[facetField];
@@ -404,9 +418,9 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
     value: function setOpenPopover() {
       var nextPopover = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
       var cb = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-      this.setState(function (_ref3) {
-        var _ref3$openPopover = _ref3.openPopover,
-          openPopover = _ref3$openPopover === void 0 ? null : _ref3$openPopover;
+      this.setState(function (_ref7) {
+        var _ref7$openPopover = _ref7.openPopover,
+          openPopover = _ref7$openPopover === void 0 ? null : _ref7$openPopover;
         if (!openPopover) {
           if (!nextPopover) return null;
           return {
@@ -466,6 +480,7 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
         openPopover = _this$state2.openPopover,
         filteringFieldTerm = _this$state2.filteringFieldTerm,
         including = _this$state2.including;
+      var stableToggleIcons = this.memoized.stabilizeToggleIcons(toggleIcons);
       var facetComponentProps = {
         href: href,
         schemas: schemas,
@@ -480,7 +495,7 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
         filteringFieldTerm: filteringFieldTerm,
         useRadioIcon: useRadioIcon,
         persistSelectedTerms: persistSelectedTerms,
-        toggleIcons: toggleIcons,
+        toggleIcons: stableToggleIcons,
         onFilter: this.onFilterExtended,
         onFilterMultiple: this.onFilterMultipleExtended,
         getTermStatus: this.getTermStatus,
@@ -523,9 +538,9 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
         openFacets = _this$state3.openFacets,
         openPopover = _this$state3.openPopover,
         including = _this$state3.including;
-      var _ref4 = openPopover || {},
-        popoverJSX = _ref4.popover,
-        popoverTargetRef = _ref4.ref;
+      var _ref8 = openPopover || {},
+        popoverJSX = _ref8.popover,
+        popoverTargetRef = _ref8.ref;
       if (!facets || !Array.isArray(facets) || facets.length === 0) {
         return /*#__PURE__*/React.createElement("div", {
           className: "pt-2 pb-2",
@@ -662,11 +677,11 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
           _facet$aggregation_ty2 = facet.aggregation_type,
           aggregation_type = _facet$aggregation_ty2 === void 0 ? "terms" : _facet$aggregation_ty2;
         if (aggregation_type === "stats" || aggregation_type === "range") {
-          var _ref5 = rangeValuesByField[facetField] || {},
-            _ref5$fromVal = _ref5.fromVal,
-            fromVal = _ref5$fromVal === void 0 ? null : _ref5$fromVal,
-            _ref5$toVal = _ref5.toVal,
-            toVal = _ref5$toVal === void 0 ? null : _ref5$toVal;
+          var _ref9 = rangeValuesByField[facetField] || {},
+            _ref9$fromVal = _ref9.fromVal,
+            fromVal = _ref9$fromVal === void 0 ? null : _ref9$fromVal,
+            _ref9$toVal = _ref9.toVal,
+            toVal = _ref9$toVal === void 0 ? null : _ref9$toVal;
           var isStatic = facet.min === facet.max;
           // See https://reactjs.org/blog/2018/06/07/you-probably-dont-need-derived-state.html#recommendation-fully-uncontrolled-component-with-a-key
           // This approach used for resetting state.fromVal and state.toVal within RangeFacet.
@@ -728,10 +743,10 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
       var groupsArr = _toConsumableArray(groups);
 
       // Check, render, and add groups into `componentsToReturn`
-      groupsArr.forEach(function (_ref6, groupIndex) {
-        var _ref7 = _slicedToArray(_ref6, 2),
-          groupTitle = _ref7[0],
-          facetGroup = _ref7[1];
+      groupsArr.forEach(function (_ref10, groupIndex) {
+        var _ref11 = _slicedToArray(_ref10, 2),
+          groupTitle = _ref11[0],
+          facetGroup = _ref11[1];
         var facetsInGroup = facetGroup.children,
           index = facetGroup.index;
         if (facetsInGroup.length === 1) {
@@ -750,9 +765,9 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
         // We're not modifying the actual `groupsArr` list itself ever (e.g. removing/adding)
         // so `fromIdx` / `groupIndex` should always stay stable.
         // We increment facetGroup.index which is the index in `componentsToReturn`.
-        groupsArr.slice(groupIndex).forEach(function (_ref8) {
-          var _ref9 = _slicedToArray(_ref8, 2),
-            subsequentFacetGroup = _ref9[1];
+        groupsArr.slice(groupIndex).forEach(function (_ref12) {
+          var _ref13 = _slicedToArray(_ref12, 2),
+            subsequentFacetGroup = _ref13[1];
           subsequentFacetGroup.index++;
         });
       });
@@ -891,7 +906,9 @@ _defineProperty(FacetList, "propTypes", {
     open: PropTypes.node,
     closed: PropTypes.node,
     allSelected: PropTypes.node
-  })
+  }),
+  /** When true, all facets start collapsed on mount regardless of viewport height. */
+  'defaultClosedFacets': PropTypes.bool
 });
 _defineProperty(FacetList, "defaultProps", {
   /**

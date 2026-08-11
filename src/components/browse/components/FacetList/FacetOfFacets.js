@@ -4,6 +4,8 @@ import memoize from 'memoize-one';
 import Collapse from 'react-bootstrap/esm/Collapse';
 import Fade from 'react-bootstrap/esm/Fade';
 
+import { resolveToggleIcon } from './FacetTermsList';
+
 /**
  * Used to render individual facet fields and their available terms in FacetList.
  */
@@ -55,15 +57,7 @@ export class FacetOfFacets extends React.PureComponent {
             <div className={"facet" + (facetOpen || anySelections ? ' open' : ' closed')} data-group={title}>
                 <h5 className="facet-title" onClick={this.handleOpenToggleClick}>
                     <span className="expand-toggle col-auto px-0">
-                        { (() => {
-                            const { open: openIcon, closed: closedIcon, allSelected: allSelectedIcon } = toggleIcons || {};
-                            if (anySelections) {
-                                return allSelectedIcon ?? <i className="icon icon-fw icon-dot-circle far"/>;
-                            }
-                            return facetOpen
-                                ? (openIcon ?? <i className="icon icon-fw icon-minus fas"/>)
-                                : (closedIcon ?? <i className="icon icon-fw icon-plus fas"/>);
-                        })() }
+                        { resolveToggleIcon(toggleIcons, { isOpen: facetOpen, isAllSelected: anySelections }) }
                     </span>
                     <div className="col px-0 line-height-1">
                         <span data-tip={tooltip} data-place="right">{ title }</span>

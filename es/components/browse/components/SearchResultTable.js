@@ -941,7 +941,7 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
       'tableContainerScrollLeft': 0,
       'tableContainerWidth': 0,
       'measuredCustomRowHeight': null,
-      // Set after first custom row mounts; corrects react-infinite elementHeight
+      // Measured from first custom row, re-measured on updates; corrects react-infinite elementHeight
       originalResults: originalResults // Reference to original results in order to utilize getDerivedStateFromProps.
     };
 
@@ -951,17 +951,15 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
     _this11.outerRef = /*#__PURE__*/React.createRef();
     _this11.outerContainerSizeInterval = null;
     _this11.scrollHandlerUnsubscribeFxn = null;
+    _this11.customRowMeasureElem = null;
+    _this11.measureCustomRowHeight = _this11.measureCustomRowHeight.bind(_this11);
 
-    // Stable ref callback that measures the first custom row after it mounts so
-    // react-infinite receives an accurate elementHeight for load-trigger calculations.
+    // Ref callback for the first custom row (`renderResultRow`); keeps a reference to its DOM node
+    // so we can re-measure it (see `measureCustomRowHeight`/`componentDidUpdate`) whenever its content
+    // is likely to have changed height, since react-infinite needs an accurate elementHeight.
     _this11.customRowMeasureRef = function (el) {
-      if (!el) return;
-      var h = el.offsetHeight;
-      if (h > 0 && h !== _this11.state.measuredCustomRowHeight) {
-        _this11.setState({
-          measuredCustomRowHeight: h
-        });
-      }
+      _this11.customRowMeasureElem = el || null;
+      _this11.measureCustomRowHeight();
     };
     _this11.memoized = {
       fullRowWidth: memoize(DimensioningContainer.fullRowWidth)
@@ -1046,10 +1044,14 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
     value: function componentDidUpdate(pastProps, pastState) {
       var _this$state2 = this.state,
         loadedResults = _this$state2.results,
-        mounted = _this$state2.mounted;
+        mounted = _this$state2.mounted,
+        openDetailPanes = _this$state2.openDetailPanes;
       var pastLoadedResults = pastState.results,
-        pastMounted = pastState.mounted;
-      var windowWidth = this.props.windowWidth;
+        pastMounted = pastState.mounted,
+        pastOpenDetailPanes = pastState.openDetailPanes;
+      var _this$props14 = this.props,
+        windowWidth = _this$props14.windowWidth,
+        renderResultRow = _this$props14.renderResultRow;
       var pastWindowWidth = pastProps.windowWidth;
       if (pastLoadedResults !== loadedResults) {
         ReactTooltip.rebuild();
@@ -1064,6 +1066,24 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
         if (didMount && scrollContainer) {
           scrollContainer.addEventListener('scroll', this.onHorizontalScroll);
         }
+      }
+
+      // Re-measure the first custom row's height whenever something likely to affect it changed
+      // (new/changed results, its detail pane opened/closed, or a layout-affecting window resize).
+      if (renderResultRow && (loadedResults !== pastLoadedResults || openDetailPanes !== pastOpenDetailPanes || windowWidth !== pastWindowWidth)) {
+        this.measureCustomRowHeight();
+      }
+    }
+  }, {
+    key: "measureCustomRowHeight",
+    value: function measureCustomRowHeight() {
+      var el = this.customRowMeasureElem;
+      if (!el) return;
+      var h = el.offsetHeight;
+      if (h > 0 && h !== this.state.measuredCustomRowHeight) {
+        this.setState({
+          measuredCustomRowHeight: h
+        });
       }
     }
   }, {
@@ -1125,13 +1145,19 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
       }
       this.horizScrollRAF = raf(function () {
         var tableContainerScrollLeft = _this13.state.tableContainerScrollLeft;
+        var hideHeaderRow = _this13.props.hideHeaderRow;
         var nextScrollLeft = innerElem.scrollLeft;
         if (nextScrollLeft < 0) {
           nextScrollLeft = 0; // Might occur right after changing column widths or something.
         }
 
-        var columnsWrapperElement = innerElem.parentElement.childNodes[0].childNodes[0].childNodes[0];
-        columnsWrapperElement.style.left = "-".concat(nextScrollLeft, "px");
+        // HeadersRow (and the column wrapper we sync scroll position to) isn't rendered when hideHeaderRow is set.
+        if (!hideHeaderRow) {
+          var columnsWrapperElement = innerElem.parentElement.childNodes[0].childNodes[0].childNodes[0];
+          if (columnsWrapperElement) {
+            columnsWrapperElement.style.left = "-".concat(nextScrollLeft, "px");
+          }
+        }
         if (nextScrollLeft !== tableContainerScrollLeft) {
           // Shouldn't occur or matter but presence of this seems to improve smoothness (?)
           _this13.setContainerScrollLeft(nextScrollLeft);
@@ -1150,13 +1176,13 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
   }, {
     key: "canLoadMore",
     value: function canLoadMore() {
-      var _this$props14 = this.props,
-        _this$props14$context = _this$props14.context,
-        _this$props14$context2 = _this$props14$context === void 0 ? {} : _this$props14$context,
-        _this$props14$context3 = _this$props14$context2.total,
-        total = _this$props14$context3 === void 0 ? 0 : _this$props14$context3,
-        _this$props14$isConte = _this$props14.isContextLoading,
-        isContextLoading = _this$props14$isConte === void 0 ? false : _this$props14$isConte;
+      var _this$props15 = this.props,
+        _this$props15$context = _this$props15.context,
+        _this$props15$context2 = _this$props15$context === void 0 ? {} : _this$props15$context,
+        _this$props15$context3 = _this$props15$context2.total,
+        total = _this$props15$context3 === void 0 ? 0 : _this$props15$context3,
+        _this$props15$isConte = _this$props15.isContextLoading,
+        isContextLoading = _this$props15$isConte === void 0 ? false : _this$props15$isConte;
       var _this$state$results = this.state.results,
         results = _this$state$results === void 0 ? [] : _this$state$results;
       return !isContextLoading && LoadMoreAsYouScroll.canLoadMore(total, results);
@@ -1164,29 +1190,29 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props15 = this.props,
-        columnDefinitions = _this$props15.columnDefinitions,
-        windowWidth = _this$props15.windowWidth,
-        context = _this$props15.context,
-        _this$props15$isOwnPa = _this$props15.isOwnPage,
-        isOwnPage = _this$props15$isOwnPa === void 0 ? true : _this$props15$isOwnPa,
-        navigate = _this$props15.navigate,
-        _this$props15$rowHeig = _this$props15.rowHeight,
-        rowHeight = _this$props15$rowHeig === void 0 ? 47 : _this$props15$rowHeig,
-        _this$props15$openRow = _this$props15.openRowHeight,
-        openRowHeight = _this$props15$openRow === void 0 ? null : _this$props15$openRow,
-        maxHeight = _this$props15.maxHeight,
-        maxResultsBodyHeight = _this$props15.maxResultsBodyHeight,
-        _this$props15$isConte = _this$props15.isContextLoading,
-        isContextLoading = _this$props15$isConte === void 0 ? false : _this$props15$isConte,
-        setColumnWidths = _this$props15.setColumnWidths,
-        columnWidths = _this$props15.columnWidths,
-        _this$props15$stickyF = _this$props15.stickyFirstColumn,
-        stickyFirstColumn = _this$props15$stickyF === void 0 ? false : _this$props15$stickyF,
-        _this$props15$hideHea = _this$props15.hideHeaderRow,
-        hideHeaderRow = _this$props15$hideHea === void 0 ? false : _this$props15$hideHea,
-        _this$props15$renderR = _this$props15.renderResultRow,
-        renderResultRow = _this$props15$renderR === void 0 ? null : _this$props15$renderR;
+      var _this$props16 = this.props,
+        columnDefinitions = _this$props16.columnDefinitions,
+        windowWidth = _this$props16.windowWidth,
+        context = _this$props16.context,
+        _this$props16$isOwnPa = _this$props16.isOwnPage,
+        isOwnPage = _this$props16$isOwnPa === void 0 ? true : _this$props16$isOwnPa,
+        navigate = _this$props16.navigate,
+        _this$props16$rowHeig = _this$props16.rowHeight,
+        rowHeight = _this$props16$rowHeig === void 0 ? 47 : _this$props16$rowHeig,
+        _this$props16$openRow = _this$props16.openRowHeight,
+        openRowHeight = _this$props16$openRow === void 0 ? null : _this$props16$openRow,
+        maxHeight = _this$props16.maxHeight,
+        maxResultsBodyHeight = _this$props16.maxResultsBodyHeight,
+        _this$props16$isConte = _this$props16.isContextLoading,
+        isContextLoading = _this$props16$isConte === void 0 ? false : _this$props16$isConte,
+        setColumnWidths = _this$props16.setColumnWidths,
+        columnWidths = _this$props16.columnWidths,
+        _this$props16$stickyF = _this$props16.stickyFirstColumn,
+        stickyFirstColumn = _this$props16$stickyF === void 0 ? false : _this$props16$stickyF,
+        _this$props16$hideHea = _this$props16.hideHeaderRow,
+        hideHeaderRow = _this$props16$hideHea === void 0 ? false : _this$props16$hideHea,
+        _this$props16$renderR = _this$props16.renderResultRow,
+        renderResultRow = _this$props16$renderR === void 0 ? null : _this$props16$renderR;
       var _this$state3 = this.state,
         results = _this$state3.results,
         tableContainerWidth = _this$state3.tableContainerWidth,
@@ -1272,6 +1298,7 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
           if (renderResultRow) {
             return /*#__PURE__*/React.createElement("div", {
               key: id,
+              id: id,
               ref: idx === 0 ? customRowMeasureRef : null,
               className: "search-result-row-custom"
             }, renderResultRow(result, idx, _objectSpread(_objectSpread({}, resultRowCommonProps), {}, {
@@ -1437,13 +1464,13 @@ export var SearchResultTable = /*#__PURE__*/function (_React$Component3) {
   return _createClass(SearchResultTable, [{
     key: "render",
     value: function render() {
-      var _this$props16 = this.props,
-        context = _this$props16.context,
-        visibleColumnDefinitions = _this$props16.visibleColumnDefinitions,
-        columnDefinitions = _this$props16.columnDefinitions,
-        _this$props16$isConte = _this$props16.isContextLoading,
-        isContextLoading = _this$props16$isConte === void 0 ? false : _this$props16$isConte,
-        isOwnPage = _this$props16.isOwnPage;
+      var _this$props17 = this.props,
+        context = _this$props17.context,
+        visibleColumnDefinitions = _this$props17.visibleColumnDefinitions,
+        columnDefinitions = _this$props17.columnDefinitions,
+        _this$props17$isConte = _this$props17.isContextLoading,
+        isContextLoading = _this$props17$isConte === void 0 ? false : _this$props17$isConte,
+        isOwnPage = _this$props17.isOwnPage;
       if (isContextLoading && !context) {
         // Initial context (pre-sort, filter, etc) loading.
         // Only applicable for EmbeddedSearchView

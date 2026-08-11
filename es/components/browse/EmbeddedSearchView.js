@@ -238,7 +238,9 @@ _defineProperty(EmbeddedSearchView, "propTypes", {
     allSelected: PropTypes.node
   }),
   /** Custom row renderer: (result, rowNumber, rowProps) => ReactElement. Set rowHeight to match panel height. */
-  'renderResultRow': PropTypes.func
+  'renderResultRow': PropTypes.func,
+  /** Whether this is being rendered as its own page vs embedded within another page. Defaults to false since this is EmbeddedSearchView. */
+  'isOwnPage': PropTypes.bool
 });
 _defineProperty(EmbeddedSearchView, "defaultProps", {
   'columnExtensionMap': basicColumnExtensionMap,

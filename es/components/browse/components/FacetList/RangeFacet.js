@@ -33,7 +33,7 @@ import { PartialList } from './../../../ui/PartialList';
 import { decorateNumberWithCommas } from './../../../util/value-transforms';
 import { getSchemaProperty } from './../../../util/schema-transforms';
 import { patchedConsoleInstance as console } from './../../../util/patched-console';
-import { segmentComponentsByStatus } from './FacetTermsList';
+import { segmentComponentsByStatus, resolveToggleIcon } from './FacetTermsList';
 import { ExtendedDescriptionPopoverIcon } from './ExtendedDescriptionPopoverIcon';
 import ReactTooltip from 'react-tooltip';
 function getRangeStatus(range, toVal, fromVal) {
@@ -424,16 +424,9 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
         onClick: including ? this.handleOpenToggleClick : null
       }, /*#__PURE__*/React.createElement("span", {
         className: "expand-toggle col-auto px-0"
-      }, including ? function () {
-        var _ref4 = toggleIcons || {},
-          openIcon = _ref4.open,
-          closedIcon = _ref4.closed;
-        return facetOpen ? openIcon !== null && openIcon !== void 0 ? openIcon : /*#__PURE__*/React.createElement("i", {
-          className: "icon icon-fw icon-minus fas"
-        }) : closedIcon !== null && closedIcon !== void 0 ? closedIcon : /*#__PURE__*/React.createElement("i", {
-          className: "icon icon-fw icon-plus fas"
-        });
-      }() : /*#__PURE__*/React.createElement("i", {
+      }, including ? resolveToggleIcon(toggleIcons, {
+        isOpen: facetOpen
+      }) : /*#__PURE__*/React.createElement("i", {
         className: "icon icon-fw icon-exclamation-triangle text-warning fas",
         "data-tip": "Range Facets cannot be edited while in \"excluding\" mode. "
       })), /*#__PURE__*/React.createElement("div", {
@@ -579,21 +572,21 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
           "toIncrements": validIncrements
         };
       } else if (increments) {
-        var _ref5 = increments || {},
-          _ref5$from = _ref5.from,
-          fromIncrementsOrig = _ref5$from === void 0 ? [] : _ref5$from,
-          _ref5$to = _ref5.to,
-          toIncrementsOrig = _ref5$to === void 0 ? [] : _ref5$to;
+        var _ref4 = increments || {},
+          _ref4$from = _ref4.from,
+          fromIncrementsOrig = _ref4$from === void 0 ? [] : _ref4$from,
+          _ref4$to = _ref4.to,
+          toIncrementsOrig = _ref4$to === void 0 ? [] : _ref4$to;
         return {
           "fromIncrements": fromIncrementsOrig.filter(ensureWithinRange),
           "toIncrements": toIncrementsOrig.filter(ensureWithinRange)
         };
       } else if (Array.isArray(ranges)) {
         var allIncrements = new Set();
-        ranges.forEach(function (_ref6) {
-          var doc_count = _ref6.doc_count,
-            fromInc = _ref6.from,
-            toInc = _ref6.to;
+        ranges.forEach(function (_ref5) {
+          var doc_count = _ref5.doc_count,
+            fromInc = _ref5.from,
+            toInc = _ref5.to;
           // Preserve all values (incl. if no doc_count)
           allIncrements.add(fromInc);
           allIncrements.add(toInc);
@@ -649,9 +642,9 @@ var ListOfRanges = /*#__PURE__*/React.memo(function (props) {
 
   /** Create range components and sort by status (selected->omitted->unselected) */
   var _useMemo = useMemo(function () {
-      var _ref7 = filteringFieldTerm || {},
-        currFilteringField = _ref7.field,
-        currFilteringTerm = _ref7.term;
+      var _ref6 = filteringFieldTerm || {},
+        currFilteringField = _ref6.field,
+        currFilteringTerm = _ref6.term;
       // Ranges always presumed to have a from & to, so ignore if filtering a single value/term.
 
       var _segmentComponentsByS = segmentComponentsByStatus(ranges.map(function (range) {
@@ -921,11 +914,11 @@ var RangeClear = /*#__PURE__*/React.memo(function (props) {
     facetTitle = facet.title,
     _facet$abbreviation = facet.abbreviation,
     facetAbbreviation = _facet$abbreviation === void 0 ? null : _facet$abbreviation;
-  var _ref8$abbreviation = (fieldSchema || {}).abbreviation,
-    fieldAbbreviation = _ref8$abbreviation === void 0 ? null : _ref8$abbreviation;
-  var _ref9 = filteringFieldTerm || {},
-    currFilteringField = _ref9.field,
-    currFilteringTerm = _ref9.term;
+  var _ref7$abbreviation = (fieldSchema || {}).abbreviation,
+    fieldAbbreviation = _ref7$abbreviation === void 0 ? null : _ref7$abbreviation;
+  var _ref8 = filteringFieldTerm || {},
+    currFilteringField = _ref8.field,
+    currFilteringTerm = _ref8.term;
   var abbreviatedTitle = facetAbbreviation || fieldAbbreviation || (facetTitle.length > 5 ? /*#__PURE__*/React.createElement("em", null, "N") : facetTitle);
   if (savedFromVal === null && savedToVal === null) {
     return null;

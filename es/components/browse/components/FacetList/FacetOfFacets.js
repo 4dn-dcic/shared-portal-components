@@ -21,6 +21,7 @@ import PropTypes from 'prop-types';
 import memoize from 'memoize-one';
 import Collapse from 'react-bootstrap/esm/Collapse';
 import Fade from 'react-bootstrap/esm/Fade';
+import { resolveToggleIcon } from './FacetTermsList';
 
 /**
  * Used to render individual facet fields and their available terms in FacetList.
@@ -85,22 +86,10 @@ export var FacetOfFacets = /*#__PURE__*/function (_React$PureComponent) {
         onClick: this.handleOpenToggleClick
       }, /*#__PURE__*/React.createElement("span", {
         className: "expand-toggle col-auto px-0"
-      }, function () {
-        var _ref = toggleIcons || {},
-          openIcon = _ref.open,
-          closedIcon = _ref.closed,
-          allSelectedIcon = _ref.allSelected;
-        if (anySelections) {
-          return allSelectedIcon !== null && allSelectedIcon !== void 0 ? allSelectedIcon : /*#__PURE__*/React.createElement("i", {
-            className: "icon icon-fw icon-dot-circle far"
-          });
-        }
-        return facetOpen ? openIcon !== null && openIcon !== void 0 ? openIcon : /*#__PURE__*/React.createElement("i", {
-          className: "icon icon-fw icon-minus fas"
-        }) : closedIcon !== null && closedIcon !== void 0 ? closedIcon : /*#__PURE__*/React.createElement("i", {
-          className: "icon icon-fw icon-plus fas"
-        });
-      }()), /*#__PURE__*/React.createElement("div", {
+      }, resolveToggleIcon(toggleIcons, {
+        isOpen: facetOpen,
+        isAllSelected: anySelections
+      })), /*#__PURE__*/React.createElement("div", {
         className: "col px-0 line-height-1"
       }, /*#__PURE__*/React.createElement("span", {
         "data-tip": tooltip,

@@ -100,6 +100,21 @@ export function segmentComponentsByStatus(termComponents){
     return groups;
 }
 
+/**
+ * Shared expand/collapse icon resolution for facet titles (FacetTermsList, FacetOfFacets, RangeFacet),
+ * kept in one place so the `toggleIcons` shape ({ open, closed, allSelected }) is handled consistently
+ * everywhere instead of drifting across per-component copies.
+ */
+export function resolveToggleIcon(toggleIcons, { isOpen = false, isAllSelected = false } = {}){
+    const { open: openIcon, closed: closedIcon, allSelected: allSelectedIcon } = toggleIcons || {};
+    if (isAllSelected) {
+        return allSelectedIcon ?? <i className="icon icon-fw icon-dot-circle far"/>;
+    }
+    return isOpen
+        ? (openIcon ?? <i className="icon icon-fw icon-minus fas"/>)
+        : (closedIcon ?? <i className="icon icon-fw icon-plus fas"/>);
+}
+
 
 /**
  * Used to render individual terms in FacetList.
@@ -371,15 +386,7 @@ export class FacetTermsList extends React.PureComponent {
             <div className={"facet" + (facetOpen || allTermsSelected ? ' open' : ' closed')} data-field={facet.field}>
                 <h5 className="facet-title" onClick={this.handleOpenToggleClick}>
                     <span className="expand-toggle col-auto px-0">
-                        { (() => {
-                            const { open: openIcon, closed: closedIcon, allSelected: allSelectedIcon } = toggleIcons || {};
-                            if (allTermsSelected && useRadioIcon === false) {
-                                return allSelectedIcon ?? <i className="icon icon-fw icon-dot-circle far"/>;
-                            }
-                            return facetOpen
-                                ? (openIcon ?? <i className="icon icon-fw icon-minus fas"/>)
-                                : (closedIcon ?? <i className="icon icon-fw icon-plus fas"/>);
-                        })() }
+                        { resolveToggleIcon(toggleIcons, { isOpen: facetOpen, isAllSelected: allTermsSelected && useRadioIcon === false }) }
                     </span>
                     <div className="col px-0 line-height-1">
                         <span data-tip={facetSchemaDescription || fieldSchemaDescription} data-html data-place="right">{ title }</span>

@@ -128,6 +128,33 @@ export function segmentComponentsByStatus(termComponents) {
 }
 
 /**
+ * Shared expand/collapse icon resolution for facet titles (FacetTermsList, FacetOfFacets, RangeFacet),
+ * kept in one place so the `toggleIcons` shape ({ open, closed, allSelected }) is handled consistently
+ * everywhere instead of drifting across per-component copies.
+ */
+export function resolveToggleIcon(toggleIcons) {
+  var _ref3 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+    _ref3$isOpen = _ref3.isOpen,
+    isOpen = _ref3$isOpen === void 0 ? false : _ref3$isOpen,
+    _ref3$isAllSelected = _ref3.isAllSelected,
+    isAllSelected = _ref3$isAllSelected === void 0 ? false : _ref3$isAllSelected;
+  var _ref4 = toggleIcons || {},
+    openIcon = _ref4.open,
+    closedIcon = _ref4.closed,
+    allSelectedIcon = _ref4.allSelected;
+  if (isAllSelected) {
+    return allSelectedIcon !== null && allSelectedIcon !== void 0 ? allSelectedIcon : /*#__PURE__*/React.createElement("i", {
+      className: "icon icon-fw icon-dot-circle far"
+    });
+  }
+  return isOpen ? openIcon !== null && openIcon !== void 0 ? openIcon : /*#__PURE__*/React.createElement("i", {
+    className: "icon icon-fw icon-minus fas"
+  }) : closedIcon !== null && closedIcon !== void 0 ? closedIcon : /*#__PURE__*/React.createElement("i", {
+    className: "icon icon-fw icon-plus fas"
+  });
+}
+
+/**
  * Used to render individual terms in FacetList.
  */
 export var Term = /*#__PURE__*/function (_React$PureComponent) {
@@ -341,16 +368,16 @@ export function getFilteredTerms(facetTerms, searchText, includeSubTerms) {
   }
   var lcSearchText = searchText && typeof searchText === 'string' && searchText.length > 0 ? searchText.toLocaleLowerCase() : '';
   _.forEach(facetTerms, function (term) {
-    var _ref3$key = (term || {}).key,
-      key = _ref3$key === void 0 ? '' : _ref3$key;
+    var _ref5$key = (term || {}).key,
+      key = _ref5$key === void 0 ? '' : _ref5$key;
     if (typeof key === 'string' && key.length > 0) {
       var isFiltered = lcSearchText.length > 0 ? key.toLocaleLowerCase().includes(lcSearchText) : true;
       //search sub terms
       var tmpFilteredSubTerms = {};
       if (includeSubTerms) {
         _.forEach(term.terms || [], function (sub) {
-          var _ref4$key = (sub || {}).key,
-            subKey = _ref4$key === void 0 ? '' : _ref4$key;
+          var _ref6$key = (sub || {}).key,
+            subKey = _ref6$key === void 0 ? '' : _ref6$key;
           if (typeof subKey === 'string' && subKey.length > 0) {
             var isSubFiltered = lcSearchText.length > 0 ? subKey.toLocaleLowerCase().includes(lcSearchText) : true;
             if (isSubFiltered) {
@@ -401,8 +428,8 @@ export var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
     key: "handleExpandListToggleClick",
     value: function handleExpandListToggleClick(e) {
       e.preventDefault();
-      this.setState(function (_ref5) {
-        var expanded = _ref5.expanded;
+      this.setState(function (_ref7) {
+        var expanded = _ref7.expanded;
         return {
           'expanded': !expanded
         };
@@ -459,9 +486,9 @@ export var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
       var expanded = this.state.expanded;
       var termsLen = terms.length;
       var allTermsSelected = termsSelectedCount === termsLen;
-      var _ref6 = fieldSchema || {},
-        fieldTitle = _ref6.title,
-        fieldSchemaDescription = _ref6.description; // fieldSchema not present if no schemas loaded yet or if fake/calculated 'field'/column.
+      var _ref8 = fieldSchema || {},
+        fieldTitle = _ref8.title,
+        fieldSchemaDescription = _ref8.description; // fieldSchema not present if no schemas loaded yet or if fake/calculated 'field'/column.
 
       var indicator;
       // @todo: much of this code (including mergeTerms and anyTermsSelected above) were moved to index; consider moving these too
@@ -506,22 +533,10 @@ export var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
         onClick: this.handleOpenToggleClick
       }, /*#__PURE__*/React.createElement("span", {
         className: "expand-toggle col-auto px-0"
-      }, function () {
-        var _ref7 = toggleIcons || {},
-          openIcon = _ref7.open,
-          closedIcon = _ref7.closed,
-          allSelectedIcon = _ref7.allSelected;
-        if (allTermsSelected && useRadioIcon === false) {
-          return allSelectedIcon !== null && allSelectedIcon !== void 0 ? allSelectedIcon : /*#__PURE__*/React.createElement("i", {
-            className: "icon icon-fw icon-dot-circle far"
-          });
-        }
-        return facetOpen ? openIcon !== null && openIcon !== void 0 ? openIcon : /*#__PURE__*/React.createElement("i", {
-          className: "icon icon-fw icon-minus fas"
-        }) : closedIcon !== null && closedIcon !== void 0 ? closedIcon : /*#__PURE__*/React.createElement("i", {
-          className: "icon icon-fw icon-plus fas"
-        });
-      }()), /*#__PURE__*/React.createElement("div", {
+      }, resolveToggleIcon(toggleIcons, {
+        isOpen: facetOpen,
+        isAllSelected: allTermsSelected && useRadioIcon === false
+      })), /*#__PURE__*/React.createElement("div", {
         className: "col px-0 line-height-1"
       }, /*#__PURE__*/React.createElement("span", {
         "data-tip": facetSchemaDescription || fieldSchemaDescription,
@@ -605,15 +620,15 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
   var _useMemo = useMemo(function () {
       var field = facet.field;
       var facetSearchActive = searchType === 'basic' && typeof searchText === 'string' && searchText.length > 0;
-      var _ref8 = facetSearchActive ? getFilteredTerms(terms, searchText, facetHasGroupBy) : {},
-        _ref8$filteredTerms = _ref8.filteredTerms,
-        textFilteredTerms = _ref8$filteredTerms === void 0 ? {} : _ref8$filteredTerms,
-        _ref8$filteredSubTerm = _ref8.filteredSubTerms,
-        textFilteredSubTerms = _ref8$filteredSubTerm === void 0 ? null : _ref8$filteredSubTerm;
+      var _ref9 = facetSearchActive ? getFilteredTerms(terms, searchText, facetHasGroupBy) : {},
+        _ref9$filteredTerms = _ref9.filteredTerms,
+        textFilteredTerms = _ref9$filteredTerms === void 0 ? {} : _ref9$filteredTerms,
+        _ref9$filteredSubTerm = _ref9.filteredSubTerms,
+        textFilteredSubTerms = _ref9$filteredSubTerm === void 0 ? null : _ref9$filteredSubTerm;
       var allTermComponents = _.flatten(terms.map(function (term) {
-        var _ref9 = filteringFieldTerm || {},
-          currFilteringField = _ref9.field,
-          currFilteringTerm = _ref9.term;
+        var _ref10 = filteringFieldTerm || {},
+          currFilteringField = _ref10.field,
+          currFilteringTerm = _ref10.term;
         var isFiltering = field === currFilteringField && term.key === currFilteringTerm;
         var status = getTermStatus(term, facet);
         var active = status === 'omitted' || status === 'selected';
@@ -791,8 +806,8 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
         key: "facet-search-input"
       }));
     } else if (searchType === 'sayt' || searchType === 'sayt_without_terms') {
-      var _ref10$sayt_item_type = (facet || {}).sayt_item_type,
-        itemType = _ref10$sayt_item_type === void 0 ? '' : _ref10$sayt_item_type;
+      var _ref11$sayt_item_type = (facet || {}).sayt_item_type,
+        itemType = _ref11$sayt_item_type === void 0 ? '' : _ref11$sayt_item_type;
       itemType = typeof itemType === 'string' && itemType.length > 0 ? itemType : 'Item';
       var baseHref = "/search/?type=" + itemType;
       facetSearch = /*#__PURE__*/React.createElement("div", {
@@ -860,10 +875,10 @@ export var CountIndicator = /*#__PURE__*/React.memo(function (props) {
   var dotCountToShow = Math.min(count, 21);
   var dotCoords = stackDotsInContainer(dotCountToShow, height, 4, 2, false);
   var currColCounter = new Set();
-  var dots = dotCoords.map(function (_ref11, idx) {
-    var _ref12 = _slicedToArray(_ref11, 2),
-      x = _ref12[0],
-      y = _ref12[1];
+  var dots = dotCoords.map(function (_ref12, idx) {
+    var _ref13 = _slicedToArray(_ref12, 2),
+      x = _ref13[0],
+      y = _ref13[1];
     currColCounter.add(x);
     var colIdx = currColCounter.size - 1;
     // Flip both axes so going bottom right to top left.

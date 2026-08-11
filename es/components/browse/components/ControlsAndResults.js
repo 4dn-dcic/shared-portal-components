@@ -311,7 +311,7 @@ function DefaultFacetListComponent(props) {
     // 'real' (multiple filter blocks) compound search used, FacetList UI cannot be used -
     return /*#__PURE__*/React.createElement("div", {
       className: "facets-container with-header-bg"
-    }, /*#__PURE__*/React.createElement(FacetListHeader, {
+    }, !hideFacetHeader && /*#__PURE__*/React.createElement(FacetListHeader, {
       hideToggle: true
     }), /*#__PURE__*/React.createElement("div", {
       className: "p-4"
@@ -320,10 +320,9 @@ function DefaultFacetListComponent(props) {
     }, "Compound Filter"), /*#__PURE__*/React.createElement("p", null, "Select a single filter block to edit its properties")));
   }
   if (isContextLoading) {
-    if (hideFacetHeader) return null;
     return /*#__PURE__*/React.createElement("div", {
       className: "facets-container with-header-bg"
-    }, /*#__PURE__*/React.createElement(FacetListHeader, null), /*#__PURE__*/React.createElement("div", {
+    }, !hideFacetHeader && /*#__PURE__*/React.createElement(FacetListHeader, null), /*#__PURE__*/React.createElement("div", {
       className: "text-center py-4 text-secondary"
     }, /*#__PURE__*/React.createElement("i", {
       className: "icon icon-spin icon-circle-notch fas icon-2x"

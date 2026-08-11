@@ -859,7 +859,7 @@ class DimensioningContainer extends React.PureComponent {
             'openDetailPanes' : {},
             'tableContainerScrollLeft' : 0,
             'tableContainerWidth' : 0,
-            'measuredCustomRowHeight' : null, // Set after first custom row mounts; corrects react-infinite elementHeight
+            'measuredCustomRowHeight' : null, // Measured from first custom row, re-measured on updates; corrects react-infinite elementHeight
             originalResults // Reference to original results in order to utilize getDerivedStateFromProps.
         };
 
@@ -870,15 +870,15 @@ class DimensioningContainer extends React.PureComponent {
         this.outerRef = React.createRef();
         this.outerContainerSizeInterval = null;
         this.scrollHandlerUnsubscribeFxn = null;
+        this.customRowMeasureElem = null;
+        this.measureCustomRowHeight = this.measureCustomRowHeight.bind(this);
 
-        // Stable ref callback that measures the first custom row after it mounts so
-        // react-infinite receives an accurate elementHeight for load-trigger calculations.
+        // Ref callback for the first custom row (`renderResultRow`); keeps a reference to its DOM node
+        // so we can re-measure it (see `measureCustomRowHeight`/`componentDidUpdate`) whenever its content
+        // is likely to have changed height, since react-infinite needs an accurate elementHeight.
         this.customRowMeasureRef = (el) => {
-            if (!el) return;
-            const h = el.offsetHeight;
-            if (h > 0 && h !== this.state.measuredCustomRowHeight) {
-                this.setState({ measuredCustomRowHeight: h });
-            }
+            this.customRowMeasureElem = el || null;
+            this.measureCustomRowHeight();
         };
 
         this.memoized = {
@@ -953,9 +953,9 @@ class DimensioningContainer extends React.PureComponent {
     }
 
     componentDidUpdate(pastProps, pastState){
-        const { results: loadedResults, mounted } = this.state;
-        const { results: pastLoadedResults, mounted: pastMounted } = pastState;
-        const { windowWidth } = this.props;
+        const { results: loadedResults, mounted, openDetailPanes } = this.state;
+        const { results: pastLoadedResults, mounted: pastMounted, openDetailPanes: pastOpenDetailPanes } = pastState;
+        const { windowWidth, renderResultRow } = this.props;
         const { windowWidth: pastWindowWidth } = pastProps;
 
         if (pastLoadedResults !== loadedResults){
@@ -975,6 +975,21 @@ class DimensioningContainer extends React.PureComponent {
             }
         }
 
+        // Re-measure the first custom row's height whenever something likely to affect it changed
+        // (new/changed results, its detail pane opened/closed, or a layout-affecting window resize).
+        if (renderResultRow && (loadedResults !== pastLoadedResults || openDetailPanes !== pastOpenDetailPanes || windowWidth !== pastWindowWidth)){
+            this.measureCustomRowHeight();
+        }
+
+    }
+
+    measureCustomRowHeight(){
+        const el = this.customRowMeasureElem;
+        if (!el) return;
+        const h = el.offsetHeight;
+        if (h > 0 && h !== this.state.measuredCustomRowHeight) {
+            this.setState({ measuredCustomRowHeight: h });
+        }
     }
 
     toggleDetailPaneOpen(rowKey, cb = null){
@@ -1022,14 +1037,20 @@ class DimensioningContainer extends React.PureComponent {
 
         this.horizScrollRAF = raf(()=>{
             const { tableContainerScrollLeft } = this.state;
+            const { hideHeaderRow } = this.props;
             let nextScrollLeft = innerElem.scrollLeft;
 
             if (nextScrollLeft < 0) {
                 nextScrollLeft = 0; // Might occur right after changing column widths or something.
             }
 
-            const columnsWrapperElement = innerElem.parentElement.childNodes[0].childNodes[0].childNodes[0];
-            columnsWrapperElement.style.left = `-${nextScrollLeft}px`;
+            // HeadersRow (and the column wrapper we sync scroll position to) isn't rendered when hideHeaderRow is set.
+            if (!hideHeaderRow) {
+                const columnsWrapperElement = innerElem.parentElement.childNodes[0].childNodes[0].childNodes[0];
+                if (columnsWrapperElement) {
+                    columnsWrapperElement.style.left = `-${nextScrollLeft}px`;
+                }
+            }
 
             if (nextScrollLeft !== tableContainerScrollLeft) { // Shouldn't occur or matter but presence of this seems to improve smoothness (?)
                 this.setContainerScrollLeft(nextScrollLeft);

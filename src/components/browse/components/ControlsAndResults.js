@@ -74,7 +74,7 @@ export class ControlsAndResults extends React.PureComponent {
             context, href, requestedCompoundFilterSet,
             onFilter, onFilterMultiple,
             showClearFiltersButton = false,
-            isOwnPage = true,         // <- False when rendered by EmbeddedSearchView, else is true when from a SearchView
+            isOwnPage = true,         // <- Usually false when rendered by EmbeddedSearchView (unless overridden by caller), else true when from a SearchView
             isContextLoading = false, // <- Only applicable for EmbeddedSearchView, passed in by VirtualHrefController only, else is false always since we initialize immediately over search-response context that already has first 25 results
 
             // When true, renders result rows but omits the sort/column header row.
@@ -85,7 +85,7 @@ export class ControlsAndResults extends React.PureComponent {
             hideFacetHeader = false,
             // When true, all facets start collapsed regardless of viewport height.
             defaultClosedFacets = false,
-            // Override include/exclude toggle icons: [includeIconNode, excludeIconNode].
+            // Override the expand/collapse facet-title icons per state: { open, closed, allSelected }.
             toggleIcons = null,
 
             // From EmbeddedSearchView/manual-entry, used if isOwnPage is true,
@@ -222,7 +222,7 @@ function DefaultFacetListComponent(props){
         // 'real' (multiple filter blocks) compound search used, FacetList UI cannot be used -
         return (
             <div className="facets-container with-header-bg">
-                <FacetListHeader hideToggle />
+                { !hideFacetHeader && <FacetListHeader hideToggle /> }
                 <div className="p-4">
                     <h4 className="text-400">Compound Filter</h4>
                     <p>Select a single filter block to edit its properties</p>
@@ -231,10 +231,9 @@ function DefaultFacetListComponent(props){
         );
     }
     if (isContextLoading) {
-        if (hideFacetHeader) return null;
         return (
             <div className="facets-container with-header-bg">
-                <FacetListHeader />
+                { !hideFacetHeader && <FacetListHeader /> }
                 <div className="text-center py-4 text-secondary">
                     <i className="icon icon-spin icon-circle-notch fas icon-2x" />
                 </div>

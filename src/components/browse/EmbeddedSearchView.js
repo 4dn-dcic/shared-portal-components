@@ -79,6 +79,8 @@ export class EmbeddedSearchView extends React.PureComponent {
         'toggleIcons' : PropTypes.shape({ open: PropTypes.node, closed: PropTypes.node, allSelected: PropTypes.node }),
         /** Custom row renderer: (result, rowNumber, rowProps) => ReactElement. Set rowHeight to match panel height. */
         'renderResultRow' : PropTypes.func,
+        /** Whether this is being rendered as its own page vs embedded within another page. Defaults to false since this is EmbeddedSearchView. */
+        'isOwnPage' : PropTypes.bool,
     };
 
     static listToObj(hideFacetStrs){
