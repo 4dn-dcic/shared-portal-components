@@ -143,7 +143,13 @@ export class FacetList extends React.PureComponent {
         'useRadioIcon': PropTypes.bool.isRequired, // Show either checkbox (False) or radio icon (True) for term component - it is only for styling, not intended to implement single selection (radio) or multiple selection (checkbox)
         'persistSelectedTerms': PropTypes.bool.isRequired, // if True selected/omitted terms are escalated to top, otherwise each term is rendered in regular order. Moreover, inline search options are not displayed if it is False.
         'isContextLoading': PropTypes.bool,
-        'hideHeaderToggle': PropTypes.bool.isRequired // if True hide Include/Exclude Properties toggle on Facet List header
+        'hideHeaderToggle': PropTypes.bool.isRequired, // if True hide Include/Exclude Properties toggle on Facet List header
+        /** When true, omits the entire FacetListHeader (title row + controls row). */
+        'hideFacetHeader': PropTypes.bool,
+        /** Override the expand/collapse icons per state: { open, closed, allSelected }. Each key is optional and falls back to the default icon. */
+        'toggleIcons': PropTypes.shape({ open: PropTypes.node, closed: PropTypes.node, allSelected: PropTypes.node }),
+        /** When true, all facets start collapsed on mount regardless of viewport height. */
+        'defaultClosedFacets': PropTypes.bool
     };
 
     static defaultProps = {
@@ -460,7 +466,15 @@ export class FacetList extends React.PureComponent {
                 return true;
             }),
             extendComponentsWithFacetOpen: memoize(FacetList.extendComponentsWithFacetOpen),
-            getInitialOpenFacetsAfterMount: memoize(FacetList.getInitialOpenFacetsAfterMount)
+            getInitialOpenFacetsAfterMount: memoize(FacetList.getInitialOpenFacetsAfterMount),
+            // Returns a stable `toggleIcons` reference as long as its `open`/`closed`/`allSelected` values
+            // are unchanged, so consumers passing a fresh `{ open, closed, allSelected }` object literal each
+            // render don't defeat `createFacetComponents`' memoization below.
+            stabilizeToggleIcons: memoize(function(toggleIcons){ return toggleIcons; }, function([a], [b]){
+                if (a === b) return true;
+                if (!a || !b) return false;
+                return a.open === b.open && a.closed === b.closed && a.allSelected === b.allSelected;
+            })
         };
 
         this.state = {
@@ -472,7 +486,13 @@ export class FacetList extends React.PureComponent {
     }
 
     componentDidMount(){
-        const { windowHeight, windowWidth, facets, persistentCount = 10, persistSelectedTerms = true, context: { filters } = {} } = this.props;
+        const { windowHeight, windowWidth, facets, persistentCount = 10, persistSelectedTerms = true, context: { filters } = {}, defaultClosedFacets = false } = this.props;
+
+        if (defaultClosedFacets) {
+            ReactTooltip.rebuild();
+            return;
+        }
+
         const rgs = responsiveGridState(windowWidth || null);
         const { selectableFacetElements } = this.renderFacetComponents(); // Internally memoized - should be performant.
 
@@ -694,10 +714,12 @@ export class FacetList extends React.PureComponent {
             separateSingleTermFacets = false,
             context,
             href, schemas, itemTypeForSchemas, termTransformFxn, persistentCount,
-            useRadioIcon, persistSelectedTerms
+            useRadioIcon, persistSelectedTerms,
+            toggleIcons = null
         } = this.props;
         const { filters } = context;
         const { openFacets, openPopover, filteringFieldTerm, including } = this.state;
+        const stableToggleIcons = this.memoized.stabilizeToggleIcons(toggleIcons);
 
         const facetComponentProps = {
             href, schemas, context, itemTypeForSchemas, termTransformFxn, persistentCount, separateSingleTermFacets,
@@ -705,6 +727,7 @@ export class FacetList extends React.PureComponent {
             openPopover, including,
             filteringFieldTerm,
             useRadioIcon, persistSelectedTerms,
+            toggleIcons: stableToggleIcons,
             onFilter:       this.onFilterExtended,
             onFilterMultiple: this.onFilterMultipleExtended,
             getTermStatus:  this.getTermStatus,
@@ -736,7 +759,9 @@ export class FacetList extends React.PureComponent {
             showClearFiltersButton = false,
             maxFacetsBodyHeight = null,
             isContextLoading = false,
-            hideHeaderToggle = false
+            hideHeaderToggle = false,
+            hideFacetHeader = false,
+            toggleIcons = null
         } = this.props;
         const { openFacets, openPopover, including } = this.state;
         const { popover: popoverJSX, ref: popoverTargetRef } = openPopover || {};
@@ -759,8 +784,10 @@ export class FacetList extends React.PureComponent {
         return (
             <React.Fragment>
                 <div className="facets-container facets with-header-bg" data-context-loading={isContextLoading}>
-                    <FacetListHeader {...{ openFacets, title, onClearFilters, showClearFiltersButton, including, hideToggle: hideHeaderToggle }}
-                        onToggleIncluding={this.onToggleIncluding} onCollapseFacets={this.handleCollapseAllFacets} />
+                    { !hideFacetHeader &&
+                        <FacetListHeader {...{ openFacets, title, onClearFilters, showClearFiltersButton, including, hideToggle: hideHeaderToggle }}
+                            onToggleIncluding={this.onToggleIncluding} onCollapseFacets={this.handleCollapseAllFacets} />
+                    }
                     <div {...bodyProps}>
                         { selectableFacetElements }
                         { staticFacetElements.length > 0 ?

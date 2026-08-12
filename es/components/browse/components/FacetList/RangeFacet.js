@@ -33,7 +33,7 @@ import { PartialList } from './../../../ui/PartialList';
 import { decorateNumberWithCommas } from './../../../util/value-transforms';
 import { getSchemaProperty } from './../../../util/schema-transforms';
 import { patchedConsoleInstance as console } from './../../../util/patched-console';
-import { segmentComponentsByStatus } from './FacetTermsList';
+import { segmentComponentsByStatus, resolveToggleIcon } from './FacetTermsList';
 import { ExtendedDescriptionPopoverIcon } from './ExtendedDescriptionPopoverIcon';
 import ReactTooltip from 'react-tooltip';
 function getRangeStatus(range, toVal, fromVal) {
@@ -360,7 +360,9 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
         openPopover = _this$props7.openPopover,
         setOpenPopover = _this$props7.setOpenPopover,
         filteringFieldTerm = _this$props7.filteringFieldTerm,
-        including = _this$props7.including;
+        including = _this$props7.including,
+        _this$props7$toggleIc = _this$props7.toggleIcons,
+        toggleIcons = _this$props7$toggleIc === void 0 ? null : _this$props7$toggleIc;
       var aggregation_type = facet.aggregation_type,
         _facet$field_type2 = facet.field_type,
         field_type = _facet$field_type2 === void 0 ? "number" : _facet$field_type2,
@@ -422,8 +424,8 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
         onClick: including ? this.handleOpenToggleClick : null
       }, /*#__PURE__*/React.createElement("span", {
         className: "expand-toggle col-auto px-0"
-      }, including ? /*#__PURE__*/React.createElement("i", {
-        className: "icon icon-fw icon-" + (facetOpen ? "minus fas" : "plus fas")
+      }, including ? resolveToggleIcon(toggleIcons, {
+        isOpen: facetOpen
       }) : /*#__PURE__*/React.createElement("i", {
         className: "icon icon-fw icon-exclamation-triangle text-warning fas",
         "data-tip": "Range Facets cannot be edited while in \"excluding\" mode. "

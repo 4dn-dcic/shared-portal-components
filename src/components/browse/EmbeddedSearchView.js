@@ -68,7 +68,19 @@ export class EmbeddedSearchView extends React.PureComponent {
         'clearSelectedItemsOnFilter': PropTypes.bool,
         'selectedItems': PropTypes.object,
         'onSelectItem': PropTypes.func,
-        'onResetSelectedItems': PropTypes.func
+        'onResetSelectedItems': PropTypes.func,
+        /** When true, omits the FacetListHeader (title row + controls row). */
+        'hideFacetHeader' : PropTypes.bool,
+        /** When true, all facets start collapsed regardless of viewport height. */
+        'defaultClosedFacets' : PropTypes.bool,
+        /** When true, renders result rows but omits the sort/column header row. */
+        'hideHeaderRow' : PropTypes.bool,
+        /** Override the expand/collapse icons on individual facets: { open, closed, allSelected }. Each key is optional. */
+        'toggleIcons' : PropTypes.shape({ open: PropTypes.node, closed: PropTypes.node, allSelected: PropTypes.node }),
+        /** Custom row renderer: (result, rowNumber, rowProps) => ReactElement. Set rowHeight to match panel height. */
+        'renderResultRow' : PropTypes.func,
+        /** Whether this is being rendered as its own page vs embedded within another page. Defaults to false since this is EmbeddedSearchView. */
+        'isOwnPage' : PropTypes.bool,
     };
 
     static listToObj(hideFacetStrs){
@@ -161,6 +173,7 @@ export class EmbeddedSearchView extends React.PureComponent {
             selectedItems,
             onSelectItem,
             onResetSelectedItems,
+            isOwnPage = false,
             ...passProps
         } = this.props;
 
@@ -177,7 +190,7 @@ export class EmbeddedSearchView extends React.PureComponent {
                         <CustomColumnController {...{ windowWidth, filterColumnFxn }} hiddenColumns={hideColumns}>
                             <SortController>
                                 { embeddedTableHeader }
-                                { renderSearchResultTable ? <ControlsAndResults {...viewProps} isOwnPage={false} /> : null }
+                                { renderSearchResultTable ? <ControlsAndResults {...viewProps} isOwnPage={isOwnPage} /> : null }
                                 { embeddedTableFooter }
                             </SortController>
                         </CustomColumnController>

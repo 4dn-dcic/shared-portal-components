@@ -11,7 +11,7 @@ import { PartialList } from './../../../ui/PartialList';
 import { decorateNumberWithCommas } from './../../../util/value-transforms';
 import { getSchemaProperty } from './../../../util/schema-transforms';
 import { patchedConsoleInstance as console } from './../../../util/patched-console';
-import { segmentComponentsByStatus } from './FacetTermsList';
+import { segmentComponentsByStatus, resolveToggleIcon } from './FacetTermsList';
 
 import { ExtendedDescriptionPopoverIcon } from './ExtendedDescriptionPopoverIcon';
 import ReactTooltip from 'react-tooltip';
@@ -403,7 +403,8 @@ export class RangeFacet extends React.PureComponent {
             openPopover,
             setOpenPopover,
             filteringFieldTerm,
-            including
+            including,
+            toggleIcons = null
         } = this.props;
         const {
             aggregation_type,
@@ -471,10 +472,9 @@ export class RangeFacet extends React.PureComponent {
             <div className={"facet range-facet" + (facetOpen ? ' open' : ' closed')} data-field={facet.field}>
                 <h5 className="facet-title" onClick={including ? this.handleOpenToggleClick: null}>
                     <span className="expand-toggle col-auto px-0">
-                        { including ?
-                            <i className={"icon icon-fw icon-" + (facetOpen ? "minus fas" : "plus fas")}/>:
-                            <i className="icon icon-fw icon-exclamation-triangle text-warning fas"
-                                data-tip='Range Facets cannot be edited while in "excluding" mode. '/> }
+                        { including
+                            ? resolveToggleIcon(toggleIcons, { isOpen: facetOpen })
+                            : <i className="icon icon-fw icon-exclamation-triangle text-warning fas" data-tip='Range Facets cannot be edited while in "excluding" mode. '/> }
                     </span>
                     <div className="col px-0 line-height-1">
                         <span data-tip={facetSchemaDescription || fieldSchemaDescription} data-place="right">{ title }</span>
